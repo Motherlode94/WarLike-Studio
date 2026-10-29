@@ -1,0 +1,40 @@
+/* WarLike Studio mobile responsive layer */
+@media (max-width: 820px) {
+ html,body{width:100%;max-width:100%;height:100dvh;min-height:0;overflow:hidden}
+ body{overscroll-behavior:none}
+ button,select,input{touch-action:manipulation}
+ button{min-height:40px}
+ .topbar{display:flex;align-items:center;gap:8px;min-width:0;width:100%;padding:8px;overflow-x:auto;scrollbar-width:none}
+ .topbar::-webkit-scrollbar{display:none}
+ .topbar .brand{flex:0 0 auto}
+ .topbar .project-heading{min-width:0;flex:1 1 120px}
+ .topbar .project-heading input{max-width:100%;min-width:0}
+ .topbar nav,.topbar .menu-bar{display:flex;flex:0 0 auto;white-space:nowrap;gap:4px}
+ .transport,.toolbar,.tool-bar,.workspace-tabs,.mode-tabs,.editor-toolbar,.arrange-toolbar,.panel-tabs{max-width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+ .transport>* , .toolbar>*,.workspace-tabs>*,.mode-tabs>*{flex-shrink:0}
+ .transport{gap:6px}
+ .transport button{min-width:40px;min-height:44px}
+ .transport input[type=number]{max-width:68px}
+ .arrangement,.timeline,.timeline-scroll,.arrangement-scroll,.tracks-scroll,.playlist{min-width:0;max-width:100%;overflow:auto;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch}
+ .track-header,.track-label{min-width:128px;max-width:40vw}
+ .bottom-panel,.detail-panel,.plugin-panel,.inspector,.sidebar{min-width:0;max-width:100%}
+ .bottom-panel,.detail-panel{overflow:auto;-webkit-overflow-scrolling:touch}
+ .bottom-panel .panel-content,.detail-panel .panel-content{min-width:0}
+ .plugin-window,.modal,.dialog{max-width:calc(100vw - 20px)!important;max-height:calc(100dvh - 28px)!important;overflow:auto}
+ .plugin-window input[type=range],.mixer input[type=range]{touch-action:none}
+}
+@media(max-width:520px){
+ .topbar{padding:6px 8px}
+ .topbar .brand-sub,.topbar .version{display:none}
+ .project-heading{max-width:34vw}
+ .transport{padding:6px 8px}
+ .transport .time-display,.transport .position-display{font-size:clamp(17px,5vw,26px)}
+ .track-header,.track-label{min-width:112px;max-width:36vw}
+ .bottom-panel,.detail-panel{max-height:55dvh}
+ .modal,.dialog,.plugin-window{left:10px!important;right:10px!important;width:auto!important}
+}
+@media(max-width:820px) and (orientation:landscape){
+ .bottom-panel,.detail-panel{max-height:48dvh}
+ .topbar{padding-block:3px}
+ .transport{padding-block:3px}
+}
