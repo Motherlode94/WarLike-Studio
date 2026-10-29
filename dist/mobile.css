@@ -77,3 +77,30 @@
  .transport .time-display{min-width:112px!important;width:112px!important}
  .detail-panel{overflow-y:auto!important}
 }
+
+
+/* Mobile v3 — visible navigation access, no hidden controls */
+@media(max-width:820px){
+ .topbar{position:relative!important;display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;overflow:hidden!important}
+ .topbar .brand{grid-column:1!important}
+ .topbar .top-actions{grid-column:2!important;justify-content:flex-start!important;max-width:100%!important;min-width:0!important;overflow-x:auto!important;scroll-snap-type:x proximity;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding-right:22px!important}
+ .topbar .top-actions>*{scroll-snap-align:start}
+ .topbar .top-actions::after{content:"›";position:sticky;right:0;display:flex;align-items:center;padding:0 5px;background:#30333c;color:#e5d9ff;font-size:20px;pointer-events:none}
+ .transport{overflow-x:auto!important;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;padding-right:20px!important}
+ .transport>*{scroll-snap-align:start}
+ .transport .tempo-control{display:flex!important}
+ .transport .export-btn{display:flex!important}
+ .workspace-toolbar,.studio-editbar,.detail-tabs,.arrangement-actions,.edit-tools,.edit-modes{overflow-x:auto!important;overflow-y:hidden!important;min-width:0!important;max-width:100%!important;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+ .workspace-toolbar>*,.studio-editbar>*,.detail-tabs>*,.arrangement-actions>*,.edit-tools>*,.edit-modes>*{flex-shrink:0!important}
+ .studio-editbar{flex-wrap:nowrap!important}
+ .track-head .track-strip-meta{left:5px!important;right:5px!important;bottom:2px!important;max-width:calc(100% - 10px)!important}
+ .track-head .head-volume,.track-head .head-pan{flex:1 1 0!important;min-width:0!important;max-width:none!important;padding:1px 2px!important;overflow:hidden}
+ .track-head .head-volume strong,.track-head .head-pan strong{font-size:8px!important}
+ .track-head .track-controls{max-width:100%!important}
+ .detail-panel .insert-slots,.detail-panel .insert-slot{max-width:100%!important;min-width:0!important}
+}
+@media(max-width:520px){
+ .topbar .brand{flex-basis:auto!important;max-width:90px!important}
+ .topbar .top-actions{max-width:100%!important}
+ .transport .transport-buttons button{width:36px!important;min-width:36px!important}
+}
