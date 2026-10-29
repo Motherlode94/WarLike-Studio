@@ -1,0 +1,69 @@
+/* Small-screen layout: wrap controls, scroll musical canvases only. */
+@media (max-width: 900px) {
+ html{width:100%;overflow-x:hidden}
+ body{height:auto;min-height:100dvh;overflow:auto;padding-bottom:env(safe-area-inset-bottom)}
+ .topbar{height:auto;min-height:48px;flex-wrap:wrap;padding:8px;gap:8px}
+ .topbar .brand{min-width:0!important;flex:0 0 auto}
+ .project-heading{flex:1;min-width:100px}
+ .project-heading input{width:100%;max-width:220px}
+ .top-actions{width:100%;display:flex;flex-wrap:wrap;gap:5px;overflow:visible}
+ .top-actions #help,.top-actions #openMastering,.top-actions #redo{display:inline-flex}
+ .top-actions button{min-height:44px;font-size:12px!important}
+ .menu-anchor{position:relative}
+ .dropdown{position:fixed;left:8px;right:8px;top:auto;width:auto;max-width:calc(100vw - 16px);max-height:65dvh;overflow:auto;z-index:100}
+ .transport{height:auto;min-height:64px;padding:8px;gap:8px;flex-wrap:wrap}
+ .transport-buttons{gap:4px;flex-shrink:0}
+ .transport .icon-btn,.transport .play-btn,.transport .record-btn{width:44px;height:44px;margin:0}
+ .transport #recordSettings{display:inline-flex}
+ .time-display{min-width:130px;margin:0;padding:8px;flex:1}
+ .tempo-control{margin:0;flex-direction:row;gap:5px}
+ .tempo-control input{font-size:20px;width:52px;min-height:44px}
+ .transport .signature{display:flex;margin:0;gap:4px}
+ .transport .key-signature{display:flex;max-width:100%;margin:0}
+ .session-key-selects{display:flex;flex-wrap:wrap;gap:4px}
+ .session-key-selects select{min-height:44px;max-width:145px}
+ .transport-options{display:flex;margin:0;gap:4px;flex-wrap:wrap}
+ .transport .separator{display:none}
+ .transport .export-btn{min-height:44px;margin-left:auto}
+ .signature-workspaces{height:auto!important;min-height:0;display:flex;flex-wrap:wrap;gap:6px;padding:8px;overflow:visible;white-space:normal}
+ .signature-workspaces>div{display:flex;flex:1 0 100%;flex-wrap:wrap;gap:5px}
+ .signature-workspaces button{display:inline-flex!important;min-height:44px;align-items:center;justify-content:center;padding:8px 10px;flex:1 0 auto}
+ .signature-workspaces>small{display:none}
+ .studio-body{height:auto;min-height:0;display:block}
+ .workspace,.workspace-main,.workspace-core,.arrangement{width:100%;min-width:0;max-width:100%;height:auto;overflow:visible}
+ .workspace-main,.workspace-core{display:flex;flex-direction:column}
+ .workspace-toolbar{height:auto;min-height:0;flex-wrap:wrap;padding:6px;gap:6px;overflow:visible}
+ .view-tabs{display:flex;flex:1 0 100%;height:auto;flex-wrap:wrap}
+ .view-tabs .view-tab{flex:1;min-height:44px;font-size:12px}
+ .arrangement-actions{display:flex;flex-wrap:wrap;gap:5px;min-width:0;margin:0}
+ .arrangement-actions .bars-control{display:flex}
+ .workspace-toolbar button,.timeline-zoom button{min-height:44px;min-width:36px}
+ .workspace-toolbar #toggleInspector{width:44px;min-width:44px;display:inline-flex}
+ .rack-launch{margin:0}
+ .studio-editbar{height:auto;min-height:0;flex-wrap:wrap;gap:6px;padding:6px;overflow:visible}
+ .edit-tools,.edit-modes{display:flex;flex-wrap:wrap;gap:3px;height:auto}
+ .edit-tools button,.edit-modes button{min-height:44px;height:auto;padding:8px;font-size:12px}
+ .edit-grid-label select{min-height:44px;width:72px;font-size:12px}
+ .studio-editbar .nudge-controls{display:flex}
+ .studio-editbar .edit-split{display:inline-flex;min-height:44px;align-items:center}
+ .edit-selection-bar{height:auto;min-height:36px;flex-wrap:wrap;padding:8px;gap:8px}
+ .edit-selection-bar label:last-child{display:flex}
+ .timeline-view{height:340px;min-height:220px;flex:none;overflow:hidden}
+ .timeline-scroll{height:100%;max-width:100%;overflow:auto;-webkit-overflow-scrolling:touch}
+ .detail-panel{display:flex!important;height:auto!important;min-height:0!important;max-height:none}
+ .detail-collapsed .detail-panel{height:52px!important;min-height:52px!important;overflow:hidden}
+ .detail-toolbar{height:auto;min-height:52px;flex-wrap:wrap;gap:4px;padding:5px}
+ .detail-tabs{display:flex;flex-wrap:wrap;gap:3px}
+ .detail-tab,.detail-actions .icon-btn{min-height:44px;min-width:40px}
+ .plugins-content{flex-direction:column;overflow:visible;padding:10px;width:100%}
+ .plugin-card,.plugin-card.instrument-card,.empty-insert-card{width:100%!important;min-width:0!important;max-width:none;flex:none;overflow:visible}
+ .empty-insert-card .insert-slot button{min-height:44px;font-size:12px}
+ .editor-content,.tune-content{min-height:280px;max-width:100%;overflow:auto}
+ .track-properties-open .track-inspector:not([hidden]){position:fixed;inset:8px 8px 8px auto;top:8px;bottom:8px;width:min(330px,calc(100vw - 16px));min-width:0;max-height:calc(100dvh - 16px);overflow:auto;z-index:80}
+ .workspace-status{min-height:32px;height:auto;flex-wrap:wrap;gap:4px}
+ dialog{max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}
+ .modal-body{max-width:100%;overflow:auto}
+ .mixer-view{height:520px;max-width:100%;overflow:auto}
+ .plugin-params{flex-wrap:wrap}
+}
+@media (pointer:coarse){button{touch-action:manipulation}input[type=range]{min-height:28px}}
