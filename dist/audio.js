@@ -1,13 +1,15 @@
-import {resolvePatternClip,patternPlaybackProject} from './piano-model.js?v=0.11.1';
-import {normaliseRouting,audibleIds,compensationDelays,fadeValue} from './studio-model.js?v=0.11.1';
-import {bindings,automateParam} from './automation.js?v=0.11.1';
-import {encodeWav} from './wav.js?v=0.11.1';
-import {createPackProcessors,syncPackProcessors} from './pack-audio.js?v=0.11.1';
-import {packTail} from './packs.js?v=0.11.1';
-import {ensurePlugins,DRUM_VOICES,EFFECTS,pluginDefaults,effectType} from './plugins.js?v=0.11.1';
-import {clampClipGain} from './recording.js?v=0.11.1';
-import {createFactorySession,DRUM_GROOVES} from './content.js?v=0.11.1';
-import {createMasterChain,syncMasterChain} from './mastering.js?v=0.11.1';
+import {exoVoice} from './exo-audio.js?v=0.12.0';
+import {exoArpeggiate,exoChannelMap} from './exo.js?v=0.12.0';
+import {resolvePatternClip,patternPlaybackProject} from './piano-model.js?v=0.12.0';
+import {normaliseRouting,audibleIds,compensationDelays,fadeValue} from './studio-model.js?v=0.12.0';
+import {bindings,automateParam} from './automation.js?v=0.12.0';
+import {encodeWav} from './wav.js?v=0.12.0';
+import {createPackProcessors,syncPackProcessors} from './pack-audio.js?v=0.12.0';
+import {packTail} from './packs.js?v=0.12.0';
+import {ensurePlugins,DRUM_VOICES,EFFECTS,pluginDefaults,effectType} from './plugins.js?v=0.12.0';
+import {clampClipGain} from './recording.js?v=0.12.0';
+import {createFactorySession,DRUM_GROOVES} from './content.js?v=0.12.0';
+import {createMasterChain,syncMasterChain} from './mastering.js?v=0.12.0';
 export const uid = () => Math.random().toString(36).slice(2, 11);
 export const dbGain = db => Math.pow(10, db / 20);
 export const midiHz = n => 440 * Math.pow(2, (n - 69) / 12);
@@ -84,8 +86,9 @@ export class AudioEngine {
     set(ch.colorWet.gain,e.color.enabled?e.color.mix:1);set(ch.colorDry.gain,e.color.enabled?1-e.color.mix:0);set(ch.colorOut.gain,dbGain(e.color.enabled?e.color.output:0));
     set(ch.compressWet.gain,e.glue.enabled?e.glue.mix:1);set(ch.compressDry.gain,e.glue.enabled?1-e.glue.mix:0);set(ch.compressor.knee,e.glue.knee);
     set(ch.compressor.threshold,e.glue.enabled?e.glue.threshold:0);set(ch.compressor.ratio,e.glue.enabled?e.glue.ratio:1);set(ch.compressor.attack,e.glue.attack/1000);set(ch.compressor.release,e.glue.release/1000);set(ch.makeup.gain,dbGain(e.glue.enabled?e.glue.makeup:0));
+    ch.pack.inputChannels=tr.exoInputChannels||(tr.type==='bus'||tr.type==='exo'||tr.id===this.recordingTrackId&&this.getProject().audioSetup?.channel==='stereo'||tr.clips?.some(c=>c.audioId&&this.getAssets().get(c.audioId)?.buffer.numberOfChannels>1)?2:1);ch.pack.inputChannelsByType=exoChannelMap(tr,ch.pack.inputChannels);
     syncPackProcessors(ch.pack,e,this.getProject().bpm,now,initial);
-    for(const id of tr.inserts.filter(id=>id&&id.includes('__'))){const type=effectType(id);let child=ch.instanceChannels.get(id);const sub={...tr,id:tr.id+'_'+id,inserts:[type],effects:{...pluginDefaults(tr.type).effects,[type]:e[id]},sends:[],automation:{mode:'off',curves:{}}};
+    for(const id of tr.inserts.filter(id=>id&&id.includes('__'))){const type=effectType(id);let child=ch.instanceChannels.get(id);const sub={...tr,id:tr.id+'_'+id,exoInputChannels:ch.pack.inputChannelsByType[id]||ch.pack.inputChannels,inserts:[type],effects:{...pluginDefaults(tr.type).effects,[type]:e[id]},sends:[],automation:{mode:'off',curves:{}}};
       if(!child){child=this.makeChannel(ch.input.context,sub,null);child.stages[type].output.disconnect();ch.instanceChannels.set(id,child);ch.stages[id]=child.stages[type];}else this.syncEffects(child,sub,now,initial);
     }
     const order=tr.inserts.filter(id=>id&&e[id].enabled),signature=order.join(',');
@@ -190,7 +193,8 @@ export class AudioEngine {
         const relative=rel+phase,event=Math.ceil(relative-1e-8),local=event-phase,eventTime=time+(event-relative)*sd;if(local<0||local>=clip.length*16||event>=relative+1-1e-8||eventTime<minimumTime-1e-8)continue;
         const swing=event%2?p.swing/100*sd*.6:0;for(const [voice,pattern] of Object.entries(clip.pattern||{})){const velocity=pattern[((event%period)+period)%period];if(velocity)this.drum(ctx,input,voice,eventTime+swing,live,tr.instrument,velocity);}
       }else{
-        for(const n of clip.notes||[]){if(n.muted||n.velocity===0)continue;const cycle=Math.ceil((rel+phase-n.step-1e-8)/period),local=n.step+cycle*period-phase,absolute=clip.start*16+local,eventTime=time+(absolute-step)*sd;
+        let notes=clip.notes||[];if(tr.type==='exo'&&tr.instrument.arpMode){this.exoPatternCache??=new Map();const key=tr.id+':'+clip.id,signature=JSON.stringify([notes,period,tr.instrument.arpMode,tr.instrument.arpRate,tr.instrument.arpOctaves,tr.instrument.arpGate]);let cache=this.exoPatternCache.get(key);if(cache?.signature!==signature){cache={signature,notes:exoArpeggiate(notes,period,tr.instrument)};if(this.exoPatternCache.size>512)this.exoPatternCache.clear();this.exoPatternCache.set(key,cache);}notes=cache.notes;}
+        for(const n of notes){if(n.muted||n.velocity===0)continue;const cycle=Math.ceil((rel+phase-n.step-1e-8)/period),local=n.step+cycle*period-phase,absolute=clip.start*16+local,eventTime=time+(absolute-step)*sd;
           if(local<0||local>=clip.length*16||absolute<step-1e-8||absolute>=step+1-1e-8||eventTime<minimumTime-1e-8)continue;
           const swing=Math.floor(n.step)%2?p.swing/100*sd*.6:0;this.synth(ctx,input,tr.type,n.midi,eventTime+swing,Math.min(n.len,clip.length*16-local)*sd,live,tr.instrument,n.velocity??1);
         }
@@ -221,7 +225,7 @@ export class AudioEngine {
   }
   synth(ctx,out,type,midi,t,duration,live=false,params={},velocity=1) {
     if(velocity!==1){const level=ctx.createGain();level.gain.value=Math.max(0,Math.min(1,velocity));level.connect(out);out=level;}
-    t=Math.max(t,ctx.currentTime); const hz=midiHz(midi),env=ctx.createGain(),filter=ctx.createBiquadFilter();
+    t=Math.max(t,ctx.currentTime);if(type==='exo'){return exoVoice(ctx,out,midi,t,duration,params,live?o=>this.remember(o):null);} const hz=midiHz(midi),env=ctx.createGain(),filter=ctx.createBiquadFilter();
     filter.type='lowpass';filter.frequency.value=type==='bass'?650:type==='lead'?(params.cutoff??3200):type==='pluck'?(params.brightness??5000):type==='pad'?2200:3200;env.connect(filter);filter.connect(out);
     const level=type==='bass'?(params.body??.6):type==='lead'?.11:type==='pad'?.075:type==='pluck'?(params.body??.18):.19,attack=type==='bass'?.008:type==='pluck'?.003:(params.attack??(type==='pad'?.45:.018)),release=params.release??(type==='bass'?.16:type==='pad'?1.6:type==='pluck'?.04:.5);
     if(type==='pluck')duration=Math.min(duration,params.decay??.3);
@@ -244,7 +248,7 @@ export class AudioEngine {
   async preview(type,note=57,trackId=null) {await this.init();const tr=this.getProject().tracks.find(t=>trackId?t.id===trackId:t.type===type);const out=tr?this.channels.get(tr.id).input:this.master;if(Object.hasOwn(DRUM_VOICES,type))this.drum(this.ctx,this.master,type,this.ctx.currentTime,true);else this.synth(this.ctx,out,type,note,this.ctx.currentTime,.22,true,tr?.instrument);}
   stopPreview(){for(const source of this.previewVoices||[]){try{source.stop();}catch{}}this.previewVoices=new Set();}
   capturePreview(callback){this.stopPreview();const before=new Set(this.voices);callback();this.previewVoices=new Set([...this.voices].filter(source=>!before.has(source)));}
-  async previewPreset(type,params){await this.init();this.capturePreview(()=>{const t=this.ctx.currentTime+.03;if(type==='drums'){const pattern=DRUM_GROOVES[0].pattern,sd=60/120/4;for(let i=0;i<16;i++)for(const [voice,steps] of Object.entries(pattern))if(steps[i])this.drum(this.ctx,this.master,voice,t+i*sd,true,params);}else{const notes=type==='bass'?[33]:type==='lead'?[69]:type==='pluck'?[69,72,76]:[57,60,64];notes.forEach((midi,i)=>this.synth(this.ctx,this.master,type,midi,t+(type==='pluck'?i*.15:0),type==='pad'?1.4:.55,true,params));}});}
+  async previewPreset(type,params){await this.init();this.capturePreview(()=>{const t=this.ctx.currentTime+.03;if(type==='exo'){const sd=60/this.getProject().bpm/4,notes=exoArpeggiate([57,60,64].map(midi=>({midi,step:0,len:16,velocity:.8})),16,params);for(const n of notes)this.synth(this.ctx,this.master,'exo',n.midi,t+n.step*sd,n.len*sd,true,params,n.velocity);}else if(type==='drums'){const pattern=DRUM_GROOVES[0].pattern,sd=60/120/4;for(let i=0;i<16;i++)for(const [voice,steps] of Object.entries(pattern))if(steps[i])this.drum(this.ctx,this.master,voice,t+i*sd,true,params);}else{const notes=type==='bass'?[33]:type==='lead'?[69]:type==='pluck'?[69,72,76]:[57,60,64];notes.forEach((midi,i)=>this.synth(this.ctx,this.master,type,midi,t+(type==='pluck'?i*.15:0),type==='pad'?1.4:.55,true,params));}});}
   async previewGroove(groove){await this.init();this.capturePreview(()=>{const t=this.ctx.currentTime+.03,sd=60/groove.bpm/4;for(let i=0;i<16;i++)for(const [voice,steps] of Object.entries(groove.pattern))if(steps[i])this.drum(this.ctx,this.master,voice,t+i*sd,true);});}
   async renderDrumWav(voice){if(!Object.hasOwn(DRUM_VOICES,voice))throw new Error('Percussion inconnue.');const ctx=new OfflineAudioContext(1,44100,44100);this.drum(ctx,ctx.destination,voice,.01);return bufferToWav(await ctx.startRendering());}
   async renderRange({sampleRate=44100,startBar=0,endBar=this.getProject().bars,tail=true,captureId=null,preFader=false,clean=false}={}){

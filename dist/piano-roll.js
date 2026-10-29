@@ -1,7 +1,7 @@
-import {INSTRUMENTS,DRUM_VOICES,ensurePlugins} from './plugins.js?v=0.11.1';
-import {FACTORY_PRESETS,applyFactoryPreset} from './bundle.js?v=0.11.1';
-import {normalizeNotes,snapStep,snapPitch,quantizeNotes,moveNotes,chordNotes,resolvePatternClip,writePatternChannel,SCALES} from './piano-model.js?v=0.11.1';
-import {fitSession} from './studio-model.js?v=0.11.1';
+import {INSTRUMENTS,DRUM_VOICES,ensurePlugins} from './plugins.js?v=0.12.0';
+import {FACTORY_PRESETS,applyFactoryPreset} from './bundle.js?v=0.12.0';
+import {normalizeNotes,snapStep,snapPitch,quantizeNotes,moveNotes,chordNotes,resolvePatternClip,writePatternChannel,SCALES} from './piano-model.js?v=0.12.0';
+import {fitSession} from './studio-model.js?v=0.12.0';
 const $=id=>document.getElementById(id),uid=()=>Math.random().toString(36).slice(2,11),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const names=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'],noteName=n=>names[n%12]+(Math.floor(n/12)-1),black=n=>[1,3,6,8,10].includes(n%12);
 export function installPianoRoll(d){const project=d.getProject,engine=d.getEngine;let selected=new Set(),grid=1,tool='draw',stepWidth=22,noteHeight=18,lastLength=4,scale='minor',root=9,scaleSnap=false,ghost=true,clipboard=[],drag=null,editor=null,editingClip=null,editingTrack=null,draftClip=null,draftTrack=null,midi=null,midiRecord=false,midiHeld=new Map(),scrollTop=null;

@@ -8,7 +8,7 @@ import {constrainWindow} from '../dist/windows.js';
 test('every factory sound stays within its processor range',()=>{
   const project=defaultProject();project.tracks.forEach(ensurePlugins);
   for(const [id,presets] of Object.entries(FACTORY_PRESETS)){
-    const instrument=INSTRUMENTS[id],track=project.tracks.find(t=>t.type===(instrument?id:'audio'));
+    const instrument=INSTRUMENTS[id],track={type:instrument?id:'audio'};ensurePlugins(track);
     const def=instrument||EFFECTS[id],target=instrument?'instrument':id;
     for(let i=0;i<presets.length;i++){applyFactoryPreset(track,target,i);assert.equal(matchPreset(track,target),i);for(const c of def.controls){const v=(instrument?track.instrument:track.effects[id])[c.key];assert.ok(v>=c.min&&v<=c.max);}}
   }

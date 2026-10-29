@@ -1,7 +1,9 @@
-import {PACK_EFFECTS} from './packs.js?v=0.11.1';
+import {EXO_INSTRUMENT,EXO_WAVES} from './exo.js?v=0.12.0';
+import {PACK_EFFECTS} from './packs.js?v=0.12.0';
 // CHAYAH's first-party instrument and effect registry. These are Web Audio
 // processors, not native VST binaries. Each definition owns its controls/defaults.
 export const INSTRUMENTS = {
+  exo:EXO_INSTRUMENT,
   drums:{name:'PULSE',subtitle:'DRUM MACHINE',color:'#d9a06f',description:'Huit voix de percussion synthétisées. Aucun sample externe.',controls:[
     {key:'punch',name:'Punch',min:.2,max:1,step:.01,default:.85,unit:'%'},
     {key:'decay',name:'Decay',min:.1,max:.8,step:.01,default:.38,unit:'s'},
@@ -69,6 +71,6 @@ export function placeInsert(track,index,id){
 }
 export function addEffectInsert(track,id){ensurePlugins(track);let index=track.inserts.indexOf(id);if(index<0)index=track.inserts.indexOf(null);if(index<0)throw new Error('Tous les inserts sont occupés.');placeInsert(track,index,id);return index;}
 export function moveInsert(track,from,to){ensurePlugins(track);if(!Number.isInteger(from)||!Number.isInteger(to)||Math.min(from,to)<0||Math.max(from,to)>=INSERT_COUNT)throw new Error('Position d’insert invalide.');[track.inserts[from],track.inserts[to]]=[track.inserts[to],track.inserts[from]];}
-export function formatParam(control,value) {return control.unit==='%'?`${Math.round(value*100)}%`:control.unit==='s'?`${value.toFixed(2)} s`:control.unit==='Hz'&&value>=20?(value>=1000?`${(value/1000).toFixed(1)} kHz`:`${Math.round(value)} Hz`):control.unit==='Hz'?`${value.toFixed(2)} Hz`:control.unit==='beat'?`${value.toFixed(3).replace(/0+$/,'').replace(/\.$/,'')} ♩`:control.unit===':1'?`${value.toFixed(1)}:1`:`${value.toFixed(1)} ${control.unit}`;}
+export function formatParam(control,value) {return control.unit==='wave'?EXO_WAVES[Math.round(value)]:control.unit==='mode'?['Off','Up','Down','Up/Down','Chord'][Math.round(value)]:control.unit==='%'?`${Math.round(value*100)}%`:control.unit==='s'?`${value.toFixed(2)} s`:control.unit==='Hz'&&value>=20?(value>=1000?`${(value/1000).toFixed(1)} kHz`:`${Math.round(value)} Hz`):control.unit==='Hz'?`${value.toFixed(2)} Hz`:control.unit==='beat'?`${value.toFixed(3).replace(/0+$/,'').replace(/\.$/,'')} ♩`:control.unit===':1'?`${value.toFixed(1)}:1`:`${value.toFixed(1)} ${control.unit}`;}
 
 export function copyInsert(track,from,to){ensurePlugins(track);const source=track.inserts[from];if(!source||track.inserts[to])throw Error('Choisis un emplacement vide.');const id=instanceId(effectType(source));track.effects[id]=structuredClone(track.effects[source]);track.inserts[to]=id;return id;}

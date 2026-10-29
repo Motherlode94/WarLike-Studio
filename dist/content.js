@@ -1,5 +1,5 @@
-import {INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins} from './plugins.js?v=0.11.1';
-import {FACTORY_PRESETS,applyFactoryPreset} from './bundle.js?v=0.11.1';
+import {INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins} from './plugins.js?v=0.12.0';
+import {FACTORY_PRESETS,applyFactoryPreset} from './bundle.js?v=0.12.0';
 const id=()=>Math.random().toString(36).slice(2,11),copy=value=>JSON.parse(JSON.stringify(value));
 const pattern=hits=>Object.fromEntries(Object.keys(DRUM_VOICES).map(voice=>[voice,Array.from({length:16},(_,s)=>(hits[voice]||[]).includes(s)?1:0)]));
 const even=[0,2,4,6,8,10,12,14],all=Array.from({length:16},(_,i)=>i);
@@ -24,6 +24,7 @@ export const PHRASES={
   lead:[69,72,76,74,72,69,67,69].map((midi,i)=>({step:[0,4,7,12,16,20,24,28][i],midi,len:i===7?4:2})),
   pluck:[69,72,76,79,76,65,69,72,76,72].map((midi,i)=>({step:[0,3,6,8,12,16,19,22,24,28][i],midi,len:2}))
 };
+PHRASES.exo=PHRASES.keys.map(n=>({...n}));
 export const SESSION_TEMPLATES=[
   {id:'nocturne',name:'Nocturne Trap',style:'Trap mélodique',bpm:138,swing:0,groove:'trap-night',description:'Intro atmosphérique, couplet et refrain. 808, accords, pluck, nappe et mélodie.'},
   {id:'soleil',name:'Soleil Afro',style:'Afro mélodique',bpm:108,swing:16,groove:'afro-pulse',description:'Percussions syncopées, basse ronde, touches courtes et son pincé lumineux.'},
@@ -31,7 +32,7 @@ export const SESSION_TEMPLATES=[
 ];
 export function createContentTrack(type,presetIndex=0){
   const def=INSTRUMENTS[type];if(!def)throw new Error('Instrument inconnu.');
-  const track={id:id(),name:def.name+(type==='bass'?' · 808':''),type,color:def.color,volume:({drums:-8,bass:-12,keys:-17,pad:-22,lead:-20,pluck:-18})[type],pan:0,mute:false,solo:false,clips:[]};
+  const track={id:id(),name:def.name+(type==='bass'?' · 808':''),type,color:def.color,volume:({exo:-8,drums:-8,bass:-12,keys:-17,pad:-22,lead:-20,pluck:-18})[type],pan:0,mute:false,solo:false,clips:[]};
   ensurePlugins(track);applyFactoryPreset(track,'instrument',presetIndex);return track;
 }
 export function createContentClip(type,name,start=0,length=2,grooveId='trap-night'){

@@ -1,0 +1,18 @@
+const c=(key,name,min,max,step,value,unit)=>({key,name,min,max,step,default:value,unit});
+const base=(name,subtitle,description,controls)=>({name,subtitle,description,controls,pack:'exo',color:'#8acdc8',defaultEnabled:false});
+export const EXO_EFFECTS={
+ exostrip:base('EXO STRIP','VOCAL CHANNEL','Coupe-bas, corps, présence et air, suivis d’un compresseur à knee doux. Mix dose le traitement parallèle ; Output permet la comparaison de niveau.',[
+  c('highpass','Low cut',20,400,1,75,'Hz'),c('body','Body',-12,12,.5,0,'dB'),c('presence','Presence',-12,12,.5,1.5,'dB'),c('air','Air',-12,12,.5,1,'dB'),c('threshold','Threshold',-48,0,.5,-20,'dB'),c('ratio','Ratio',1,8,.1,3,':1'),c('attack','Attack',1,80,1,12,'ms'),c('release','Release',30,800,10,160,'ms'),c('mix','Mix',0,1,.01,1,'%'),c('output','Output',-18,12,.5,0,'dB')]),
+ exofocus:base('EXO FOCUS','DYNAMIC BAND CONTROL','Atténue une bande uniquement lorsqu’elle dépasse le seuil. Cible le bas-médium encombré ou les résonances ; Range borne la réduction et Response lisse la détection.',[
+  c('frequency','Frequency',120,12000,10,2800,'Hz'),c('q','Q',.3,8,.1,1.2,'Q'),c('threshold','Threshold',-48,-3,1,-22,'dB'),c('range','Range',0,18,.5,6,'dB'),c('response','Response',5,100,1,18,'ms'),c('mix','Mix',0,1,.01,1,'%'),c('output','Output',-18,6,.5,0,'dB')]),
+ exoair:base('EXO AIR','HARMONIC EXCITER','Ajoute en parallèle les harmoniques d’une bande aiguë filtrée. Frequency détermine le point de départ, Drive la saturation et Amount le dosage.',[
+  c('frequency','Frequency',1500,10000,100,4500,'Hz'),c('drive','Drive',0,18,.5,5,'dB'),c('mix','Amount',0,1,.01,.18,'%'),c('output','Output',-18,6,.5,0,'dB')]),
+ exospace:base('EXO SPACE','STEREO CONVOLUTION','Espace diffus à réponse originale calculée, avec pré-délai, durée, amortissement et largeur stéréo. Aucun fichier de réverbération commercial.',[
+  c('predelay','Pre-delay',0,150,1,25,'ms'),c('decay','Decay',.3,6,.1,1.8,'s'),c('damping','Damping',800,16000,100,6500,'Hz'),c('width','Width',0,1,.01,.85,'%'),c('mix','Mix',0,.8,.01,.2,'%'),c('output','Output',-18,6,.5,0,'dB')])
+};
+export const EXO_EFFECT_PRESETS={
+ exostrip:[['Clean Lead',{highpass:85,body:-1,presence:2,air:1.5,threshold:-22,ratio:3,attack:10,release:160,output:2}],['Soft Soul',{highpass:65,body:1.5,presence:.5,air:1,threshold:-18,ratio:2,attack:30,release:280,output:1}],['Forward Rap',{highpass:95,body:-2,presence:3,air:2,threshold:-26,ratio:4,attack:5,release:90,output:3}],['Backs Tidy',{highpass:160,body:-3,presence:-1,air:1,threshold:-24,ratio:4,attack:15,release:180,output:1}],['Parallel Lift',{highpass:70,presence:1.5,threshold:-32,ratio:6,attack:25,release:120,mix:.35,output:0}]],
+ exofocus:[['Low Mid Clear',{frequency:320,q:.9,threshold:-28,range:7,response:30}],['Harshness Tame',{frequency:3200,q:1.5,threshold:-24,range:6,response:12}],['Nasal Control',{frequency:1100,q:2.8,threshold:-26,range:5,response:18}],['Bright Guard',{frequency:7200,q:1.1,threshold:-25,range:8,response:8}],['Bass Room',{frequency:180,q:1.2,threshold:-30,range:6,response:50}]],
+ exoair:[['Vocal Silk',{frequency:5500,drive:4,mix:.15,output:0}],['Open Top',{frequency:3500,drive:7,mix:.22,output:-1}],['Drum Spark',{frequency:4000,drive:10,mix:.3,output:-2}],['Gentle Detail',{frequency:7000,drive:2,mix:.1,output:0}],['Digital Edge',{frequency:2000,drive:15,mix:.4,output:-3}]],
+ exospace:[['Close Booth',{predelay:8,decay:.5,damping:4200,width:.5,mix:.12}],['Vocal Hall',{predelay:45,decay:2.4,damping:6500,width:.9,mix:.2}],['Wide Plate',{predelay:20,decay:1.5,damping:9500,width:1,mix:.25}],['Dark Cloud',{predelay:70,decay:5,damping:2200,width:1,mix:.4}],['Short Room',{predelay:12,decay:.8,damping:8000,width:.75,mix:.18}]]
+};

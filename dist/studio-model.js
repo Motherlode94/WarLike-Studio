@@ -18,7 +18,7 @@ export function audibleIds(tracks){
   const solos=tracks.filter(t=>t.solo);if(!solos.length)return new Set(tracks.map(t=>t.id));
   const set=new Set();for(const t of tracks)if(solos.some(s=>reaches(tracks,s.id,t.id)||reaches(tracks,t.id,s.id)))set.add(t.id);return set;
 }
-export function trackLatency(track){return (track.inserts||[]).reduce((sum,id)=>sum+(id&&track.effects?.[id]?.enabled&&id.split('__')[0]==='glue'?.006:0),0);}
+export function trackLatency(track){return (track.inserts||[]).reduce((sum,id)=>sum+(id&&track.effects?.[id]?.enabled&&['glue','exostrip'].includes(id.split('__')[0])?.006:0),0);}
 export function compensationDelays(tracks){
   const incoming=id=>tracks.filter(t=>edges(t).includes(id)),memo=new Map();
   const arrival=(t,seen=new Set())=>{if(memo.has(t.id))return memo.get(t.id);if(seen.has(t.id))return 0;const next=new Set([...seen,t.id]);const value=(t.type==='bus'?Math.max(0,...incoming(t.id).map(s=>arrival(s,next))):0)+trackLatency(t);memo.set(t.id,value);return value;};

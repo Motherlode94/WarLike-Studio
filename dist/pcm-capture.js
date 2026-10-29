@@ -1,7 +1,7 @@
 const ready=new WeakMap();
 export async function createPcmCapture(ctx,input,{channel='1'}={}){
   if(!ctx.audioWorklet||typeof AudioWorkletNode==='undefined')throw Error('L’enregistrement PCM nécessite un navigateur compatible AudioWorklet.');
-  if(!ready.has(ctx))ready.set(ctx,ctx.audioWorklet.addModule(new URL('./record-worklet.js?v=0.11.1',import.meta.url)));await ready.get(ctx);
+  if(!ready.has(ctx))ready.set(ctx,ctx.audioWorklet.addModule(new URL('./record-worklet.js?v=0.12.0',import.meta.url)));await ready.get(ctx);
   const node=new AudioWorkletNode(ctx,'chayah-pcm-recorder',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1],processorOptions:{channel}}),chunks=[];let frames=0,done,failed,closed=false;const completion=new Promise((resolve,reject)=>{done=resolve;failed=reject;});
   node.port.onmessage=({data})=>{if(data.type==='chunk'){chunks.push(data.channels);frames+=data.channels[0].length;}if(data.type==='done')done();};node.onprocessorerror=()=>failed(Error('Le moteur de capture PCM s’est arrêté.'));
   input.connect(node);node.connect(ctx.destination);

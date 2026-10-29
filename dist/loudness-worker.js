@@ -1,2 +1,2 @@
-import {measureLoudness} from './loudness.js?v=0.11.1';
+import {measureLoudness} from './loudness.js?v=0.12.0';
 self.onmessage=({data})=>{try{postMessage({result:measureLoudness(data.channels,data.sampleRate)});}catch(error){postMessage({error:error.message});}};

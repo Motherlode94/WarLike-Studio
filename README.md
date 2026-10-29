@@ -1,6 +1,6 @@
 # Warlike Studio + CHAYAH Suite
 
-Station de création musicale web de HardieBay. Version 0.11.1 : piano roll,
+Station de création musicale web de HardieBay. Version 0.12.0 : piano roll,
 Channel Rack et patterns liés, prises alternatives et comping, bus, envois,
 automation, analyse de loudness et exports multipistes.
 FL Studio guide la composition ; Pro Tools et Logic Pro guident les workflows
@@ -11,12 +11,12 @@ marque CHAYAH Suite et les projets existants restent compatibles.
 
 Une session vide et ses nouvelles pistes n’ont aucun effet inséré. Les modules
 se choisissent dans les inserts ; seules les sessions démo préparent une chaîne.
-Les sections numérotées ci-dessous décrivent l’historique : la section 0.11
-et `docs/verification-0.11.md` décrivent les capacités et limites actuelles.
+Les sections numérotées ci-dessous décrivent l’historique : la section 0.12
+et `docs/verification-0.12.md` décrivent les capacités et limites actuelles.
 
 ## Créer un morceau
 
-**Bibliothèque** propose 30 sons d’instruments, 60 presets d’effets, 12 grooves,
+**Bibliothèque** propose 62 sons d’instruments, 80 presets d’effets, 12 grooves,
 8 percussions synthétisées et 3 sessions de 16 mesures : Nocturne Trap, Soleil Afro
 et Brume R&B. Un son peut être écouté puis ajouté avec une piste et un clip éditable.
 Les sessions comprennent 6 pistes d’instruments, 3 pistes vocales et des repères de
@@ -122,7 +122,7 @@ les réglages. Export : WAV stéréo 44,1 kHz / 16 bits. Tout l’audio est trai
 le navigateur. Les données locales sont propres à l’adresse du site : télécharge
 un projet puis ouvre-le sur la nouvelle adresse pour transférer une session.
 
-La Suite contient 22 modules web ; ce ne sont pas des binaires VST/VST3 Windows
+La Suite contient 27 modules web ; ce ne sont pas des binaires VST/VST3 Windows
 et elle n’héberge pas de VST tiers. TUNE et les traitements sont une implémentation
 web expérimentale, sans garantie de qualité équivalente aux logiciels de référence.
 
@@ -267,7 +267,7 @@ demande. **Exporter** prépare un lien WAV ou ZIP : mix, piste, bus ou stems,
 Télécharger le projet reste nécessaire pour une copie indépendante de l’appareil.
 
 Limites : DAW web expérimental, sans hôte VST/AAX/AU natif. Compensation de
-latence limitée aux délais connus de GLUE, time-stretch WSOLA expérimental,
+latence limitée aux délais connus de GLUE et EXO STRIP, time-stretch WSOLA expérimental,
 crête interpolée non certifiée true-peak. Rendu en mémoire avec garde de 768 Mio.
 Le matériel audio, le bouclage et le clavier MIDI n’ont pas été testés physiquement.
 Voir `docs/verification-0.11.md` pour les contrôles effectués.
@@ -282,3 +282,55 @@ Références de workflow consultées :
 - https://www.avid.com/pro-tools/user-guide/bouncing-stems
 - https://support.apple.com/guide/logicpro/welcome/mac
 - https://www.itu.int/rec/R-REC-BS.1770
+
+## 0.12 — Pack EXO
+
+![EXO dans Warlike Studio](docs/exo-0.12.jpg)
+
+**EXO** est un nouvel instrument original à deux couches VA/FM, avec trois
+oscillateurs d’unisson par couche, huit formes, transposition, mélange A/B,
+filtre résonant, ADSR, modulation, largeur et espace court interne. Son
+arpégiateur suit les accords du pattern : Up, Down, Up/Down ou Chord, de une à
+trois octaves. Le même calcul sert à PAT, SONG et au rendu audio offline.
+
+Ouvrir **Piste → EXO** ou **Bibliothèque → Packs → EXO**. La banque comporte
+32 presets originaux : quatre par catégorie Keys, Pads, Leads, Plucks, Bass,
+Bells, Arps et Textures. Recherche par nom/humeur, préécoute, favoris, clavier
+et jusqu’à 64 presets personnels sont disponibles dans sa fenêtre. Les sons
+personnels et favoris sont locaux ; exporter le rack pour une copie indépendante.
+Les paramètres de l’instrument sont aussi conservés dans le projet .chayah.
+
+Le pack ajoute quatre inserts, avec cinq presets chacun :
+
+| Module | Fonction |
+| --- | --- |
+| EXO STRIP | Coupe-bas, EQ corps/présence/air, compresseur doux et mélange parallèle |
+| EXO FOCUS | Atténuation dynamique d’une bande, seuil et réduction maximale |
+| EXO AIR | Excitation harmonique parallèle dans la bande aiguë |
+| EXO SPACE | Convolution stéréo originale, pré-délai, durée, amortissement et largeur |
+
+Les inserts restent vides à la création. Choisir un effet ou appliquer son preset
+est une action explicite. Les instances répétées ont des paramètres indépendants.
+Les paramètres natifs adaptés sont proposés dans l’automation ; les courbes de
+WaveShaper et les changements d’IR ne sont pas présentés comme automatisables.
+EXO STRIP ajoute un délai connu de 6 ms, pris en compte par la compensation.
+
+La Suite compte désormais **27 modules** : sept instruments, seize effets,
+trois modules de mastering et TUNE. La banque compte **142 presets**, dont
+32 sons EXO et 20 presets d’effets EXO.
+
+Les références portent sur l’organisation d’une suite de mix, la navigation
+des presets, les couches et l’arpégiateur. Aucun DSP, sample, preset, logo ou
+habillage propriétaire Waves, Spectrasonics ou reFX n’a été importé. EXO est
+un instrument de synthèse web, pas une banque acoustique échantillonnée ni un
+chargeur de leurs expansions. Les modules ne sont pas des VST3 installables.
+
+Références officielles consultées :
+
+- https://www.waves.com/plugins/vocal
+- https://support.spectrasonics.net/manual/Omnisphere/concepts/all.htm
+- https://support.spectrasonics.net/manual/Omnisphere/arpeggiator/all.htm
+- https://refx.com/nexus/manual/
+
+Vérification : `npm test`, `npm run build` et `tests/exo-browser.html`.
+Voir `docs/verification-0.12.md`.
