@@ -1,4 +1,4 @@
-import {EXO_EFFECTS,EXO_EFFECT_PRESETS} from './exo-pack.js?v=0.12.0';
+import {EXO_EFFECTS,EXO_EFFECT_PRESETS} from './exo-pack.js?v=0.13.0';
 // CHAYAH originals. Functional references are described in docs; no vendor DSP/assets.
 export const EFFECT_PACKS={
   exo:{name:'EXO',label:'EXO / MIX & INSTRUMENT',color:'#8acdc8',description:'Quatre traitements pour les voix et le mix, avec un synthé à deux couches et sa banque de 32 sons originaux.',modules:['exostrip','exofocus','exoair','exospace'],instruments:['exo']},

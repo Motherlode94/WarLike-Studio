@@ -6,4 +6,4 @@ function showStartupError(){
 window.addEventListener('error',showStartupError);
 window.addEventListener('unhandledrejection',showStartupError);
 document.getElementById('retryStudio')?.addEventListener('click',()=>location.reload());
-try{await import('./app.js?v=0.12.0');}catch{showStartupError();}
+try{await import('./app.js?v=0.13.0');}catch{showStartupError();}

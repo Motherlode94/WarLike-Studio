@@ -1,8 +1,10 @@
-import {EXO_INSTRUMENT,EXO_WAVES} from './exo.js?v=0.12.0';
-import {PACK_EFFECTS} from './packs.js?v=0.12.0';
+import {EXO_INSTRUMENT,EXO_WAVES} from './exo.js?v=0.13.0';
+import {PACK_EFFECTS} from './packs.js?v=0.13.0';
 // CHAYAH's first-party instrument and effect registry. These are Web Audio
 // processors, not native VST binaries. Each definition owns its controls/defaults.
+import {ACOUSTIC_INSTRUMENTS} from './acoustic.js?v=0.13.0';
 export const INSTRUMENTS = {
+  ...ACOUSTIC_INSTRUMENTS,
   exo:EXO_INSTRUMENT,
   drums:{name:'PULSE',subtitle:'DRUM MACHINE',color:'#d9a06f',description:'Huit voix de percussion synthétisées. Aucun sample externe.',controls:[
     {key:'punch',name:'Punch',min:.2,max:1,step:.01,default:.85,unit:'%'},
@@ -56,6 +58,9 @@ export function ensurePlugins(track) {
   if(!track.tune)track.tune={key:9,scale:'minor',speed:35,amount:1,mix:1};
 }
 export const INSERT_COUNT=12;
+export const EMPTY_INSTRUMENT={name:'INSTRUMENT',subtitle:'AUCUN INSTRUMENT CHARGÉ',color:'#a5b3c1',description:'Charge un instrument sur cette piste pour entendre les notes MIDI.',controls:[]};
+export const instrumentDefinition=type=>type==='instrument'?EMPTY_INSTRUMENT:INSTRUMENTS[type];
+export function changeInstrument(track,type){if(!instrumentDefinition(type)||!instrumentDefinition(track.type)||track.type==='drums'&&type!=='drums'||type==='drums'&&track.type!=='drums'&&(track.type!=='instrument'||track.clips?.some(c=>c.notes?.length)))throw Error('Choisis un instrument compatible avec les notes de cette piste.');track.type=type;track.instrument=pluginDefaults(type).instrument;ensurePlugins(track);return track;}
 export const effectType=id=>String(id).split('__')[0];
 export const effectDefinition=id=>EFFECTS[effectType(id)];
 export const instanceId=type=>type+'__'+Math.random().toString(36).slice(2,10);

@@ -1,15 +1,17 @@
-import {exoVoice} from './exo-audio.js?v=0.12.0';
-import {exoArpeggiate,exoChannelMap} from './exo.js?v=0.12.0';
-import {resolvePatternClip,patternPlaybackProject} from './piano-model.js?v=0.12.0';
-import {normaliseRouting,audibleIds,compensationDelays,fadeValue} from './studio-model.js?v=0.12.0';
-import {bindings,automateParam} from './automation.js?v=0.12.0';
-import {encodeWav} from './wav.js?v=0.12.0';
-import {createPackProcessors,syncPackProcessors} from './pack-audio.js?v=0.12.0';
-import {packTail} from './packs.js?v=0.12.0';
-import {ensurePlugins,DRUM_VOICES,EFFECTS,pluginDefaults,effectType} from './plugins.js?v=0.12.0';
-import {clampClipGain} from './recording.js?v=0.12.0';
-import {createFactorySession,DRUM_GROOVES} from './content.js?v=0.12.0';
-import {createMasterChain,syncMasterChain} from './mastering.js?v=0.12.0';
+import {ACOUSTIC_INSTRUMENTS} from './acoustic.js?v=0.13.0';
+import {loadAcousticBank,acousticVoice} from './acoustic-audio.js?v=0.13.0';
+import {exoVoice} from './exo-audio.js?v=0.13.0';
+import {exoArpeggiate,exoChannelMap} from './exo.js?v=0.13.0';
+import {resolvePatternClip,patternPlaybackProject} from './piano-model.js?v=0.13.0';
+import {normaliseRouting,audibleIds,compensationDelays,fadeValue} from './studio-model.js?v=0.13.0';
+import {bindings,automateParam} from './automation.js?v=0.13.0';
+import {encodeWav} from './wav.js?v=0.13.0';
+import {createPackProcessors,syncPackProcessors} from './pack-audio.js?v=0.13.0';
+import {packTail} from './packs.js?v=0.13.0';
+import {ensurePlugins,DRUM_VOICES,EFFECTS,pluginDefaults,effectType} from './plugins.js?v=0.13.0';
+import {clampClipGain} from './recording.js?v=0.13.0';
+import {createFactorySession,DRUM_GROOVES} from './content.js?v=0.13.0';
+import {createMasterChain,syncMasterChain} from './mastering.js?v=0.13.0';
 export const uid = () => Math.random().toString(36).slice(2, 11);
 export const dbGain = db => Math.pow(10, db / 20);
 export const midiHz = n => 440 * Math.pow(2, (n - 69) / 12);
@@ -29,6 +31,9 @@ export class AudioEngine {
     this.getProject=getProject; this.getAssets=getAssets; this.ctx=null; this.playing=false;
     this.position=0; this.loop=true; this.metronome=false; if(!Number.isFinite(this.getProject().masterVolume))this.masterVolume=-2; this.channels=new Map(); this.voices=new Set();this.audioLevels=new Map(); this.scheduledStep=0;
   }
+  async prepareInstrument(type,onProgress=()=>{}){if(!ACOUSTIC_INSTRUMENTS[type])return;await this.init();return this.prepareBank(this.ctx,type,onProgress);}
+  async prepareBank(ctx,type,onProgress=()=>{}){this.instrumentBanks??=new Map();const bank=await loadAcousticBank(ctx,type,(done,total)=>{onProgress(done,total);if(done===0||done===total)this.onSampleStatus?.({type,done,total});});this.instrumentBanks.set(type,bank);return bank;}
+  async prepareInstruments(ctx,project){const types=[...new Set(project.tracks.filter(t=>!t.mute&&t.clips?.length&&ACOUSTIC_INSTRUMENTS[t.type]).map(t=>t.type))];for(const type of types)await this.prepareBank(ctx,type);}
   async init() {
     if(!this.ctx) {
       this.ctx=new AudioContext({latencyHint:'interactive'});
@@ -86,7 +91,7 @@ export class AudioEngine {
     set(ch.colorWet.gain,e.color.enabled?e.color.mix:1);set(ch.colorDry.gain,e.color.enabled?1-e.color.mix:0);set(ch.colorOut.gain,dbGain(e.color.enabled?e.color.output:0));
     set(ch.compressWet.gain,e.glue.enabled?e.glue.mix:1);set(ch.compressDry.gain,e.glue.enabled?1-e.glue.mix:0);set(ch.compressor.knee,e.glue.knee);
     set(ch.compressor.threshold,e.glue.enabled?e.glue.threshold:0);set(ch.compressor.ratio,e.glue.enabled?e.glue.ratio:1);set(ch.compressor.attack,e.glue.attack/1000);set(ch.compressor.release,e.glue.release/1000);set(ch.makeup.gain,dbGain(e.glue.enabled?e.glue.makeup:0));
-    ch.pack.inputChannels=tr.exoInputChannels||(tr.type==='bus'||tr.type==='exo'||tr.id===this.recordingTrackId&&this.getProject().audioSetup?.channel==='stereo'||tr.clips?.some(c=>c.audioId&&this.getAssets().get(c.audioId)?.buffer.numberOfChannels>1)?2:1);ch.pack.inputChannelsByType=exoChannelMap(tr,ch.pack.inputChannels);
+    ch.pack.inputChannels=tr.exoInputChannels||(tr.type==='bus'||tr.type==='exo'||ACOUSTIC_INSTRUMENTS[tr.type]||tr.id===this.recordingTrackId&&this.getProject().audioSetup?.channel==='stereo'||tr.clips?.some(c=>c.audioId&&this.getAssets().get(c.audioId)?.buffer.numberOfChannels>1)?2:1);ch.pack.inputChannelsByType=exoChannelMap(tr,ch.pack.inputChannels);
     syncPackProcessors(ch.pack,e,this.getProject().bpm,now,initial);
     for(const id of tr.inserts.filter(id=>id&&id.includes('__'))){const type=effectType(id);let child=ch.instanceChannels.get(id);const sub={...tr,id:tr.id+'_'+id,exoInputChannels:ch.pack.inputChannelsByType[id]||ch.pack.inputChannels,inserts:[type],effects:{...pluginDefaults(tr.type).effects,[type]:e[id]},sends:[],automation:{mode:'off',curves:{}}};
       if(!child){child=this.makeChannel(ch.input.context,sub,null);child.stages[type].output.disconnect();ch.instanceChannels.set(id,child);ch.stages[id]=child.stages[type];}else this.syncEffects(child,sub,now,initial);
@@ -138,13 +143,13 @@ export class AudioEngine {
     return this.loop?((raw%total)+total)%total:Math.min(raw,total);
   }
   async play() {
-    await this.init(); if(this.playing)return;
+    const request=this.playRequest=(this.playRequest||0)+1;await this.init(); if(this.playing)return;await this.prepareInstruments(this.ctx,this.getPlaybackProject());if(request!==this.playRequest)return;
     this.startTime=this.ctx.currentTime+.06-this.position*this.stepDuration;
     this.scheduledStep=Math.ceil(this.position); this.playing=true;
     if(!this.patternMode&&!this.clipPreview)this.schedulePartialAudio(this.position);this.scheduleAutomation(this.ctx,this.graph,this.position/16,this.getProject().bars,this.ctx.currentTime+.06);
     this.scheduler(); this.timer=setInterval(()=>this.scheduler(),25);
   }
-  pause() {if(this.playing)this.position=this.getPosition();this.playing=false;clearInterval(this.timer);this.killVoices();if(this.ctx)this.clearAutomation(this.graph,this.ctx.currentTime);}
+  pause() {this.playRequest=(this.playRequest||0)+1;if(this.playing)this.position=this.getPosition();this.playing=false;clearInterval(this.timer);this.killVoices();if(this.ctx)this.clearAutomation(this.graph,this.ctx.currentTime);}
   stop() {this.pause();this.position=0;}
   seek(step) {const was=this.playing;this.pause();this.position=clamp(step,0,this.getPlaybackProject().bars*16-1);if(was)this.play();}
   killVoices() {for(const src of this.voices){try{src.stop()}catch{}}this.voices.clear();this.audioLevels.clear();}
@@ -224,6 +229,8 @@ export class AudioEngine {
     }
   }
   synth(ctx,out,type,midi,t,duration,live=false,params={},velocity=1) {
+    if(type==='instrument')return;
+    if(ACOUSTIC_INSTRUMENTS[type]){if(velocity<=0)return;return acousticVoice(ctx,out,type,midi,t,duration,params,velocity,this.instrumentBanks?.get(type),live?o=>this.remember(o):null);}
     if(velocity!==1){const level=ctx.createGain();level.gain.value=Math.max(0,Math.min(1,velocity));level.connect(out);out=level;}
     t=Math.max(t,ctx.currentTime);if(type==='exo'){return exoVoice(ctx,out,midi,t,duration,params,live?o=>this.remember(o):null);} const hz=midiHz(midi),env=ctx.createGain(),filter=ctx.createBiquadFilter();
     filter.type='lowpass';filter.frequency.value=type==='bass'?650:type==='lead'?(params.cutoff??3200):type==='pluck'?(params.brightness??5000):type==='pad'?2200:3200;env.connect(filter);filter.connect(out);
@@ -245,17 +252,17 @@ export class AudioEngine {
     src.start(t,offset,duration);if(live)this.remember(src);
   }
   click(t,accent) {const o=this.ctx.createOscillator(),g=this.ctx.createGain();o.frequency.value=accent?1200:850;g.gain.setValueAtTime(.09,t);g.gain.exponentialRampToValueAtTime(.001,t+.035);o.connect(g);g.connect(this.master);o.start(t);o.stop(t+.04);this.remember(o);}
-  async preview(type,note=57,trackId=null) {await this.init();const tr=this.getProject().tracks.find(t=>trackId?t.id===trackId:t.type===type);const out=tr?this.channels.get(tr.id).input:this.master;if(Object.hasOwn(DRUM_VOICES,type))this.drum(this.ctx,this.master,type,this.ctx.currentTime,true);else this.synth(this.ctx,out,type,note,this.ctx.currentTime,.22,true,tr?.instrument);}
-  stopPreview(){for(const source of this.previewVoices||[]){try{source.stop();}catch{}}this.previewVoices=new Set();}
-  capturePreview(callback){this.stopPreview();const before=new Set(this.voices);callback();this.previewVoices=new Set([...this.voices].filter(source=>!before.has(source)));}
-  async previewPreset(type,params){await this.init();this.capturePreview(()=>{const t=this.ctx.currentTime+.03;if(type==='exo'){const sd=60/this.getProject().bpm/4,notes=exoArpeggiate([57,60,64].map(midi=>({midi,step:0,len:16,velocity:.8})),16,params);for(const n of notes)this.synth(this.ctx,this.master,'exo',n.midi,t+n.step*sd,n.len*sd,true,params,n.velocity);}else if(type==='drums'){const pattern=DRUM_GROOVES[0].pattern,sd=60/120/4;for(let i=0;i<16;i++)for(const [voice,steps] of Object.entries(pattern))if(steps[i])this.drum(this.ctx,this.master,voice,t+i*sd,true,params);}else{const notes=type==='bass'?[33]:type==='lead'?[69]:type==='pluck'?[69,72,76]:[57,60,64];notes.forEach((midi,i)=>this.synth(this.ctx,this.master,type,midi,t+(type==='pluck'?i*.15:0),type==='pad'?1.4:.55,true,params));}});}
+  async preview(type,note=57,trackId=null,velocity=1) {if(type==='instrument'){this.onSampleStatus?.({type,error:'Charge un instrument sur cette piste pour jouer les notes.'});return false;}try{await this.init();if(ACOUSTIC_INSTRUMENTS[type])await this.prepareBank(this.ctx,type);const tr=this.getProject().tracks.find(t=>trackId?t.id===trackId:t.type===type);const out=tr?this.channels.get(tr.id).input:this.master;if(Object.hasOwn(DRUM_VOICES,type))this.drum(this.ctx,this.master,type,this.ctx.currentTime,true);else this.synth(this.ctx,out,type,note,this.ctx.currentTime,.6,true,tr?.instrument,velocity);}catch(error){this.onSampleStatus?.({type,error:error.message});return false;}}
+  stopPreview(invalidate=true){if(invalidate)this.previewRequest=(this.previewRequest||0)+1;for(const source of this.previewVoices||[]){try{source.stop();}catch{}}this.previewVoices=new Set();}
+  capturePreview(callback){this.stopPreview(false);const before=new Set(this.voices);callback();this.previewVoices=new Set([...this.voices].filter(source=>!before.has(source)));}
+  async previewPreset(type,params){const request=this.previewRequest=(this.previewRequest||0)+1;await this.init();if(ACOUSTIC_INSTRUMENTS[type])await this.prepareBank(this.ctx,type);if(request!==this.previewRequest)return;this.capturePreview(()=>{const t=this.ctx.currentTime+.03;if(ACOUSTIC_INSTRUMENTS[type]){const sustained=['violin','cello'].includes(type),melody=['flute','trumpet'].includes(type),notes=melody?[72,74,76,79]:[48,60,64,67];notes.forEach((midi,i)=>this.synth(this.ctx,this.master,type,midi,t+(sustained?0:i*.18),sustained?1.6:melody?.35:.8,true,params,[.45,.65,.8,.95][i]));}else if(type==='exo'){const sd=60/this.getProject().bpm/4,notes=exoArpeggiate([57,60,64].map(midi=>({midi,step:0,len:16,velocity:.8})),16,params);for(const n of notes)this.synth(this.ctx,this.master,'exo',n.midi,t+n.step*sd,n.len*sd,true,params,n.velocity);}else if(type==='drums'){const pattern=DRUM_GROOVES[0].pattern,sd=60/120/4;for(let i=0;i<16;i++)for(const [voice,steps] of Object.entries(pattern))if(steps[i])this.drum(this.ctx,this.master,voice,t+i*sd,true,params);}else{const notes=type==='bass'?[33]:type==='lead'?[69]:type==='pluck'?[69,72,76]:[57,60,64];notes.forEach((midi,i)=>this.synth(this.ctx,this.master,type,midi,t+(type==='pluck'?i*.15:0),type==='pad'?1.4:.55,true,params));}});}
   async previewGroove(groove){await this.init();this.capturePreview(()=>{const t=this.ctx.currentTime+.03,sd=60/groove.bpm/4;for(let i=0;i<16;i++)for(const [voice,steps] of Object.entries(groove.pattern))if(steps[i])this.drum(this.ctx,this.master,voice,t+i*sd,true);});}
   async renderDrumWav(voice){if(!Object.hasOwn(DRUM_VOICES,voice))throw new Error('Percussion inconnue.');const ctx=new OfflineAudioContext(1,44100,44100);this.drum(ctx,ctx.destination,voice,.01);return bufferToWav(await ctx.startRendering());}
   async renderRange({sampleRate=44100,startBar=0,endBar=this.getProject().bars,tail=true,captureId=null,preFader=false,clean=false}={}){
     const p=structuredClone(this.getProject());if(clean){for(const t of p.tracks)for(const e of Object.values(t.effects||{}))e.enabled=false;p.mastering={bypass:true};}
     const renderer=new AudioEngine(()=>p,this.getAssets),sd=60/p.bpm/4,start=startBar*16,end=endBar*16,duration=(end-start)*sd+(tail?packTail(p):0)+.01;
     if(![44100,48000,96000].includes(sampleRate)||end<=start||duration*sampleRate*2*8>768*1024*1024)throw Error('Rendu trop volumineux : réduis la plage exportée ou la fréquence.');
-    const ctx=new OfflineAudioContext(2,Math.ceil(duration*sampleRate),sampleRate),graph=renderer.buildGraph(ctx,{captureId,preFader});
+    const ctx=new OfflineAudioContext(2,Math.ceil(duration*sampleRate),sampleRate);await renderer.prepareInstruments(ctx,p);const graph=renderer.buildGraph(ctx,{captureId,preFader});
     for(const tr of p.tracks)for(const clip of tr.clips)if(clip.audioId&&!clip.muted&&clip.start*16<start&&(clip.start+clip.length)*16>start){const a=this.getAssets().get(clip.audioId);if(a)renderer.audioVoice(ctx,graph.channels.get(tr.id).input,a.buffer,.01,(clip.sourceOffset||0)+(start-clip.start*16)*sd,Math.min((clip.start+clip.length)*16-start,end-start)*sd,false,clip.gainDb,clip.id,{...clip,total:clip.length*16*sd,elapsed:(start-clip.start*16)*sd});}
     for(let i=Math.floor(start);i<end;i++)renderer.scheduleStep(ctx,graph.channels,i,.01+(i-start)*sd,false,.01);
     renderer.scheduleAutomation(ctx,graph,startBar,endBar,.01);

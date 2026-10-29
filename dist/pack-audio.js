@@ -1,5 +1,5 @@
-import {createExoEffects,syncExoEffect} from './exo-audio.js?v=0.12.0';
-import {gateControl,deessControl,gain,relayTimes} from './packs.js?v=0.12.0';
+import {createExoEffects,syncExoEffect} from './exo-audio.js?v=0.13.0';
+import {gateControl,deessControl,gain,relayTimes} from './packs.js?v=0.13.0';
 const curve=fn=>Float32Array.from({length:4097},(_,i)=>fn(i/2048-1));
 const rectifierCurve=curve(Math.abs);
 function makeScope(ctx){const nodes=[],oscillators=[];return {nodes,oscillators,node(kind,...args){const n=ctx[kind](...args);nodes.push(n);return n;},dispose(){for(const n of oscillators)try{n.stop();}catch{}for(const n of nodes)try{n.disconnect();}catch{}}};}

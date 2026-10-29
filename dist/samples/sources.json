@@ -1,0 +1,1166 @@
+[
+  {
+    "id": "piano",
+    "repo": "sgossner/VCSL",
+    "revision": "c1ea7bcc3c7309650ab0da9d15c9cd1fbc4a4c7e",
+    "offset": 12,
+    "loop": false,
+    "samples": [
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_A#-1_v4_rr1_Player.wav",
+        "sourceSha": "cbd3734eb4e5d81dc4178deba0a3bfcb8726427e",
+        "sourceBytes": 4247632,
+        "rawMidi": 10,
+        "layer": 1,
+        "file": "piano/10-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D#0_v1_rr1_Player.wav",
+        "sourceSha": "6d390dfb42a725c46c2ec8940df005c5a0b922cb",
+        "sourceBytes": 3215036,
+        "rawMidi": 15,
+        "layer": 0,
+        "file": "piano/15-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D#0_v4_rr1_Player.wav",
+        "sourceSha": "4c46d42704a77621cc0335ffe70c7450ada50a15",
+        "sourceBytes": 6163572,
+        "rawMidi": 15,
+        "layer": 1,
+        "file": "piano/15-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_A0_v1_rr1_Player.wav",
+        "sourceSha": "c0cc11da26804b3d0960157c593a3aff3c89bb04",
+        "sourceBytes": 2468044,
+        "rawMidi": 21,
+        "layer": 0,
+        "file": "piano/21-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_A0_v4_rr1_Player.wav",
+        "sourceSha": "f1c53d6f4d80d6cb36130d40273e57912718d577",
+        "sourceBytes": 6731472,
+        "rawMidi": 21,
+        "layer": 1,
+        "file": "piano/21-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D#1_v1_rr1_Player.wav",
+        "sourceSha": "75dc0984d36abf08bc2c6250ce92bf0084c890ea",
+        "sourceBytes": 4233952,
+        "rawMidi": 27,
+        "layer": 0,
+        "file": "piano/27-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D#1_v4_rr1_Player.wav",
+        "sourceSha": "ea92bbe20fa5faa9c2b4c8757e9370fb6e1d7d5a",
+        "sourceBytes": 6237644,
+        "rawMidi": 27,
+        "layer": 1,
+        "file": "piano/27-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_A1_v1_rr1_Player.wav",
+        "sourceSha": "291365ec3e390fcd8a47a863e21ffd6a14a5692e",
+        "sourceBytes": 3614856,
+        "rawMidi": 33,
+        "layer": 0,
+        "file": "piano/33-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_A1_v4_rr1_Player.wav",
+        "sourceSha": "2aeb0acbabdb5e4b1290c9ce05ed29778658572c",
+        "sourceBytes": 6711172,
+        "rawMidi": 33,
+        "layer": 1,
+        "file": "piano/33-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D2_v1_rr1_Player.wav",
+        "sourceSha": "a7548612db91c9dd678b118f81e4698e3d4b82c9",
+        "sourceBytes": 2365360,
+        "rawMidi": 38,
+        "layer": 0,
+        "file": "piano/38-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D2_v4_rr1_Player.wav",
+        "sourceSha": "e884dca55db42d138216fda9df7d4bc9425c001f",
+        "sourceBytes": 5285192,
+        "rawMidi": 38,
+        "layer": 1,
+        "file": "piano/38-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_F#2_v1_rr1_Player.wav",
+        "sourceSha": "0ec581c5af22b6da5281924172e57440ee6c7cf5",
+        "sourceBytes": 2964540,
+        "rawMidi": 42,
+        "layer": 0,
+        "file": "piano/42-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_F#2_v4_rr1_Player.wav",
+        "sourceSha": "99cf75302cf0383dc2d6fe1fd93943c86818457d",
+        "sourceBytes": 7703276,
+        "rawMidi": 42,
+        "layer": 1,
+        "file": "piano/42-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_A#2_v1_rr1_Player.wav",
+        "sourceSha": "9ff56657030f5409a66d6202c127a0bf729fc8e6",
+        "sourceBytes": 3220296,
+        "rawMidi": 46,
+        "layer": 0,
+        "file": "piano/46-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_A#2_v4_rr1_Player.wav",
+        "sourceSha": "78c68eab9db7f6bd117b32ff57e6ea25608891f5",
+        "sourceBytes": 4737488,
+        "rawMidi": 46,
+        "layer": 1,
+        "file": "piano/46-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D3_v1_rr1_Player.wav",
+        "sourceSha": "f110b19acdee6465b9ce6ff45286839ab5eb1736",
+        "sourceBytes": 2256064,
+        "rawMidi": 50,
+        "layer": 0,
+        "file": "piano/50-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D3_v4_rr1_Player.wav",
+        "sourceSha": "4d22105d11ad6fbe2636d6c3fd99ea39efa398ef",
+        "sourceBytes": 4798224,
+        "rawMidi": 50,
+        "layer": 1,
+        "file": "piano/50-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_F#3_v1_rr1_Player.wav",
+        "sourceSha": "2f9885ef937ab5b01da02260f0a2a44b4ac51ba9",
+        "sourceBytes": 1816040,
+        "rawMidi": 54,
+        "layer": 0,
+        "file": "piano/54-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_F#3_v4_rr1_Player.wav",
+        "sourceSha": "b069c936ef7987df5678f79149934ccbde5979f5",
+        "sourceBytes": 4099024,
+        "rawMidi": 54,
+        "layer": 1,
+        "file": "piano/54-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_A#3_v1_rr1_Player.wav",
+        "sourceSha": "1cb059e8a7b5d22ed81dca97cd9d43b35826e214",
+        "sourceBytes": 2234568,
+        "rawMidi": 58,
+        "layer": 0,
+        "file": "piano/58-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_A#3_v4_rr1_Player.wav",
+        "sourceSha": "c2f0ec852ba112565f43920440c1def96bcbdbe4",
+        "sourceBytes": 3874848,
+        "rawMidi": 58,
+        "layer": 1,
+        "file": "piano/58-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D4_v1_rr1_Player.wav",
+        "sourceSha": "76377d013c4771cf2831b99fb230a6fee2c8d8ac",
+        "sourceBytes": 1168136,
+        "rawMidi": 62,
+        "layer": 0,
+        "file": "piano/62-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D4_v4_rr1_Player.wav",
+        "sourceSha": "be5a8e6ce092649e7234cac058be07d8cdde271e",
+        "sourceBytes": 4050260,
+        "rawMidi": 62,
+        "layer": 1,
+        "file": "piano/62-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_F#4_v1_rr1_Player.wav",
+        "sourceSha": "0f71741893f3d28ccc2cbefa02a9159af76f8777",
+        "sourceBytes": 1761760,
+        "rawMidi": 66,
+        "layer": 0,
+        "file": "piano/66-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_F#4_v4_rr1_Player.wav",
+        "sourceSha": "6e9866574fa21a1fa1062720d7c95cfa8e9a20c6",
+        "sourceBytes": 2475012,
+        "rawMidi": 66,
+        "layer": 1,
+        "file": "piano/66-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_A#4_v1_rr1_Player.wav",
+        "sourceSha": "887d25e7e4063f93f0845ea44845ce4301a39795",
+        "sourceBytes": 1816440,
+        "rawMidi": 70,
+        "layer": 0,
+        "file": "piano/70-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D#5_v1_rr1_Player.wav",
+        "sourceSha": "eb1ea35ee591c5a1b3137bf9bd35dd91ff3b0be9",
+        "sourceBytes": 584968,
+        "rawMidi": 75,
+        "layer": 0,
+        "file": "piano/75-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D#5_v4_rr1_Player.wav",
+        "sourceSha": "0f8d297897e7b762f54805d66a0a93f98a5543e7",
+        "sourceBytes": 1036800,
+        "rawMidi": 75,
+        "layer": 1,
+        "file": "piano/75-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_A5_v1_rr1_Player.wav",
+        "sourceSha": "4d41dc7741cba4969167ea367ffe5d214726238f",
+        "sourceBytes": 421472,
+        "rawMidi": 81,
+        "layer": 0,
+        "file": "piano/81-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_A5_v4_rr1_Player.wav",
+        "sourceSha": "f89e194ae9c5c49ad63a99fe2de927cb99df5a30",
+        "sourceBytes": 1357880,
+        "rawMidi": 81,
+        "layer": 1,
+        "file": "piano/81-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D#6_v1_rr1_Player.wav",
+        "sourceSha": "8ae55baedb247295052d1ae60b9ba1b168d3fa9e",
+        "sourceBytes": 285996,
+        "rawMidi": 87,
+        "layer": 0,
+        "file": "piano/87-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_D#6_v4_rr1_Player.wav",
+        "sourceSha": "0fe26fada566c6dcb3294663a949cfeb866c9f53",
+        "sourceBytes": 447544,
+        "rawMidi": 87,
+        "layer": 1,
+        "file": "piano/87-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_G6_v1_rr1_Player.wav",
+        "sourceSha": "fe4fc026486e871ff600609d17f96de2d07062f0",
+        "sourceBytes": 335620,
+        "rawMidi": 91,
+        "layer": 0,
+        "file": "piano/91-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_C7_v1_rr1_Player.wav",
+        "sourceSha": "0f90aa410dae9b328c10c2a6932f248019cc8956",
+        "sourceBytes": 187724,
+        "rawMidi": 96,
+        "layer": 0,
+        "file": "piano/96-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_C7_v4_rr1_Player.wav",
+        "sourceSha": "0383ec69c3491c40726cb647f8e240b7e051733e",
+        "sourceBytes": 476796,
+        "rawMidi": 96,
+        "layer": 1,
+        "file": "piano/96-1.mp3"
+      }
+    ]
+  },
+  {
+    "id": "upright",
+    "repo": "sgossner/VCSL",
+    "revision": "c1ea7bcc3c7309650ab0da9d15c9cd1fbc4a4c7e",
+    "offset": 12,
+    "loop": false,
+    "samples": [
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_C0_vl1_rr1.wav",
+        "sourceSha": "ef4e21c9097fe6716a480c536d392cde449add2b",
+        "sourceBytes": 2630054,
+        "rawMidi": 12,
+        "layer": 0,
+        "file": "upright/12-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_C0_vl3_rr1.wav",
+        "sourceSha": "a005755b1dd7a80caa35725d23f61aa1771b9fa4",
+        "sourceBytes": 5629760,
+        "rawMidi": 12,
+        "layer": 1,
+        "file": "upright/12-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_G0_vl1_rr1.wav",
+        "sourceSha": "1abee53b42b844d99ab5c82016f01f50cdb0cef1",
+        "sourceBytes": 3053120,
+        "rawMidi": 19,
+        "layer": 0,
+        "file": "upright/19-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_G0_vl3_rr1.wav",
+        "sourceSha": "6185f4a4f442c1a00df92ad058f698e5a86971b0",
+        "sourceBytes": 6536642,
+        "rawMidi": 19,
+        "layer": 1,
+        "file": "upright/19-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_G1_vl1_rr1.wav",
+        "sourceSha": "89ad22412679d07e3937965df911c52e927d5dcd",
+        "sourceBytes": 4351628,
+        "rawMidi": 31,
+        "layer": 0,
+        "file": "upright/31-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_G1_vl3_rr1.wav",
+        "sourceSha": "aad49109d12a29667b4f80abc0f786b2fe2f97fe",
+        "sourceBytes": 6390584,
+        "rawMidi": 31,
+        "layer": 1,
+        "file": "upright/31-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_G2_vl1_rr1.wav",
+        "sourceSha": "4f7fae2dba132d8ca451f7f17edc6d5c8ecf93f0",
+        "sourceBytes": 2953694,
+        "rawMidi": 43,
+        "layer": 0,
+        "file": "upright/43-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_G2_vl3_rr1.wav",
+        "sourceSha": "b6f1933e22b7e41d09cb09235228d671939a1c83",
+        "sourceBytes": 5882480,
+        "rawMidi": 43,
+        "layer": 1,
+        "file": "upright/43-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_G3_vl1_rr1.wav",
+        "sourceSha": "67af1f96067add47edb9c6b6af24b6821bb400b5",
+        "sourceBytes": 3339848,
+        "rawMidi": 55,
+        "layer": 0,
+        "file": "upright/55-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_G3_vl3_rr1.wav",
+        "sourceSha": "a7b6b09684742a69b8c71cd329ed5adfe75ab55e",
+        "sourceBytes": 3523184,
+        "rawMidi": 55,
+        "layer": 1,
+        "file": "upright/55-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_G4_vl1_rr1.wav",
+        "sourceSha": "aad51653960268f5334deab86a5c56433f8ba472",
+        "sourceBytes": 1130282,
+        "rawMidi": 67,
+        "layer": 0,
+        "file": "upright/67-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_G4_vl3_rr1.wav",
+        "sourceSha": "3e530b9e8d8bac6ee1d0fcd240136336bda9dbf3",
+        "sourceBytes": 1639496,
+        "rawMidi": 67,
+        "layer": 1,
+        "file": "upright/67-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_G5_vl1_rr1.wav",
+        "sourceSha": "d045833fe4b04f6d4c5e430ed39449d7e9daddf2",
+        "sourceBytes": 325124,
+        "rawMidi": 79,
+        "layer": 0,
+        "file": "upright/79-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_G5_vl3_rr1.wav",
+        "sourceSha": "db422a4a1b58dc34369fa49ea3ce590fc234e934",
+        "sourceBytes": 907220,
+        "rawMidi": 79,
+        "layer": 1,
+        "file": "upright/79-1.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Zithers/Upright Piano, Yamaha/Sustains/Upright1_Sus_C6_vl3_rr1.wav",
+        "sourceSha": "8bfe7539fab9c44e5ed764f3ca736d224e1af975",
+        "sourceBytes": 630902,
+        "rawMidi": 84,
+        "layer": 1,
+        "file": "upright/84-1.mp3"
+      }
+    ]
+  },
+  {
+    "id": "epiano",
+    "repo": "sgossner/VCSL",
+    "revision": "c1ea7bcc3c7309650ab0da9d15c9cd1fbc4a4c7e",
+    "offset": 0,
+    "loop": false,
+    "samples": [
+      {
+        "sourcePath": "Electrophones/TX81Z/FM Piano/FMPiano_C0_vl2.wav",
+        "sourceSha": "28ac4b0469f1e2f0ac508526edcf7e8a6a8b447b",
+        "sourceBytes": 1611442,
+        "rawMidi": 12,
+        "layer": 0,
+        "file": "epiano/12-0.mp3"
+      },
+      {
+        "sourcePath": "Electrophones/TX81Z/FM Piano/FMPiano_G#0_vl2.wav",
+        "sourceSha": "c1988f26f3e85cc9fafebbec1f2bfa3880e0bff2",
+        "sourceBytes": 1599421,
+        "rawMidi": 20,
+        "layer": 0,
+        "file": "epiano/20-0.mp3"
+      },
+      {
+        "sourcePath": "Electrophones/TX81Z/FM Piano/FMPiano_E1_vl2.wav",
+        "sourceSha": "5834397dd380110c30477ec6c267d1016cb53682",
+        "sourceBytes": 1597441,
+        "rawMidi": 28,
+        "layer": 0,
+        "file": "epiano/28-0.mp3"
+      },
+      {
+        "sourcePath": "Electrophones/TX81Z/FM Piano/FMPiano_C2_vl2.wav",
+        "sourceSha": "4493b3f535e6889f17959afe44a05d150597ca23",
+        "sourceBytes": 1596178,
+        "rawMidi": 36,
+        "layer": 0,
+        "file": "epiano/36-0.mp3"
+      },
+      {
+        "sourcePath": "Electrophones/TX81Z/FM Piano/FMPiano_G#2_vl2.wav",
+        "sourceSha": "d1a071cff2f54f8a3c91de4087b9d3796c036ae8",
+        "sourceBytes": 1234417,
+        "rawMidi": 44,
+        "layer": 0,
+        "file": "epiano/44-0.mp3"
+      },
+      {
+        "sourcePath": "Electrophones/TX81Z/FM Piano/FMPiano_E3_vl2.wav",
+        "sourceSha": "4ce7c6b23887a11804816a9bcd296eb419690e8e",
+        "sourceBytes": 1107457,
+        "rawMidi": 52,
+        "layer": 0,
+        "file": "epiano/52-0.mp3"
+      },
+      {
+        "sourcePath": "Electrophones/TX81Z/FM Piano/FMPiano_C4_vl2.wav",
+        "sourceSha": "5786a9fa63713f56bb2b945053331169a6c9fdaf",
+        "sourceBytes": 941536,
+        "rawMidi": 60,
+        "layer": 0,
+        "file": "epiano/60-0.mp3"
+      },
+      {
+        "sourcePath": "Electrophones/TX81Z/FM Piano/FMPiano_G#4_vl2.wav",
+        "sourceSha": "00f89738ea678d954e376d40772580b319bab401",
+        "sourceBytes": 667609,
+        "rawMidi": 68,
+        "layer": 0,
+        "file": "epiano/68-0.mp3"
+      },
+      {
+        "sourcePath": "Electrophones/TX81Z/FM Piano/FMPiano_E5_vl2.wav",
+        "sourceSha": "d8b5026162bca882862edf39e004e3923b124196",
+        "sourceBytes": 563755,
+        "rawMidi": 76,
+        "layer": 0,
+        "file": "epiano/76-0.mp3"
+      },
+      {
+        "sourcePath": "Electrophones/TX81Z/FM Piano/FMPiano_C6_vl2.wav",
+        "sourceSha": "dd288fcf60795f95356da152663e8bbf1a5cedd1",
+        "sourceBytes": 480088,
+        "rawMidi": 84,
+        "layer": 0,
+        "file": "epiano/84-0.mp3"
+      },
+      {
+        "sourcePath": "Electrophones/TX81Z/FM Piano/FMPiano_G#6_vl2.wav",
+        "sourceSha": "a3f715fbbb59e65665b2ce8750227239afcd067d",
+        "sourceBytes": 337960,
+        "rawMidi": 92,
+        "layer": 0,
+        "file": "epiano/92-0.mp3"
+      },
+      {
+        "sourcePath": "Electrophones/TX81Z/FM Piano/FMPiano_C7_vl2.wav",
+        "sourceSha": "1215c953b5ef28f5330146e7a5ea4fd26f5287da",
+        "sourceBytes": 329032,
+        "rawMidi": 96,
+        "layer": 0,
+        "file": "epiano/96-0.mp3"
+      }
+    ]
+  },
+  {
+    "id": "harp",
+    "repo": "sgossner/VCSL",
+    "revision": "c1ea7bcc3c7309650ab0da9d15c9cd1fbc4a4c7e",
+    "offset": 0,
+    "loop": false,
+    "samples": [
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Concert Harp/KSHarp_B1_mf1.wav",
+        "sourceSha": "bb26292fd8b4d4d7f95703c69667c8f2234eebc8",
+        "sourceBytes": 2284022,
+        "rawMidi": 35,
+        "layer": 0,
+        "file": "harp/35-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Concert Harp/KSHarp_F2_mf1.wav",
+        "sourceSha": "03c3ce65453dc79a0b36805126b57574ff7dc654",
+        "sourceBytes": 3086590,
+        "rawMidi": 41,
+        "layer": 0,
+        "file": "harp/41-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Concert Harp/KSHarp_E3_mf1.wav",
+        "sourceSha": "5c6c7410ae0ff7800214931f9db9a7f52db5987e",
+        "sourceBytes": 2461138,
+        "rawMidi": 52,
+        "layer": 0,
+        "file": "harp/52-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Concert Harp/KSHarp_B3_mf1.wav",
+        "sourceSha": "8d06cd55bc871d19f25a2bb1b56c7a567aabbc6b",
+        "sourceBytes": 1981130,
+        "rawMidi": 59,
+        "layer": 0,
+        "file": "harp/59-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Concert Harp/KSHarp_F4_mf1.wav",
+        "sourceSha": "a1966639b165b623ac533270d616814cbc5389ef",
+        "sourceBytes": 1913498,
+        "rawMidi": 65,
+        "layer": 0,
+        "file": "harp/65-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Concert Harp/KSHarp_C5_mf1.wav",
+        "sourceSha": "748b4b1366616972c2a22e81fc48a86178801c45",
+        "sourceBytes": 1237142,
+        "rawMidi": 72,
+        "layer": 0,
+        "file": "harp/72-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Concert Harp/KSHarp_G5_mf1.wav",
+        "sourceSha": "8e3593345c95368ae9d74591c1046d21de6a8e60",
+        "sourceBytes": 1049778,
+        "rawMidi": 79,
+        "layer": 0,
+        "file": "harp/79-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Concert Harp/KSHarp_D6_mf1.wav",
+        "sourceSha": "f66e88f651740695e4971c3197e6a1d61d6380c1",
+        "sourceBytes": 687750,
+        "rawMidi": 86,
+        "layer": 0,
+        "file": "harp/86-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Concert Harp/KSHarp_A6_mf1.wav",
+        "sourceSha": "9fc9959804954e24e6837c426d702031fd2a3b7f",
+        "sourceBytes": 636870,
+        "rawMidi": 93,
+        "layer": 0,
+        "file": "harp/93-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Concert Harp/KSHarp_B6_mf1.wav",
+        "sourceSha": "d350ad472b663c9c239802f10228cd0073cf698d",
+        "sourceBytes": 483966,
+        "rawMidi": 95,
+        "layer": 0,
+        "file": "harp/95-0.mp3"
+      }
+    ]
+  },
+  {
+    "id": "marimba",
+    "repo": "sgossner/VCSL",
+    "revision": "c1ea7bcc3c7309650ab0da9d15c9cd1fbc4a4c7e",
+    "offset": 12,
+    "loop": false,
+    "samples": [
+      {
+        "sourcePath": "Idiophones/Struck Idiophones/Marimba/Marimba_hit_Outrigger_F1_med_01.wav",
+        "sourceSha": "21df93be7915e72dabe9189001262c62b436355f",
+        "sourceBytes": 1027292,
+        "rawMidi": 29,
+        "layer": 0,
+        "file": "marimba/29-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Struck Idiophones/Marimba/Marimba_hit_Outrigger_C2_med_01.wav",
+        "sourceSha": "8d18c94d5945941574e44563a60908d9f8c11430",
+        "sourceBytes": 1785050,
+        "rawMidi": 36,
+        "layer": 0,
+        "file": "marimba/36-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Struck Idiophones/Marimba/Marimba_hit_Outrigger_G2_med_01.wav",
+        "sourceSha": "f27193e84ff36d8c16ddc4a59bc89acc79d426ae",
+        "sourceBytes": 1513244,
+        "rawMidi": 43,
+        "layer": 0,
+        "file": "marimba/43-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Struck Idiophones/Marimba/Marimba_hit_Outrigger_F3_med_01.wav",
+        "sourceSha": "2c74c56eba169268ec3e74bc2de31fb282716a58",
+        "sourceBytes": 1382924,
+        "rawMidi": 53,
+        "layer": 0,
+        "file": "marimba/53-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Struck Idiophones/Marimba/Marimba_hit_Outrigger_C4_med_01.wav",
+        "sourceSha": "85c657dd0a8f58808efad5e9184d5b9124285512",
+        "sourceBytes": 655244,
+        "rawMidi": 60,
+        "layer": 0,
+        "file": "marimba/60-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Struck Idiophones/Marimba/Marimba_hit_Outrigger_G4_med_01.wav",
+        "sourceSha": "be84c27de4fea671b78c82591aa6d6f98c06619e",
+        "sourceBytes": 580262,
+        "rawMidi": 67,
+        "layer": 0,
+        "file": "marimba/67-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Struck Idiophones/Marimba/Marimba_hit_Outrigger_F5_med_01.wav",
+        "sourceSha": "215d4dfb83636c70a5997ac65cb3acf201c53dc5",
+        "sourceBytes": 566924,
+        "rawMidi": 77,
+        "layer": 0,
+        "file": "marimba/77-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Struck Idiophones/Marimba/Marimba_hit_Outrigger_C6_med_01.wav",
+        "sourceSha": "f5c95434f42f07fecdbd4f3e3a6a737d81cdd45a",
+        "sourceBytes": 451844,
+        "rawMidi": 84,
+        "layer": 0,
+        "file": "marimba/84-0.mp3"
+      }
+    ]
+  },
+  {
+    "id": "vibes",
+    "repo": "sgossner/VCSL",
+    "revision": "c1ea7bcc3c7309650ab0da9d15c9cd1fbc4a4c7e",
+    "offset": 12,
+    "loop": false,
+    "samples": [
+      {
+        "sourcePath": "Idiophones/Struck Idiophones/Vibraphone/Soft Mallets/Vibes_soft_F2_v1_rr1_Main.wav",
+        "sourceSha": "859f9625a662560facae4de31e8af82f78469492",
+        "sourceBytes": 973692,
+        "rawMidi": 41,
+        "layer": 0,
+        "file": "vibes/41-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Struck Idiophones/Vibraphone/Soft Mallets/Vibes_soft_G3_v1_rr1_Main.wav",
+        "sourceSha": "36a655b6f107c87cd5e7ed06aa1805449600576a",
+        "sourceBytes": 2519544,
+        "rawMidi": 55,
+        "layer": 0,
+        "file": "vibes/55-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Struck Idiophones/Vibraphone/Soft Mallets/Vibes_soft_D4_v1_rr1_Main.wav",
+        "sourceSha": "df2e9089d97a1f002655b75e9dcf9656fffb5950",
+        "sourceBytes": 1973784,
+        "rawMidi": 62,
+        "layer": 0,
+        "file": "vibes/62-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Struck Idiophones/Vibraphone/Soft Mallets/Vibes_soft_A4_v1_rr1_Main.wav",
+        "sourceSha": "0e113727968fe8c907e483ef619abadb8060431f",
+        "sourceBytes": 1465148,
+        "rawMidi": 69,
+        "layer": 0,
+        "file": "vibes/69-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Struck Idiophones/Vibraphone/Soft Mallets/Vibes_soft_E5_v1_rr1_Main.wav",
+        "sourceSha": "5ed1086c7afbe31827afa8be8a8c7c55dcbd7b01",
+        "sourceBytes": 1019012,
+        "rawMidi": 76,
+        "layer": 0,
+        "file": "vibes/76-0.mp3"
+      }
+    ]
+  },
+  {
+    "id": "kalimba",
+    "repo": "sgossner/VCSL",
+    "revision": "c1ea7bcc3c7309650ab0da9d15c9cd1fbc4a4c7e",
+    "offset": 12,
+    "loop": false,
+    "samples": [
+      {
+        "sourcePath": "Idiophones/Plucked Idiophones/Kalimba, Kenya/Mbira6_Normal_MainSpirit_B2_k8_vl3_rr2.wav",
+        "sourceSha": "2faf2d70de7bdd960af6d0fedc625df9684f8a38",
+        "sourceBytes": 1093298,
+        "rawMidi": 47,
+        "layer": 0,
+        "file": "kalimba/47-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Plucked Idiophones/Kalimba, Kenya/Mbira6_Normal_MainSpirit_D#3_k6_vl3_rr2.wav",
+        "sourceSha": "1eb51b1c74a059ee06bbdfefa12104b2ca340114",
+        "sourceBytes": 2894390,
+        "rawMidi": 51,
+        "layer": 0,
+        "file": "kalimba/51-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Plucked Idiophones/Kalimba, Kenya/Mbira6_Normal_MainSpirit_F#3_k10_vl3_rr2.wav",
+        "sourceSha": "fe028b23548028949c8b4aeae82dd7e413cf5cbc",
+        "sourceBytes": 1787858,
+        "rawMidi": 54,
+        "layer": 0,
+        "file": "kalimba/54-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Plucked Idiophones/Kalimba, Kenya/Mbira6_Normal_MainSpirit_B3_k12_vl3_rr2.wav",
+        "sourceSha": "8367490064d6b1959e14b021687ed6be005441c5",
+        "sourceBytes": 1414664,
+        "rawMidi": 59,
+        "layer": 0,
+        "file": "kalimba/59-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Plucked Idiophones/Kalimba, Kenya/Mbira6_Normal_MainSpirit_D#4_k13_vl3_rr2.wav",
+        "sourceSha": "f355c45d9f9ac6f1b03ff2957b440646422e944b",
+        "sourceBytes": 867080,
+        "rawMidi": 63,
+        "layer": 0,
+        "file": "kalimba/63-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Plucked Idiophones/Kalimba, Kenya/Mbira6_Normal_MainSpirit_F#4_k14_vl3_rr2.wav",
+        "sourceSha": "29c460e3a0249dce32b0620ecafcc797bfa5e36a",
+        "sourceBytes": 1187228,
+        "rawMidi": 66,
+        "layer": 0,
+        "file": "kalimba/66-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Plucked Idiophones/Kalimba, Kenya/Mbira6_Normal_MainSpirit_A4_k1_vl3_rr2.wav",
+        "sourceSha": "640928dd87d9daef984fdd69ece3f5fe2dca10ec",
+        "sourceBytes": 949124,
+        "rawMidi": 69,
+        "layer": 0,
+        "file": "kalimba/69-0.mp3"
+      },
+      {
+        "sourcePath": "Idiophones/Plucked Idiophones/Kalimba, Kenya/Mbira6_Normal_MainSpirit_B4_k15_vl3_rr2.wav",
+        "sourceSha": "2572a0c10a6bf57812bdb3dbdd934ac51265be6f",
+        "sourceBytes": 946874,
+        "rawMidi": 71,
+        "layer": 0,
+        "file": "kalimba/71-0.mp3"
+      }
+    ]
+  },
+  {
+    "id": "strum",
+    "repo": "sgossner/VCSL",
+    "revision": "c1ea7bcc3c7309650ab0da9d15c9cd1fbc4a4c7e",
+    "offset": 12,
+    "loop": false,
+    "samples": [
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Strumstick/Finger/Strumstick_Finger_Str1_Main_D2_vl2_rr1.wav",
+        "sourceSha": "d9f4387ff90c1f38cc38c9be86657a836ff52977",
+        "sourceBytes": 3466544,
+        "rawMidi": 38,
+        "layer": 0,
+        "file": "strum/38-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Strumstick/Finger/Strumstick_Finger_Str1_Main_F#2_vl2_rr1.wav",
+        "sourceSha": "3bc7ea47ad2abf0b5118cba6e7528677d48ba46c",
+        "sourceBytes": 1524986,
+        "rawMidi": 42,
+        "layer": 0,
+        "file": "strum/42-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Strumstick/Finger/Strumstick_Finger_Str2_Main_B2_vl2_rr1.wav",
+        "sourceSha": "b0fac6692a5baed4fd663852f5d190e3ff83961b",
+        "sourceBytes": 1532882,
+        "rawMidi": 47,
+        "layer": 0,
+        "file": "strum/47-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Strumstick/Finger/Strumstick_Finger_Str3_Main_E3_vl2_rr1.wav",
+        "sourceSha": "0c05fad6a89e7fec1829da116f936b55872ed523",
+        "sourceBytes": 1592642,
+        "rawMidi": 52,
+        "layer": 0,
+        "file": "strum/52-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Strumstick/Finger/Strumstick_Finger_Str3_Main_A3_vl2_rr1.wav",
+        "sourceSha": "048e6015df8f564b94e6d98f66ea4f89b308e963",
+        "sourceBytes": 2144744,
+        "rawMidi": 57,
+        "layer": 0,
+        "file": "strum/57-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Strumstick/Finger/Strumstick_Finger_Str3_Main_C#4_vl2_rr1.wav",
+        "sourceSha": "0f252adb0f9067a51845f60dcbbb48b5930006d7",
+        "sourceBytes": 1825982,
+        "rawMidi": 61,
+        "layer": 0,
+        "file": "strum/61-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Strumstick/Finger/Strumstick_Finger_Str3_Main_F#4_vl2_rr1.wav",
+        "sourceSha": "2292bd5641b76c678e917b6ea0723589b01193e8",
+        "sourceBytes": 1035302,
+        "rawMidi": 66,
+        "layer": 0,
+        "file": "strum/66-0.mp3"
+      },
+      {
+        "sourcePath": "Chordophones/Composite Chordophones/Strumstick/Finger/Strumstick_Finger_Str3_Main_A4_vl2_rr1.wav",
+        "sourceSha": "448c8fc00768b02d1690915c21dc1edbf8561f54",
+        "sourceBytes": 339980,
+        "rawMidi": 69,
+        "layer": 0,
+        "file": "strum/69-0.mp3"
+      }
+    ]
+  },
+  {
+    "id": "violin",
+    "repo": "sgossner/VSCO-2-CE",
+    "revision": "440300901dfe9275fd84e0b7763af1f8443ae62e",
+    "offset": 0,
+    "loop": true,
+    "samples": [
+      {
+        "sourcePath": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_G3_f.wav",
+        "sourceSha": "a09b038528097878ad6b12d30da4ac1a227d5a98",
+        "sourceBytes": 2936890,
+        "rawMidi": 55,
+        "layer": 0,
+        "file": "violin/55-0.mp3"
+      },
+      {
+        "sourcePath": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_C4_f.wav",
+        "sourceSha": "8a700075b7ae2f19c1c56108738324dfba6959e8",
+        "sourceBytes": 2334170,
+        "rawMidi": 60,
+        "layer": 0,
+        "file": "violin/60-0.mp3"
+      },
+      {
+        "sourcePath": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_E4_f.wav",
+        "sourceSha": "6b1bcdf57513dd089a2172adc0ddbac4a335b3a0",
+        "sourceBytes": 2416566,
+        "rawMidi": 64,
+        "layer": 0,
+        "file": "violin/64-0.mp3"
+      },
+      {
+        "sourcePath": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_A4_f.wav",
+        "sourceSha": "3155c72c1f9ea1518ddb6c1a20eb5c0a094bd537",
+        "sourceBytes": 2488526,
+        "rawMidi": 69,
+        "layer": 0,
+        "file": "violin/69-0.mp3"
+      },
+      {
+        "sourcePath": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_E5_f.wav",
+        "sourceSha": "269658d510e82345227ac10d22f928cfae428c99",
+        "sourceBytes": 2365174,
+        "rawMidi": 76,
+        "layer": 0,
+        "file": "violin/76-0.mp3"
+      },
+      {
+        "sourcePath": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_A5_f.wav",
+        "sourceSha": "eebb9f220dc2a93557acc849d5dd3273b8f0ff8f",
+        "sourceBytes": 1986834,
+        "rawMidi": 81,
+        "layer": 0,
+        "file": "violin/81-0.mp3"
+      },
+      {
+        "sourcePath": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_E6_f.wav",
+        "sourceSha": "26855bca28a7be29386cbd6db56d2ae6f7c3b66c",
+        "sourceBytes": 2363554,
+        "rawMidi": 88,
+        "layer": 0,
+        "file": "violin/88-0.mp3"
+      },
+      {
+        "sourcePath": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_A6_f.wav",
+        "sourceSha": "c296065592b8adf9e12f51af9d003b7259ecc6e2",
+        "sourceBytes": 2052254,
+        "rawMidi": 93,
+        "layer": 0,
+        "file": "violin/93-0.mp3"
+      },
+      {
+        "sourcePath": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_C7_f.wav",
+        "sourceSha": "2348056e211ef9b6d309f3718d8e4e49471f65ce",
+        "sourceBytes": 2176486,
+        "rawMidi": 96,
+        "layer": 0,
+        "file": "violin/96-0.mp3"
+      }
+    ]
+  },
+  {
+    "id": "cello",
+    "repo": "sgossner/VSCO-2-CE",
+    "revision": "440300901dfe9275fd84e0b7763af1f8443ae62e",
+    "offset": 12,
+    "loop": true,
+    "samples": [
+      {
+        "sourcePath": "Strings/Cello Section/susvib/susvib_C1_v1_1.wav",
+        "sourceSha": "ff87d1ae488d87189f33a0d18550d3bcde012f3d",
+        "sourceBytes": 2347376,
+        "rawMidi": 24,
+        "layer": 0,
+        "file": "cello/24-0.mp3"
+      },
+      {
+        "sourcePath": "Strings/Cello Section/susvib/susvib_G1_v1_1.wav",
+        "sourceSha": "42a2731d11a4749c3026f0618e21a8c9370c2024",
+        "sourceBytes": 2161700,
+        "rawMidi": 31,
+        "layer": 0,
+        "file": "cello/31-0.mp3"
+      },
+      {
+        "sourcePath": "Strings/Cello Section/susvib/susvib_D2_v1_1.wav",
+        "sourceSha": "8076f809d4f6a8057f3835e12d22751a25e39252",
+        "sourceBytes": 2550956,
+        "rawMidi": 38,
+        "layer": 0,
+        "file": "cello/38-0.mp3"
+      },
+      {
+        "sourcePath": "Strings/Cello Section/susvib/susvib_A2_v1_1.wav",
+        "sourceSha": "76df6b474aff133b2ac9d96bf2466cb6fd865c72",
+        "sourceBytes": 2336738,
+        "rawMidi": 45,
+        "layer": 0,
+        "file": "cello/45-0.mp3"
+      },
+      {
+        "sourcePath": "Strings/Cello Section/susvib/susvib_E3_v1_1.wav",
+        "sourceSha": "63f4d6df3a25fb95f417b5d45b5f8bf6a11107bf",
+        "sourceBytes": 2456672,
+        "rawMidi": 52,
+        "layer": 0,
+        "file": "cello/52-0.mp3"
+      },
+      {
+        "sourcePath": "Strings/Cello Section/susvib/susvib_B3_v1_1.wav",
+        "sourceSha": "16d846690d7c4d385f3cfc8f1fe25873d6bd5b01",
+        "sourceBytes": 1690082,
+        "rawMidi": 59,
+        "layer": 0,
+        "file": "cello/59-0.mp3"
+      },
+      {
+        "sourcePath": "Strings/Cello Section/susvib/susvib_F4_v1_1.wav",
+        "sourceSha": "7f39cccecb392eaa0ff4c94e3607dc2294458a30",
+        "sourceBytes": 1922948,
+        "rawMidi": 65,
+        "layer": 0,
+        "file": "cello/65-0.mp3"
+      }
+    ]
+  },
+  {
+    "id": "flute",
+    "repo": "sgossner/VSCO-2-CE",
+    "revision": "440300901dfe9275fd84e0b7763af1f8443ae62e",
+    "offset": 12,
+    "loop": true,
+    "samples": [
+      {
+        "sourcePath": "Woodwinds/Flute/susNV/LDFlute_susNV_C3_v1_1.wav",
+        "sourceSha": "ac3b6e4b90480a5a64798c2c399f16ea95754015",
+        "sourceBytes": 2642490,
+        "rawMidi": 48,
+        "layer": 0,
+        "file": "flute/48-0.mp3"
+      },
+      {
+        "sourcePath": "Woodwinds/Flute/susNV/LDFlute_susNV_E3_v1_1.wav",
+        "sourceSha": "7a921854e39f8addf99a4dc8e4b3f27e187142c2",
+        "sourceBytes": 2874126,
+        "rawMidi": 52,
+        "layer": 0,
+        "file": "flute/52-0.mp3"
+      },
+      {
+        "sourcePath": "Woodwinds/Flute/susNV/LDFlute_susNV_A3_v1_1.wav",
+        "sourceSha": "b690a4d0006b73699176dd2fab82a9249966e33b",
+        "sourceBytes": 2706216,
+        "rawMidi": 57,
+        "layer": 0,
+        "file": "flute/57-0.mp3"
+      },
+      {
+        "sourcePath": "Woodwinds/Flute/susNV/LDFlute_susNV_E4_v1_1.wav",
+        "sourceSha": "3f351c4623be881464381ac8de2c3cfef99ac646",
+        "sourceBytes": 2591256,
+        "rawMidi": 64,
+        "layer": 0,
+        "file": "flute/64-0.mp3"
+      },
+      {
+        "sourcePath": "Woodwinds/Flute/susNV/LDFlute_susNV_A4_v1_1.wav",
+        "sourceSha": "3007213aa6264efe0619c7321bf2e8df7966b0a2",
+        "sourceBytes": 3460842,
+        "rawMidi": 69,
+        "layer": 0,
+        "file": "flute/69-0.mp3"
+      },
+      {
+        "sourcePath": "Woodwinds/Flute/susNV/LDFlute_susNV_E5_v1_1.wav",
+        "sourceSha": "4017163d62316f9eb0a4a5d375de9f7d110dda64",
+        "sourceBytes": 2956800,
+        "rawMidi": 76,
+        "layer": 0,
+        "file": "flute/76-0.mp3"
+      },
+      {
+        "sourcePath": "Woodwinds/Flute/susNV/LDFlute_susNV_A5_v1_1.wav",
+        "sourceSha": "3f6ea8e543310a6e97ed97ac5b74c9e53ee3b05e",
+        "sourceBytes": 2885970,
+        "rawMidi": 81,
+        "layer": 0,
+        "file": "flute/81-0.mp3"
+      },
+      {
+        "sourcePath": "Woodwinds/Flute/susNV/LDFlute_susNV_C6_v1_1.wav",
+        "sourceSha": "8b69c3cd65834619ad9c1389b3c9f8d50fab15f5",
+        "sourceBytes": 1618152,
+        "rawMidi": 84,
+        "layer": 0,
+        "file": "flute/84-0.mp3"
+      }
+    ]
+  },
+  {
+    "id": "trumpet",
+    "repo": "sgossner/VSCO-2-CE",
+    "revision": "440300901dfe9275fd84e0b7763af1f8443ae62e",
+    "offset": 12,
+    "loop": true,
+    "samples": [
+      {
+        "sourcePath": "Brass/Trumpet/sus/Sum_SHTrumpet_sus_F2_v3_rr1.wav",
+        "sourceSha": "ee1895af491c7c332439dae630de17e1a83a4abd",
+        "sourceBytes": 980856,
+        "rawMidi": 41,
+        "layer": 0,
+        "file": "trumpet/41-0.mp3"
+      },
+      {
+        "sourcePath": "Brass/Trumpet/sus/Sum_SHTrumpet_sus_A2_v3_rr1.wav",
+        "sourceSha": "85310d01faf50dbd83ed4a65ac7bed50d97904e1",
+        "sourceBytes": 1041256,
+        "rawMidi": 45,
+        "layer": 0,
+        "file": "trumpet/45-0.mp3"
+      },
+      {
+        "sourcePath": "Brass/Trumpet/sus/Sum_SHTrumpet_sus_D#3_v3_rr1.wav",
+        "sourceSha": "0b2c29a0d8744377dd839065be025a47b7bde77e",
+        "sourceBytes": 1654796,
+        "rawMidi": 51,
+        "layer": 0,
+        "file": "trumpet/51-0.mp3"
+      },
+      {
+        "sourcePath": "Brass/Trumpet/sus/Sum_SHTrumpet_sus_G3_v3_rr1.wav",
+        "sourceSha": "a301819024fe8d1fb8cdf86f9b5d0d8121c8c073",
+        "sourceBytes": 1638452,
+        "rawMidi": 55,
+        "layer": 0,
+        "file": "trumpet/55-0.mp3"
+      },
+      {
+        "sourcePath": "Brass/Trumpet/sus/Sum_SHTrumpet_sus_D4_v3_rr1.wav",
+        "sourceSha": "815560ece9f2e8d0ad6a33ba24a014345ea59814",
+        "sourceBytes": 1422408,
+        "rawMidi": 62,
+        "layer": 0,
+        "file": "trumpet/62-0.mp3"
+      },
+      {
+        "sourcePath": "Brass/Trumpet/sus/Sum_SHTrumpet_sus_A4_v3_rr1.wav",
+        "sourceSha": "bbdc0773c636c611b953ed1383f8cf1eb6b53b38",
+        "sourceBytes": 1730412,
+        "rawMidi": 69,
+        "layer": 0,
+        "file": "trumpet/69-0.mp3"
+      },
+      {
+        "sourcePath": "Brass/Trumpet/sus/Sum_SHTrumpet_sus_C5_v3_rr1.wav",
+        "sourceSha": "9e43868b7c7e47a8ee107c68c6072756ef0f6bc1",
+        "sourceBytes": 1339832,
+        "rawMidi": 72,
+        "layer": 0,
+        "file": "trumpet/72-0.mp3"
+      }
+    ]
+  }
+]

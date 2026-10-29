@@ -1,6 +1,6 @@
 # Warlike Studio + CHAYAH Suite
 
-Station de création musicale web de HardieBay. Version 0.12.0 : piano roll,
+Station de création musicale web de HardieBay. Version 0.13.0 : piano roll,
 Channel Rack et patterns liés, prises alternatives et comping, bus, envois,
 automation, analyse de loudness et exports multipistes.
 FL Studio guide la composition ; Pro Tools et Logic Pro guident les workflows
@@ -11,12 +11,12 @@ marque CHAYAH Suite et les projets existants restent compatibles.
 
 Une session vide et ses nouvelles pistes n’ont aucun effet inséré. Les modules
 se choisissent dans les inserts ; seules les sessions démo préparent une chaîne.
-Les sections numérotées ci-dessous décrivent l’historique : la section 0.12
-et `docs/verification-0.12.md` décrivent les capacités et limites actuelles.
+Les sections numérotées ci-dessous décrivent l’historique : la section 0.13
+et `docs/verification-0.13.md` décrivent les capacités et limites actuelles.
 
 ## Créer un morceau
 
-**Bibliothèque** propose 62 sons d’instruments, 80 presets d’effets, 12 grooves,
+**Bibliothèque** propose 110 sons d’instruments, 80 presets d’effets, 12 grooves,
 8 percussions synthétisées et 3 sessions de 16 mesures : Nocturne Trap, Soleil Afro
 et Brume R&B. Un son peut être écouté puis ajouté avec une piste et un clip éditable.
 Les sessions comprennent 6 pistes d’instruments, 3 pistes vocales et des repères de
@@ -122,7 +122,7 @@ les réglages. Export : WAV stéréo 44,1 kHz / 16 bits. Tout l’audio est trai
 le navigateur. Les données locales sont propres à l’adresse du site : télécharge
 un projet puis ouvre-le sur la nouvelle adresse pour transférer une session.
 
-La Suite contient 27 modules web ; ce ne sont pas des binaires VST/VST3 Windows
+La Suite contient 39 modules web ; ce ne sont pas des binaires VST/VST3 Windows
 et elle n’héberge pas de VST tiers. TUNE et les traitements sont une implémentation
 web expérimentale, sans garantie de qualité équivalente aux logiciels de référence.
 
@@ -352,3 +352,73 @@ Références officielles consultées :
 
 Vérification : `npm test`, `npm run build` et `tests/exo-browser.html`.
 Voir `docs/verification-0.12.md`.
+
+## 0.13 — Pianos enregistrés et parcours de plugins
+
+**Piste** crée d’abord un type de piste : Audio, Instrument ou Bus/Auxiliaire.
+Le nom et le nombre de pistes se règlent dans ce dialogue. Une piste Instrument
+commence sans générateur : son sélecteur **Instrument** ouvre le choix du son.
+Une piste Audio sert aux prises et fichiers audio ; **Importer audio** reste une
+action séparée. Un bus reçoit le routage, sans clip ni instrument.
+
+Les sélecteurs d’instruments et d’effets sont séparés. La recherche, les catégories
+et les favoris filtrent uniquement le type choisi. Cliquer sur un insert vide
+ouvre les effets ; cliquer sur le nom du module ouvre sa fenêtre ; le voyant
+permet un bypass direct et le menu ⋯ remplace, déplace, copie ou retire le module.
+Les douze inserts sont affichés verticalement dans leur ordre de traitement.
+La fenêtre de plugin montre le rack de sa piste, plutôt qu’une liste mêlant
+tous les instruments et effets. Changer un instrument mélodique conserve les
+notes et les inserts de la piste. Le piano roll propose également ce changement.
+
+La collection ajoute **12 instruments échantillonnés, 48 presets et 132 MP3**
+(9,7 Mo compressés) :
+
+| Instrument | Enregistrements |
+| --- | --- |
+| GRAND | Piano à queue Kawai, 35 samples, deux nuances sur la majorité du clavier |
+| UPRIGHT | Piano droit Yamaha, 15 samples, deux nuances |
+| FM KEYS | Clavier FM TX81Z, 12 samples |
+| HARP | Harpe de concert, 10 samples |
+| MARIMBA | Lames de bois, 8 samples |
+| VIBES | Vibraphone aux mailloches douces, 5 samples |
+| KALIMBA | Kalimba / mbira kényane, 8 samples |
+| STRUM | Strumstick pincé à trois cordes, 8 samples |
+| VIOLIN | Violon solo à l’archet, 9 samples |
+| CELLO | Ensemble de violoncelles, 7 samples |
+| FLUTE | Flûte traversière, 8 samples |
+| TRUMPET | Trompette, 7 samples |
+
+La vélocité règle la dynamique ; les pianos mélangent leurs nuances enregistrées
+lorsqu’elles sont disponibles à la hauteur choisie. Brillance, couleur, attaque,
+relâchement, largeur, transposition et sortie sont réglables. Les sons tenus des
+cordes et vents utilisent des boucles préparées. L’audio est chargé à la première
+utilisation et partagé avec le rendu offline ; un échec de chargement est affiché
+et n’est pas remplacé par un oscillateur. Les anciens VELVET, EXO et autres synthés
+restent disponibles comme instruments distincts.
+
+La Suite compte **39 modules**, dont 19 instruments, et **190 presets**, dont
+110 sons d’instruments et 80 presets d’effets. Les nouveaux instruments
+utilisent des enregistrements VCSL et VSCO 2 Community Edition sous CC0 ; leurs
+sources, révisions et transformations sont dans `dist/samples/sources.json`,
+avec les licences et une page de crédits accessible dans le lecteur.
+
+La sélection est compacte : elle n’inclut pas toutes les notes enregistrées,
+toutes les articulations, la résonance sympathique modélisée ou une pédale MIDI
+continue. Les notes intermédiaires sont transposées à partir du sample proche.
+Le moteur limite à 48 voix simultanées par contexte et borne son cache partagé.
+Les samples sont normalisés et compressés, les queues raccourcies pour le web.
+
+Reproduction des médias (outil de maintenance, Python/numpy/scipy et ffmpeg) :
+`python scripts/prepare-acoustic-samples.py --plan dist/samples/sources.json --cache /tmp/warlike-sample-cache`.
+Le build Cloudflare ne relance pas cette conversion : il vérifie les 132 fichiers
+déjà présents dans le dépôt.
+
+Références :
+
+- https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/mixer_plugin.htm
+- https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/channelrack.htm
+- https://www.image-line.com/fl-studio-learning-content/fl-studio-online-manual/html/playlist_audioclip.htm
+- https://apps.avid.com/proToolsFirstHelp/version12.3/enu/Pro%20Tools%20First%20Help/sess3.tracks.14.40.html
+- https://resources.avid.com/SupportFiles/PT/Pro_Tools_Reference_Guide_2019.6.pdf
+- https://github.com/sgossner/VCSL
+- https://github.com/sgossner/VSCO-2-CE

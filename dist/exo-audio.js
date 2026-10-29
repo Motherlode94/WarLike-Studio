@@ -1,4 +1,4 @@
-import {exoSettings} from './exo.js?v=0.12.0';
+import {exoSettings} from './exo.js?v=0.13.0';
 const db=x=>10**(x/20),waveCurve=fn=>Float32Array.from({length:4097},(_,i)=>fn(i/2048-1));
 const waves=new WeakMap(),voicePools=new WeakMap(),impulses=new WeakMap();
 function customWave(ctx,index){let bank=waves.get(ctx);if(!bank)waves.set(ctx,bank=new Map());if(!bank.has(index)){const real=new Float32Array(33),imag=new Float32Array(33);for(let n=1;n<33;n++)imag[n]=index===4?(n%2?1/(n*n*.6):0):index===5?Math.sin(n*Math.PI*.23)/n:index===6?({1:1,2:.65,3:.3,4:.2,6:.1}[n]||0):0;bank.set(index,ctx.createPeriodicWave(real,imag));}return bank.get(index);}
