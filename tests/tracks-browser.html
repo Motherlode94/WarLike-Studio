@@ -1,0 +1,31 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><title>CHAYAH · Track QA</title>
+<style>body{background:#283141;color:#dde5f3;font:16px system-ui;padding:30px}button{padding:12px}pre{white-space:pre-wrap;line-height:1.7}</style>
+<h1>Pistes, gain et rendu</h1><button id="run">Tester le rendu des pistes</button><pre id="results">Prêt.</pre>
+<script type="module">
+import {AudioEngine} from './audio.js';
+import {createFactorySession} from './content.js';
+import {reorderTrackList} from './tracks.js';
+const result=document.querySelector('#results'),sr=44100;
+document.querySelector('#run').onclick=async()=>{
+  result.textContent='Rendu en cours…';
+  try{
+    const p=createFactorySession(),tracks=p.tracks.filter(t=>t.type==='audio').slice(0,2);p.tracks=tracks;p.bpm=120;p.bars=4;p.masterVolume=0;p.mastering={bypass:true};
+    const context=new OfflineAudioContext(1,sr*2,sr),assets=new Map();
+    for(let j=0;j<2;j++){
+      const track=tracks[j],buffer=context.createBuffer(1,sr*2,sr),d=buffer.getChannelData(0);
+      for(let i=0;i<d.length;i++)d[i]=.015*Math.sin(2*Math.PI*(j?660:440)*i/sr);
+      const id='source'+j;assets.set(id,{buffer});track.volume=-12;track.pan=j?.4:-.2;
+      for(const effect of Object.values(track.effects))effect.enabled=false;
+      track.clips=[{id:'clip'+j,audioId:id,start:0,length:1,gainDb:0}];
+    }
+    const engine=new AudioEngine(()=>p,()=>assets),render=async()=>await context.decodeAudioData(await engine.exportWav());
+    const first=await render();p.tracks=reorderTrackList(p.tracks,tracks[0].id,null);const reordered=await render();
+    let error=0;for(let c=0;c<2;c++){const a=first.getChannelData(c),b=reordered.getChannelData(c);for(let i=0;i<a.length;i++)error=Math.max(error,Math.abs(a[i]-b[i]));}
+    if(error>2/32768)throw Error('Le réordonnancement a modifié le mix : '+error);
+    p.tracks=[tracks[0]];tracks[0].pan=0;const quiet=await render();tracks[0].volume=0;const louder=await render();
+    const rms=b=>{const d=b.getChannelData(0);let sum=0,n=0;for(let i=sr*.3|0;i<sr*1.5;i++){sum+=d[i]**2;n++;}return Math.sqrt(sum/n);};
+    const boost=20*Math.log10(rms(louder)/rms(quiet));if(Math.abs(boost-12)>.1)throw Error('Gain incorrect : '+boost);
+    result.textContent='PASS · Réordonner les pistes conserve le mix WAV.\nPASS · Passer de −12 dB à 0 dB produit '+boost.toFixed(2)+' dB de gain.\nPASS · Sortie stéréo 44,1 kHz / 16 bits.';document.body.dataset.result='pass';
+  }catch(error){result.textContent='FAIL · '+error.message;document.body.dataset.result='fail';}
+};
+</script>

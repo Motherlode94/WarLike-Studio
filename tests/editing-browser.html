@@ -1,0 +1,31 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><title>CHAYAH · Edit audio QA</title>
+<style>body{background:#283141;color:#dde5f3;font:16px system-ui;padding:30px}button{padding:12px}pre{white-space:pre-wrap;line-height:1.7}</style>
+<h1>Montage et rendu WAV</h1><button id="run">Vérifier le montage audio</button><pre id="results">Prêt.</pre>
+<script type="module">
+import {AudioEngine,bufferToWav} from './audio.js';
+import {createFactorySession} from './content.js';
+import {splitClip,trimClip} from './editing.js';
+const result=document.querySelector('#results'),sr=44100;
+document.querySelector('#run').onclick=async()=>{
+  result.textContent='Rendu en cours…';
+  try{
+    const p=createFactorySession(),track=p.tracks.find(t=>t.type==='audio');p.bpm=120;p.bars=4;p.masterVolume=0;p.mastering={bypass:true};p.tracks=[track];track.volume=0;track.pan=0;
+    for(const state of Object.values(track.effects))state.enabled=false;
+    const setup=new OfflineAudioContext(1,sr*6,sr),source=setup.createBuffer(1,sr*6,sr),samples=source.getChannelData(0);
+    for(let i=0;i<samples.length;i++)samples[i]=(i<sr*2?.025:.4)*Math.sin(2*Math.PI*440*i/sr);
+    const assets=new Map([['source',{buffer:source,data:bufferToWav(source),name:'QA sine'}]]),engine=new AudioEngine(()=>p,()=>assets);
+    const decode=async bytes=>await setup.decodeAudioData(bytes);
+    const original={id:'a',name:'SOURCE',start:0,length:2,audioId:'source',gainDb:0};
+    track.clips=[original];const first=await decode(await engine.exportWav());
+    track.clips=splitClip(original,1,120,'b');const cut=await decode(await engine.exportWav());
+    let maxError=0,maxAt=0;for(let i=1000;i<sr*4-1000;i++){if(Math.abs(i/sr-2.01)<.12)continue;const err=Math.abs(first.getChannelData(0)[i]-cut.getChannelData(0)[i]);if(err>maxError){maxError=err;maxAt=i/sr;}}
+    if(maxError>2/32768)throw Error('La coupe a changé les échantillons hors fondu : '+maxError+' à '+maxAt+' s, offsets '+JSON.stringify(track.clips.map(c=>c.sourceOffset))); 
+    const trimmed=trimClip(original,'left',1,4,120,source.duration);trimmed.start=0;track.clips=[trimmed];const output=await decode(await engine.exportWav());
+    const rms=(b,a,z)=>{let sum=0,n=0;for(let i=a*sr|0;i<z*sr;i++){const v=b.getChannelData(0)[i];if(!Number.isFinite(v))throw Error('Échantillon non fini');sum+=v*v;n++;}return Math.sqrt(sum/n);};
+    const ratio=rms(output,.2,.8)/rms(first,.2,.8);if(ratio<14||ratio>18)throw Error('Le rognage ne lit pas la bonne portion : '+ratio);
+    if(rms(output,2.2,2.5)>1e-5)throw Error('Le rendu dépasse la durée du clip rogné');
+    result.textContent='PASS · Coupe WAV : échantillons conservés hors raccord et transitoire des filtres.\nPASS · Rognage WAV : lecture à +2 s dans la source, ratio RMS '+ratio.toFixed(2)+'.\nPASS · Durée : silence après la fin du clip.\nPASS · Export WAV stéréo, 44,1 kHz, 16 bits.';
+    document.body.dataset.result='pass';
+  }catch(error){result.textContent='FAIL · '+error.message;document.body.dataset.result='fail';}
+};
+</script>

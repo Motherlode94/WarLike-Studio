@@ -1,0 +1,30 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><title>CHAYAH · Inserts Audio QA</title>
+<style>body{background:#283141;color:#dde5f3;font:16px system-ui;padding:30px}button{padding:12px}pre{white-space:pre-wrap;line-height:1.7}</style>
+<h1>Inserts : trajet audio et export</h1><button id="run">Tester les inserts</button><pre id="results">Prêt.</pre>
+<script type="module">
+import {AudioEngine,emptyProject} from './audio.js';
+import {ensurePlugins,placeInsert,moveInsert,EFFECTS} from './plugins.js';
+const sr=44100,result=document.querySelector('#results');
+const maxError=(a,b)=>{let e=0;for(let c=0;c<2;c++){const x=a.getChannelData(c),y=b.getChannelData(c);for(let i=0;i<x.length;i++)e=Math.max(e,Math.abs(x[i]-y[i]));}return e;};
+const rmsDiff=(a,b)=>{const x=a.getChannelData(0),y=b.getChannelData(0);let e=0;for(let i=sr*.2|0;i<sr*.8;i++)e+=(x[i]-y[i])**2;return Math.sqrt(e/(sr*.6));};
+function project(){const p=emptyProject(),t=p.tracks.find(t=>t.type==='audio');p.tracks=[t];p.masterVolume=0;t.volume=0;t.pan=0;p.bars=4;p.bpm=120;ensurePlugins(t);return p;}
+function buffer(ctx){const b=ctx.createBuffer(2,sr,sr);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<sr;i++)d[i]=.4*Math.sin(2*Math.PI*440*i/sr)+.3*Math.sin(2*Math.PI*4200*i/sr);}return b;}
+async function render(p,mutate){const ctx=new OfflineAudioContext(2,sr,sr),engine=new AudioEngine(()=>p,()=>new Map()),g=engine.buildGraph(ctx);if(mutate)mutate(engine,g,ctx);const source=ctx.createBufferSource();source.buffer=buffer(ctx);source.connect(g.channels.get(p.tracks[0].id).input);source.start();const rendered=await ctx.startRendering();for(const channel of g.channels.values())channel.pack.dispose();return rendered;}
+document.querySelector('#run').onclick=async()=>{const lines=[],pass=s=>{lines.push('PASS · '+s);result.textContent=lines.join('\n');};try{
+  const p=project(),t=p.tracks[0],dry=await render(p),ctx=new OfflineAudioContext(2,sr,sr),expected=buffer(ctx);
+  const error=maxError(dry,expected);if(error>1e-6)throw Error('Trajet vide non neutre : '+error);pass('Inserts piste et master vides : signal conservé, erreur '+error.toExponential(2));
+  placeInsert(t,0,'color');t.effects.color.drive=.65;const wet=await render(p);if(rmsDiff(wet,dry)<.02)throw Error('COLOR ne traite pas le signal');
+  t.effects.color.enabled=false;const bypass=await render(p);if(maxError(bypass,dry)>1e-6)throw Error('Bypass non neutre');pass('Bypass : signal direct, sans filtre ni délai caché');
+  placeInsert(t,0,null);const removed=await render(p);if(maxError(removed,dry)>1e-6)throw Error('Retrait non neutre');pass('Retirer le plugin supprime réellement son traitement');
+  placeInsert(t,0,'color');placeInsert(t,1,'sculpt');t.effects.sculpt.cutoff=900;const before=await render(p);moveInsert(t,0,1);const after=await render(p),difference=rmsDiff(before,after);if(difference<.005)throw Error('Ordre audio inchangé : '+difference);pass('Ordre réel COLOR / SCULPT : différence RMS '+difference.toFixed(4));
+  const live=await render(p,(engine,g,ctx)=>{moveInsert(t,0,1);engine.syncEffects(g.channels.get(t.id),t,ctx.currentTime,true);});if(maxError(live,before)>1e-5)throw Error('Reconnexion temps réel incorrecte');pass('La reconnexion du graphe utilise le nouvel ordre sans recréer la piste');
+  for(const id of [...t.inserts])if(id)placeInsert(t,t.inserts.indexOf(id),null);
+  p.mastering={inserts:['peak',null,null],peak:{enabled:true,drive:6,ceiling:-6}};const limited=await render(p);if(rmsDiff(limited,dry)<.05)throw Error('Master insert inactif');p.mastering.bypass=true;const masterBypass=await render(p);if(maxError(masterBypass,dry)>1e-6)throw Error('Master bypass non neutre');pass('Master vide ou bypassé : aucun limiteur automatique');
+  p.mastering={inserts:[]};
+  for(const id of Object.keys(EFFECTS)){placeInsert(t,0,id);if('mix' in t.effects[id])t.effects[id].mix=Math.min(EFFECTS[id].controls.find(c=>c.key==='mix').max,.5);const out=await render(p);let energy=0;for(const value of out.getChannelData(0)){if(!Number.isFinite(value))throw Error(id+' : signal non fini');energy+=value*value;}if(energy<.001)throw Error(id+' : sortie silencieuse');placeInsert(t,0,null);}
+  pass('Les douze modules insérés séparément produisent un signal fini et non silencieux');
+  placeInsert(t,0,'color');placeInsert(t,1,'sculpt');t.clips=[{id:'sourceclip',start:0,length:.5,audioId:'source',gainDb:0}];const assets=new Map([['source',{buffer:expected}]]),engine=new AudioEngine(()=>p,()=>assets),decode=new OfflineAudioContext(2,1,sr);
+  const wavA=await decode.decodeAudioData(await engine.exportWav());moveInsert(t,0,1);const wavB=await decode.decodeAudioData(await engine.exportWav());if(rmsDiff(wavA,wavB)<.005)throw Error('Ordre ignoré à l’export');pass('L’export WAV applique également l’ordre des inserts');
+  result.textContent=lines.join('\n')+'\nTOUS LES ESSAIS ONT RÉUSSI';document.body.dataset.result='pass';
+}catch(error){result.textContent=lines.join('\n')+'\nFAIL · '+error.stack;document.body.dataset.result='fail';}};
+</script></html>

@@ -1,1 +1,284 @@
-# Warlike-Studio
+# Warlike Studio + CHAYAH Suite
+
+Station de création musicale web de HardieBay. Version 0.11.1 : piano roll,
+Channel Rack et patterns liés, prises alternatives et comping, bus, envois,
+automation, analyse de loudness et exports multipistes.
+FL Studio guide la composition ; Pro Tools et Logic Pro guident les workflows
+d’enregistrement, de montage, de mix et de mastering.
+
+Le studio porte désormais le nom **Warlike Studio**. Les effets conservent leur
+marque CHAYAH Suite et les projets existants restent compatibles.
+
+Une session vide et ses nouvelles pistes n’ont aucun effet inséré. Les modules
+se choisissent dans les inserts ; seules les sessions démo préparent une chaîne.
+Les sections numérotées ci-dessous décrivent l’historique : la section 0.11
+et `docs/verification-0.11.md` décrivent les capacités et limites actuelles.
+
+## Créer un morceau
+
+**Bibliothèque** propose 30 sons d’instruments, 60 presets d’effets, 12 grooves,
+8 percussions synthétisées et 3 sessions de 16 mesures : Nocturne Trap, Soleil Afro
+et Brume R&B. Un son peut être écouté puis ajouté avec une piste et un clip éditable.
+Les sessions comprennent 6 pistes d’instruments, 3 pistes vocales et des repères de
+structure. Le tempo d’un groove ajouté suit la session en cours.
+
+Ouvrir une session de départ conserve une copie dans **Projet → Session précédente**.
+Les audios restent dans le stockage local. Les sessions existantes ne sont pas
+remplacées automatiquement par le nouveau contenu.
+
+## Instruments et mix
+
+- **PULSE** : 8 percussions synthétisées, séquenceur de 1 à 32 mesures et export WAV des coups.
+- **MONO** : basse 808, sub et harmoniques.
+- **VELVET** : synthé polyphonique doux.
+- **NOVA** : lead à deux oscillateurs.
+- **HALO** : nappe à attaque et relâchement longs.
+- **STRING** : synthé pincé, corps et brillance.
+- **COLOR** : saturation, dosage parallèle et gain de sortie.
+- **SCULPT** : filtres passe-haut et passe-bas.
+- **PRISM** : EQ trois bandes, fréquences réglables, Q de la bande centrale et
+  courbe de réponse calculée à partir des filtres.
+- **GLUE** : compresseur, seuil, ratio, attaque, release, make-up, knee et mélange
+  parallèle. La fenêtre affiche la réduction de gain réelle.
+- **ECHO** : delay synchronisé au tempo et feedback.
+- **AURA** : réverbération à convolution stéréo.
+- **TUNE** : correction de hauteur monophonique après la prise, avec tonalité,
+  gamme, vitesse, quantité, mix, comparaison et restauration de l’original.
+
+**CHAYAH Suite** ouvre les fenêtres flottantes déplaçables et redimensionnables.
+Elles restent liées à leur piste lorsque la sélection change. Les knobs acceptent
+le glisser vertical, Maj pour affiner, la molette et la saisie numérique. Les racks
+`.chayahfx` conservent les paramètres et les bypass. Les anciens racks reçoivent
+les nouveaux paramètres avec leurs valeurs compatibles.
+
+## Packs CHAYAH (0.7)
+
+**Bibliothèque → Packs** regroupe deux collections, avec 5 presets par module :
+
+| Pack | Effet | Usage |
+| --- | --- | --- |
+| Vocal Essentials | HUSH | Gate doux, seuil, atténuation maximale, réponse |
+| Vocal Essentials | SIBIL | Atténuation dynamique des sifflantes dans une bande réglable |
+| Motion & Color | EMBER | Saturation asymétrique, caractère, tonalité, mix et sortie |
+| Motion & Color | ORBIT | Chorus stéréo à deux retards modulés |
+| Motion & Color | SWAY | Tremolo et autopan avec vitesse en Hz |
+| Motion & Color | RELAY | Delay croisé, temps au tempo, feedback et filtre |
+
+Sélectionne la piste, choisis le preset puis **Appliquer**. **Ouvrir** affiche les
+réglages complets. Les deux collections sont aussi accessibles dans le catalogue
+de la Suite. HUSH et SIBIL affichent une mesure de leur atténuation. RELAY affiche
+les durées de ses deux étages en millisecondes. Les racks `.chayahfx` et projets
+conservent ces réglages ; les six modules sont bypassés lors d’une mise à jour.
+
+Les fonctions prennent pour repères les familles de traitements Waves et Soundtoys.
+Ce sont des effets CHAYAH originaux, sans code, assets, presets ou licence de ces
+éditeurs. Aucune émulation identique de leurs algorithmes n’est revendiquée.
+SIBIL est un traitement dynamique de bande, sans séparation de voix ni débruitage IA.
+ORBIT est un chorus à retards modulés, sans transposition de hauteur indépendante.
+HUSH réduit les passages calmes et ne supprime pas le bruit sous une voix active.
+
+Ordre du signal : HUSH → SIBIL → COLOR → filtres/PRISM → GLUE → EMBER → ORBIT →
+SWAY → RELAY → pan/fader/master ; les sends ECHO/AURA partent après RELAY.
+Les répétitions croisées de RELAY peuvent inclure un bloc de latence de feedback
+natif. La queue d’export est ajustée au delay, avec une limite de 20 secondes.
+Les LFO de modulation sont libres et ne se synchronisent pas au transport.
+
+## Mastering
+
+Le bouton **Mastering** ouvre la chaîne qui traite la somme stéréo du morceau :
+
+1. **BALANCE** : coupe-bas et EQ grave, médium, air.
+2. **PRESS** : compression de bus avec réduction de gain mesurée.
+3. **PEAK** : gain d’entrée, release et plafond de sortie sur les échantillons.
+
+Presets : Départ neutre, Gentle Finish, Trap Focus, R&B Silk. Bypass global A/B,
+activation par module, meters L/R, crête, RMS court, peak hold réinitialisable,
+racks `.chayahmaster` et sauvegarde dans les projets. Le fader master est placé
+avant la chaîne. Les mêmes traitements servent à la lecture et à l’export WAV.
+Les modules de mastering sont désactivés par défaut, y compris pour les anciennes
+sessions. L’ancienne compression de sécurité de sortie reste active en bypass.
+
+PEAK associe une compression rapide et un écrêtage de sécurité au plafond choisi.
+Ce plafond concerne les échantillons, pas les crêtes reconstruites (true peak).
+Les meters affichent des mesures courtes et ne calculent pas des LUFS intégrés.
+La réduction affichée par PEAK est celle du compresseur, hors écrêtage de sécurité.
+La comparaison A/B ne compense pas automatiquement la différence de volume.
+
+## Enregistrement, édition et sauvegarde
+
+Import des formats audio reconnus par le navigateur, micro, piano roll, arrangement,
+mixeur, inspecteur, undo/redo et sauvegarde IndexedDB. Jusqu’à 32 mesures et 64 pistes.
+Un clic sélectionne un clip ; V déplace/redimensionne, P dessine, FIT ajuste la vue.
+Les notes bouclent sur deux mesures et les batteries sur une mesure.
+
+Le gain micro numérique va de 0 à +24 dB. Le niveau auto après la prise vise une
+crête à −6 dBFS et conserve l’original. Un clip audio dispose de son propre gain
+non destructif et d’une normalisation. Les audios redimensionnés sont recadrés
+sans time-stretch. TUNE utilise du code YIN/PSOLA original dans un worker et traite
+les prises isolées de moins de 3 minutes ; il ne corrige pas le micro en direct.
+
+**Projet → Télécharger le projet** produit un `.chayah` portable avec les audios et
+les réglages. Export : WAV stéréo 44,1 kHz / 16 bits. Tout l’audio est traité dans
+le navigateur. Les données locales sont propres à l’adresse du site : télécharge
+un projet puis ouvre-le sur la nouvelle adresse pour transférer une session.
+
+La Suite contient 22 modules web ; ce ne sont pas des binaires VST/VST3 Windows
+et elle n’héberge pas de VST tiers. TUNE et les traitements sont une implémentation
+web expérimentale, sans garantie de qualité équivalente aux logiciels de référence.
+
+## Déployer sur Cloudflare depuis GitHub
+
+Application statique sans dépendance. `wrangler.jsonc` sert `dist/`.
+
+| Réglage Workers & Pages | Valeur |
+| --- | --- |
+| Branche | `main` |
+| Répertoire racine | `/` |
+| Build command | `npm run build` |
+| Deploy command | `npx wrangler deploy` |
+| Nom du Worker | `chayah-studio` |
+
+Alternative Pages : framework **None**, build `npm run build`, sortie `dist`.
+Aucun identifiant de compte ou secret Cloudflare n’est inclus dans le code.
+La connexion ChatGPT de l’hébergement Sites n’est pas incluse dans l’application.
+
+- https://developers.cloudflare.com/workers/ci-cd/builds/configuration/
+- https://developers.cloudflare.com/workers/static-assets/
+
+## Vérification locale
+
+Node.js 22 ou plus récent :
+
+```sh
+npm test
+npm run build
+python -m http.server 8080
+```
+
+Studio : http://localhost:8080/dist/ ; banc de rendu audio :
+http://localhost:8080/tests/content-browser.html et
+http://localhost:8080/tests/packs-browser.html . Le micro nécessite HTTPS ou
+localhost et l’autorisation du navigateur. Les tests de signal utilisent des sons
+synthétiques sans autorisation micro. Voir `docs/verification-0.6.md` et `docs/verification-0.7.md`.
+
+## Références DSP
+
+- de Cheveigné & Kawahara, *YIN*, JASA (2002), DOI 10.1121/1.1458024.
+- https://www.dafx.de/DAFX_Book_Page_2nd_edition/chapter6.html
+- https://www.w3.org/TR/webaudio-1.1/
+
+
+## 0.8 — Édition / Mix
+
+L’interface utilise une disposition de studio inspirée des fenêtres Edit et Mix : transport argenté, compteurs verts, clips contrastés, liste des pistes et des clips, et deux inserts accessibles dans chaque en-tête. Le rack inférieur est replié au démarrage ; ses onglets l’ouvrent et sa séparation ajuste sa hauteur.
+
+La barre d’édition propose Smart, Déplacer, Rogner, Couper et Dessin. Le mode Grille utilise un pas de 1/16, 1/8, 1/4 ou une mesure ; Libre et Alt permettent de travailler hors grille. B coupe au curseur, les flèches décalent le clip, Ctrl+C/Ctrl+V copient et collent sur une piste de même type. Ctrl+= alterne Édition et Mix.
+
+Les coupes et rognages audio conservent la source et son décalage en secondes. Les mêmes décalages sont consommés par la lecture, la reprise au milieu d’un clip et le rendu WAV. Les patterns conservent leur phase après découpe. La console donne accès aux inserts actifs et à l’ajout d’un insert, lié à sa propre piste.
+
+Validation : `npm test` (40 tests), `npm run build`, et `tests/editing-browser.html` pour un rendu OfflineAudioContext réel. Pour cette dernière page, la copier temporairement dans dist/_edit-qa.html, la servir dans la prévisualisation, puis la retirer avant publication. Le test compare les échantillons WAV hors raccord et transitoire des filtres, avec une tolérance de deux unités de quantification 16 bits. Des fondus de 5 ms sont ajoutés aux bords par le moteur existant.
+
+Limites : édition monoclips, pas encore de groupes de sélection, automation de volume, comping de prises ou compensation complète de latence. Les instruments restent nos moteurs de synthèse ; les modules web ne sont pas des binaires VST3.
+
+
+## 0.9 — Pistes et propriétés
+
+- Glisser le nom ou la poignée réordonne une piste dans la liste des pistes, dans Edit ou dans Mix. Le repère jaune indique la position d’insertion. Échap ou un dépôt hors zone annule le geste. Ctrl+Z/Ctrl+Maj+Z permettent d’annuler/rétablir. Les flèches du panneau et Ctrl+Alt+↑/↓ proposent la même opération.
+- Cliquer sur un nom, sur ⋯, ou effectuer un clic droit sur le nom ouvre les propriétés. Le bouton Piste de la barre d’outils affiche/masque ce panneau, qui reste accessible en console et se superpose sur écran étroit.
+- VOL et PAN sont des commandes dans l’en-tête, avec contrôles flottants. Volume, panoramique, nom, couleur, mute/solo et effets sont accessibles dans le panneau. Le volume est réglable de −48 à +12 dB et sa saisie réagit immédiatement ; 0 dB restaure le gain unitaire.
+- Le réordonnancement conserve les objets de piste et leurs identifiants, clips, références audio et réglages. Il ne change pas le moteur sonore ou l’ordre des processeurs. L’ordre et les volumes se conservent dans le projet enregistré. La prise micro bloque le réordonnancement pendant l’enregistrement.
+
+Références Avid consultées pour les interactions :
+
+- https://www.avid.com/pro-tools/user-guide/edit-window — fenêtres Edit, commandes de pistes et affichage I/O/inserts.
+- https://apps.avid.com/protoolsfirsthelp/version12.3/enu/Pro%20Tools%20First%20Help/mix1.basic.54.37.html — fenêtre de sortie d’une piste : fader, panoramique, mute/solo.
+- https://resources.avid.com/SupportFiles/attach/Pro_Tools/12.6/Pro_Tools_Reference_Guide.pdf — sections I/O View et Volume Indicator, extraits indexés consultés pour le fader au clic sur l’indicateur de volume. Le guide PDF complet n’a pas pu être chargé par l’outil de lecture.
+- https://resources.avid.com/SupportFiles/attach/Pro_Tools/10.1/Pro_Tools_Reference_Guide.pdf — extrait indexé Track List sur le glissement des noms pour réordonner les pistes.
+
+Il s’agit d’interactions CHAYAH implémentées à partir de ces références ; ce n’est pas une implémentation complète de Pro Tools. Les effets CHAYAH conservent leur chaîne existante. Les cinq emplacements de plugins A–E configurables à ordre arbitraire, les bus de routage utilisateur, l’automation et le comping restent à développer.
+
+
+## 0.10 — Inserts choisis par l’utilisateur
+
+Le premier démarrage sans sauvegarde, Nouvelle session, les pistes ajoutées,
+les imports audio et les prises sur une nouvelle piste partent sans effet inséré.
+Les instruments restent ceux explicitement choisis à la création de leur piste.
+Seules les sessions démo chargées dans la bibliothèque ont une chaîne préparée.
+Une sauvegarde existante conserve ses modules actifs et leurs réglages.
+
+Chaque piste dispose de douze emplacements A–L : clic sur un emplacement vide
+pour choisir un effet CHAYAH, clic sur son nom pour le régler, menu ⋯ pour
+remplacer, bypasser, retirer ou échanger sa position avec un autre emplacement.
+Un module bypassé garde son emplacement et ses réglages. Chaque type d’effet
+peut occuper un seul emplacement par piste dans cette version. Le master possède
+trois emplacements pour BALANCE, PRESS et PEAK, avec les mêmes opérations.
+L’ordre des emplacements est l’ordre réel des traitements, à la lecture et dans
+le WAV. L’état des emplacements est conservé dans les projets et les racks.
+Les effets absents et bypassés sont contournés dans le graphe audio. Le limiteur
+master automatique historique est supprimé : PEAK agit uniquement si l’utilisateur
+l’insère et l’active. Le fader, le panoramique et le meter restent indépendants.
+
+Les anciens projets sans liste d’inserts migrent leurs effets actifs dans leur
+ordre historique. Les réglages des effets retirés restent mémorisés pour une
+réinsertion, sans traitement tant qu’ils sont absents. Les plugins VST3 natifs
+externes restent non pris en charge par cette application web.
+
+Validation : `npm test`, `npm run check`, `npm run build`, contrôles navigateur
+et rendus OfflineAudioContext décrits dans `docs/verification-0.10.md`.
+
+## 0.11 — Composer, enregistrer et mixer
+
+**Channel Rack** crée des canaux d’instruments et des patterns de 1 à 32 mesures.
+Écrire les notes ou les pas de batterie, écouter en **PAT**, puis **Placer en
+Playlist au curseur** pour construire le morceau. **SONG** lit l’arrangement.
+Les clips d’un même pattern restent liés. Les grooves et les remplissages
+1/8–1/4 accélèrent l’écriture de batterie ; ils restent modifiables.
+
+Le piano roll propose dessin, sélection multiple, déplacement d’accords,
+redimensionnement, duplication, grille ou placement libre, quantification,
+accords, notes fantômes et vélocités. Ctrl+clic sélectionne, Ctrl+A/C/V/D
+sélectionnent/copient/collent/dupliquent ; Suppr efface ; Alt+Q quantifie.
+Glisser le bord droit règle la durée. Alt+molette règle une vélocité. Le clavier
+MIDI et la capture de notes demandent une autorisation Web MIDI explicite.
+
+Les propriétés de piste réunissent sortie, bus/auxiliaires, envois pré/post,
+automation OFF/READ/WRITE, gel audio et playlists de prises. Le comping copie
+une plage de la prise choisie sans supprimer ses sources. Les clips audio
+offrent fondus, crossfade, sélection/groupes, gain et transformation de durée
+ou de hauteur avec restauration de l’original. Le changement de tempo conserve
+la position absolue des audios. La session peut atteindre 2048 mesures.
+
+Douze inserts restent libres sur chaque piste ; plusieurs instances du même
+effet ont leurs propres paramètres. Le master a trois modules dédiés. Un bus
+PREMASTER créé par l’utilisateur permet d’utiliser les autres effets en amont.
+L’automation couvre volume, panoramique, niveaux d’envoi et paramètres natifs
+exposés dans son éditeur ; les réglages non automatisables ne sont pas proposés.
+
+Les réglages audio proposent entrée, canal 1/2/stéréo, gain numérique,
+monitoring à travers les inserts, conservation des prises et décalage de
+compensation mesurable par bouclage. La capture PCM passe par AudioWorklet
+en contexte sécurisé. Les prises sont conservées avant les effets.
+
+**Mastering** analyse LUFS intégré, maximum court terme, sample peak et une
+estimation de crête interpolée 4×. Le niveau cible s’applique uniquement sur
+demande. **Exporter** prépare un lien WAV ou ZIP : mix, piste, bus ou stems,
+44,1/48/96 kHz, PCM 16/24 bits ou float 32 bits, plage, queues et dither optionnel.
+**Projet → Versions / restaurer** conserve douze points locaux avec leurs audios.
+Télécharger le projet reste nécessaire pour une copie indépendante de l’appareil.
+
+Limites : DAW web expérimental, sans hôte VST/AAX/AU natif. Compensation de
+latence limitée aux délais connus de GLUE, time-stretch WSOLA expérimental,
+crête interpolée non certifiée true-peak. Rendu en mémoire avec garde de 768 Mio.
+Le matériel audio, le bouclage et le clavier MIDI n’ont pas été testés physiquement.
+Voir `docs/verification-0.11.md` pour les contrôles effectués.
+
+Références de workflow consultées :
+
+- https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/pianoroll.htm
+- https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/channelrack.htm
+- https://www.avid.com/pro-tools/user-guide/creating-busses
+- https://www.avid.com/pro-tools/user-guide/playlists
+- https://www.avid.com/pro-tools/user-guide/automation
+- https://www.avid.com/pro-tools/user-guide/bouncing-stems
+- https://support.apple.com/guide/logicpro/welcome/mac
+- https://www.itu.int/rec/R-REC-BS.1770

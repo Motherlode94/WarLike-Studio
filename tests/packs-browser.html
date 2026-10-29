@@ -1,0 +1,32 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><title>CHAYAH packs · Audio QA</title>
+<style>body{background:#18201c;color:#d7e3d3;font:15px system-ui;padding:35px}button{padding:14px}pre{white-space:pre-wrap;line-height:1.7}</style>
+<h1>CHAYAH · Packs de mix</h1><button id="run">Tester les six effets</button><pre id="results">Prêt.</pre>
+<script type="module">
+import {createPackProcessors,syncPackProcessors} from '../dist/pack-audio.js';
+import {pluginDefaults} from '../dist/plugins.js';
+import {PACK_EFFECTS} from '../dist/packs.js';
+import {AudioEngine} from '../dist/audio.js';
+import {createFactorySession} from '../dist/content.js';
+import {applyFactoryPreset} from '../dist/bundle.js';
+const sr=44100,results=document.querySelector('#results');
+const rms=(data,a=.4,b=1.4)=>{let sum=0,count=0;for(let i=Math.floor(a*sr);i<Math.min(data.length,b*sr);i++){if(!Number.isFinite(data[i]))throw new Error('Signal non fini');sum+=data[i]**2;count++;}return Math.sqrt(sum/count);};
+const harmonic=(data,f,a=.5,b=1.5)=>{let s=0,c=0,n=0;for(let i=a*sr|0;i<b*sr;i++){s+=data[i]*Math.sin(2*Math.PI*f*i/sr);c+=data[i]*Math.cos(2*Math.PI*f*i/sr);n++;}return 2*Math.hypot(s,c)/n;};
+async function render(id,settings={},signal=t=>.2*Math.sin(2*Math.PI*440*t),bpm=120){
+  const ctx=new OfflineAudioContext(2,sr*2,sr),input=ctx.createGain(),middle=ctx.createGain(),rack=createPackProcessors(ctx,input,middle),effects=pluginDefaults('audio').effects;
+  if(id)Object.assign(effects[id],settings,{enabled:true});syncPackProcessors(rack,effects,bpm,0,true);rack.cleanOutput.connect(middle);rack.creativeOutput.connect(ctx.destination);
+  const source=ctx.createBufferSource(),buffer=ctx.createBuffer(2,sr*2,sr);for(let c=0;c<2;c++){const data=buffer.getChannelData(c);for(let i=0;i<data.length;i++)data[i]=signal(i/sr,i,c);}source.buffer=buffer;source.connect(input);source.start();const output=await ctx.startRendering(),channels=[output.getChannelData(0),output.getChannelData(1)];for(const data of channels)if(!data.every(Number.isFinite))throw new Error('Signal non fini');rack.dispose();return channels;
+}
+document.querySelector('#run').onclick=async()=>{const button=document.querySelector('#run'),lines=[];button.disabled=true;results.textContent='Rendus audio en cours…';const pass=s=>{lines.push('PASS '+s);results.textContent=lines.join('\n');};try{
+  const dry=await render();let error=0;for(let i=0;i<dry[0].length;i++)error=Math.max(error,Math.abs(dry[0][i]-.2*Math.sin(2*Math.PI*440*i/sr)));if(error>1e-5)throw new Error('Bypass des packs non neutre : '+error);pass('Six effets bypassés : signal préservé');
+  const gateSignal=t=>(t<.5?.001:.15)*Math.sin(2*Math.PI*400*t),gateDry=await render(null,{},gateSignal),gate=await render('hush',{threshold:-30,range:36,response:10},gateSignal),quiet=rms(gate[0],.2,.45)/rms(gateDry[0],.2,.45),loud=rms(gate[0],.8,1.4)/rms(gateDry[0],.8,1.4);if(quiet>.03||loud<.97)throw new Error('HUSH signal incorrect '+quiet+' '+loud);pass('HUSH : faible signal '+(20*Math.log10(quiet)).toFixed(1)+' dB, signal fort préservé');
+  const high=t=>.4*Math.sin(2*Math.PI*6500*t),highDry=await render(null,{},high),ess=await render('sibil',{frequency:6500,threshold:-24,range:9,mix:1},high),essRatio=rms(ess[0])/rms(highDry[0]);const low=t=>.4*Math.sin(2*Math.PI*300*t),lowDry=await render(null,{},low),lowEss=await render('sibil',{frequency:6500,threshold:-24,range:9,mix:1},low);if(essRatio>.65||Math.abs(rms(lowEss[0])/rms(lowDry[0])-1)>.03)throw new Error('SIBIL sélectivité incorrecte');pass('SIBIL : bande 6,5 kHz '+(20*Math.log10(essRatio)).toFixed(1)+' dB, grave préservé');
+  const soft=t=>.01*Math.sin(2*Math.PI*6500*t),softEss=await render('sibil',{frequency:6500,threshold:-24,range:9,mix:1},soft);if(Math.abs(rms(softEss[0])/(.01/Math.sqrt(2))-1)>.02)throw new Error('SIBIL agit sous le seuil');pass('SIBIL : signal sous le seuil préservé');
+  const ember=await render('ember',{drive:20,character:.6,mix:1,tone:18000,output:0});if(harmonic(ember[0],1320)<.005)throw new Error('EMBER sans harmoniques');pass('EMBER : harmoniques mesurées sur le signal');
+  const chorus=await render('orbit',{rate:.7,depth:.6,width:1,mix:.8}),side=Float32Array.from(chorus[0],(v,i)=>v-chorus[1][i]);if(rms(side)<.005)throw new Error('ORBIT sans largeur');pass('ORBIT : signal latéral stéréo RMS '+rms(side).toFixed(4));
+  const pan=await render('sway',{rate:1,depth:0,pan:1,mix:1});if(rms(pan[1],.15,.3)<rms(pan[0],.15,.3)*2||rms(pan[0],.65,.8)<rms(pan[1],.65,.8)*2)throw new Error('SWAY panoramique immobile');pass('SWAY : alternance gauche/droite mesurée');
+  const trem=await render('sway',{rate:2,depth:1,pan:0,mix:1});if(rms(trem[0],.365,.385)>rms(trem[0],.115,.135)*.05)throw new Error('SWAY tremolo sans profondeur');pass('SWAY : creux de tremolo mesuré');
+  const impulse=(t,i)=>i===882?.7:0,echo=await render('relay',{beats:.5,feedback:.4,tone:16000,mix:1},impulse),peak=(data,a,b)=>{let v=0;for(let i=a*sr|0;i<b*sr;i++)v=Math.max(v,Math.abs(data[i]));return v;};if(peak(echo[0],.268,.272)<.05||peak(echo[1],.643,.651)<.01||peak(echo[0],.02,.25)>1e-5)throw new Error('RELAY temps/panoramique incorrects '+JSON.stringify({leftAt:echo[0].findIndex(v=>Math.abs(v)>.001)/sr,rightAt:echo[1].findIndex(v=>Math.abs(v)>.001)/sr,left:peak(echo[0],.268,.272),right:peak(echo[1],.643,.647),early:peak(echo[0],.02,.25)}));pass('RELAY : échos croisés au tempo (tolérance d’un bloc de feedback natif)');
+  const project=createFactorySession();project.bars=4;for(const track of project.tracks)track.clips=track.clips.filter(c=>c.start<4);for(const id of Object.keys(PACK_EFFECTS))applyFactoryPreset(project.tracks[0],id,0);const engine=new AudioEngine(()=>project,()=>new Map()),wav=await engine.exportWav(),view=new DataView(wav);let energy=0;for(let i=44;i<wav.byteLength;i+=2)energy+=view.getInt16(i,true)**2;if(!energy||view.getUint16(22,true)!==2)throw new Error('WAV invalide');pass('Export WAV stéréo : les six modules actifs sur PULSE');
+  results.textContent=lines.join('\n')+'\nTOUS LES ESSAIS ONT RÉUSSI';
+}catch(error){results.textContent=lines.join('\n')+'\nFAIL '+error.stack;}finally{button.disabled=false;}};
+</script></html>
