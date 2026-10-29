@@ -1,4 +1,4 @@
-import {ACOUSTIC_BANKS,ACOUSTIC_INSTRUMENTS,sampleSettings,sampleZones} from './acoustic.js?v=0.13.0';
+import {ACOUSTIC_BANKS,ACOUSTIC_INSTRUMENTS,sampleSettings,sampleZones} from './acoustic.js?v=0.14.0';
 const banks=new Map(),pools=new WeakMap();let cachedBytes=0;const MAX_CACHE=256*1024*1024;
 export async function loadAcousticBank(ctx,type,onProgress=()=>{}){
  const def=ACOUSTIC_BANKS[type];if(!def)throw Error('Banque inconnue.');const key=ctx.sampleRate+':'+type;

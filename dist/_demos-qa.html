@@ -1,0 +1,26 @@
+<!doctype html><meta charset="utf-8"><title>WarLike · Demo audio QA</title>
+<style>body{background:#20251f;color:#e1dccb;font:15px monospace;padding:28px}button{padding:12px}pre{white-space:pre-wrap}</style>
+<h1>WarLike Studio · Démos et stabilité audio</h1><button id="run">Vérifier les trois démos</button><pre id="results">Prêt.</pre><script type="module">
+import {AudioEngine,emptyProject} from './audio.js';
+import {createFactorySession,SESSION_TEMPLATES} from './content.js';
+import {placeInsert,copyInsert} from './plugins.js';
+const output=document.querySelector('#results'),assert=(ok,message)=>{if(!ok)throw Error(message);};
+document.querySelector('#run').onclick=async()=>{document.querySelector('#run').disabled=true;output.textContent='';try{
+ for(const template of SESSION_TEMPLATES){
+  const p=createFactorySession(template.id),e=new AudioEngine(()=>p,()=>new Map());output.textContent+='Rendu : '+p.name+'…\n';
+  const buffer=await e.renderRange({sampleRate:44100,tail:true});let peak=0,energy=0;const data=buffer.getChannelData(0);
+  for(const v of data){assert(Number.isFinite(v),p.name+' signal non fini');peak=Math.max(peak,Math.abs(v));energy+=v*v;}
+  assert(peak>.02&&peak<.99,p.name+' peak '+peak);assert(Math.sqrt(energy/data.length)>.003,p.name+' trop faible');
+  for(let section=0;section<4;section++){let sum=0;const begin=Math.round(section*4*240/p.bpm*44100),end=Math.round((section+1)*4*240/p.bpm*44100);for(let i=begin;i<end;i++)sum+=data[i]**2;assert(Math.sqrt(sum/(end-begin))>.002,p.name+' section silencieuse '+section);}
+  output.textContent+='PASS '+p.name+' : 16 mesures, quatre sections audibles, stéréo finie · crête '+(20*Math.log10(peak)).toFixed(1)+' dBFS\n';
+ }
+ let p=emptyProject();const ctx=new OfflineAudioContext(2,44100,44100),e=new AudioEngine(()=>p,()=>new Map());
+ let graph=e.buildGraph(ctx);assert(Object.keys(graph.channels.values().next().value.pack.modules).length===0,'processeurs sur insert vide');
+ e.ctx=ctx;e.graph=graph;e.master=graph.master;e.channels=graph.channels;
+ for(let i=0;i<12;i++){e.resetSession();p=createFactorySession(SESSION_TEMPLATES[i%3].id);e.sync();assert(e.channels.size===9,'anciens canaux conservés');for(const ch of e.channels.values())assert(Object.keys(ch.pack.modules).length===0,'packs inutilisés créés');}
+ output.textContent+='PASS 12 changements de démo : neuf canaux, aucun pack FX inutilisé\n';
+ const t=p.tracks[0];placeInsert(t,0,'exoair');e.sync();assert(e.channels.get(t.id).pack.modules.exoair,'FX non créé');const second=copyInsert(t,0,1);e.sync();assert(e.channels.get(t.id).instanceChannels.has(second),'instance manquante');placeInsert(t,1,null);placeInsert(t,0,null);e.sync();assert(!e.channels.get(t.id).instanceChannels.size&&!Object.keys(e.channels.get(t.id).pack.modules).length,'FX retiré non libéré');
+ output.textContent+='PASS création et retrait de plusieurs instances : processeurs libérés\n';e.resetSession();
+ output.textContent+='TOUS LES CONTRÔLES DÉMOS ONT RÉUSSI';
+}catch(error){output.textContent+='FAIL '+error.stack;}finally{document.querySelector('#run').disabled=false;}};
+</script>

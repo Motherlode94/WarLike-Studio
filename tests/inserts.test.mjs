@@ -33,7 +33,7 @@ test('legacy active effects migrate in their audio order, and malformed slots ca
 });
 test('master insert order and bypass survive settings and preset normalization',()=>{
   let state=masteringSettings({inserts:['peak',null,'press'],peak:{enabled:true},press:{enabled:false},balance:{enabled:true}});
-  assert.deepEqual(state.inserts,['peak',null,'press']);assert.equal(state.balance.enabled,false);assert.equal(state.press.enabled,false);
+  assert.deepEqual(state.inserts,['peak',null,'press',...Array(9).fill(null)]);assert.equal(state.balance.enabled,false);assert.equal(state.press.enabled,false);
   assert.deepEqual(masteringSettings(state),state);
-  const p={};applyMasterPreset(p,2);assert.deepEqual(p.mastering.inserts,['balance','press','peak']);applyMasterPreset(p,0);assert.deepEqual(p.mastering.inserts,[null,null,null]);
+  const p={};applyMasterPreset(p,2);assert.deepEqual(p.mastering.inserts,['balance','press','peak',...Array(9).fill(null)]);applyMasterPreset(p,0);assert.deepEqual(p.mastering.inserts,Array(12).fill(null));
 });

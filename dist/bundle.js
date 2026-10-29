@@ -1,8 +1,9 @@
-import {ACOUSTIC_PRESETS} from './acoustic.js?v=0.13.0';
-import {EXO_PRESETS} from './exo.js?v=0.13.0';
-import {packPresetBank} from './packs.js?v=0.13.0';
-import {INSTRUMENTS,EFFECTS,ensurePlugins,addEffectInsert,effectType,effectDefinition} from './plugins.js?v=0.13.0';
+import {ACOUSTIC_PRESETS} from './acoustic.js?v=0.14.0';
+import {EXO_PRESETS} from './exo.js?v=0.14.0';
+import {packPresetBank} from './packs.js?v=0.14.0';
+import {INSTRUMENTS,EFFECTS,ensurePlugins,addEffectInsert,effectType,effectDefinition} from './plugins.js?v=0.14.0';
 export const FACTORY_PRESETS={
+  sampler:[{name:"Mon sample",values:{}}],
   "drums": [
     {
       "name": "Trap Starter",

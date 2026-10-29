@@ -1,7 +1,9 @@
-import {EXO_EFFECTS,EXO_EFFECT_PRESETS} from './exo-pack.js?v=0.13.0';
+import {STUDIO_PACKS,STUDIO_EFFECTS,STUDIO_PRESETS} from './studio-packs.js?v=0.14.0';
+import {EXO_EFFECTS,EXO_EFFECT_PRESETS} from './exo-pack.js?v=0.14.0';
 // CHAYAH originals. Functional references are described in docs; no vendor DSP/assets.
 export const EFFECT_PACKS={
-  exo:{name:'EXO',label:'EXO / MIX & INSTRUMENT',color:'#8acdc8',description:'Quatre traitements pour les voix et le mix, avec un synthé à deux couches et sa banque de 32 sons originaux.',modules:['exostrip','exofocus','exoair','exospace'],instruments:['exo']},
+  ...STUDIO_PACKS,
+  exo:{name:'EXO',label:'EXO / MIX & INSTRUMENT',color:'#8acdc8',description:'Quatre traitements pour les voix et le mix, avec un synthé à deux couches et sa banque de 32 sons originaux.',modules:['exostrip','exofocus','exoair','exospace'],instruments:['exo','sampler']},
   vocal:{name:'Vocal Essentials',label:'VOCAL / CONTROL',color:'#88b8bf',description:'Sibilantes et passages calmes : deux outils pour préparer une voix avant le mix.',modules:['hush','sibil']},
   motion:{name:'Motion & Color',label:'CREATIVE / EFFECTS',color:'#cd9a7d',description:'Du grain, de la largeur et du mouvement pour les voix, instruments et batteries.',modules:['ember','orbit','sway','relay']}
 };
@@ -37,8 +39,9 @@ export const PACK_EFFECTS={
     {key:'tone',name:'Tone',min:800,max:16000,step:100,default:6000,unit:'Hz'},
     {key:'mix',name:'Mix',min:0,max:1,step:.01,default:.25,unit:'%'}]}
 };
-Object.assign(PACK_EFFECTS,EXO_EFFECTS);
+Object.assign(PACK_EFFECTS,EXO_EFFECTS,STUDIO_EFFECTS);
 export const PACK_PRESETS={
+  ...STUDIO_PRESETS,
   hush:[['Room Soft',{threshold:-50,range:18,response:25}],['Rap Gaps',{threshold:-42,range:36,response:12}],['Breath Keep',{threshold:-58,range:12,response:35}],['Tight Drums',{threshold:-35,range:48,response:6}],['Gentle Space',{threshold:-46,range:24,response:60}]],
   sibil:[['Soft Ess',{frequency:6500,threshold:-24,range:6}],['Rap Bright',{frequency:7000,threshold:-28,range:9}],['Low Sibilance',{frequency:4500,threshold:-26,range:7}],['Air Guard',{frequency:8500,threshold:-22,range:5}],['Strong Ess',{frequency:6000,threshold:-32,range:12}]],
   ember:[['Warm Console',{drive:4,character:.15,tone:14000,mix:.35,output:-2}],['Sand Drive',{drive:15,character:.5,tone:8500,mix:.65,output:-5}],['Dark Tape',{drive:8,character:.3,tone:4200,mix:.55,output:-3}],['Drum Heat',{drive:20,character:.65,tone:12000,mix:.45,output:-5}],['Fragile Tube',{drive:6,character:.8,tone:10000,mix:.4,output:-3}]],
@@ -53,4 +56,4 @@ export const gain=db=>10**(db/20);
 export function gateControl(x,range){const floor=gain(-range),v=Math.max(0,Math.min(1,(Math.abs(x)-.2)/.3));return floor+(1-floor)*v*v*(3-2*v);}
 export function deessControl(x,range,mix=1){const relative=Math.abs(x)*32,attenuation=relative<=1?1:Math.max(gain(-range),relative**(-5/6));return (attenuation-1)*mix;}
 export function relayTimes(bpm,beats){return [60/bpm*beats,60/bpm*beats*1.5];}
-export function packTail(project){let tail=4.5;for(const track of project.tracks)for(const [id,e] of Object.entries(track.effects||{})){if(!e.enabled||e.mix<=0)continue;const type=id.split('__')[0];if(type==='relay'){const times=relayTimes(project.bpm,e.beats),repeats=e.feedback>0?Math.ceil(Math.log(.001)/Math.log(e.feedback)):1;tail=Math.max(tail,Math.min(20,Math.max(...times)*repeats));}if(type==='exospace')tail=Math.max(tail,e.decay+e.predelay/1000+.1);}return tail;}
+export function packTail(project){let tail=4.5;for(const track of [...project.tracks,{effects:project.mastering||{}}])for(const [id,e] of Object.entries(track.effects||{})){if(!e.enabled||e.mix<=0)continue;const type=id.split('__')[0];if(type==='relay'||type==='alterecho'){const times=type==='relay'?relayTimes(project.bpm,e.beats):[60/project.bpm*e.beats],repeats=e.feedback>0?Math.ceil(Math.log(.001)/Math.log(e.feedback)):1;tail=Math.max(tail,Math.min(20,Math.max(...times)*repeats));}if(type==='exospace')tail=Math.max(tail,e.decay+e.predelay/1000+.1);}return tail;}

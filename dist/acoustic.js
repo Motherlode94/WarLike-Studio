@@ -1,4 +1,4 @@
-import {ACOUSTIC_BANKS} from './acoustic-manifest.js?v=0.13.0';
+import {ACOUSTIC_BANKS} from './acoustic-manifest.js?v=0.14.0';
 export {ACOUSTIC_BANKS};
 const specs=[
  ['piano','GRAND','PIANO À QUEUE','#d5c49b',1.1,'Piano à queue Kawai : deux nuances enregistrées sur la majeure partie du clavier, attaque de marteau et décroissance naturelle.'],

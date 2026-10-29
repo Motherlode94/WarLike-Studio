@@ -4,8 +4,8 @@ import {EFFECT_PACKS,PACK_EFFECTS,gateControl,deessControl,gain,relayTimes,packT
 import {FACTORY_PRESETS,exportRack,importRack} from '../dist/bundle.js';
 import {createFactorySession} from '../dist/content.js';
 
-test('three original packs expose ten processors with five complete presets each',()=>{
-  assert.equal(Object.keys(EFFECT_PACKS).length,3);assert.equal(Object.keys(PACK_EFFECTS).length,10);
+test('seven original packs expose twenty-two processors with five complete presets each',()=>{
+  assert.equal(Object.keys(EFFECT_PACKS).length,7);assert.equal(Object.keys(PACK_EFFECTS).length,22);
   for(const pack of Object.values(EFFECT_PACKS))for(const id of pack.modules){assert.ok(PACK_EFFECTS[id]);assert.equal(FACTORY_PRESETS[id].length,5);for(const preset of FACTORY_PRESETS[id])for(const c of PACK_EFFECTS[id].controls)assert.ok(preset.values[c.key]>=c.min&&preset.values[c.key]<=c.max);}
 });
 test('envelope curves stay bounded, preserve quiet sibilants and obey maximum attenuation',()=>{

@@ -1,4 +1,4 @@
-import {EXO_INSTRUMENT,EXO_PRESETS,EXO_WAVES,exoSettings} from './exo.js?v=0.13.0';
+import {EXO_INSTRUMENT,EXO_PRESETS,EXO_WAVES,exoSettings} from './exo.js?v=0.14.0';
 const view={search:'',category:'All',favorites:false,advanced:false};
 const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback;}catch{return fallback;}};
 const write=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));return true;}catch{return false;}};

@@ -1,6 +1,6 @@
 # Warlike Studio + CHAYAH Suite
 
-Station de création musicale web de HardieBay. Version 0.13.0 : piano roll,
+Station de création musicale web de HardieBay. Version 0.14.0 : piano roll,
 Channel Rack et patterns liés, prises alternatives et comping, bus, envois,
 automation, analyse de loudness et exports multipistes.
 FL Studio guide la composition ; Pro Tools et Logic Pro guident les workflows
@@ -11,12 +11,12 @@ marque CHAYAH Suite et les projets existants restent compatibles.
 
 Une session vide et ses nouvelles pistes n’ont aucun effet inséré. Les modules
 se choisissent dans les inserts ; seules les sessions démo préparent une chaîne.
-Les sections numérotées ci-dessous décrivent l’historique : la section 0.13
-et `docs/verification-0.13.md` décrivent les capacités et limites actuelles.
+Les sections numérotées ci-dessous décrivent l’historique : la section 0.14
+et `docs/verification-0.14.md` décrivent les capacités et limites actuelles.
 
 ## Créer un morceau
 
-**Bibliothèque** propose 110 sons d’instruments, 80 presets d’effets, 12 grooves,
+**Bibliothèque** propose 111 emplacements/presets d’instruments (dont le sample personnel EXO Slice), 140 presets d’effets, 12 grooves,
 8 percussions synthétisées et 3 sessions de 16 mesures : Nocturne Trap, Soleil Afro
 et Brume R&B. Un son peut être écouté puis ajouté avec une piste et un clip éditable.
 Les sessions comprennent 6 pistes d’instruments, 3 pistes vocales et des repères de
@@ -422,3 +422,73 @@ Références :
 - https://resources.avid.com/SupportFiles/PT/Pro_Tools_Reference_Guide_2019.6.pdf
 - https://github.com/sgossner/VCSL
 - https://github.com/sgossner/VSCO-2-CE
+
+## 0.14 — WarLike Flow, quatre nouveaux packs et démos réécrites
+
+Composer, Enregistrer, Mixer et Masteriser présentent quatre espaces pour la même session.
+Fichier et Édition donnent accès aux opérations du projet et aux actions de montage.
+La clé et la gamme se choisissent dans le transport ; elles pilotent la grille du piano roll
+sans transposer silencieusement les notes déjà écrites.
+
+- Dossiers repliables et option de bus commun, sans effet ajouté.
+- Channel Rack avec mute, panoramique, volume, sortie, mini piano roll et les huit voix PULSE
+  programmables en pas de 16, avec sélection de la mesure.
+- EXO Slice : importer jusqu’à 120 secondes, détecter les attaques, ajouter des coupes,
+  jouer les pads ou un sample chromatique, reverse et création d’un pattern éditable.
+- Variantes A/B/C : humaniser, aérer, décaler d’une octave ou créer une réponse.
+  La version choisie devient une copie ; la source reste disponible.
+- Prises affichées en lignes, audition en contexte et sélection d’une plage de comping.
+- Fondus directement sur les clips : durée et courbure, avec tension liée sur les
+  crossfades en puissance égale. Les outils du clip produisent des versions
+  reverse, polarité inversée, retrait du continu, échange stéréo ou normalisation.
+- Automation : clic pour ajouter un point, glissement pour le déplacer, zoom,
+  grille, Maj pour affiner, clic droit/Suppr pour supprimer, flèches pour ajuster.
+- EQ graphiques manipulables (PRISM, CIRCUIT EQ, VECTOR EQ), comparaison A/B de piste
+  et référence séparée avec égalisation du niveau moyen RMS sur quatre mesures.
+
+La Suite compte **52 modules uniques** : 20 instruments, 28 FX, les trois
+modules mastering historiques et TUNE après prise. Les 28 FX sont également
+disponibles dans les **12 inserts du master** (31 choix au total).
+Sept packs et 251 presets sont présents. Aucun effet n’est préinséré dans une
+nouvelle session, une nouvelle piste ou un import.
+
+| Nouveau pack WarLike | Fonctions | Référence fonctionnelle étudiée |
+| --- | --- | --- |
+| CIRCUIT | EQ à Q proportionnel, compresseur de bus parallèle, saturation | API / Waves |
+| ALTER | Doubler modulé, délai synchronisé avec ducking, filtre animé | Soundtoys |
+| VECTOR | EQ six bandes, compression parallèle, limiteur de crêtes échantillons | FabFilter |
+| VOX LAB | Correction monophonique live, compression deux étages, de-essing + air | Antares |
+
+Ces traitements utilisent notre code, nos réglages et nos graphes Web Audio.
+Ils ne contiennent ni le DSP ni les presets, interfaces ou marques commerciales
+des fabricants étudiés. Leurs limites ne sont pas celles des produits de référence.
+VOX TUNE utilise YIN et deux lecteurs granulaires avec une latence de 40 ms ;
+il vise une voix isolée, dépend d’AudioWorklet/HTTPS et ne corrige pas les formants.
+VECTOR LIMIT borne les échantillons ; il n’est pas un limiteur true-peak certifié.
+Les compresseurs ne prétendent pas modéliser des circuits analogiques spécifiques.
+
+Les trois démos ont des partitions, tonalités, orchestrations et arrangements différents :
+Nocturne Trap (Fa♯ mineur, half-time et 808), Soleil Afro (Ré majeur, strumstick,
+marimba, kalimba et percussions), Brume R&B (Do mineur, clavier FM enregistré et
+accords enrichis). Les versions déjà sauvegardées sont conservées ; ouvrir la démo
+depuis Projet → Sessions charge sa nouvelle composition en gardant une sauvegarde.
+
+Le moteur ne crée plus les dix/vingt-deux processeurs de packs sur chaque piste
+vide. Les voix libèrent leurs nœuds, les anciennes sessions libèrent leurs canaux
+et le scheduler saute les événements expirés au retour d’un onglet en arrière-plan.
+
+Vérifications : `npm test`, `npm run check`, `npm run build`,
+`tests/demos-browser.html`, `tests/studio-packs-browser.html` et
+`docs/verification-0.14.md`. Le diagnostic de compatibilité est disponible à
+`/diagnostics.html` sur l’hébergement HTTPS.
+
+Sources fonctionnelles :
+- https://www.waves.com/bundles/api-collection
+- https://www.soundtoys.com/product/microshift/
+- https://www.soundtoys.com/product/little-alterboy/
+- https://prod.fabfilter.com/products
+- https://antarestech.com/documentation/auto-tune-vocal-compressor
+- https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/audioWorklet
+
+### Retour visuel
+Le bouton **✎ Annoter** fige la vue courante : crayon, flèche, ellipse, cadre, notes numérotées, annulation et export PNG incluant les commentaires. Les captures restent sur l’appareil ; joindre le PNG à la conversation pour le transmettre. Une image peut également être importée. Capture DOM avec html-to-image 1.11.13 (MIT), source et licence dans `dist/vendor/html-to-image/`.

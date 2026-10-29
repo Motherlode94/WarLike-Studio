@@ -1,9 +1,10 @@
+import {fadeShape} from './clip-tools.js?v=0.14.0';
 // Session, routing and audio playlists. Musical note creation is intentionally unchanged.
 export const MAX_BARS=2048;
 const copy=v=>structuredClone(v),clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 export const sessionBars=value=>clamp(Math.ceil(Number(value)||16),1,MAX_BARS);
 export const fitSession=(current,end)=>sessionBars(Math.max(current,Math.ceil(end)));
-export const audioAssetIds=p=>new Set(p.tracks.flatMap(t=>[...t.clips,...(t.playlists||[]).flatMap(l=>l.clips),...(t.frozenTrack?.clips||[]),...(t.frozenTrack?.playlists||[]).flatMap(l=>l.clips)].flatMap(c=>[c.audioId,c.originalAudioId,c.editOriginal?.audioId])).filter(Boolean));
+export const audioAssetIds=p=>new Set([{audioId:p.reference?.assetId},...p.tracks.flatMap(t=>[{audioId:t.sampler?.assetId},{audioId:t.frozenTrack?.sampler?.assetId},...t.clips,...(t.playlists||[]).flatMap(l=>l.clips),...(t.frozenTrack?.clips||[]),...(t.frozenTrack?.playlists||[]).flatMap(l=>l.clips)].flatMap(c=>[c.audioId,c.originalAudioId,c.editOriginal?.audioId]))].map(v=>typeof v==='string'?v:v?.audioId).filter(Boolean));
 export function edges(track){return [track.output||'master',...(track.sends||[]).map(s=>s.target)].filter(id=>id&&id!=='master');}
 export function reaches(tracks,from,to,seen=new Set()){
   if(from===to)return true;if(seen.has(from))return false;seen.add(from);const t=tracks.find(t=>t.id===from);return t?edges(t).some(id=>reaches(tracks,id,to,seen)):false;
@@ -18,7 +19,7 @@ export function audibleIds(tracks){
   const solos=tracks.filter(t=>t.solo);if(!solos.length)return new Set(tracks.map(t=>t.id));
   const set=new Set();for(const t of tracks)if(solos.some(s=>reaches(tracks,s.id,t.id)||reaches(tracks,t.id,s.id)))set.add(t.id);return set;
 }
-export function trackLatency(track){return (track.inserts||[]).reduce((sum,id)=>sum+(id&&track.effects?.[id]?.enabled&&['glue','exostrip'].includes(id.split('__')[0])?.006:0),0);}
+export function trackLatency(track){return (track.inserts||[]).reduce((sum,id)=>sum+(id&&track.effects?.[id]?.enabled&&(['glue','exostrip','circuitbus','vectorcomp','vectorlimit'].includes(id.split('__')[0])?.006:id.split('__')[0]==='voxlevel'?.012:id.split('__')[0]==='voxtune'?.04:0)),0);}
 export function compensationDelays(tracks){
   const incoming=id=>tracks.filter(t=>edges(t).includes(id)),memo=new Map();
   const arrival=(t,seen=new Set())=>{if(memo.has(t.id))return memo.get(t.id);if(seen.has(t.id))return 0;const next=new Set([...seen,t.id]);const value=(t.type==='bus'?Math.max(0,...incoming(t.id).map(s=>arrival(s,next))):0)+trackLatency(t);memo.set(t.id,value);return value;};
@@ -48,6 +49,6 @@ export function applyCrossfade(track,clipId,bpm){
   const c=track.clips.find(c=>c.id===clipId),next=track.clips.filter(n=>n.id!==clipId&&n.start>c.start&&n.start<c.start+c.length).sort((a,b)=>a.start-b.start)[0];if(!next)throw Error('Fais chevaucher deux clips audio pour créer un fondu croisé.');
   const duration=Math.min(c.start+c.length-next.start,next.length)*240/bpm;c.fadeOut=duration;next.fadeIn=duration;c.fadeCurve=next.fadeCurve='equalPower';return duration;
 }
-export function fadeValue(clip,elapsed,total){const a=Math.max(0,clip.fadeIn??.005),b=Math.max(0,clip.fadeOut??.005);let v=1;if(a&&elapsed<a)v*=clip.fadeCurve==='equalPower'?Math.sin(Math.PI/2*clamp(elapsed/a,0,1)):clamp(elapsed/a,0,1);if(b&&elapsed>total-b)v*=clip.fadeCurve==='equalPower'?Math.sin(Math.PI/2*clamp((total-elapsed)/b,0,1)):clamp((total-elapsed)/b,0,1);return v;}
+export function fadeValue(clip,elapsed,total){const a=Math.max(0,clip.fadeIn??.005),b=Math.max(0,clip.fadeOut??.005);let v=1;if(a&&elapsed<a)v*=clip.fadeCurve==='equalPower'?Math.sin(Math.PI/2*fadeShape(clamp(elapsed/a,0,1),clip.fadeInTension)):fadeShape(clamp(elapsed/a,0,1),clip.fadeInTension);if(b&&elapsed>total-b)v*=clip.fadeCurve==='equalPower'?Math.sin(Math.PI/2*fadeShape(clamp((total-elapsed)/b,0,1),clip.fadeOutTension)):fadeShape(clamp((total-elapsed)/b,0,1),clip.fadeOutTension);return v;}
 
 export function changeAudioTempo(project,nextBpm){const ratio=nextBpm/project.bpm;const scale=c=>{if(c.audioId){c.start*=ratio;c.length*=ratio;if(c.editOriginal){c.editOriginal.start*=ratio;c.editOriginal.length*=ratio;}}};for(const t of project.tracks)if(t.type==='audio'){for(const c of t.clips)scale(c);for(const l of t.playlists||[])for(const c of l.clips)scale(c);for(const points of Object.values(t.automation?.curves||{}))for(const point of points)point.bar*=ratio;}project.bpm=nextBpm;project.bars=fitSession(project.bars,Math.max(0,...project.tracks.flatMap(t=>t.clips.map(c=>c.start+c.length))));}

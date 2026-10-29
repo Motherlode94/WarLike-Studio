@@ -1,5 +1,6 @@
-import {INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins} from './plugins.js?v=0.13.0';
-import {FACTORY_PRESETS,applyFactoryPreset} from './bundle.js?v=0.13.0';
+import {createFactoryArrangement,FACTORY_STYLES} from './factory-arrangements.js?v=0.14.0';
+import {INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins} from './plugins.js?v=0.14.0';
+import {FACTORY_PRESETS,applyFactoryPreset} from './bundle.js?v=0.14.0';
 const id=()=>Math.random().toString(36).slice(2,11),copy=value=>JSON.parse(JSON.stringify(value));
 const pattern=hits=>Object.fromEntries(Object.keys(DRUM_VOICES).map(voice=>[voice,Array.from({length:16},(_,s)=>(hits[voice]||[]).includes(s)?1:0)]));
 const even=[0,2,4,6,8,10,12,14],all=Array.from({length:16},(_,i)=>i);
@@ -27,9 +28,9 @@ export const PHRASES={
 PHRASES.exo=PHRASES.keys.map(n=>({...n}));
 for(const [type,def] of Object.entries(INSTRUMENTS))if(def.sampled)PHRASES[type]=PHRASES[['violin','cello'].includes(type)?'pad':['flute','trumpet'].includes(type)?'lead':['harp','marimba','vibes','kalimba','strum'].includes(type)?'pluck':'keys'].map(n=>({...n}));
 export const SESSION_TEMPLATES=[
-  {id:'nocturne',name:'Nocturne Trap',style:'Trap mélodique',bpm:138,swing:0,groove:'trap-night',description:'Intro atmosphérique, couplet et refrain. 808, accords, pluck, nappe et mélodie.'},
-  {id:'soleil',name:'Soleil Afro',style:'Afro mélodique',bpm:108,swing:16,groove:'afro-pulse',description:'Percussions syncopées, basse ronde, touches courtes et son pincé lumineux.'},
-  {id:'brume',name:'Brume R&B',style:'R&B / soul',bpm:84,swing:28,groove:'rnb-pocket',description:'Batterie espacée, accords doux, nappe lente et mélodie feutrée.'}
+  {id:'nocturne',name:'Nocturne Trap',style:'Trap mélodique',bpm:138,swing:0,groove:'trap-night',description:'Trap half-time : 808 syncopée, cloches EXO, piano feutré et progression en Fa♯ mineur.'},
+  {id:'soleil',name:'Soleil Afro',style:'Afro mélodique',bpm:108,swing:0,groove:'afro-pulse',description:'Afro mélodique : strumstick en contretemps, marimba, kalimba et percussions entrelacées en Ré majeur.'},
+  {id:'brume',name:'Brume R&B',style:'R&B / soul',bpm:84,swing:28,groove:'rnb-pocket',description:'R&B / neo soul : clavier FM enregistré, accords de neuvième, basse ronde et batterie souple en Do mineur.'}
 ];
 export function createContentTrack(type,presetIndex=0){
   const def=INSTRUMENTS[type];if(!def)throw new Error('Instrument inconnu.');
@@ -43,20 +44,8 @@ export function createContentClip(type,name,start=0,length=2,grooveId='trap-nigh
 }
 export function createFactorySession(templateId='nocturne'){
   const template=SESSION_TEMPLATES.find(t=>t.id===templateId);if(!template)throw new Error('Session inconnue.');
-  const indices=templateId==='soleil'?{drums:3,bass:3,keys:2,pad:2,lead:1,pluck:2}:templateId==='brume'?{drums:1,bass:0,keys:4,pad:1,lead:1,pluck:1}:{drums:0,bass:1,keys:0,pad:0,lead:0,pluck:0};
-  const tracks=['drums','bass','keys','pad','lead','pluck'].map(type=>createContentTrack(type,indices[type]));
-  for(const track of tracks){
-    track.inserts=['color','sculpt','prism','echo','aura'];for(const key of track.inserts)track.effects[key].enabled=true;
-    const starts=track.type==='drums'||track.type==='keys'?[0,4,8,12]:track.type==='bass'?[4,8,12]:track.type==='pad'?[0,12]:track.type==='lead'?[8,12]:[4,12];
-    for(const start of starts){const section=start===0?'INTRO':start===12?'REFRAIN':'COUPLET',groove=track.type==='drums'&&start===0?'ambient-pulse':track.type==='drums'&&start===12&&templateId==='nocturne'?'double-time':template.groove;const c=createContentClip(track.type,section+' / '+INSTRUMENTS[track.type].name,start,4,groove);
-      if(templateId==='soleil'&&track.type==='keys')c.notes.forEach(n=>n.len=3);
-      if(track.type==='lead'&&templateId==='brume')c.notes=c.notes.filter((_,i)=>i%2===0);
-      track.clips.push(c);
-    }
-    if(['keys','pad','pluck','lead'].includes(track.type)){track.effects.aura.mix=track.type==='pad'?.28:.12;track.effects.echo.mix=['pluck','lead'].includes(track.type)?.16:.06;}
-    if(track.type==='bass')track.effects.prism.high=-4;
-  }
-  for(const [name,volume,color] of [['LEAD VOX',-3,'#ca909a'],['BACKS',-7,'#8fa7c4'],['ADLIBS',-9,'#b1a584']]){const track={id:id(),name,type:'audio',color,volume,pan:0,mute:false,solo:false,clips:[]};ensurePlugins(track);tracks.push(track);}
-  return {version:1,demo:true,name:template.name,bpm:template.bpm,bars:16,swing:template.swing,masterVolume:-4,recording:{gainDb:0,autoLevel:true},sections:[{name:'INTRO',start:0,length:4},{name:'COUPLET A',start:4,length:4},{name:'COUPLET B',start:8,length:4},{name:'REFRAIN',start:12,length:4}],tracks};
+  const project=createFactoryArrangement(template,createContentTrack);project.tracks.forEach(ensurePlugins);return project;
 }
+
+export {FACTORY_STYLES};
 export function contentCounts(){return {instruments:Object.keys(INSTRUMENTS).length,effects:Object.keys(EFFECTS).length,presets:Object.values(FACTORY_PRESETS).reduce((total,list)=>total+list.length,0),grooves:DRUM_GROOVES.length,drums:Object.keys(DRUM_VOICES).length,sessions:SESSION_TEMPLATES.length};}
