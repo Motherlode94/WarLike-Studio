@@ -10,5 +10,6 @@ for(const file of files){
 }
 const html=await readFile(path.join(dist,'index.html'),'utf8');
 for(const match of html.matchAll(/(?:src|href)="(\.\/[^"?]+)(?:\?[^\"]*)?"/g))await access(path.join(dist,match[1]));
-const config=JSON.parse(await readFile(path.join(root,'wrangler.jsonc'),'utf8'));if(config.assets.directory!=='./dist')throw new Error('Cloudflare must serve dist/.');
-console.log(`Ready for Cloudflare: dist/ verified, ${files.length} JavaScript modules checked.`);
+const config=JSON.parse(await readFile(path.join(root,'wrangler.jsonc'),'utf8'));
+if(config.name!=='warlike-studio'||config.pages_build_output_dir!=='./dist'||config.assets)throw new Error('Cloudflare Pages must deploy warlike-studio from dist/.');
+console.log(`Ready for Cloudflare Pages: warlike-studio, dist/ verified, ${files.length} JavaScript modules checked.`);

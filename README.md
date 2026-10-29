@@ -126,24 +126,42 @@ La Suite contient 27 modules web ; ce ne sont pas des binaires VST/VST3 Windows
 et elle n’héberge pas de VST tiers. TUNE et les traitements sont une implémentation
 web expérimentale, sans garantie de qualité équivalente aux logiciels de référence.
 
-## Déployer sur Cloudflare depuis GitHub
+## Déployer WarLike Studio sur Cloudflare Pages
 
-Application statique sans dépendance. `wrangler.jsonc` sert `dist/`.
+Application statique sans dépendance, prête pour **Pages**. Le fichier
+`wrangler.jsonc` déclare le projet `warlike-studio` et le dossier `dist/`.
+Créer le projet dans le compte Cloudflare reste nécessaire : publier sur GitHub
+ne crée pas automatiquement une application dans **Workers & Pages**.
 
-| Réglage Workers & Pages | Valeur |
+Dans Cloudflare, ouvrir **Workers & Pages → Create application → Pages →
+Connect to Git**, sélectionner le dépôt **Motherlode94/WarLike-Studio**, puis :
+
+| Réglage Pages | Valeur |
 | --- | --- |
-| Branche | `main` |
-| Répertoire racine | `/` |
+| Nom du projet | `warlike-studio` |
+| Branche de production | `main` |
+| Framework preset | `None` |
+| Répertoire racine | racine du dépôt, laisser vide |
 | Build command | `npm run build` |
-| Deploy command | `npx wrangler deploy` |
-| Nom du Worker | `chayah-studio` |
+| Build output directory | `dist` |
+| Variable de build | `NODE_VERSION=22` |
 
-Alternative Pages : framework **None**, build `npm run build`, sortie `dist`.
+Choisir **Save and Deploy**, puis vérifier le statut de production et le lien
+`.pages.dev` renvoyé par Cloudflare. Ce lien existe après la création et le
+déploiement réussis ; le sous-domaine dépend de la disponibilité du nom.
+Les prochains commits sur `main` sont alors déployés automatiquement.
+
+Pour un déploiement manuel authentifié sur ce projet Pages, `npm run deploy`
+vérifie l’application et lance `wrangler pages deploy` sur la branche `main`.
+L’ancien `wrangler deploy` ciblait un Worker et ne créait pas de lien `.pages.dev`.
+
 Aucun identifiant de compte ou secret Cloudflare n’est inclus dans le code.
 La connexion ChatGPT de l’hébergement Sites n’est pas incluse dans l’application.
+Les projets audio restent dans le navigateur : exporter un `.chayah` depuis
+l’ancienne adresse et l’ouvrir sur la nouvelle pour transférer sa session.
 
-- https://developers.cloudflare.com/workers/ci-cd/builds/configuration/
-- https://developers.cloudflare.com/workers/static-assets/
+- https://developers.cloudflare.com/pages/get-started/git-integration/
+- https://developers.cloudflare.com/pages/functions/wrangler-configuration/
 
 ## Vérification locale
 
