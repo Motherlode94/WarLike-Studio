@@ -8,6 +8,19 @@ try {
  for(const id of ['play','stop','record','bpm','projectName','projectMenuBtn','sessionTrackList','exportWav']) {
   assert.ok(await page.locator('#'+id).count(),id+' must exist');
  }
+ await page.locator('#fileMenuBtn').click();
+ assert.equal(await page.locator('#fileMenuBtn').getAttribute('aria-expanded'),'true');
+ assert.ok(await page.locator('#fileMenuBtn').locator('..').locator('[role="menu"]').isVisible());
+ await page.keyboard.press('Escape');
+ assert.equal(await page.locator('#fileMenuBtn').getAttribute('aria-expanded'),'false');
+ assert.ok(await page.locator('#fileMenuBtn').locator('..').locator('[role="menu"]').isHidden());
+ await page.locator('#editMenuBtn').click();
+ assert.equal(await page.locator('#editMenuBtn').getAttribute('aria-expanded'),'true');
+ await page.locator('#fileMenuBtn').click();
+ assert.equal(await page.locator('#editMenuBtn').getAttribute('aria-expanded'),'false');
+ assert.equal(await page.locator('#fileMenuBtn').getAttribute('aria-expanded'),'true');
+ await page.locator('#projectName').click();
+ assert.equal(await page.locator('#fileMenuBtn').getAttribute('aria-expanded'),'false');
  await page.locator('#projectMenuBtn').click();
  await page.locator('#projectMenu').waitFor({state:'visible'});
  assert.ok(await page.locator('#saveProject').isVisible(),'project export should be available in menu');
