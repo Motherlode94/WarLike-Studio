@@ -28,3 +28,4 @@ jobs:
           cd ..
           sleep 2
           node tests/browser-smoke.mjs
+          node tests/effects-dsp-browser.mjs
