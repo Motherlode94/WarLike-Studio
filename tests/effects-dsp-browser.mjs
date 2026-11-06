@@ -33,8 +33,11 @@ try{
    src.connect(rack.modules.slap.input);rack.modules.slap.output.connect(ctx.destination);
    const e=pluginDefaults('audio').effects;e.slap.enabled=true;e.slap.time=95;e.slap.feedback=0;e.slap.tone=12000;e.slap.mix=.6;
    syncPackProcessors(rack,e,120,0,true);src.start(0);
-   const audio=await ctx.startRendering(),data=audio.getChannelData(0),at=Math.round(sr*.095);
-   rack.dispose();return {early:data[0],echo:Math.max(...data.slice(at-5,at+10))};
+   const audio=await ctx.startRendering(),data=audio.getChannelData(0);
+   // Filtered delay transients need a broader window than a single sample.
+   const tail=data.subarray(Math.floor(sr*.07),Math.floor(sr*.2));
+   let echo=0;for(const sample of tail)echo=Math.max(echo,Math.abs(sample));
+   rack.dispose();return {early:data[0],echo};
   }
   return {
    notchDry:await tone('notch',1200,false),notchWet:await tone('notch',1200,true),
