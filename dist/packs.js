@@ -60,9 +60,9 @@ export const PACK_PRESETS={
   ember:[['Warm Console',{drive:4,character:.15,tone:14000,mix:.35,output:-2}],['Sand Drive',{drive:15,character:.5,tone:8500,mix:.65,output:-5}],['Dark Tape',{drive:8,character:.3,tone:4200,mix:.55,output:-3}],['Drum Heat',{drive:20,character:.65,tone:12000,mix:.45,output:-5}],['Fragile Tube',{drive:6,character:.8,tone:10000,mix:.4,output:-3}]],
   orbit:[['Vocal Width',{rate:.25,depth:.25,width:1,mix:.25}],['Slow Cloud',{rate:.1,depth:.65,width:1,mix:.4}],['Glass Chorus',{rate:1.2,depth:.35,width:.8,mix:.35}],['Tape Swim',{rate:.7,depth:.85,width:.6,mix:.55}],['Narrow Double',{rate:.35,depth:.15,width:.35,mix:.2}]],
   sway:[['Slow Pan',{rate:.4,depth:0,pan:.8,mix:1}],['Pulse Two',{rate:2,depth:.65,pan:0,mix:1}],['Orbit Rhythm',{rate:1.2,depth:.35,pan:.7,mix:.8}],['Chop Eight',{rate:8,depth:1,pan:.2,mix:1}],['Gentle Motion',{rate:.6,depth:.2,pan:.35,mix:.6}]],
-  tilteq:[['Vocal Air',{tilt:3,pivot:1300,mix:1}],['Warm Mix',{tilt:-2.5,pivot:900,mix:1}],['Dark Pad',{tilt:-5,pivot:700,mix:.8}],['Bright Guitar',{tilt:4,pivot:1200,mix:.9}]],
-  notch:[['Hum Guard',{frequency:50,q:15,mix:1}],['Boxy Voice',{frequency:450,q:5,mix:.9}],['Nasal Cut',{frequency:1100,q:8,mix:1}],['Ring Control',{frequency:3200,q:12,mix:1}]],
-  slap:[['Rap Double',{time:85,feedback:.1,tone:7000,mix:.19}],['Rock Vocal',{time:120,feedback:.16,tone:4900,mix:.23}],['Wide Guitar',{time:160,feedback:.23,tone:8500,mix:.28}],['Subtle Room',{time:52,feedback:.05,tone:6000,mix:.1}]],
+  tilteq:[['Vocal Air',{tilt:3,pivot:1300,mix:1}],['Warm Mix',{tilt:-2.5,pivot:900,mix:1}],['Dark Pad',{tilt:-5,pivot:700,mix:.8}],['Bright Guitar',{tilt:4,pivot:1200,mix:.9}],['Mix Clarity',{tilt:1.5,pivot:1700,mix:.65}]],
+  notch:[['Hum Guard',{frequency:50,q:15,mix:1}],['Boxy Voice',{frequency:450,q:5,mix:.9}],['Nasal Cut',{frequency:1100,q:8,mix:1}],['Ring Control',{frequency:3200,q:12,mix:1}],['Harsh Sibilance',{frequency:7200,q:10,mix:.7}]],
+  slap:[['Rap Double',{time:85,feedback:.1,tone:7000,mix:.19}],['Rock Vocal',{time:120,feedback:.16,tone:4900,mix:.23}],['Wide Guitar',{time:160,feedback:.23,tone:8500,mix:.28}],['Subtle Room',{time:52,feedback:.05,tone:6000,mix:.1}],['Old School Throw',{time:185,feedback:.32,tone:3800,mix:.32}]],
   relay:[['Vocal Throw',{beats:.75,feedback:.35,tone:6000,mix:.22}],['Dub Room',{beats:1,feedback:.62,tone:2800,mix:.4}],['Wide Slap',{beats:.125,feedback:.08,tone:11000,mix:.25}],['Floating Dots',{beats:.5,feedback:.5,tone:8500,mix:.3}],['Dark Trails',{beats:1.5,feedback:.55,tone:1800,mix:.35}]]
 };
 
