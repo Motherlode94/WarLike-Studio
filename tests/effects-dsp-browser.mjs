@@ -26,7 +26,7 @@ try{
    return Math.sqrt(sum/count);
   }
   async function slap(){
-   const sr=44100,ctx=new OfflineAudioContext(1,sr,.4*sr);
+   const sr=44100,ctx=new OfflineAudioContext(1,Math.round(.4*sr),sr);
    const src=ctx.createBufferSource(),buf=ctx.createBuffer(1,ctx.length,sr);
    buf.getChannelData(0)[Math.floor(sr*.025)]=1;src.buffer=buf;
    const rack=createPackProcessors(ctx,ctx.createGain(),ctx.createGain(),{detached:true,types:['slap']});
