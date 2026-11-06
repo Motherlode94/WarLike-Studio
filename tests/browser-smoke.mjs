@@ -37,6 +37,8 @@ try {
  await page.locator('#pluginSearch').fill('NOTCH');
  await page.locator('[data-picker-load="notch"]').click();
  await page.locator('#modal').waitFor({state:'hidden'});
+ await page.locator('[data-master-power="notch"]').waitFor({state:'visible'});
+ await page.locator('[data-view="mixer"]').click();
  await page.locator('#mixerView .mixer-master [data-insert-open="notch"]').waitFor({state:'visible'});
  await page.locator('#mixerView .mixer-master [data-add-insert-track="master"]').click();
  assert.ok(await page.locator('[data-picker-load="notch"]').isDisabled(),'Master should block duplicate inserts');
