@@ -5,7 +5,7 @@ export const EFFECT_PACKS={
   ...STUDIO_PACKS,
   exo:{name:'EXO',label:'EXO / MIX & INSTRUMENT',color:'#8acdc8',description:'Quatre traitements pour les voix et le mix, avec un synthé à deux couches et sa banque de 32 sons originaux.',modules:['exostrip','exofocus','exoair','exospace'],instruments:['exo','sampler']},
   vocal:{name:'Vocal Essentials',label:'VOCAL / CONTROL',color:'#88b8bf',description:'Sibilantes et passages calmes : deux outils pour préparer une voix avant le mix.',modules:['hush','sibil']},
-  motion:{name:'Motion & Color',label:'CREATIVE / EFFECTS',color:'#cd9a7d',description:'Du grain, de la largeur et du mouvement pour les voix, instruments et batteries.',modules:['ember','orbit','sway','relay']}
+  motion:{name:'Motion & Color',label:'CREATIVE / EFFECTS',color:'#cd9a7d',description:'Du grain, de la largeur et du mouvement pour les voix, instruments et batteries.',modules:['ember','orbit','sway','relay','tilteq','notch','slap']}
 };
 export const PACK_EFFECTS={
   hush:{name:'HUSH',subtitle:'SOFT GATE',pack:'vocal',color:'#88b8bf',defaultEnabled:false,description:'Atténue les passages sous le seuil avec une transition douce. Response règle la vitesse de l’enveloppe ; Range fixe l’atténuation maximale.',controls:[
@@ -33,6 +33,19 @@ export const PACK_EFFECTS={
     {key:'depth',name:'Depth',min:0,max:1,step:.01,default:.5,unit:'%'},
     {key:'pan',name:'Pan depth',min:0,max:1,step:.01,default:.6,unit:'%'},
     {key:'mix',name:'Mix',min:0,max:1,step:.01,default:1,unit:'%'}]},
+  tilteq:{name:'TILT EQ',subtitle:'SPECTRAL BALANCE',pack:'motion',color:'#c6bc9a',defaultEnabled:false,description:'Balance les graves et aigus en sens opposés autour d’une fréquence pivot. Le gain global reste contrôlable.',controls:[
+    {key:'tilt',name:'Tilt',min:-12,max:12,step:.5,default:0,unit:'dB'},
+    {key:'pivot',name:'Pivot',min:250,max:3000,step:25,default:1000,unit:'Hz'},
+    {key:'mix',name:'Mix',min:0,max:1,step:.01,default:1,unit:'%'}]},
+  notch:{name:'NOTCH',subtitle:'RESONANCE REMOVER',pack:'motion',color:'#99b0c5',defaultEnabled:false,description:'Coupe une résonance précise avec un filtre notch à fréquence et largeur réglables.',controls:[
+    {key:'frequency',name:'Frequency',min:40,max:12000,step:10,default:1200,unit:'Hz'},
+    {key:'q',name:'Width (Q)',min:.25,max:24,step:.25,default:6,unit:'Q'},
+    {key:'mix',name:'Mix',min:0,max:1,step:.01,default:1,unit:'%'}]},
+  slap:{name:'SLAP',subtitle:'SHORT DELAY',pack:'motion',color:'#a7c8b4',defaultEnabled:false,description:'Écho court pour doubler les voix, guitares et percussions sans samples externes.',controls:[
+    {key:'time',name:'Time',min:30,max:240,step:1,default:95,unit:'ms'},
+    {key:'feedback',name:'Feedback',min:0,max:.6,step:.01,default:.12,unit:'%'},
+    {key:'tone',name:'Tone',min:800,max:14000,step:100,default:6500,unit:'Hz'},
+    {key:'mix',name:'Mix',min:0,max:.65,step:.01,default:.18,unit:'%'}]},
   relay:{name:'RELAY',subtitle:'DUAL TEMPO ECHO',pack:'motion',color:'#d2b47f',defaultEnabled:false,description:'Deux retards croisés gauche/droite, avec répétitions filtrées. Time est un multiple de la noire ; le côté droit dure 1,5 fois le gauche.',controls:[
     {key:'beats',name:'Time',min:.125,max:2,step:.125,default:.5,unit:'beat'},
     {key:'feedback',name:'Feedback',min:0,max:.7,step:.01,default:.35,unit:'%'},
@@ -47,6 +60,9 @@ export const PACK_PRESETS={
   ember:[['Warm Console',{drive:4,character:.15,tone:14000,mix:.35,output:-2}],['Sand Drive',{drive:15,character:.5,tone:8500,mix:.65,output:-5}],['Dark Tape',{drive:8,character:.3,tone:4200,mix:.55,output:-3}],['Drum Heat',{drive:20,character:.65,tone:12000,mix:.45,output:-5}],['Fragile Tube',{drive:6,character:.8,tone:10000,mix:.4,output:-3}]],
   orbit:[['Vocal Width',{rate:.25,depth:.25,width:1,mix:.25}],['Slow Cloud',{rate:.1,depth:.65,width:1,mix:.4}],['Glass Chorus',{rate:1.2,depth:.35,width:.8,mix:.35}],['Tape Swim',{rate:.7,depth:.85,width:.6,mix:.55}],['Narrow Double',{rate:.35,depth:.15,width:.35,mix:.2}]],
   sway:[['Slow Pan',{rate:.4,depth:0,pan:.8,mix:1}],['Pulse Two',{rate:2,depth:.65,pan:0,mix:1}],['Orbit Rhythm',{rate:1.2,depth:.35,pan:.7,mix:.8}],['Chop Eight',{rate:8,depth:1,pan:.2,mix:1}],['Gentle Motion',{rate:.6,depth:.2,pan:.35,mix:.6}]],
+  tilteq:[['Vocal Air',{tilt:3,pivot:1300,mix:1}],['Warm Mix',{tilt:-2.5,pivot:900,mix:1}],['Dark Pad',{tilt:-5,pivot:700,mix:.8}],['Bright Guitar',{tilt:4,pivot:1200,mix:.9}]],
+  notch:[['Hum Guard',{frequency:50,q:15,mix:1}],['Boxy Voice',{frequency:450,q:5,mix:.9}],['Nasal Cut',{frequency:1100,q:8,mix:1}],['Ring Control',{frequency:3200,q:12,mix:1}]],
+  slap:[['Rap Double',{time:85,feedback:.1,tone:7000,mix:.19}],['Rock Vocal',{time:120,feedback:.16,tone:4900,mix:.23}],['Wide Guitar',{time:160,feedback:.23,tone:8500,mix:.28}],['Subtle Room',{time:52,feedback:.05,tone:6000,mix:.1}]],
   relay:[['Vocal Throw',{beats:.75,feedback:.35,tone:6000,mix:.22}],['Dub Room',{beats:1,feedback:.62,tone:2800,mix:.4}],['Wide Slap',{beats:.125,feedback:.08,tone:11000,mix:.25}],['Floating Dots',{beats:.5,feedback:.5,tone:8500,mix:.3}],['Dark Trails',{beats:1.5,feedback:.55,tone:1800,mix:.35}]]
 };
 
@@ -56,4 +72,4 @@ export const gain=db=>10**(db/20);
 export function gateControl(x,range){const floor=gain(-range),v=Math.max(0,Math.min(1,(Math.abs(x)-.2)/.3));return floor+(1-floor)*v*v*(3-2*v);}
 export function deessControl(x,range,mix=1){const relative=Math.abs(x)*32,attenuation=relative<=1?1:Math.max(gain(-range),relative**(-5/6));return (attenuation-1)*mix;}
 export function relayTimes(bpm,beats){return [60/bpm*beats,60/bpm*beats*1.5];}
-export function packTail(project){let tail=4.5;for(const track of [...project.tracks,{effects:project.mastering||{}}])for(const [id,e] of Object.entries(track.effects||{})){if(!e.enabled||e.mix<=0)continue;const type=id.split('__')[0];if(type==='relay'||type==='alterecho'){const times=type==='relay'?relayTimes(project.bpm,e.beats):[60/project.bpm*e.beats],repeats=e.feedback>0?Math.ceil(Math.log(.001)/Math.log(e.feedback)):1;tail=Math.max(tail,Math.min(20,Math.max(...times)*repeats));}if(type==='exospace')tail=Math.max(tail,e.decay+e.predelay/1000+.1);}return tail;}
+export function packTail(project){let tail=4.5;for(const track of [...project.tracks,{effects:project.mastering||{}}])for(const [id,e] of Object.entries(track.effects||{})){if(!e.enabled||e.mix<=0)continue;const type=id.split('__')[0];if(type==='relay'||type==='alterecho'){const times=type==='relay'?relayTimes(project.bpm,e.beats):[60/project.bpm*e.beats],repeats=e.feedback>0?Math.ceil(Math.log(.001)/Math.log(e.feedback)):1;tail=Math.max(tail,Math.min(20,Math.max(...times)*repeats));}if(type==='slap'){const repeats=e.feedback>0?Math.ceil(Math.log(.001)/Math.log(e.feedback)):1;tail=Math.max(tail,Math.min(15,e.time/1000*repeats+.1));}if(type==='exospace')tail=Math.max(tail,e.decay+e.predelay/1000+.1);}return tail;}
