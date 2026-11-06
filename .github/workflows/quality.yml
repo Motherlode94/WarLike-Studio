@@ -7,7 +7,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,3 +16,15 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: npm run build
+      - name: Install Chromium smoke-test tools
+        run: |
+          npm init -y
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Browser boot and mobile control regression
+        run: |
+          cd dist
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/warlike-studio-http.log 2>&1 &
+          cd ..
+          sleep 2
+          node tests/browser-smoke.mjs
