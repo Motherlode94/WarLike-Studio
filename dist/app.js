@@ -1,3 +1,4 @@
+import {workspaceAction,handleWorkspaceAction} from './workspace-shortcuts.js';
 import {installAnnotations} from './annotations.js?v=0.14.0';
 import {fadeOverlay,installFadeHandles} from './clip-tools.js?v=0.14.0';
 import {mountEqCurve} from './eq-curve.js?v=0.14.0';
@@ -628,6 +629,32 @@ document.addEventListener('dblclick',e=>{const name=e.target.closest('[data-sele
 document.addEventListener('contextmenu',e=>{const name=e.target.closest('[data-select-track],[data-track-drag]');if(name){e.preventDefault();selectTrack(name.dataset.selectTrack||name.dataset.trackDrag);showTrackProperties(true);}});
 piano=installPianoRoll({getProject:()=>project,getEngine:()=>engine,currentTrack,currentClip,checkpoint,changed,save,addTrack,toast,modal,drawClips,updateTransport,openPlugin:openPluginWindow,openEditor:(id,clipId)=>{detail='editor';selectTrack(id,clipId);setDetailOpen(true);}});
 $('channelRack').onclick=()=>piano.rack();
+
+ function openWorkspace(kind){
+   const actions={
+     playlist:()=>setView('arrange'),
+     rack:()=>piano.rack(),
+     piano:()=>{
+       const track=currentTrack();
+       const target=track && track.type!=='audio' && track.type!=='bus'?track:project.tracks.find(t=>t.type!=='audio'&&t.type!=='bus');
+       if(!target){toast('Ajoute un instrument pour ouvrir le Piano Roll.');return;}
+       setView('arrange');
+       piano.openChannel(target);
+     },
+     mixer:()=>setView('mixer')
+   };
+   if(!handleWorkspaceAction(kind,actions))return;
+   document.querySelectorAll('[data-ws]').forEach(node=>node.classList.toggle('ws-active',node.dataset.ws===kind));
+   const label={playlist:'Playlist',rack:'Channel Rack',piano:'Piano Roll',mixer:'Mixer'}[kind];
+   const hint=$('workspaceHint');if(hint)hint.textContent=label+' ouvert';
+ }
+ document.querySelectorAll('[data-ws]').forEach(node=>node.addEventListener('click',()=>openWorkspace(node.dataset.ws)));
+ document.addEventListener('keydown',event=>{
+   const action=workspaceAction(event,{modalOpen:$('modal').open,recording:!!recording||!!recordFinalizing});
+   if(!action)return;
+   event.preventDefault();event.stopImmediatePropagation();openWorkspace(action);
+ },true);
+
 $('modeSong').onclick=()=>{engine.pause();engine.patternMode=null;engine.clipPreview=null;engine.position=0;updateTransport();};
 $('modePattern').onclick=()=>{engine.pause();engine.patternMode=piano.bank().id;engine.clipPreview=null;engine.position=0;updateTransport();};
 const workflow=installStudioWorkflow({getProject:()=>project,setProject:value=>project=value,getAssets:()=>assets,getEngine:()=>engine,getDB:()=>db,currentTrack,currentClip,checkpoint,changed,save,selectTrack,addTrack,toast,modal,download,validateProject,updateTransport,getRecordState:()=>({recording,recordFinalizing,micPending}),setRecording:value=>recording=value,setFlags:flags=>{if('recordFinalizing'in flags)recordFinalizing=flags.recordFinalizing;if('micPending'in flags)micPending=flags.micPending;}});
