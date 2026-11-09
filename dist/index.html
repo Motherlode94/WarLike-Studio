@@ -8,7 +8,14 @@
   <link rel="stylesheet" href="./style.css?v=0.14.0">
   <link rel="stylesheet" href="./studio.css?v=0.14.0">
   <link rel="stylesheet" href="./android.css?v=0.14.1">
-</head>
+<style>
+.warlike-workspaces{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 14px;background:#181b20;border-bottom:1px solid #3b4548;color:#d5dedc}
+.warlike-workspaces button{border:1px solid #4c5d60;background:#252d32;color:#e4f3f1;border-radius:7px;padding:7px 11px;cursor:pointer;font:600 12px system-ui,sans-serif}
+.warlike-workspaces button:hover,.warlike-workspaces button.ws-active{border-color:#8ee2bb;background:#29433b}
+.warlike-workspaces button strong{color:#a4ebc2;margin-right:5px}.warlike-workspaces .ws-label{font:700 10px system-ui;letter-spacing:.15em;color:#8ba59c}
+.warlike-workspaces .ws-hint{margin-left:auto;color:#a1afac;font-size:11px}
+@media(max-width:760px){.warlike-workspaces{gap:5px;padding:7px}.warlike-workspaces button{padding:9px 8px}.warlike-workspaces .ws-hint{display:none}.warlike-workspaces .ws-label{width:100%}}
+</style></head>
 <body class="detail-collapsed track-properties-open">
   <header class="topbar">
     <a class="brand" href="#" aria-label="Warlike Studio"><span class="brandmark"><b></b><b></b><b></b><b></b></span><span>WARLIKE<span class="brand-sub">STUDIO</span></span><span class="version">0.14</span></a>
@@ -27,6 +34,14 @@
     <button id="exportWav" class="export-btn"><i data-icon="download"></i> Exporter <span>WAV</span></button>
   </section>
 
+  <nav class="warlike-workspaces" aria-label="Accès rapide aux fenêtres musicales">
+    <span class="ws-label">WORKSPACES</span>
+    <button type="button" data-ws="playlist" title="Playlist — F5"><strong>F5</strong> Playlist</button>
+    <button type="button" data-ws="rack" title="Channel Rack — F6"><strong>F6</strong> Channel Rack</button>
+    <button type="button" data-ws="piano" title="Piano Roll — F7"><strong>F7</strong> Piano Roll</button>
+    <button type="button" data-ws="mixer" title="Mixer — F9"><strong>F9</strong> Mixer</button>
+    <span class="ws-hint" id="workspaceHint" aria-live="polite">Fenêtres synchronisées avec les pistes de la session</span>
+  </nav>
   <div class="studio-body">
     <aside class="library">
       <div class="session-sidebar"><div class="sidebar-tabs"><button id="showTrackList" class="selected">PISTES</button><button id="showSoundList">SONS</button></div><div id="sessionTrackList" class="session-track-list"></div><div class="sidebar-section-heading">CLIPS DE LA SESSION <span id="sessionClipCount"></span></div><div id="sessionClipList" class="session-clip-list"></div><div class="sidebar-session-info"><span>WARLIKE SESSION</span><strong id="sessionSummary">16 mesures · 9 pistes</strong><small>Audio local · export WAV</small></div></div>
