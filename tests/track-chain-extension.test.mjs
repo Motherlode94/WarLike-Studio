@@ -1,0 +1,11 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {validateTrackChains,installedTrackChains,applyTrackChain,TRACK_CHAIN_ID,TRACK_CHAIN_SCHEMA} from '../dist/track-chain-extension.js';
+import {ensurePlugins} from '../dist/plugins.js';
+const preset={id:'voix-claire',name:'Voix claire',effects:[{id:'sculpt',params:{highpass:80,cutoff:16000}},{id:'glue',params:{threshold:-20,ratio:3}},{id:'aura',params:{mix:.12}}]};
+const pack={schema:TRACK_CHAIN_SCHEMA,presets:[preset]};
+const store=entry=>({getItem:()=>JSON.stringify({[TRACK_CHAIN_ID]:entry})});
+test('installed pack validates safe effect and parameter ranges',()=>{assert.equal(validateTrackChains(pack).presets.length,1);assert.throws(()=>validateTrackChains({...pack,presets:[{...preset,effects:[{id:'missing',params:{}}]}]}));assert.throws(()=>validateTrackChains({...pack,presets:[{...preset,effects:[{id:'glue',params:{ratio:999}}]}]}));});
+test('only enabled installed chains are accessible',()=>{let entry={enabled:true,schema:TRACK_CHAIN_SCHEMA,data:pack};assert.equal(installedTrackChains(store(entry)).length,1);assert.deepEqual(installedTrackChains(store({...entry,enabled:false})),[]);});
+test('chain adds real effects to free inserts and preserves existing inserts',()=>{const track={type:'audio',inserts:['color'],effects:{}};ensurePlugins(track);applyTrackChain(track,preset);assert.deepEqual(track.inserts.slice(0,4),['color','sculpt','glue','aura']);assert.equal(track.effects.glue.threshold,-20);assert.equal(track.effects.aura.mix,.12);assert.equal(track.effects.color.enabled,false);});
+test('full rack is rejected without replacing occupied inserts',()=>{const track={type:'audio',effects:{},inserts:['color','sculpt','glue','aura','echo','prism','hush','sibil','ember','orbit',null,null]};ensurePlugins(track);const before=JSON.stringify(track);assert.throws(()=>applyTrackChain(track,preset),/inserts libres/);assert.equal(JSON.stringify(track),before);});
+test('a duplicate effect uses a distinct instance and keeps its original settings',()=>{const track={type:'audio',inserts:['glue'],effects:{glue:{enabled:true,threshold:-12}}};ensurePlugins(track);applyTrackChain(track,preset);const duplicate=track.inserts[2];assert.match(duplicate,/^glue__/);assert.equal(track.effects.glue.threshold,-12);assert.equal(track.effects[duplicate].threshold,-20);});
