@@ -15,3 +15,13 @@ test('voice cleanup waits for all sources and releases the velocity and envelope
  const listeners=[];for(let i=0;i<2;i++)scope.watch({addEventListener:(event,cb)=>listeners.push(cb)});
  listeners[0]();assert.equal(disconnected,0);listeners[1]();assert.equal(disconnected,2);
 });
+test('concurrent audio initialisation shares one operation and retries after a failure',async()=>{
+ const e=new AudioEngine(()=>emptyProject(),()=>new Map());let calls=0,release;e.initialiseContext=()=>{calls++;return new Promise(resolve=>release=resolve);};
+ const a=e.init(),b=e.init();assert.equal(calls,1);release('ready');assert.deepEqual(await Promise.all([a,b]),['ready','ready']);
+ e.initialiseContext=async()=>{throw Error('audio unavailable');};await assert.rejects(e.init(),/audio unavailable/);
+ e.initialiseContext=async()=> 'recovered';assert.equal(await e.init(),'recovered');
+});
+test('stop during pending initialisation cancels playback before loading instruments',async()=>{
+ const e=new AudioEngine(()=>emptyProject(),()=>new Map());let release,prepared=0;e.init=()=>new Promise(resolve=>release=resolve);e.prepareInstruments=async()=>prepared++;
+ const pending=e.play();e.stop();release();await pending;assert.equal(prepared,0);assert.equal(e.playing,false);assert.equal(e.position,0);
+});
