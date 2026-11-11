@@ -5,9 +5,12 @@ export const EFFECT_PACKS={
   ...STUDIO_PACKS,
   exo:{name:'EXO',label:'EXO / MIX & INSTRUMENT',color:'#8acdc8',description:'Quatre traitements pour les voix et le mix, avec un synthé à deux couches et sa banque de 32 sons originaux.',modules:['exostrip','exofocus','exoair','exospace'],instruments:['exo','sampler']},
   vocal:{name:'Vocal Essentials',label:'VOCAL / CONTROL',color:'#88b8bf',description:'Sibilantes et passages calmes : deux outils pour préparer une voix avant le mix.',modules:['hush','sibil']},
-  motion:{name:'Motion & Color',label:'CREATIVE / EFFECTS',color:'#cd9a7d',description:'Du grain, de la largeur et du mouvement pour les voix, instruments et batteries.',modules:['ember','orbit','sway','relay','tilteq','notch','slap']}
+  motion:{name:'Motion & Color',label:'CREATIVE / EFFECTS',color:'#cd9a7d',description:'Du grain, de la largeur et du mouvement pour les voix, instruments et batteries.',modules:['ember','orbit','sway','relay','tilteq','notch','slap','phase','ring']}
 };
 export const PACK_EFFECTS={
+  phase:{name:'PHASE',subtitle:'FOUR STAGE PHASER',pack:'motion',color:'#b7a6df',defaultEnabled:false,description:'Quatre filtres all-pass balayés par un LFO créent des creux mobiles au mélange avec le signal sec. Vitesse libre en Hz, sans synchronisation au transport.',controls:[{key:'rate',name:'Rate',min:.05,max:5,step:.05,default:.3,unit:'Hz'},{key:'frequency',name:'Center',min:100,max:2000,step:10,default:600,unit:'Hz'},{key:'depth',name:'Depth',min:0,max:1,step:.01,default:.6,unit:'%'},{key:'mix',name:'Mix',min:0,max:1,step:.01,default:.5,unit:'%'}]},
+  ring:{name:'RING',subtitle:'RING MODULATOR',pack:'motion',color:'#dfb278',defaultEnabled:false,description:'Multiplie le signal par une sinusoïde pour des timbres métalliques et des bandes latérales. Carrier règle la fréquence porteuse ; Mix conserve le son original.',controls:[{key:'frequency',name:'Carrier',min:20,max:1200,step:1,default:80,unit:'Hz'},{key:'mix',name:'Mix',min:0,max:1,step:.01,default:.25,unit:'%'},{key:'output',name:'FX Output',min:-18,max:6,step:.5,default:0,unit:'dB'}]},
+
   hush:{name:'HUSH',subtitle:'SOFT GATE',pack:'vocal',color:'#88b8bf',defaultEnabled:false,description:'Atténue les passages sous le seuil avec une transition douce. Response règle la vitesse de l’enveloppe ; Range fixe l’atténuation maximale.',controls:[
     {key:'threshold',name:'Threshold',min:-70,max:-15,step:1,default:-45,unit:'dB'},
     {key:'range',name:'Range',min:0,max:60,step:1,default:30,unit:'dB'},
@@ -54,6 +57,8 @@ export const PACK_EFFECTS={
 };
 Object.assign(PACK_EFFECTS,EXO_EFFECTS,STUDIO_EFFECTS);
 export const PACK_PRESETS={
+  phase:[['Slow Keys',{rate:.15,frequency:500,depth:.5,mix:.5}],['Wide Sweep',{rate:.4,frequency:800,depth:1,mix:.5}],['Gentle Guitar',{rate:.2,frequency:400,depth:.35,mix:.35}],['Fast Motion',{rate:2,frequency:1000,depth:.7,mix:.5}],['Fixed Color',{rate:.05,frequency:1200,depth:0,mix:.5}]],
+  ring:[['Robot Voice',{frequency:70,mix:.45,output:0}],['Metal Bells',{frequency:440,mix:.65,output:-3}],['Bass Texture',{frequency:30,mix:.2,output:0}],['Alien Percussion',{frequency:310,mix:.7,output:-2}],['Radio Edge',{frequency:900,mix:.3,output:-3}]],
   ...STUDIO_PRESETS,
   hush:[['Room Soft',{threshold:-50,range:18,response:25}],['Rap Gaps',{threshold:-42,range:36,response:12}],['Breath Keep',{threshold:-58,range:12,response:35}],['Tight Drums',{threshold:-35,range:48,response:6}],['Gentle Space',{threshold:-46,range:24,response:60}]],
   sibil:[['Soft Ess',{frequency:6500,threshold:-24,range:6}],['Rap Bright',{frequency:7000,threshold:-28,range:9}],['Low Sibilance',{frequency:4500,threshold:-26,range:7}],['Air Guard',{frequency:8500,threshold:-22,range:5}],['Strong Ess',{frequency:6000,threshold:-32,range:12}]],
