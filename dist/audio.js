@@ -38,6 +38,11 @@ export class AudioEngine {
   async prepareBank(ctx,type,onProgress=()=>{}){this.instrumentBanks??=new Map();const bank=await loadAcousticBank(ctx,type,(done,total)=>{onProgress(done,total);if(done===0||done===total)this.onSampleStatus?.({type,done,total});});this.instrumentBanks.set(type,bank);return bank;}
   async prepareInstruments(ctx,project){for(const t of project.tracks)if(t.type==='sampler'&&!t.mute&&t.clips?.some(c=>c.notes?.length)&&(!t.sampler?.assetId||!this.getAssets().has(t.sampler.assetId)))throw Error('Charge un sample dans EXO Slice sur '+t.name+'.');const types=[...new Set(project.tracks.filter(t=>!t.mute&&t.clips?.length&&ACOUSTIC_INSTRUMENTS[t.type]).map(t=>t.type))];for(const type of types)await this.prepareBank(ctx,type);}
   async init() {
+    if(this.initPromise)return this.initPromise;
+    const pending=this.initialiseContext();this.initPromise=pending;
+    try{return await pending;}finally{if(this.initPromise===pending)this.initPromise=null;}
+  }
+  async initialiseContext() {
     if(!this.ctx||this.ctx.state==='closed') {
       this.ctx=new AudioContext({latencyHint:'interactive'});
       try{await prepareStudioContext(this.ctx);this.graph=this.buildGraph(this.ctx);}catch(error){await this.ctx.close().catch(()=>{});this.ctx=null;this.graph=null;throw error;}
@@ -158,7 +163,7 @@ export class AudioEngine {
   }
   async play() {
     this.stopReference();
-    const request=this.playRequest=(this.playRequest||0)+1;await this.init(); if(this.playing)return;await this.prepareInstruments(this.ctx,this.getPlaybackProject());if(request!==this.playRequest)return;
+    const request=this.playRequest=(this.playRequest||0)+1;await this.init(); if(request!==this.playRequest||this.playing)return;await this.prepareInstruments(this.ctx,this.getPlaybackProject());if(request!==this.playRequest)return;
     this.startTime=this.ctx.currentTime+.06-this.position*this.stepDuration;
     this.scheduledStep=Math.ceil(this.position); this.playing=true;
     if(!this.patternMode&&!this.clipPreview)this.schedulePartialAudio(this.position);this.scheduleAutomation(this.ctx,this.graph,this.position/16,this.getProject().bars,this.ctx.currentTime+.06);
