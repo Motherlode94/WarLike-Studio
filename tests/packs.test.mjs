@@ -6,7 +6,7 @@ import {createFactorySession} from '../dist/content.js';
 
 test('seven original packs expose twenty-two processors with five complete presets each',()=>{
   assert.equal(Object.keys(EFFECT_PACKS).length,7);assert.equal(Object.keys(PACK_EFFECTS).length,27);
-  for(const pack of Object.values(EFFECT_PACKS))for(const id of pack.modules){assert.ok(PACK_EFFECTS[id]);assert.equal(FACTORY_PRESETS[id].length,5);for(const preset of FACTORY_PRESETS[id])for(const c of PACK_EFFECTS[id].controls)assert.ok(preset.values[c.key]>=c.min&&preset.values[c.key]<=c.max);}
+  for(const pack of Object.values(EFFECT_PACKS))for(const id of pack.modules){assert.ok(PACK_EFFECTS[id]);assert.equal(FACTORY_PRESETS[id].length,['phase','ring'].includes(id)?10:5);for(const preset of FACTORY_PRESETS[id])for(const c of PACK_EFFECTS[id].controls)assert.ok(preset.values[c.key]>=c.min&&preset.values[c.key]<=c.max);}
 });
 test('envelope curves stay bounded, preserve quiet sibilants and obey maximum attenuation',()=>{
   assert.equal(gateControl(0,36),gain(-36));assert.equal(gateControl(.5,36),1);assert.equal(gateControl(0,0),1);
