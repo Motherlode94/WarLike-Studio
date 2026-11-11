@@ -47,3 +47,6 @@ test('PHASE and RING build distinct graphs, bypass correctly and release oscilla
  assert.equal(rack.modules.phase.filters.length,4);assert.ok(rack.modules.phase.filters.every(f=>f.type==='allpass'));assert.equal(rack.modules.ring.amp.gain.value,0);assert.equal(rack.modules.ring.carrier.frequency.value,80);assert.equal(rack.modules.phase.blend.wet.gain.value,.5);
  t.effects.phase.enabled=false;t.effects.ring.enabled=false;syncPackProcessors(rack,t.effects,120,0,true);for(const id of ['phase','ring']){assert.equal(rack.modules[id].blend.wet.gain.value,0);assert.equal(rack.modules[id].blend.dry.gain.value,1)}rack.dispose();assert.equal(started,2);assert.equal(stopped,2);
 });
+test('PHASE and RING banks contain ten unique sound settings with both subtle and strong mixes',()=>{
+ for(const id of ['phase','ring']){const bank=PACK_PRESETS[id];assert.equal(bank.length,10);assert.equal(new Set(bank.map(([name])=>name)).size,10);assert.equal(new Set(bank.map(([,v])=>JSON.stringify(v))).size,10);assert.ok(bank.some(([,v])=>v.mix<=.2));assert.ok(bank.some(([,v])=>v.mix>=.5));}
+});
