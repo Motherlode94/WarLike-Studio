@@ -50,7 +50,7 @@ function checkpoint(){history.push(clone(project));if(history.length>40)history.
 function updateUndo(){$('undo').disabled=!history.length;$('redo').disabled=!future.length;}
 function undo(redo=false){const from=redo?future:history,to=redo?history:future;if(!from.length)return;engine.pause();to.push(clone(project));project=from.pop();project.tracks.forEach(ensurePlugins);if(!project.tracks.some(t=>t.id===selectedTrack)){selectedTrack=project.tracks[0]?.id;selectedClip=null;}if(!currentTrack()?.clips.some(c=>c.id===selectedClip))selectedClip=currentTrack()?.clips[0]?.id;engine.sync();render();save();}
 function changed(full=false){project.tracks.forEach(ensurePlugins);engine.sync();save();if(full)render();}
-function save(){if(!loaded)return;$('saveStatus').innerHTML='<em></em> Enregistrement…';clearTimeout(saveTimer);saveTimer=setTimeout(persist,500);}
+function save(){if(!loaded)return;$('saveStatus').innerHTML='<em></em> Enregistrement…';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{saveTimer=null;persist();},500);}
 async function openDB(){return new Promise((resolve,reject)=>{const request=indexedDB.open('chayah-studio',1);request.onupgradeneeded=()=>request.result.createObjectStore('sessions');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}
 async function persist(){
   if(!db){$('saveStatus').innerHTML='<em style="background:#dc9c77"></em> Télécharger pour conserver';return;}
@@ -58,11 +58,12 @@ async function persist(){
   catch{$('saveStatus').innerHTML='<em style="background:#dc9c77"></em> Sauvegarde locale indisponible';toast('Le stockage est plein. Télécharge ton projet pour conserver cette session.');}
 }
 async function restore(){
+  let restoreStatus='Nouvelle session · pas encore enregistrée';
   try{db=await openDB();const state=await new Promise((resolve,reject)=>{const r=db.transaction('sessions').objectStore('sessions').get('current');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
-    if(state){validateProject(state.project);project=state.project;engine.masterVolume=Number.isFinite(state.masterVolume)?Math.max(-48,Math.min(3,state.masterVolume)):-2;project.tracks.forEach(ensurePlugins);if(state.assets?.length){const decoder=new AudioContext();for(const a of state.assets){try{assets.set(a.id,{...a,buffer:await decoder.decodeAudioData(a.data.slice(0))});}catch{toast(`Impossible de relire ${a.name}. Réimporte ce fichier.`);}}await decoder.close();}selectedTrack=project.tracks[0]?.id;selectedClip=project.tracks[0]?.clips[0]?.id;}
-  }catch{toast('La session peut être téléchargée depuis le menu Projet.');}
+    if(state){restoreStatus='Session restaurée sur cet appareil';validateProject(state.project);project=state.project;engine.masterVolume=Number.isFinite(state.masterVolume)?Math.max(-48,Math.min(3,state.masterVolume)):-2;project.tracks.forEach(ensurePlugins);if(state.assets?.length){const decoder=new AudioContext();for(const a of state.assets){try{assets.set(a.id,{...a,buffer:await decoder.decodeAudioData(a.data.slice(0))});}catch{restoreStatus='Session restaurée · audio manquant';toast(`Impossible de relire ${a.name}. Réimporte ce fichier.`);}}await decoder.close();}selectedTrack=project.tracks[0]?.id;selectedClip=project.tracks[0]?.clips[0]?.id;}
+  }catch{restoreStatus='Restauration impossible · télécharger pour conserver';toast('La session locale n’a pas pu être restaurée. Télécharge tes nouvelles modifications pour les conserver.');}
   if(db){try{backupAvailable=!!await new Promise(resolve=>{const request=db.transaction('sessions').objectStore('sessions').get('beforeTemplate');request.onsuccess=()=>resolve(request.result);request.onerror=()=>resolve(null);});}catch{}}
-  loaded=true;project.tracks.forEach(ensurePlugins);render();$('saveStatus').innerHTML='<em></em> Enregistré sur cet appareil';document.documentElement.dataset.appReady='true';$('bootError').hidden=true;signature?.activate();
+  loaded=true;project.tracks.forEach(ensurePlugins);render();$('saveStatus').textContent=restoreStatus;document.documentElement.dataset.appReady='true';$('bootError').hidden=true;signature?.activate();
 }
 
 function render(){
@@ -467,7 +468,11 @@ document.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();undo(e.shiftKey);}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();undo(true);}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='d'){e.preventDefault();duplicateClip();}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveProject();}else if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteClip();}else if(e.key.toLowerCase()==='v'&&!e.ctrlKey&&!e.metaKey)setEditingTool('select');else if(e.key.toLowerCase()==='p'&&!e.ctrlKey&&!e.metaKey)setEditingTool('draw');else if(e.key==='/'){e.preventDefault();document.querySelector('.library').classList.add('sounds-open');$('librarySearch').focus();}
 });
 let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(render,100);});
-window.addEventListener('beforeunload',()=>{if(loaded&&db){clearTimeout(saveTimer);persist();}});
+function flushPendingSave(){if(!loaded||saveTimer==null)return;clearTimeout(saveTimer);saveTimer=null;persist();}
+// Save before the browser freezes a hidden page; unloading alone cannot guarantee completion.
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushPendingSave();});
+window.addEventListener('pagehide',flushPendingSave);
+window.addEventListener('beforeunload',flushPendingSave);
 
 let lastStep=-1,lastMeter=0;const meterData=new Uint8Array(128),packMeterData=new Float32Array(32);
 function meter(analyser){if(!analyser)return 0;analyser.getByteTimeDomainData(meterData);let sum=0;for(let i=0;i<meterData.length;i++){const x=(meterData[i]-128)/128;sum+=x*x;}return Math.sqrt(sum/meterData.length);}
