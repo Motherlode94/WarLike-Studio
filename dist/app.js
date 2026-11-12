@@ -20,7 +20,7 @@ import {reorderTrackList,stepTrackDestination,clampTrackVolume,installTrackReord
 import {snapBar,musicalPosition,splitClip as splitClipData,trimClip,MIN_CLIP_LENGTH} from './editing.js?v=0.14.0';
 import {EFFECT_PACKS,PACK_EFFECTS,relayTimes} from './packs.js?v=0.14.0';
 import {AudioEngine,emptyProject,uid,noteName,bufferToWav} from './audio.js?v=0.14.0';
-import {INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins,formatParam,placeInsert,moveInsert,INSERT_COUNT,effectDefinition,effectType,copyInsert,changeInstrument,instrumentDefinition} from './plugins.js?v=0.14.0';
+import {compareInsert,copyInsertComparison,INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins,formatParam,placeInsert,moveInsert,INSERT_COUNT,effectDefinition,effectType,copyInsert,changeInstrument,instrumentDefinition} from './plugins.js?v=0.14.0';
 import {recordingSettings,createRecordingGraph,measureBuffer,normalisationGain,clampClipGain} from './recording.js?v=0.14.0';
 import {installKnobControls} from './controls.js?v=0.14.0';
 import {installFloatingWindow} from './windows.js?v=0.14.0';
@@ -547,6 +547,12 @@ function renderFloatingPlugin(){
   const catalog=`<aside class="suite-catalog track-rack-catalog" data-plugin-track="${tr.id}"><div class="suite-mark"><strong>WARLIKE<span>STUDIO</span></strong><small>RACK DE LA PISTE</small></div><div class="rack-track-title">${esc(tr.name)}</div>${instrumentDefinition(tr.type)?instrumentSlotHTML(tr):`<div class="suite-section-title">${tr.type==='bus'?'BUS / AUXILIAIRE':'ENTRÉE AUDIO'}</div><p class="rack-source-note">${tr.type==='bus'?'Sorties & envois des pistes':'Enregistrement / clips audio'}</p>`}<div class="suite-section-title">EFFETS · INSERTS A–L</div>${insertSlotsHTML(tr)}<p class="rack-source-note">↓ Ordre du traitement</p><span class="suite-edition">WEB EDITION · 0.14.0</span></aside>`;
   body.insertAdjacentHTML('afterbegin',catalog);panel.classList.add('suite-processor');
   panel.insertAdjacentHTML('afterbegin',`<div class="suite-preset-bar"><label>PISTE<select id="suiteTrack" aria-label="Piste du plugin">${project.tracks.filter(t=>id!=='instrument'||t.type===tr.type).map(t=>`<option value="${t.id}" ${t.id===tr.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label><label>PRESET<select id="suitePreset" aria-label="Preset du plugin"><option value="-1" ${selected<0?'selected':''}>Personnalisé</option>${options.map((p,i)=>`<option value="${i}" ${i===selected?'selected':''}>${p.name}</option>`).join('')}</select></label></div>`);
+  if(id!=='instrument'){
+    const active=tr.pluginComparisons?.[id]?.active==='B'?'B':'A';
+    panel.insertAdjacentHTML('afterbegin',`<div class="suite-ab-controls" role="group" aria-label="Comparaison des réglages de ce plugin"><span>COMPARAISON</span><button class="outline-btn" id="pluginCompareA" aria-pressed="${active==='A'}">A</button><button class="outline-btn" id="pluginCompareB" aria-pressed="${active==='B'}">B</button><button class="outline-btn" id="pluginCompareCopy">Copier ${active} → ${active==='A'?'B':'A'}</button><small>Réglages indépendants pour cet insert</small></div>`);
+    for(const target of ['A','B'])$('pluginCompare'+target).onclick=()=>{if((tr.pluginComparisons?.[id]?.active||'A')===target)return;checkpoint();if(compareInsert(tr,id,target)){changed(true);toast('Comparaison '+target+' · '+def.name);}};
+    $('pluginCompareCopy').onclick=()=>{checkpoint();if(copyInsertComparison(tr,id)){changed(true);toast('Réglage copié vers '+(active==='A'?'B':'A')+'.');}};
+  }
   panel.insertAdjacentHTML('beforeend','<div class="suite-rack-actions"><span>RACK DE LA PISTE</span><button id="importRack" class="text-btn">Charger un rack</button><button id="exportRack" class="outline-btn">Exporter le rack</button></div>');
   $('suiteTrack').onchange=e=>openPluginWindow(id,e.target.value);
   $('suitePreset').onchange=e=>{const index=Number(e.target.value);if(index<0)return;checkpoint();const name=applyFactoryPreset(tr,id,index);changed(true);toast('Preset '+name+' appliqué à '+tr.name+'.');};
