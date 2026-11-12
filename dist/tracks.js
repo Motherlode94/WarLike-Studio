@@ -100,3 +100,20 @@ export function installTrackReordering({onMove, canMove = () => true, onDragEnd 
   document.addEventListener('keydown', event => {if (drag?.active && event.key === 'Escape') {event.preventDefault(); finish(false);}}, true);
   window.addEventListener('blur', () => finish(false));
 }
+
+// Remove routing references together with the track, so saves cannot retain a
+// deleted bus and undo can restore the complete graph from one checkpoint.
+export function removeProjectTrack(project, trackId, selectedId) {
+  const index = project.tracks.findIndex(track => track.id === trackId);
+  if (index < 0 || project.tracks.length <= 1) return null;
+  project.tracks = project.tracks.filter(track => track.id !== trackId);
+  for (const track of project.tracks) {
+    if (track.output === trackId) track.output = 'master';
+    if (Array.isArray(track.sends)) track.sends = track.sends.filter(send => send.target !== trackId);
+  }
+  for (const folder of project.folders || []) {
+    if (folder.busId === trackId) folder.busId = null;
+    if (Array.isArray(folder.members)) folder.members = folder.members.filter(id => id !== trackId);
+  }
+  return project.tracks.some(track => track.id === selectedId) ? selectedId : project.tracks[Math.min(index, project.tracks.length - 1)].id;
+}
