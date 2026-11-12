@@ -3,7 +3,7 @@
 Station de création musicale web de HardieBay. Version 0.14.0 : piano roll,
 Channel Rack et patterns liés, prises alternatives et comping, bus, envois,
 automation, analyse de loudness et exports multipistes.
-FL Studio guide la composition ; Pro Tools et Logic Pro guident les workflows
+FL Studio guide la composition ; Pro Tools et Reaper guident les workflows
 d’enregistrement, de montage, de mix et de mastering.
 
 Le studio porte désormais le nom **Warlike Studio**. Les effets conservent leur
@@ -492,3 +492,9 @@ Sources fonctionnelles :
 
 ### Retour visuel
 Le bouton **✎ Annoter** fige la vue courante : crayon, flèche, ellipse, cadre, notes numérotées, annulation et export PNG incluant les commentaires. Les captures restent sur l’appareil ; joindre le PNG à la conversation pour le transmettre. Une image peut également être importée. Capture DOM avec html-to-image 1.11.13 (MIT), source et licence dans `dist/vendor/html-to-image/`.
+
+## Envois depuis le mixeur
+
+Chaque tranche propose un bouton **ENVOIS** avec le nombre d’envois. Il ouvre les réglages de sortie, de niveau, d’activation et de position pré/post-fader sans changer la piste sélectionnée. Les libellés de niveau restent synchronisés avec l’inspecteur. Une piste accepte huit envois au maximum, sans doublon de destination ni boucle audio.
+
+La suppression d’un bus renvoie ses sorties entrantes au Master et retire les envois vers lui ; Annuler restaure le projet et son routage.
