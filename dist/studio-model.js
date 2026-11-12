@@ -52,3 +52,13 @@ export function applyCrossfade(track,clipId,bpm){
 export function fadeValue(clip,elapsed,total){const a=Math.max(0,clip.fadeIn??.005),b=Math.max(0,clip.fadeOut??.005);let v=1;if(a&&elapsed<a)v*=clip.fadeCurve==='equalPower'?Math.sin(Math.PI/2*fadeShape(clamp(elapsed/a,0,1),clip.fadeInTension)):fadeShape(clamp(elapsed/a,0,1),clip.fadeInTension);if(b&&elapsed>total-b)v*=clip.fadeCurve==='equalPower'?Math.sin(Math.PI/2*fadeShape(clamp((total-elapsed)/b,0,1),clip.fadeOutTension)):fadeShape(clamp((total-elapsed)/b,0,1),clip.fadeOutTension);return v;}
 
 export function changeAudioTempo(project,nextBpm){const ratio=nextBpm/project.bpm;const scale=c=>{if(c.audioId){c.start*=ratio;c.length*=ratio;if(c.editOriginal){c.editOriginal.start*=ratio;c.editOriginal.length*=ratio;}}};for(const t of project.tracks)if(t.type==='audio'){for(const c of t.clips)scale(c);for(const l of t.playlists||[])for(const c of l.clips)scale(c);for(const points of Object.values(t.automation?.curves||{}))for(const point of points)point.bar*=ratio;}project.bpm=nextBpm;project.bars=fitSession(project.bars,Math.max(0,...project.tracks.flatMap(t=>t.clips.map(c=>c.start+c.length))));}
+
+export function addAuxSend(project, trackId, targetId, idFactory) {
+  const track=project.tracks.find(t=>t.id===trackId);
+  const target=project.tracks.find(t=>t.id===targetId&&t.type==='bus');
+  if(!track||!target||!routeAllowed(project.tracks,trackId,targetId))return false;
+  const sends=track.sends||[];
+  if(sends.length>=8||sends.some(send=>send.target===targetId))return false;
+  track.sends=[...sends,{id:idFactory(),target:targetId,level:-12,pre:false,enabled:true}];
+  return true;
+}
