@@ -109,3 +109,9 @@ dialog{background:#303747;border:1px solid #9883b2;color:#dce3f0;border-radius:5
 .master-rack-toolbar>strong{font:700 11px/1.3 system-ui,sans-serif;letter-spacing:.12em;color:#d8d7ba}
 .master-rack-toolbar>button{min-height:38px;padding:8px 12px;background:#45533d;color:#e1f1dc;border:1px solid #829a78;border-radius:5px}
 @media(max-width:900px){.mixer-channel{min-width:148px;max-width:178px}.mixer-master{position:relative;right:auto}.mixer-add-plugin{min-height:34px}.master-rack-toolbar>button{min-height:44px}}
+
+/* Track deletion stays visible in Arrange and Mix, with a compact hit target. */
+[data-delete-track] svg{width:12px;height:12px;vertical-align:middle}
+.channel-top [data-delete-track]{display:inline-flex;align-items:center;justify-content:center;min-width:22px;min-height:22px;padding:3px;border:1px solid #61708a;border-radius:3px}
+[data-delete-track]:hover{color:#ffd2c5;background:#713e37}
+[data-delete-track]:focus-visible{outline:2px solid #e7bd7f;outline-offset:2px}
