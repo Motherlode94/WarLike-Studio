@@ -30,3 +30,33 @@ test('integrated loudness is gain-relative, gated and silent input remains silen
 });
 
 test('changing tempo preserves absolute audio timing and source offsets',async()=>{const {changeAudioTempo}=await import('../dist/studio-model.js');const c={audioId:'a',start:2,length:2,sourceOffset:3},p={bpm:120,bars:16,tracks:[{type:'audio',clips:[c],playlists:[{clips:[structuredClone(c)]}],automation:{curves:{volume:[{bar:2,value:-6}]}}}]};changeAudioTempo(p,60);assert.equal(c.start*240/p.bpm,4);assert.equal(c.length*240/p.bpm,4);assert.equal(c.sourceOffset,3);assert.equal(p.tracks[0].playlists[0].clips[0].start,1);assert.equal(p.tracks[0].automation.curves.volume[0].bar,1);});
+
+test('aux sends reject duplicates, ninth sends, missing targets and feedback without mutation',async()=>{
+ const {addAuxSend}=await import('../dist/studio-model.js');let n=0;const p={tracks:[{id:'voice',output:'master',sends:[]},...Array.from({length:9},(_,i)=>({id:'bus'+i,type:'bus',output:'master',sends:[]}))]};
+ assert.equal(addAuxSend(p,'voice','bus0',()=>String(++n)),true);
+ assert.deepEqual(p.tracks[0].sends[0],{id:'1',target:'bus0',level:-12,pre:false,enabled:true});
+ for(const target of ['bus0','master','missing','voice'])assert.equal(addAuxSend(p,'voice',target,()=>String(++n)),false);
+ for(let i=1;i<8;i++)assert.equal(addAuxSend(p,'voice','bus'+i,()=>String(++n)),true);
+ const saved=structuredClone(p);assert.equal(addAuxSend(p,'voice','bus8',()=>String(++n)),false);assert.deepEqual(p,saved);assert.equal(n,8);
+ p.tracks[1].output='bus1';assert.equal(addAuxSend(p,'bus1','bus0',()=>String(++n)),false);
+});
+
+test('mixer send panel updates after adding, toggling, moving and removing an aux send',async()=>{
+ const {installStudioWorkflow}=await import('../dist/studio-workflow.js');
+ const previous=globalThis.document,handlers={},panel={dataset:{routingTrack:'voice'},innerHTML:''},modal={open:true},labels=[{},{}],linkedSlider={value:0};let checkpoints=0;
+ const project={tracks:[{id:'voice',name:'VOIX',output:'master',sends:[]},{id:'bus',type:'bus',name:'REVERB',output:'master',sends:[]}]};
+ globalThis.document={getElementById:id=>id==='routingPanel'?panel:id==='modal'?modal:null,addEventListener:(type,fn)=>(handlers[type]??=[]).push(fn),querySelectorAll:selector=>selector.includes('data-send-db')?labels:selector.includes('data-send-level')?[linkedSlider]:[]};
+ try{
+  installStudioWorkflow({getProject:()=>project,getEngine:()=>({playing:false}),getAssets:()=>new Map(),currentTrack:()=>project.tracks[0],currentClip:()=>null,checkpoint:()=>checkpoints++,changed:()=>{},toast:()=>{},modal:(title,html)=>panel.innerHTML=html});
+  const click=dataset=>{const target={dataset,closest:()=>target,hasAttribute:()=>false};handlers.click[0]({target});};
+  const change=(dataset,value)=>handlers.change[0]({target:{dataset,value}});
+  click({routingTrack:'voice'});assert.match(panel.innerHTML,/REVERB/);
+  change({sendAdd:'voice'},'bus');const send=project.tracks[0].sends[0];assert.match(panel.innerHTML,/data-send-level/);assert.match(panel.innerHTML,/-12.0 dB/);
+  click({sendToggle:'voice:'+send.id});assert.equal(send.enabled,false);assert.match(panel.innerHTML,/>OFF</);
+  change({sendPosition:'voice:'+send.id},'pre');assert.equal(send.pre,true);assert.match(panel.innerHTML,/value="pre" selected/);
+  for(const fn of handlers.input)fn({target:{dataset:{sendLevel:'voice:'+send.id},value:'-4.5'}});
+  assert.equal(send.level,-4.5);assert.ok(labels.every(label=>label.textContent==='-4.5 dB'));assert.equal(linkedSlider.value,-4.5);
+  change({routeOutput:'voice'},'bus');assert.equal(project.tracks[0].output,'bus');
+  click({sendRemove:'voice:'+send.id});assert.equal(project.tracks[0].sends.length,0);assert.doesNotMatch(panel.innerHTML,/data-send-level/);assert.equal(checkpoints,5);
+ }finally{if(previous===undefined)delete globalThis.document;else globalThis.document=previous;}
+});
