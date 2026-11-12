@@ -54,9 +54,10 @@ test('mixer send panel updates after adding, toggling, moving and removing an au
   change({sendAdd:'voice'},'bus');const send=project.tracks[0].sends[0];assert.match(panel.innerHTML,/data-send-level/);assert.match(panel.innerHTML,/-12.0 dB/);
   click({sendToggle:'voice:'+send.id});assert.equal(send.enabled,false);assert.match(panel.innerHTML,/>OFF</);
   change({sendPosition:'voice:'+send.id},'pre');assert.equal(send.pre,true);assert.match(panel.innerHTML,/value="pre" selected/);
-  for(const fn of handlers.input)fn({target:{dataset:{sendLevel:'voice:'+send.id},value:'-4.5'}});
+  const control={dataset:{sendLevel:'voice:'+send.id},value:'-4.5'};for(const fn of handlers.input)fn({target:control});control.value='-5';for(const fn of handlers.input)fn({target:control});control.value='-4.5';for(const fn of handlers.input)fn({target:control});
   assert.equal(send.level,-4.5);assert.ok(labels.every(label=>label.textContent==='-4.5 dB'));assert.equal(linkedSlider.value,-4.5);
+  handlers.change[0]({target:control});control.value='120';for(const fn of handlers.input)fn({target:control});assert.equal(send.level,12);control.value='';for(const fn of handlers.input)fn({target:control});assert.equal(send.level,12);control.value='-4.5';for(const fn of handlers.input)fn({target:control});
   change({routeOutput:'voice'},'bus');assert.equal(project.tracks[0].output,'bus');
-  click({sendRemove:'voice:'+send.id});assert.equal(project.tracks[0].sends.length,0);assert.doesNotMatch(panel.innerHTML,/data-send-level/);assert.equal(checkpoints,5);
+  click({sendRemove:'voice:'+send.id});assert.equal(project.tracks[0].sends.length,0);assert.doesNotMatch(panel.innerHTML,/data-send-level/);assert.equal(checkpoints,7);
  }finally{if(previous===undefined)delete globalThis.document;else globalThis.document=previous;}
 });
