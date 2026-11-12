@@ -504,5 +504,5 @@ export function importRack(track,data){
   for(const [id,value] of Object.entries(data.effects))if(!Object.hasOwn(EFFECTS,id)&&effectDefinition(id)&&/^[a-z]+__[a-z0-9]+$/.test(id))effects[id]={enabled:value.enabled!==false,...read(value,effectDefinition(id))};
   const tune=data.tune;if(!tune||!Number.isInteger(tune.key)||tune.key<0||tune.key>11||!['minor','major','chromatic'].includes(tune.scale)||!['speed','amount','mix'].every(k=>Number.isFinite(tune[k])))throw new Error('Réglages TUNE invalides.');
   const incoming={type:track.type,instrument,effects,tune};if(data.inserts!==undefined)incoming.inserts=data.inserts;ensurePlugins(incoming);
-  Object.assign(track,{instrument,effects:incoming.effects,inserts:incoming.inserts,tune:{key:tune.key,scale:tune.scale,speed:Math.max(0,Math.min(250,tune.speed)),amount:Math.max(0,Math.min(1,tune.amount)),mix:Math.max(0,Math.min(1,tune.mix))}});
+  Object.assign(track,{pluginComparisons:{},instrument,effects:incoming.effects,inserts:incoming.inserts,tune:{key:tune.key,scale:tune.scale,speed:Math.max(0,Math.min(250,tune.speed)),amount:Math.max(0,Math.min(1,tune.amount)),mix:Math.max(0,Math.min(1,tune.mix))}});
 }
