@@ -74,10 +74,37 @@ export function placeInsert(track,index,id){
   ensurePlugins(track);if(!Number.isInteger(index)||index<0||index>=INSERT_COUNT||id!==null&&!effectDefinition(id))throw new Error('Insert invalide.');
   if(id&&track.inserts.includes(id)&&track.inserts[index]!==id){const source=id;id=instanceId(effectType(id));track.effects[id]={...track.effects[source]};}
   if(id&&!track.effects[id])track.effects[id]={enabled:true,...Object.fromEntries(effectDefinition(id).controls.map(c=>[c.key,c.default]))};
-  const previous=track.inserts[index];track.inserts[index]=id;if(previous&&previous!==id)track.effects[previous].enabled=false;if(id)track.effects[id].enabled=true;return id;
+  const previous=track.inserts[index];track.inserts[index]=id;if(previous&&previous!==id){track.effects[previous].enabled=false;if(track.pluginComparisons)delete track.pluginComparisons[previous];}if(id)track.effects[id].enabled=true;return id;
 }
 export function addEffectInsert(track,id){ensurePlugins(track);let index=track.inserts.indexOf(id);if(index<0)index=track.inserts.indexOf(null);if(index<0)throw new Error('Tous les inserts sont occupés.');placeInsert(track,index,id);return index;}
 export function moveInsert(track,from,to){ensurePlugins(track);if(!Number.isInteger(from)||!Number.isInteger(to)||Math.min(from,to)<0||Math.max(from,to)>=INSERT_COUNT)throw new Error('Position d’insert invalide.');[track.inserts[from],track.inserts[to]]=[track.inserts[to],track.inserts[from]];}
 export function formatParam(control,value) {return control.unit==='key'?['Do','Do♯','Ré','Mi♭','Mi','Fa','Fa♯','Sol','La♭','La','Si♭','Si'][Math.round(value)]:control.unit==='scale'?['Mineure','Majeure','Chromatique'][Math.round(value)]:control.unit==='wave'?EXO_WAVES[Math.round(value)]:control.unit==='mode'?['Off','Up','Down','Up/Down','Chord'][Math.round(value)]:control.unit==='%'?`${Math.round(value*100)}%`:control.unit==='s'?`${value.toFixed(2)} s`:control.unit==='Hz'&&value>=20?(value>=1000?`${(value/1000).toFixed(1)} kHz`:`${Math.round(value)} Hz`):control.unit==='Hz'?`${value.toFixed(2)} Hz`:control.unit==='beat'?`${value.toFixed(3).replace(/0+$/,'').replace(/\.$/,'')} ♩`:control.unit===':1'?`${value.toFixed(1)}:1`:`${value.toFixed(1)} ${control.unit}`;}
 
 export function copyInsert(track,from,to){ensurePlugins(track);const source=track.inserts[from];if(!source||track.inserts[to])throw Error('Choisis un emplacement vide.');const id=instanceId(effectType(source));track.effects[id]=structuredClone(track.effects[source]);track.inserts[to]=id;return id;}
+
+// Store only this insert's controls. Comparing two instances must never replace
+// the track's clips, routing, other inserts or instrument.
+function comparisonSnapshot(track,id) {
+  const definition=effectDefinition(id),state=track.effects?.[id];
+  if(!definition||!state||!track.inserts?.includes(id))return null;
+  return Object.fromEntries([['enabled',state.enabled!==false],...definition.controls.map(control=>[control.key,Number.isFinite(state[control.key])?Math.max(control.min,Math.min(control.max,state[control.key])):control.default])]);
+}
+export function compareInsert(track,id,target) {
+  if(!['A','B'].includes(target))return false;
+  const current=comparisonSnapshot(track,id);if(!current)return false;
+  track.pluginComparisons??={};
+  const slot=track.pluginComparisons[id]??={active:'A',A:{...current},B:{...current}};
+  if(!['A','B'].includes(slot.active))slot.active='A';
+  slot[slot.active]={...current};
+  const definition=effectDefinition(id),saved=slot[target]||current;
+  const values=Object.fromEntries(definition.controls.map(control=>[control.key,Number.isFinite(saved[control.key])?Math.max(control.min,Math.min(control.max,saved[control.key])):control.default]));
+  Object.assign(track.effects[id],values,{enabled:saved.enabled!==false});
+  slot.active=target;return true;
+}
+export function copyInsertComparison(track,id) {
+  const current=comparisonSnapshot(track,id);if(!current)return false;
+  track.pluginComparisons??={};
+  const slot=track.pluginComparisons[id]??={active:'A',A:{...current},B:{...current}};
+  if(!['A','B'].includes(slot.active))slot.active='A';
+  slot[slot.active]={...current};slot[slot.active==='A'?'B':'A']={...current};return true;
+}
