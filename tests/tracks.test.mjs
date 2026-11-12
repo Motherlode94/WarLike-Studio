@@ -34,3 +34,14 @@ test('deleting a bus repairs routes and folders and chooses the adjacent track',
   const single=structuredClone(project);assert.equal(removeProjectTrack(project,'a','a'),null);assert.deepEqual(project,single);
   assert.equal(removeProjectTrack(project,'missing','a'),null);
 });
+
+test('precise pan edits clamp invalid values and undo once per edit gesture',async()=>{
+ const {panFromPercent,installPanEditing}=await import('../dist/tracks.js');
+ assert.equal(panFromPercent('-35'),-.35);assert.equal(panFromPercent(120),1);assert.equal(panFromPercent(-120),-1);
+ for(const value of ['',null,undefined,'NaN',Infinity])assert.equal(panFromPercent(value),null);
+ const handlers={},track={pan:.4},undo=[];installPanEditing({root:{addEventListener:(name,fn)=>handlers[name]=fn},getTrack:id=>id==='t'?track:null,checkpoint:()=>undo.push(track.pan),apply:(id,value)=>track.pan=value});
+ const control={dataset:{panNumber:'t'},value:'25'};handlers.input({target:control});control.value='-50';handlers.input({target:control});assert.equal(track.pan,-.5);assert.deepEqual(undo,[.4]);
+ handlers.change({target:control});control.value='75';handlers.input({target:control});assert.deepEqual(undo,[.4,-.5]);
+ control.value='';handlers.input({target:control});handlers.focusout({target:control});assert.equal(control.value,75);
+ const button={dataset:{panCenter:'t'}};handlers.click({target:{closest:()=>button}});assert.equal(track.pan,0);assert.deepEqual(undo,[.4,-.5,.75]);handlers.click({target:{closest:()=>button}});assert.equal(undo.length,3);
+});
