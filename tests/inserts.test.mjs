@@ -48,3 +48,12 @@ test('plugin A/B retains live edits, survives saving and isolates duplicate inse
  copyInsertComparison(saved,'color');compareInsert(saved,'color','B');assert.equal(saved.effects.color.drive,.85);
  placeInsert(saved,0,null);assert.equal(saved.pluginComparisons.color,undefined);assert.equal(compareInsert(saved,'missing','B'),false);assert.equal(compareInsert(saved,'color','C'),false);
 });
+
+test('personal effect presets are portable, shared by type and never copy unrelated inserts',async()=>{
+ const {ensurePlugins,placeInsert,saveEffectPreset,personalEffectPresets,applyPersonalEffectPreset,nextPresetIndex}=await import('../dist/plugins.js');
+ const project={},a={id:'a',type:'audio',clips:[]},b={id:'b',type:'audio',clips:[]};ensurePlugins(a);ensurePlugins(b);placeInsert(a,0,'color');placeInsert(b,0,'color');placeInsert(b,1,'color');a.effects.color.drive=.67;
+ assert.equal(saveEffectPreset(project,a,'color',' Ma voix '),true);a.effects.color.drive=.22;assert.equal(saveEffectPreset(project,a,'color','Ma voix'),true);assert.equal(personalEffectPresets(project,'color').length,1);
+ const copy=JSON.parse(JSON.stringify(project)),other=b.inserts[1],untouched=structuredClone(b.effects.color);assert.equal(applyPersonalEffectPreset(copy,b,other,0),true);assert.equal(b.effects[other].drive,.22);assert.deepEqual(b.effects.color,untouched);
+ copy.pluginPresets.color[0].values.drive='invalid';const before=structuredClone(b);assert.equal(applyPersonalEffectPreset(copy,b,other,0),false);assert.deepEqual(b,before);
+ assert.equal(saveEffectPreset(project,a,'color',' '),false);assert.equal(nextPresetIndex(-1,1,5),0);assert.equal(nextPresetIndex(-1,-1,5),4);assert.equal(nextPresetIndex(4,1,5),0);assert.equal(nextPresetIndex(0,-1,5),4);assert.equal(nextPresetIndex(0,1,0),-1);
+});
