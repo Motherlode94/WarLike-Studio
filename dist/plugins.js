@@ -108,3 +108,29 @@ export function copyInsertComparison(track,id) {
   if(!['A','B'].includes(slot.active))slot.active='A';
   slot[slot.active]={...current};slot[slot.active==='A'?'B':'A']={...current};return true;
 }
+
+export function personalEffectPresets(project,id) {
+  const type=effectType(id),bank=project.pluginPresets?.[type];
+  return Array.isArray(bank)?bank.filter(p=>p&&typeof p.name==='string'&&p.values&&typeof p.values==='object').slice(0,32):[];
+}
+export function saveEffectPreset(project,track,id,rawName) {
+  const name=String(rawName||'').trim().slice(0,60),values=comparisonSnapshot(track,id);
+  if(!name||!values)return false;
+  const bank=personalEffectPresets(project,id).map(p=>structuredClone(p)),index=bank.findIndex(p=>p.name===name);
+  if(index<0&&bank.length>=32)return false;
+  const preset={name,values};if(index<0)bank.push(preset);else bank[index]=preset;
+  if(!project.pluginPresets||typeof project.pluginPresets!=='object'||Array.isArray(project.pluginPresets))project.pluginPresets={};
+  project.pluginPresets[effectType(id)]=bank;return true;
+}
+export function applyPersonalEffectPreset(project,track,id,index) {
+  const definition=effectDefinition(id),preset=personalEffectPresets(project,id)[index];
+  if(!Number.isInteger(index)||!preset||!definition||!track.inserts?.includes(id)||!track.effects?.[id])return false;
+  const values={enabled:preset.values.enabled!==false};
+  for(const control of definition.controls){const value=preset.values[control.key]??control.default;if(!Number.isFinite(value))return false;values[control.key]=Math.max(control.min,Math.min(control.max,value));}
+  Object.assign(track.effects[id],values);return true;
+}
+export function nextPresetIndex(current,direction,count) {
+  if(!Number.isInteger(count)||count<=0)return -1;
+  if(!Number.isInteger(current)||current<0||current>=count)return direction<0?count-1:0;
+  return (current+(direction<0?-1:1)+count)%count;
+}
