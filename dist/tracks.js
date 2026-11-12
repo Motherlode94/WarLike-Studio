@@ -117,3 +117,30 @@ export function removeProjectTrack(project, trackId, selectedId) {
   }
   return project.tracks.some(track => track.id === selectedId) ? selectedId : project.tracks[Math.min(index, project.tracks.length - 1)].id;
 }
+
+export function panFromPercent(raw) {
+  if(raw===null||raw===undefined||!String(raw).trim())return null;
+  const value=Number(raw);
+  return Number.isFinite(value)?Math.max(-100,Math.min(100,value))/100:null;
+}
+
+export function installPanEditing({getTrack,checkpoint,apply,root=document}) {
+  const edits=new WeakSet();
+  root.addEventListener('input',event=>{
+    const el=event.target,id=el.dataset.panNumber;if(!id)return;
+    const track=getTrack(id),value=panFromPercent(el.value);
+    if(!track||value===null||value===track.pan)return;
+    if(!edits.has(el)){checkpoint();edits.add(el);}
+    apply(id,value);
+  });
+  root.addEventListener('change',event=>{edits.delete(event.target);});
+  root.addEventListener('focusout',event=>{
+    const el=event.target;edits.delete(el);
+    const track=getTrack(el.dataset.panNumber);if(track)el.value=Math.round(track.pan*100);
+  });
+  root.addEventListener('click',event=>{
+    const button=event.target.closest('[data-pan-center]');if(!button)return;
+    const id=button.dataset.panCenter,track=getTrack(id);if(!track||track.pan===0)return;
+    checkpoint();apply(id,0);
+  });
+}
