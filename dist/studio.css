@@ -115,3 +115,5 @@ dialog{background:#303747;border:1px solid #9883b2;color:#dce3f0;border-radius:5
 .channel-top [data-delete-track]{display:inline-flex;align-items:center;justify-content:center;min-width:22px;min-height:22px;padding:3px;border:1px solid #61708a;border-radius:3px}
 [data-delete-track]:hover{color:#ffd2c5;background:#713e37}
 [data-delete-track]:focus-visible{outline:2px solid #e7bd7f;outline-offset:2px}
+
+.suite-ab-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px;border-bottom:1px solid #526481;font-size:11px}.suite-ab-controls button[aria-pressed="true"]{background:#b9a06c;color:#171d26}.suite-ab-controls small{color:#b6c8e1}
