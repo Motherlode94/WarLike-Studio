@@ -37,3 +37,14 @@ test('master insert order and bypass survive settings and preset normalization',
   assert.deepEqual(masteringSettings(state),state);
   const p={};applyMasterPreset(p,2);assert.deepEqual(p.mastering.inserts,['balance','press','peak',...Array(9).fill(null)]);applyMasterPreset(p,0);assert.deepEqual(p.mastering.inserts,Array(12).fill(null));
 });
+
+test('plugin A/B retains live edits, survives saving and isolates duplicate insert instances',async()=>{
+ const {ensurePlugins,placeInsert,compareInsert,copyInsertComparison}=await import('../dist/plugins.js');
+ const track={id:'voice',type:'audio',clips:[{id:'clip',audioId:'asset'}]};ensurePlugins(track);placeInsert(track,0,'color');placeInsert(track,1,'color');const second=track.inserts[1];track.effects.color.drive=.7;const untouched=structuredClone(track.effects[second]);
+ assert.equal(compareInsert(track,'color','B'),true);track.effects.color.drive=.2;track.effects.color.enabled=false;
+ compareInsert(track,'color','A');assert.equal(track.effects.color.drive,.7);assert.equal(track.effects.color.enabled,true);
+ track.effects.color.drive=.85;compareInsert(track,'color','B');assert.equal(track.effects.color.drive,.2);assert.equal(track.effects.color.enabled,false);
+ const saved=JSON.parse(JSON.stringify(track));compareInsert(saved,'color','A');assert.equal(saved.effects.color.drive,.85);assert.deepEqual(saved.effects[second],untouched);assert.deepEqual(saved.clips,track.clips);
+ copyInsertComparison(saved,'color');compareInsert(saved,'color','B');assert.equal(saved.effects.color.drive,.85);
+ placeInsert(saved,0,null);assert.equal(saved.pluginComparisons.color,undefined);assert.equal(compareInsert(saved,'missing','B'),false);assert.equal(compareInsert(saved,'color','C'),false);
+});
