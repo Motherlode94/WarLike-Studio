@@ -1,3 +1,4 @@
+import {recordingInputConstraints} from './recording.js?v=0.14.0';
 // WarLike Studio recording workspace. UI-only; delegates every audio operation
 // to the existing Studio controls and never simulates track arming.
 const key='warlike.recording.workspace.v1';
@@ -118,7 +119,10 @@ async function toggleInputTest(){
     // Read the same saved device as the actual PCM recorder; fall back to default only if no device was selected.
     const savedDevice=bar?.dataset.deviceId||'';
     const deviceId=savedDevice||document.querySelector('#inputDevice')?.value||'';
-    stream=await navigator.mediaDevices.getUserMedia({audio:{...(deviceId?{deviceId:{exact:deviceId}}:{}),echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    const channel=bar?.dataset.channel||'1';
+    const armed=[...document.querySelectorAll('#trackRows [data-record-arm][aria-pressed="true"]')]
+      .map(button=>({channel:document.querySelector('[data-record-input="'+button.dataset.recordArm+'"]')?.value||'1'}));
+    stream=await navigator.mediaDevices.getUserMedia(recordingInputConstraints({deviceId,channel},armed));
     if(generation!==micTestGeneration||!document.body.classList.contains('record-workspace')||$('record')?.classList.contains('recording')){stream.getTracks().forEach(t=>t.stop());return;}
     context=new AudioContext();
     if(context.state==='suspended')await context.resume();
