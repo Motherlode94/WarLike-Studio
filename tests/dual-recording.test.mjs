@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {armedRecordingTracks,captureChannelMode,extractRecordedChannel} from '../dist/recording.js';
+import {armedRecordingTracks,captureChannelMode,extractRecordedChannel,recordingInputConstraints,validateRecordingInputChannels} from '../dist/recording.js';
 
 const track=(id,channel,armed=true)=>({id,name:id,type:'audio',recordArm:armed,recordInput:channel,clips:[]});
 test('arming accepts a pair with distinct physical inputs',()=>{
@@ -31,4 +31,23 @@ test('mono track takes are sample aligned from same stereo buffer',()=>{
 test('requesting nonexistent input fails, rather than silently recording silence',()=>{
  const buffer={numberOfChannels:1,length:3,sampleRate:44100,getChannelData:()=>new Float32Array(3)};
  assert.throws(()=>extractRecordedChannel({},buffer,'2'),/indisponible/);
+});
+
+test('IN 2 mono requests two physical channels even with one armed track',()=>{
+ const constraints=recordingInputConstraints({deviceId:'interface-1',channel:'1'},[{channel:'2'}]);
+ assert.equal(constraints.audio.channelCount.ideal,2);
+ assert.deepEqual(constraints.audio.deviceId,{exact:'interface-1'});
+ assert.equal(validateRecordingInputChannels({channelCount:2},[{channel:'2'}]),'2');
+});
+
+test('duo and stereo previews request the exact same two-channel constraint',()=>{
+ const duo=[{channel:'1'},{channel:'2'}];
+ assert.equal(recordingInputConstraints({channel:'1'},duo).audio.channelCount.ideal,2);
+ assert.equal(recordingInputConstraints({channel:'stereo'}).audio.channelCount.ideal,2);
+ assert.equal(validateRecordingInputChannels({channelCount:2},duo),'stereo');
+});
+test('missing hardware second channel is rejected rather than recording silence',()=>{
+ assert.throws(()=>validateRecordingInputChannels({channelCount:1},[{channel:'2'}]),/Entrée 2 indisponible/);
+ assert.throws(()=>validateRecordingInputChannels({channelCount:1},[{channel:'1'},{channel:'2'}]),/Entrée 2 indisponible/);
+ assert.equal(validateRecordingInputChannels({channelCount:1},[{channel:'1'}]),'1');
 });
