@@ -25,3 +25,23 @@ test('demo visitors can receive independent local copies without modifying sourc
   assert.notEqual(a.tracks[0].id,b.tracks[0].id);
   assert.notEqual(a.tracks[0].clips[0].id,b.tracks[0].clips[0].id);
 });
+
+test('public Afro and R&B demos have distinct complete musical arrangements',()=>{
+  for(const [id,bpm,key,type] of [['soleil',108,2,'strum'],['brume',84,0,'epiano']]){
+    const template=SESSION_TEMPLATES.find(x=>x.id===id);
+    assert.ok(template);
+    assert.equal(template.bpm,bpm);
+    const session=createFactorySession(id);
+    assert.equal(session.bars,16);
+    assert.equal(session.bpm,bpm);
+    assert.equal(session.pianoKey,key);
+    assert.equal(session.tracks.length,9);
+    assert.equal(session.tracks.filter(x=>x.type==='audio').length,3);
+    assert.ok(session.tracks.some(x=>x.type===type&&x.clips.some(c=>c.notes?.length)));
+    assert.ok(session.tracks.some(x=>x.type==='drums'&&x.clips.some(c=>Object.values(c.pattern||{}).some(row=>row.some(Boolean)))));
+    assert.equal(session.tracks.some(x=>x.clips.some(c=>c.audioId)),false);
+  }
+  const afro=createFactorySession('soleil'),rnb=createFactorySession('brume');
+  assert.notDeepEqual(afro.tracks[0].clips[0].pattern,rnb.tracks[0].clips[0].pattern);
+  assert.notEqual(afro.tracks[0].id,rnb.tracks[0].id);
+});
