@@ -3,6 +3,10 @@
 const DB_NAME='warlike-studio-recording-recovery';
 const DB_VERSION=1;
 const GROUP_SECONDS=2;
+export const MAX_JOURNAL_BACKLOG_SECONDS=12;
+export function journalBacklogExceeded(backlogFrames,incomingFrames,sampleRate,limitSeconds=MAX_JOURNAL_BACKLOG_SECONDS){
+  return backlogFrames+incomingFrames>Math.max(4096,Math.round(sampleRate*limitSeconds));
+}
 function requestDone(request){
   return new Promise((resolve,reject)=>{request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error||Error('Stockage local indisponible.'));});
 }
@@ -47,11 +51,12 @@ export async function beginRecordingJournal({sampleRate,channels,projectName='Se
     tx.objectStore('recordings').put(meta);
     await transactionDone(tx);
   }catch(error){db.close();throw error;}
-  let pending=[],pendingFrames=0,totalFrames=0,index=0,writeQueue=Promise.resolve(),failure=null,closed=false;
+  let pending=[],pendingFrames=0,queuedFrames=0,totalFrames=0,index=0,writeQueue=Promise.resolve(),failure=null,closed=false,saturated=false;
   const limit=Math.max(4096,Math.round(sampleRate*GROUP_SECONDS));
   function queueWrite(){
     if(!pendingFrames)return;
     const blocks=pending;pending=[];const length=pendingFrames;pendingFrames=0;
+    queuedFrames+=length;
     writeQueue=writeQueue.then(async()=>{
       const merged=Array.from({length:channels},()=>new Float32Array(length));
       let offset=0;
@@ -64,20 +69,29 @@ export async function beginRecordingJournal({sampleRate,channels,projectName='Se
       const tx=db.transaction('blocks','readwrite');
       tx.objectStore('blocks').put({id,index:index++,length,channels:merged});
       await transactionDone(tx);
-    }).catch(error=>{if(!failure){failure=error;try{onError?.(error);}catch{}}throw error;});
+    }).catch(error=>{if(!failure){failure=error;try{onError?.(error);}catch{}}throw error;})
+      .finally(()=>{queuedFrames-=length;});
     // Avoid unhandled rejections while the caller awaits flush() later.
     writeQueue.catch(()=>{});
   }
   return {
     id,
     get frames(){return totalFrames;},
+    get backlogSeconds(){return (queuedFrames+pendingFrames)/sampleRate;},
+    get saturated(){return saturated;},
     append(chunk){
-      if(closed||failure)return;
-      if(!Array.isArray(chunk)||chunk.length!==channels||!chunk[0]?.length)return;
+      if(closed||failure||saturated)return false;
+      if(!Array.isArray(chunk)||chunk.length!==channels||!chunk[0]?.length)return false;
+      if(journalBacklogExceeded(queuedFrames+pendingFrames,chunk[0].length,sampleRate)){
+        saturated=true;
+        try{onError?.(Error('Stockage trop lent : le journal atteint 12 secondes de retard. Arrêt de sécurité ; les blocs déjà reçus sont conservés.'));}catch{}
+        return false;
+      }
       pending.push(chunk);
       pendingFrames+=chunk[0].length;
       totalFrames+=chunk[0].length;
       if(pendingFrames>=limit)queueWrite();
+      return true;
     },
     async flush(){
       if(closed)throw Error('Journal déjà terminé.');
