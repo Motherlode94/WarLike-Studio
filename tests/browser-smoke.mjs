@@ -15,6 +15,20 @@ try {
  await page.locator('#libraryNew').click();
  await page.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await page.locator('#projectName').inputValue(),'QA Session A');
+ // Project A persists across explicit project switches; B starts blank.
+ await page.locator('#projectMenuBtn').click();
+ await page.locator('#myProjects').click();
+ await page.locator('#libraryName').fill('QA Session B');
+ await page.locator('#libraryNew').click();
+ await page.locator('#modal').waitFor({state:'hidden'});
+ assert.equal(await page.locator('#projectName').inputValue(),'QA Session B');
+ await page.locator('#projectMenuBtn').click();
+ await page.locator('#myProjects').click();
+ await page.locator('[data-project-open]').first().count();
+ await page.locator('[data-project-open]').nth(1).click();
+ await page.locator('#modal').waitFor({state:'hidden'});
+ assert.equal(await page.locator('#projectName').inputValue(),'QA Session A');
+
  await page.locator('#fileMenuBtn').click();
  assert.equal(await page.locator('#fileMenuBtn').getAttribute('aria-expanded'),'true');
  assert.ok(await page.locator('#fileMenuBtn').locator('..').locator('[role="menu"]').isVisible());
