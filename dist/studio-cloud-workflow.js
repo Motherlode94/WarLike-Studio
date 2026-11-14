@@ -27,10 +27,11 @@ export async function completeStudioPairing({hash=location.hash,storage=sessionS
  if(!response.ok)throw Error('Association refusée. Réessaie.');
  return true;
 }
-export function createStudioSync({baseUrl=location.origin, api}={}){
+export function createStudioSync({baseUrl=typeof location==='undefined'?'https://localhost':location.origin, api}={}){
  const client=api||new StudioCloudClient({baseUrl});
  let identity=null;
  let queue=Promise.resolve();
+ const knownRevision=new Map(),knownAssets=new Map();
  const connect=async()=>{identity=await client.identity();return identity;};
  const enqueue=task=>{
   const pending=queue.catch(()=>{}).then(task);queue=pending.catch(()=>{});return pending;
@@ -41,7 +42,7 @@ export function createStudioSync({baseUrl=location.origin, api}={}){
   // Local file IDs remain stable. Cloud audio objects are stored privately in R2.
   let id=cloudId,rev=revision||0;
   if(!id){const created=await client.createProject(project);id=created.id;rev=created.revision;}
-  const mapping={...(project.__cloudAssets||{})};
+  const mapping={...(project.__cloudAssets||{}),...(knownAssets.get(id)||{})};
   for(const asset of assets){
    if(mapping[asset.id])continue;
    const extension=asset.name?.match(/\.(wav|mp3|ogg)$/i)?.[1]?.toLowerCase()||'wav';
@@ -52,7 +53,8 @@ export function createStudioSync({baseUrl=location.origin, api}={}){
    mapping[asset.id]=uploaded.id;
   }
   const updated={...project,__cloudAssets:mapping};
-  const saved=await client.saveProject(id,updated,rev);
+  const saved=await client.saveProject(id,updated,knownRevision.get(id)||rev);
+  knownRevision.set(id,saved.revision);knownAssets.set(id,mapping);
   return {cloudId:id,cloudRevision:saved.revision,cloudOwner:identity.userId,cloudAssets:mapping};
  }
  async function fetchProject(id){
