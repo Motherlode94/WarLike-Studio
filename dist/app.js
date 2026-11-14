@@ -57,7 +57,7 @@ async function uploadActiveProject(){
  const id=activeProjectId,meta=projectIndex.find(p=>p.id===id),state=await dbRead(projectKey(id));
  if(!state)throw Error('Projet local introuvable.');
  if(meta?.cloudOwner&&meta.cloudOwner!==studioCloudIdentity.userId)throw Error('Ce projet est associé à un autre compte WarLike.');
- const result=await cloud.push({project:state.project,assets:state.assets||[],cloudId:meta?.cloudId,revision:meta?.cloudRevision,ownerId:meta?.cloudOwner});
+ const result=await cloud.push({project:state.project,assets:state.assets||[],cloudId:meta?.cloudId,revision:meta?.cloudRevision,ownerId:meta?.cloudOwner,onCreated:created=>rememberCloudState(id,created)});
  await rememberCloudState(id,result);toast('Projet sauvegardé dans ton cloud WarLike.');
 }
 async function listCloudProjects(){
