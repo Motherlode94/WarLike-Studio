@@ -91,7 +91,7 @@ export function installStudioWorkflow(d){
       const needsStereo=assignments.length>1||a.channel==='stereo';
       stream=await navigator.mediaDevices.getUserMedia({audio:{...(a.deviceId?{deviceId:{exact:a.deviceId}}:{}),channelCount:{ideal:needsStereo?2:1},echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
       const channels=stream.getAudioTracks()[0]?.getSettings?.().channelCount;
-      if(assignments.length>1&&channels!==2)throw Error('Deux entrées matérielles accessibles sont nécessaires (interface stéréo 1–2).');
+      if((assignments.length>1||assignments.some(item=>item.channel==='2')||a.channel==='2')&&channels!==2)throw Error('L’entrée 2 exige une interface exposant deux canaux audio dans le navigateur.');
       let t=track();if(!assignments.length&&t.type!=='audio')t=d.addTrack('audio');
       const targets=assignments.length?assignments:[{track:t,channel:a.channel==='2'?'2':'1'}];
       const mode=assignments.length?captureChannelMode(assignments):a.channel;
@@ -99,9 +99,10 @@ export function installStudioWorkflow(d){
       const start=engine().position,previousLoop=engine().loop;engine().loop=false;
       graph=createRecordingGraph(engine().ctx,stream,recordingSettings(p().recording).gainDb);
       capture=await createPcmCapture(engine().ctx,graph.inputNode,{channel:mode});
-      if(a.monitor){
-        // Only one monitor mix is used; hardware monitoring remains preferred.
+      if(a.monitor&&targets.length===1){
         graph.monitor(engine().channels.get(targets[0].track.id).input);
+      }else if(a.monitor&&targets.length>1){
+        d.toast('Monitoring logiciel désactivé pour le duo : utilise le monitoring direct au casque de ton interface.');
       }
       const rec={stream,graph,capture,track:targets[0].track,assignments:targets,start,previousLoop,options:clone(a),captureMode:mode,autoLevel:recordingSettings(p().recording).autoLevel};
       d.setRecording(rec);d.setFlags({micPending:false});engine().recordingTrackId=targets[0].track.id;
