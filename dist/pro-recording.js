@@ -93,18 +93,19 @@ refreshClipToolbar();
 // audio. Separate from the recorder to avoid changing existing capture code.
 let micTest=null, micTestGeneration=0;
 
-const testButton=$('recordWorkspaceMicTest'),testOutput=$('recordWorkspaceInputDb'),testLevel=$('recordWorkspaceInputLevel');
+const testButton=$('recordWorkspaceMicTest'),testOutput=$('recordWorkspaceInputDb'),testLevel=$('recordWorkspaceInputLevel'),testOutput2=$('recordWorkspaceInput2Db');
 function stopInputTest(){
   micTestGeneration++;
   if(!micTest){if(testButton){testButton.textContent='Tester l’entrée';testButton.setAttribute('aria-pressed','false');}return;}
   const old=micTest;micTest=null;
   cancelAnimationFrame(old.frame);
-  try{old.source.disconnect();old.analyser.disconnect();}catch{}
+  try{old.source.disconnect();old.splitter.disconnect();old.analyser.disconnect();old.analyser2.disconnect();}catch{}
   old.stream.getTracks().forEach(t=>t.stop());
   old.context.close().catch(()=>{});
   if(testButton){testButton.textContent='Tester l’entrée';testButton.setAttribute('aria-pressed','false');}
   if(testOutput){testOutput.textContent='— dBFS';testOutput.classList.remove('input-clipping');}
   if(testLevel)testLevel.style.width='0%';
+  if(testOutput2){testOutput2.textContent='IN 2 : —';testOutput2.classList.remove('input-clipping');}
 }
 async function toggleInputTest(){
   if(micTest){stopInputTest();return;}
@@ -122,10 +123,13 @@ async function toggleInputTest(){
     context=new AudioContext();
     if(context.state==='suspended')await context.resume();
     if(generation!==micTestGeneration){stream.getTracks().forEach(t=>t.stop());await context.close();return;}
-    const source=context.createMediaStreamSource(stream),analyser=context.createAnalyser();
-    analyser.fftSize=2048;source.connect(analyser);
-    const samples=new Float32Array(analyser.fftSize);
-    const current=micTest={stream,context,source,analyser,frame:0};
+    const source=context.createMediaStreamSource(stream);
+    const splitter=context.createChannelSplitter(2),analyser=context.createAnalyser(),analyser2=context.createAnalyser();
+    analyser.fftSize=2048;analyser2.fftSize=2048;
+    source.connect(splitter);splitter.connect(analyser,0);splitter.connect(analyser2,1);
+    const samples=new Float32Array(analyser.fftSize),samples2=new Float32Array(analyser2.fftSize);
+    const channels=stream.getAudioTracks()[0]?.getSettings?.().channelCount||1;
+    const current=micTest={stream,context,source,splitter,analyser,analyser2,frame:0};
     testButton.textContent='Arrêter test micro';testButton.setAttribute('aria-pressed','true');
     function measure(){
       if(micTest!==current)return;
@@ -133,6 +137,16 @@ async function toggleInputTest(){
       analyser.getFloatTimeDomainData(samples);
       let peak=0;for(const s of samples)peak=Math.max(peak,Math.abs(s));
       const db=peak>0?20*Math.log10(peak):-Infinity;
+      if(testOutput2){
+        if(channels<2){testOutput2.textContent='IN 2 : indisponible';testOutput2.classList.remove('input-clipping');}
+        else{
+          analyser2.getFloatTimeDomainData(samples2);
+          let second=0;for(const value of samples2)second=Math.max(second,Math.abs(value));
+          const db2=second>0?20*Math.log10(second):-Infinity;
+          testOutput2.textContent='IN 2 : '+(Number.isFinite(db2)?db2.toFixed(1)+' dBFS':'−∞ dBFS');
+          testOutput2.classList.toggle('input-clipping',db2>=-.5);
+        }
+      }
       if(testOutput){testOutput.textContent=Number.isFinite(db)?db.toFixed(1)+' dBFS':'−∞ dBFS';testOutput.classList.toggle('input-clipping',db>=-0.5);}
       if(testLevel)testLevel.style.width=Math.min(100,Math.max(0,(db+60)/60*100))+'%';
       current.frame=requestAnimationFrame(measure);
