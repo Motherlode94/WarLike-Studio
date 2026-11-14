@@ -138,6 +138,16 @@ try {
  await mobile.locator('#libraryNew').waitFor({state:'visible'});
  await mobile.locator('#libraryNew').click();
  await mobile.locator('#modal').waitFor({state:'hidden'});
+ assert.equal(await mobile.locator('body').evaluate(el=>el.classList.contains('mobile-compact')),true,'mobile compact mode must activate at 390px');
+ const switches=mobile.locator('.mobile-compact-switches [data-mobile-panel]');
+ assert.equal(await switches.count(),4,'mobile must offer four accessible panel switches');
+ await mobile.locator('[data-mobile-panel="sidebar"]').click();
+ assert.equal(await mobile.locator('body').getAttribute('data-mobile-panel'),'sidebar');
+ assert.equal(await mobile.locator('[data-mobile-panel="sidebar"]').getAttribute('aria-expanded'),'true');
+ await mobile.locator('[data-mobile-panel="sidebar"]').click();
+ assert.equal(await mobile.locator('body').getAttribute('data-mobile-panel'),'none');
+ await mobile.locator('[data-mobile-panel="windows"]').click();
+ assert.equal(await mobile.locator('body').getAttribute('data-mobile-panel'),'windows');
  await mobile.close();
  await page.goto('http://127.0.0.1:8765/_storage-qa.html',{waitUntil:'load'});
  await page.locator('#run').click();
