@@ -143,7 +143,14 @@ export function installStudioWorkflow(d){
         p().bars=fitSession(p().bars,c.start+c.length);
       }
       d.selectTrack(prepared[0].track.id);d.changed(true);
-      d.toast(prepared.length+' prise(s) PCM enregistrée(s) au même point de départ.');
+      // A completed take must reach IndexedDB before we report it as saved.
+      // The WAV buffers remain available in this session if storage fails.
+      try{
+        await d.persistNow();
+        d.toast(prepared.length+' prise(s) PCM enregistrée(s) et sauvegardée(s) localement.');
+      }catch(saveError){
+        d.toast('Prise en mémoire, mais sauvegarde locale échouée : '+saveError.message+'. Exporte le projet avant de fermer.');
+      }
     }catch(error){d.toast('Capture impossible : '+error.message);}
     finally{graphCleanup(rec);d.setFlags({recordFinalizing:false});d.updateTransport();}
   }

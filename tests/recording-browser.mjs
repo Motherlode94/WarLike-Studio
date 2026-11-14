@@ -56,6 +56,14 @@ try{
     assert.match(await page.locator('#recordWorkspaceMicDiagnosticResult').innerText(),/non confirmée|Signal insuffisant|Séparation des entrées/);
   }
 
+  // A user must be able to switch back to a one-mic vocal session.
+  await page.locator('#recordWorkspaceSolo').click();
+  assert.equal(await page.locator('#trackRows [data-record-arm][aria-pressed="true"]').count(),1);
+  assert.equal(await page.locator('#trackRows [data-record-arm][aria-pressed="true"]').locator('..').locator('[data-record-input]').inputValue(),'1');
+  assert.equal(await page.locator('#recordWorkspaceStart').isEnabled(),true);
+  await page.locator('#recordWorkspaceDuo').click();
+  assert.equal(await page.locator('#trackRows [data-record-arm][aria-pressed="true"]').count(),2);
+
   await page.locator('#recordWorkspaceToggle').click();
   assert.equal(await page.locator('#recordWorkspaceBar').isHidden(),true);
 
