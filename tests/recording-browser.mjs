@@ -165,6 +165,14 @@ try{
   assert.equal(await page.locator('.recording-validation-dialog').getAttribute('open'),'');
   await page.locator('#validationTarget').selectOption('60');
   await page.evaluate(()=>{
+    window.dispatchEvent(new CustomEvent('warlike:recording-sync-measurement',{detail:{offsetMs:2.5,correlation:.91,sampleRate:48000,kind:'acoustic-arrival'}}));
+    window.dispatchEvent(new CustomEvent('warlike:recording-loopback-measurement',{detail:{latencyMs:11.2,spreadMs:.25,kind:'wired-round-trip'}}));
+  });
+  assert.match(await page.locator('#validationHardwareEvidence').innerText(),/Sync IN 1\/2 : 2.50 ms/);
+  assert.match(await page.locator('#validationHardwareEvidence').innerText(),/Bouclage câblé : 11.20 ms/);
+  assert.match(await page.locator('#validationHardwareEvidence').innerText(),/Latence casque à sens unique : non mesurée/);
+
+  await page.evaluate(()=>{
     const emit=(type,frames)=>window.dispatchEvent(new CustomEvent('warlike:recording-telemetry',{
       detail:{type,takeId:'qa-take',frames,sampleRate:48000,channels:2,at:Date.now()}
     }));
