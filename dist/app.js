@@ -1,4 +1,6 @@
 import {installedTrackChains,applyTrackChain} from './track-chain-extension.js';
+import {parseReaperRpp,matchReaperMedia,reaperBasename} from './reaper-rpp.js';
+import {NATIVE_CHAINS,nativeEffectsForNames,applyNativeChain} from './native-vocal-chains.js';
 import {beginStudioPairing,completeStudioPairing,createStudioSync} from './studio-cloud-workflow.js';
 import {workspaceAction,handleWorkspaceAction} from './workspace-shortcuts.js';
 import {installAnnotations} from './annotations.js?v=0.14.0';
@@ -417,6 +419,68 @@ function validateProject(p){
     }
   }normaliseRouting(p);normaliseFolders(p);
 }
+let reaperSelection=null;
+function showNativeChains(){
+ if(!activeProjectId)return toast('Ouvre un projet avant de charger des effets.');
+ const names=Object.entries(NATIVE_CHAINS).map(([key,chain])=>'<option value="'+key+'">'+esc(chain.name)+'</option>').join('');
+ modal('Chaînes FX WarLike','<p class="modal-body-copy">Effets originaux de WarLike : fonctions comparables à celles des outils de mixage courants, mais aucun plugin tiers ni preset propriétaire n’est reproduit exactement.</p><label for="nativeChainSelect">Chaîne à ajouter sur la piste sélectionnée</label><select id="nativeChainSelect">'+names+'</select><p class="modal-body-copy" id="nativeChainInfo"></p><div class="modal-actions"><button class="outline-btn" id="nativeChainCancel">Annuler</button><button class="primary-btn" id="nativeChainApply">Ajouter les effets</button></div>','WARLIKE / FX NATIFS');
+ const update=()=>{$('nativeChainInfo').textContent=NATIVE_CHAINS[$('nativeChainSelect').value].description;};update();$('nativeChainSelect').onchange=update;
+ $('nativeChainCancel').onclick=()=>$('modal').close();
+ $('nativeChainApply').onclick=()=>{try{const tr=currentTrack();if(!tr)throw Error('Sélectionne une piste.');checkpoint();applyNativeChain(tr,$('nativeChainSelect').value);changed(true);$('modal').close();toast('Chaîne FX WarLike ajoutée à '+tr.name+'.');}catch(error){toast(error.message);}};
+}
+function renderReaperImport(){
+ if(!reaperSelection)return;
+ const {parsed,files}=reaperSelection,media=matchReaperMedia(parsed.assets,files);
+ const notices=[...parsed.warnings];
+ if(media.missing.length)notices.push(media.missing.length+' audio(s) introuvable(s) : '+media.missing.slice(0,10).map(reaperBasename).join(', '));
+ if(media.ambiguous.length)notices.push('Noms audio ambigus : '+media.ambiguous.slice(0,10).map(reaperBasename).join(', ')+'. Sélectionne des fichiers ayant des chemins distincts.');
+ const desc=parsed.fxReport.flatMap(t=>t.plugins.map(name=>{
+   const candidate=nativeEffectsForNames([name])[0];return '<li>'+esc(t.track)+' · '+esc(name)+' → '+esc(candidate?.replacement||'Aucun équivalent automatique')+'</li>';
+ })).slice(0,40).join('');
+ modal('Importer un projet REAPER',
+ '<div class="project-home"><p class="modal-body-copy"><strong>'+esc(parsed.project.name)+'</strong> · '+parsed.project.tracks.length+' pistes · '+parsed.clipCount+' clips audio · '+parsed.project.bpm+' BPM (4/4)</p>'+
+ '<p class="modal-body-copy">Sélectionne les fichiers audio associés au .rpp. Les médias restent sur cet appareil tant que tu ne synchronises pas explicitement le projet.</p>'+
+ '<label>Fichiers audio complémentaires <input id="reaperMediaFiles" type="file" multiple accept="audio/*,.wav,.mp3,.ogg,.flac,.aif,.aiff,.m4a"></label>'+
+ '<p class="modal-body-copy">Fichiers résolus : '+media.matched.length+' / '+parsed.assets.length+'</p>'+
+ (notices.length?'<ul class="reaper-import-notices">'+notices.slice(0,18).map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+
+ (desc?'<details><summary>Effets REAPER non convertis ('+parsed.fxReport.reduce((n,x)=>n+x.plugins.length,0)+')</summary><ul class="reaper-import-notices">'+desc+'</ul></details>':'')+
+ (desc?'<label class="reaper-fx-checkbox"><input type="checkbox" id="reaperUseNativeFx"> Proposer des traitements WarLike analogues sur les pistes (réglages d’origine non transférés)</label>':'')+
+ '<div class="modal-actions"><button class="outline-btn" id="cancelReaper">Annuler</button><button class="primary-btn" id="confirmReaper"'+(media.missing.length||media.ambiguous.length?' disabled':'')+'>Créer le projet WarLike</button></div></div>','WARLIKE / REAPER');
+ $('cancelReaper').onclick=()=>{reaperSelection=null;$('modal').close();};
+ $('reaperMediaFiles').onchange=e=>{files.push(...e.target.files);renderReaperImport();};
+ $('confirmReaper').onclick=async()=>{const button=$('confirmReaper');button.disabled=true;try{
+  if(recording||recordFinalizing||micPending)throw Error('Termine la prise avant l’import.');
+  const ready=matchReaperMedia(parsed.assets,files);
+  if(ready.missing.length||ready.ambiguous.length)throw Error('Des sources audio manquent encore.');
+  await engine.init();
+  const decoded=[];
+  for(const entry of ready.matched){
+    if(entry.file.size>100*1024*1024)throw Error('Média REAPER supérieur à 100 Mo : '+entry.file.name);
+    const data=await entry.file.arrayBuffer();
+    await engine.ctx.decodeAudioData(data.slice(0));
+    decoded.push({id:entry.audioId,name:entry.file.name,data});
+  }
+  const candidate=structuredClone(parsed.project);
+  if($('reaperUseNativeFx')?.checked)for(const item of parsed.fxReport){
+   const tr=candidate.tracks.find(t=>t.id===item.trackId);
+   const fx=nativeEffectsForNames(item.plugins);
+   if(tr&&fx.length)applyNativeChain(tr,fx.map(x=>({id:x.replacement,params:{}})));
+  }
+  validateProject(candidate);
+  await createProjectLocal(candidate.name,candidate,decoded);
+  reaperSelection=null;
+  toast('REAPER importé : '+candidate.tracks.length+' pistes, '+parsed.clipCount+' clips. Vérifie les effets et le placement.');
+ }catch(error){toast('Import REAPER : '+error.message);if(button.isConnected)button.disabled=false;}};
+}
+async function beginReaperImport(files){
+ const list=[...files],rpp=list.find(file=>/\.rpp(?:-bak)?$/i.test(file.name));
+ if(!rpp){toast('Sélectionne un fichier REAPER .rpp (avec les médias si possible).');return;}
+ try{
+  const parsed=parseReaperRpp(await rpp.text(),{name:rpp.name});
+  reaperSelection={parsed,files:list.filter(file=>file!==rpp)};
+  renderReaperImport();
+ }catch(error){toast('Projet REAPER non reconnu : '+error.message);}
+}
 let openingProject=false;
 async function openProject(file){if(!file)return;if(openingProject)return toast('Un projet est déjà en cours de chargement.');if(recording||recordFinalizing||micPending)return toast('Termine la prise avant d’ouvrir un projet.');openingProject=true;try{const data=JSON.parse(await file.text());if(data.format!=='chayah-studio')throw new Error('Ce fichier n’est pas un projet Warlike Studio.');validateProject(data.project);if(data.assets!==undefined&&!Array.isArray(data.assets))throw new Error('Liste des fichiers audio invalide.');const media=data.assets||[],ids=new Set();for(const a of media){if(!a||typeof a.id!=='string'||ids.has(a.id))throw new Error('Identifiant audio invalide ou dupliqué.');ids.add(a.id);}const missing=[...audioAssetIds(data.project)].filter(id=>!ids.has(id));if(missing.length)throw new Error(missing.length+' fichier(s) audio manque(nt) dans ce projet. La session actuelle est conservée.');await engine.init();const decoded=new Map();for(const a of media){if(typeof a.id!=='string'||typeof a.name!=='string'||typeof a.data!=='string')throw new Error('Audio invalide.');const raw=fromBase64(a.data),buffer=await engine.ctx.decodeAudioData(raw.slice(0));decoded.set(a.id,{name:a.name,data:raw,buffer});}if(recording||recordFinalizing||micPending)throw new Error('Une prise a démarré pendant le chargement. Termine-la puis réessaie.');await flushCurrent();const id=crypto.randomUUID(),now=Date.now();const importedAssets=media.map(a=>({id:a.id,name:a.name,data:decoded.get(a.id).data})),index=[{id,name:data.project.name,createdAt:now,updatedAt:now},...projectIndex];await new Promise((resolve,reject)=>{const tx=db.transaction('sessions','readwrite'),store=tx.objectStore('sessions');store.put({project:clone(data.project),masterVolume:Number.isFinite(data.masterVolume)?data.masterVolume:0,assets:importedAssets},projectKey(id));store.put(index,'project-index');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Transaction annulée'));});projectIndex=index;await chooseProject(id);toast('Projet importé et sauvegardé.');}catch(e){toast('Ouverture impossible : '+e.message);}finally{openingProject=false;}}
 async function exportWav(){if(recording){toast('Termine la prise avant d’exporter.');return;}if(project.tracks.some(t=>t.clips.some(c=>c.audioId&&!assets.has(c.audioId)))){toast('Un fichier audio est manquant. Réimporte-le avant l’export.');return;}const btn=$('exportWav');btn.disabled=true;btn.innerHTML=icon('wave')+' Rendu du mix…';try{const wav=await engine.exportWav();download(wav,safeName()+'.wav','audio/wav');toast('Mix exporté · WAV stéréo 44,1 kHz / 16 bits.');}catch(e){toast('Export impossible : '+e.message);}finally{btn.disabled=false;btn.innerHTML=icon('download')+' Exporter <span>WAV</span>';}}
@@ -434,10 +498,13 @@ $('help').onclick=helpModal;$('browsePlugins').onclick=openSuite;$('openBundle')
 $('projectMenuBtn').onclick=e=>{e.stopPropagation();$('projectMenu').hidden=!$('projectMenu').hidden;};
 document.addEventListener('click',e=>{if(!e.target.closest('.menu-anchor'))$('projectMenu').hidden=true;});
 $('myProjects').onclick=()=>{showProjectLibrary();$('projectMenu').hidden=true;};$('saveProject').onclick=()=>{saveProject();$('projectMenu').hidden=true;};$('openProject').onclick=()=>{$('projectInput').click();$('projectMenu').hidden=true;};
+$('openReaper').onclick=()=>{$('reaperInput').click();$('projectMenu').hidden=true;};
+$('nativeChains').onclick=()=>{$('projectMenu').hidden=true;showNativeChains();};
 $('newProject').onclick=()=>{$('projectMenu').hidden=true;modal('Nouvelle session',`<p class="modal-body-copy">La session actuelle reste récupérable avec Annuler. Télécharge-la d’abord si tu veux la conserver séparément.</p><div class="modal-actions"><button class="outline-btn" id="downloadCurrent">Télécharger le projet actuel</button><button class="primary-btn" id="confirmNew">Créer une session vide</button></div>`);$('downloadCurrent').onclick=saveProject;$('confirmNew').onclick=()=>{if(recording){toast('Termine la prise avant de changer de session.');return;}createProjectLocal().catch(e=>toast(e.message));};};
 $('exportWav').onclick=()=>workflow.exportModal();$('importBtn').onclick=()=>$('audioInput').click();
 $('audioInput').onchange=async e=>{const tr=currentTrack();await importAudio(e.target.files,tr?.type==='audio'?tr:null,Math.floor(engine.getPosition()/16));e.target.value='';};
 $('projectInput').onchange=async e=>{await openProject(e.target.files[0]);e.target.value='';};
+$('reaperInput').onchange=async e=>{await beginReaperImport(e.target.files);e.target.value='';};
 $('editorTab').onclick=()=>{detail='editor';setDetailOpen(true);renderDetail();};$('pluginsTab').onclick=()=>{detail='plugins';setDetailOpen(true);renderDetail();};
 $('tuneTab').onclick=()=>{detail='tune';setDetailOpen(true);renderDetail();};
 $('duplicateClip').onclick=duplicateClip;$('deleteClip').onclick=deleteClip;$('trackSettings').onclick=()=>trackSettings();
