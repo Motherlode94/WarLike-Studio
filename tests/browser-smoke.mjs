@@ -112,7 +112,7 @@ try {
  await page.locator('[data-master-power="notch"]').waitFor({state:'visible'});
  assert.ok(await page.locator('#masteringView [data-add-insert-track="master"]').isVisible(),'Mastering needs an add-plugin control');
  // REAPER RPP must not import silently without media; supplied WAV restores the clip.
- const reaperText='<REAPER_PROJECT 0.1 "7.5" 1700000000\\n TEMPO 120 4 4\\n <TRACK {AAA}\\n NAME "VOICE"\\n <ITEM\\n POSITION 0\\n LENGTH 0.1\\n <SOURCE WAVE\\n FILE "Voice.wav"\\n >\\n >\\n >\\n>';
+ const reaperText='<REAPER_PROJECT 0.1 "7.5" 1700000000\n TEMPO 120 4 4\n <TRACK {AAA}\n NAME "VOICE"\n <ITEM\n POSITION 0\n LENGTH 0.1\n <SOURCE WAVE\n FILE "Voice.wav"\n >\n >\n >\n>';
  const wav=Buffer.alloc(44+8820);
  wav.write('RIFF',0);wav.writeUInt32LE(wav.length-8,4);wav.write('WAVE',8);
  wav.write('fmt ',12);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);
