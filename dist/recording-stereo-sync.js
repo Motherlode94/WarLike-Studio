@@ -48,3 +48,19 @@ export function estimateStereoTransientOffset(left,right,sampleRate,{maxOffsetMs
   return {ok:true,offsetSamples:bestLag,offsetMs:1000*bestLag/sampleRate,correlation:bestScore,
     note:'Décalage d’arrivée acoustique IN 2 par rapport à IN 1 ; pas une mesure de latence casque.'};
 }
+
+/** Summarize three independent clap measurements without claiming hardware clock sync. */
+export function summarizeStereoSyncTrials(trials,{maxSpreadMs=1.5,minCorrelation=.5}={}){
+  if(!Array.isArray(trials)||trials.length!==3||trials.some(t=>!t?.ok||!Number.isFinite(t.offsetMs)||!Number.isFinite(t.correlation)))
+    return {ok:false,reason:'Trois claquements valides sont nécessaires pour vérifier la stabilité.',trials};
+  const offsets=trials.map(t=>t.offsetMs).sort((a,b)=>a-b);
+  const median=offsets[1],spread=offsets[2]-offsets[0];
+  const correlation=Math.min(...trials.map(t=>t.correlation));
+  if(correlation<minCorrelation)
+    return {ok:false,reason:'Corrélation insuffisante entre les microphones. Recommence les trois claquements.',trials,spreadMs:spread};
+  if(spread>maxSpreadMs)
+    return {ok:false,reason:'Décalage instable entre les essais. Vérifie les distances et les entrées.',trials,spreadMs:spread};
+  return {ok:true,offsetMs:median,spreadMs:spread,correlation,trials,
+    kind:'acoustic-arrival-triplicate',
+    note:'Écart acoustique relatif IN 2 − IN 1 sur trois événements, pas une mesure de latence du casque ou de dérive d’horloge.'};
+}
