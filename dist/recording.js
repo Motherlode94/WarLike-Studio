@@ -70,3 +70,20 @@ export function extractRecordedChannel(ctx,buffer,channel) {
   mono.getChannelData(0).set(buffer.getChannelData(index));
   return mono;
 }
+
+/** Use identical device/channel constraints for input metering and recording. */
+export function recordingInputConstraints(audioSetup={},assignments=[]) {
+  const configured=audioSetup.channel||'1';
+  const wantsStereo=assignments.length>1||assignments.some(a=>a.channel==='2')||configured==='stereo'||(!assignments.length&&configured==='2');
+  const id=audioSetup.deviceId;
+  return {audio:{...(id?{deviceId:{exact:id}}:{}),
+    channelCount:{ideal:wantsStereo?2:1},
+    echoCancellation:false,noiseSuppression:false,autoGainControl:false}};
+}
+export function validateRecordingInputChannels(settings={},assignments=[],fallback='1') {
+  const mode=captureChannelMode(assignments,fallback);
+  const needsSecond=mode==='2'||mode==='stereo';
+  const count=Number(settings.channelCount)||0;
+  if(needsSecond&&count<2)throw Error('Entrée 2 indisponible : sélectionner une interface stéréo exposant 2 canaux dans le navigateur.');
+  return mode;
+}
