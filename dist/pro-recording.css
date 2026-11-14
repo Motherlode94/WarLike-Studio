@@ -43,3 +43,17 @@
 .record-workspace .clip-resize,.record-workspace .clip-trim-left{pointer-events:auto;z-index:3;cursor:ew-resize}
 .record-workspace .timeline-empty{pointer-events:none}
 .record-workspace #timelineScroll.record-hand-pan,.record-workspace #timelineScroll.record-hand-pan *{cursor:grabbing!important;user-select:none!important}
+
+/* Native clip tool controls: status mirrors the real edit mode. */
+.record-clip-actions{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.record-workspace-bar .record-clip-actions button{min-height:30px;font-size:11px;padding:5px 8px}
+.record-workspace-bar .record-clip-actions button[aria-pressed="true"]{background:#6185a5;border-color:#bad9f2;color:white}
+.record-input-meter{width:100px;height:11px;min-width:70px;overflow:hidden;border:1px solid #617388;border-radius:4px;background:#101923;display:inline-flex}
+.record-input-meter>span{height:100%;display:block;width:0;background:linear-gradient(90deg,#4bad8c 0%,#c2b259 70%,#d86f63 100%);transition:width .08s linear}
+#recordWorkspaceInputDb{font:11px ui-monospace,Consolas,monospace;min-width:65px;color:#d2e5ea}
+#recordWorkspaceMicTest[aria-pressed="true"]{border-color:#6ccbb2;color:#aaf4da}
+.record-workspace .clip:focus-visible{outline:2px solid #d7eaff;outline-offset:-2px}
+.record-workspace .clip.selected{box-shadow:inset 0 0 0 2px #d6e9f8}
+.record-workspace .clip-resize,.record-workspace .clip-trim-left{min-width:10px}
+.record-workspace .track-lane{min-width:0}
+@media(max-width:900px){.record-workspace-bar{justify-content:flex-start}.record-clip-actions{width:100%;order:5}.record-workspace-bar .record-clip-actions button{flex:1}.record-input-meter{width:80px}}
