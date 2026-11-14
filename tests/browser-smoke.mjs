@@ -15,6 +15,10 @@ try {
  await page.locator('#libraryNew').click();
  await page.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await page.locator('#projectName').inputValue(),'QA Session A');
+ // Modify and wait for a real persisted save before changing project.
+ await page.locator('#bpm').fill('117');
+ await page.locator('#bpm').press('Tab');
+ await page.locator('#saveStatus').getByText('Enregistré sur cet appareil').waitFor({state:'visible'});
  // Project A persists across explicit project switches; B starts blank.
  await page.locator('#projectMenuBtn').click();
  await page.locator('#myProjects').click();
@@ -22,13 +26,22 @@ try {
  await page.locator('#libraryNew').click();
  await page.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await page.locator('#projectName').inputValue(),'QA Session B');
+ assert.equal(await page.locator('#bpm').inputValue(),'120','new projects must not inherit the tempo of project A');
  await page.locator('#projectMenuBtn').click();
  await page.locator('#myProjects').click();
- await page.locator('[data-project-open]').first().count();
  await page.locator('[data-project-open]').nth(1).click();
  await page.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await page.locator('#projectName').inputValue(),'QA Session A');
-
+ assert.equal(await page.locator('#bpm').inputValue(),'117','project A must restore its own tempo');
+ // Cold boot: projects must be listed, not silently restored from a shared current key.
+ await page.reload({waitUntil:'load'});
+ await page.locator('#libraryNew').waitFor({state:'visible'});
+ assert.ok(await page.locator('[data-project-open]').count()===2,'both projects survive page reload');
+ await page.locator('[data-project-open]').nth(1).click();
+ await page.locator('#modal').waitFor({state:'hidden'});
+ assert.equal(await page.locator('#projectName').inputValue(),'QA Session A');
+ assert.equal(await page.locator('#bpm').inputValue(),'117','saved settings must survive a cold reload');
+ 
  await page.locator('#fileMenuBtn').click();
  assert.equal(await page.locator('#fileMenuBtn').getAttribute('aria-expanded'),'true');
  assert.ok(await page.locator('#fileMenuBtn').locator('..').locator('[role="menu"]').isVisible());
