@@ -107,13 +107,49 @@ async function createProjectLocal(name='Nouveau morceau',source=null,media=[]){
   await writeLocalProject(db,id,{project:next,masterVolume:0,assets:media},nextIndex);
   projectIndex=nextIndex;await chooseProject(id);return id;
 }
+
+// Public Trap demo: each visitor receives a fresh local copy, never a shared project.
+// Browsers without IndexedDB can still preview temporarily in memory.
+let trapDemoOpening=false;
+async function launchPublicTrapDemo(){
+ if(trapDemoOpening)return;
+ if(recording||recordFinalizing||micPending){toast('Termine la prise avant d’ouvrir la démo.');return;}
+ trapDemoOpening=true;
+ const button=$('publicTrapDemo');
+ if(button)button.disabled=true;
+ try{
+   const demo=createFactorySession('nocturne');
+   demo.name='WARLIKE · Trap pour tous';
+   demo.publicDemo=true;
+   demo.demoRevision=3;
+   // A fresh project ID avoids overwriting someone else's local session.
+   if(db){
+     await createProjectLocal(demo.name,demo,[]);
+     engine.masterVolume=-5;
+     save();
+   }else{
+     engine.pause();engine.resetSession();
+     project=demo;assets=new Map();activeProjectId=null;
+     selectedTrack=demo.tracks[0].id;selectedClip=demo.tracks[0].clips[0]?.id;
+     engine.masterVolume=-5;
+     history=[];future=[];updateUndo();render();
+     toast('Démo temporaire : le stockage local est indisponible. Exporte le projet pour le conserver.');
+   }
+   $('modal').close();
+   setView('arrange');fitTimeline();updateTransport();
+   toast('Démo Trap chargée : 138 BPM · Fa♯ mineur · 16 mesures. Appuie sur Lecture pour écouter.');
+ }catch(error){toast('Démo Trap indisponible : '+error.message);}
+ finally{trapDemoOpening=false;if(button)button.disabled=false;}
+}
+
 function showProjectLibrary(){
  if(!db)return toast('Stockage local indisponible.');
  const rows=projectIndex.map(p=>'<article class="project-home-card"><div class="project-home-card-info"><strong>'+esc(p.name)+'</strong><small>Modifié le '+new Date(p.updatedAt).toLocaleString('fr-FR')+'</small></div><div class="project-home-card-actions"><button class="primary-btn" data-project-open="'+esc(p.id)+'">Ouvrir</button><button class="outline-btn" data-project-rename="'+esc(p.id)+'" aria-label="Renommer '+esc(p.name)+'">Renommer</button><button class="outline-btn project-home-delete" data-project-delete="'+esc(p.id)+'" aria-label="Supprimer '+esc(p.name)+'">Supprimer</button></div></article>').join('');
  const info='<div class="project-home-banner"><strong>Projets enregistrés sur cet appareil</strong><p>Mode local : pas encore de séparation sécurisée entre comptes WarLike. Sur un navigateur partagé, chacun peut accéder à ces projets.</p></div>';
- const create='<form id="projectHomeCreate" class="project-home-form"><label for="libraryName">Nom du nouveau projet</label><div class="project-home-creation"><input id="libraryName" name="name" value="Nouveau morceau" maxlength="60" autocomplete="off" required aria-label="Nom du nouveau projet"><button type="submit" class="primary-btn" id="libraryNew">Créer et ouvrir</button></div></form>';
+ const create='<div class="project-home-section project-trap-demo"><strong>Découvrir WarLike Studio</strong><p>Démo Trap publique · 138 BPM · 16 mesures · 6 pistes musicales et 3 pistes audio prêtes pour la voix. Aucun compte requis ; chaque ouverture crée une copie indépendante.</p><button type="button" class="primary-btn" id="projectTrapDemo">▶ Ouvrir la démo Trap</button></div><form id="projectHomeCreate" class="project-home-form"><label for="libraryName">Nom du nouveau projet</label><div class="project-home-creation"><input id="libraryName" name="name" value="Nouveau morceau" maxlength="60" autocomplete="off" required aria-label="Nom du nouveau projet"><button type="submit" class="primary-btn" id="libraryNew">Créer et ouvrir</button></div></form>';
  const library='<section class="project-home-section"><h3>Mes projets locaux <span>'+projectIndex.length+'</span></h3><div class="project-home-list">'+(rows||'<p class="project-home-empty">Aucun projet local. Crée ton premier morceau pour commencer.</p>')+'</div></section>';
  modal('Mes projets','<div class="project-home">'+info+create+library+'<div class="project-home-footer"><button class="outline-btn" id="libraryRecover">Récupérer l’ancienne session</button><button class="outline-btn" id="libraryImport">Importer un fichier .chayah</button></div><section class="project-home-section"><h3>WarLike Cloud (optionnel)</h3><p class="modal-body-copy">Connexion sécurisée nécessaire. Les projets locaux ne sont jamais envoyés automatiquement sans association explicite.</p><div class="project-home-footer"><button class="outline-btn" id="studioCloudConnect">Associer mon compte</button><button class="outline-btn" id="studioCloudOpen">Mes projets cloud</button><button class="primary-btn" id="studioCloudSave">Synchroniser le projet ouvert</button><button class="outline-btn" id="studioCloudLogout">Déconnecter</button></div></section></div>','WARLIKE / PROJETS');
+ $('projectTrapDemo').onclick=launchPublicTrapDemo;
  $('projectHomeCreate').onsubmit=async e=>{e.preventDefault();const button=$('libraryNew');button.disabled=true;try{await createProjectLocal($('libraryName').value.trim()||'Nouveau morceau');}catch(error){toast(error.message);button.disabled=false;}};
  $('libraryImport').onclick=()=>{$('modal').close();$('projectInput').click();};
  $('studioCloudConnect').onclick=async()=>{try{await beginStudioPairing();}catch(e){toast(e.message);}};
@@ -160,6 +196,7 @@ async function persist(){
 async function restore(){
  try{db=await openDB();projectIndex=await dbRead('project-index')||[];if(!Array.isArray(projectIndex))projectIndex=[]}catch{toast('Stockage local indisponible.')}
  loaded=true;project.tracks.forEach(ensurePlugins);render();$('saveStatus').textContent='Choisir un projet';document.documentElement.dataset.appReady='true';$('bootError').hidden=true;signature?.activate();if(db)showProjectLibrary();
+ if(new URLSearchParams(location.search).get('demo')==='trap')await launchPublicTrapDemo();
  if(location.protocol==='https:'){
   completeStudioPairing().then(async paired=>{
    studioCloudIdentity=await getStudioCloud().connect();
@@ -518,6 +555,7 @@ $('undo').onclick=()=>undo();$('redo').onclick=()=>undo(true);
 $('help').onclick=helpModal;$('browsePlugins').onclick=openSuite;$('openBundle').onclick=openSuite;$('addTrack').onclick=addTrackModal;
 $('projectMenuBtn').onclick=e=>{e.stopPropagation();$('projectMenu').hidden=!$('projectMenu').hidden;};
 document.addEventListener('click',e=>{if(!e.target.closest('.menu-anchor'))$('projectMenu').hidden=true;});
+$('publicTrapDemo').onclick=launchPublicTrapDemo;
 $('myProjects').onclick=()=>{showProjectLibrary();$('projectMenu').hidden=true;};$('saveProject').onclick=()=>{saveProject();$('projectMenu').hidden=true;};$('openProject').onclick=()=>{$('projectInput').click();$('projectMenu').hidden=true;};
 $('openReaper').onclick=()=>{$('reaperInput').click();$('projectMenu').hidden=true;};
 $('nativeChains').onclick=()=>{$('projectMenu').hidden=true;showNativeChains();};
