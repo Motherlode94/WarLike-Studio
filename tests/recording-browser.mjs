@@ -177,6 +177,14 @@ try{
     detail:{type:'finalized',takeId:'qa-take',frames:96000,sampleRate:48000,at:Date.now()}
   })));
   assert.match(await page.locator('#validationPcmEvidence').innerText(),/PCM sauvegardé : 2.0 s/);
+  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('warlike:recording-telemetry',{
+    detail:{type:'progress',takeId:'quality-qa',frames:48000,sampleRate:48000,channels:2,
+      signal:{channelStats:[{channel:1,peakDbfs:-3.5,clippedFrames:0,longestSilenceSeconds:.2},
+                            {channel:2,peakDbfs:-6,clippedFrames:12,longestSilenceSeconds:.6}]}}
+  })));
+  assert.match(await page.locator('#validationSignalQuality').innerText(),/IN 2 : pic -6.0 dBFS/);
+  assert.match(await page.locator('#validationSignalQuality').innerText(),/saturation 12 échant/);
+
 
   await page.locator('[data-validation-check="mic1"]').check();
   assert.equal(await page.locator('#recordWorkspaceStart').count(),1);
