@@ -57,3 +57,7 @@
 .record-workspace .clip-resize,.record-workspace .clip-trim-left{min-width:10px}
 .record-workspace .track-lane{min-width:0}
 @media(max-width:900px){.record-workspace-bar{justify-content:flex-start}.record-clip-actions{width:100%;order:5}.record-workspace-bar .record-clip-actions button{flex:1}.record-input-meter{width:80px}}
+
+/* Warn visibly when the actual input test approaches full scale. */
+#recordWorkspaceInputDb.input-clipping{color:#ff9d98;font-weight:700}
+#recordWorkspaceInputDb.input-clipping::after{content:' CLIP';font-size:9px}
