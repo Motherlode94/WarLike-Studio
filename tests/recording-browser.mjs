@@ -91,6 +91,13 @@ try{
     const journal=await beginRecordingJournal({sampleRate:48000,channels:2,projectName:'Recovery QA'});
     journal.append([Float32Array.from([.1,.2,.3]),Float32Array.from([.4,.5,.6])]);
     await journal.flush();
+    const ctx={sampleRate:48000,createBuffer:(channels,length,sampleRate)=>{
+      const data=Array.from({length:channels},()=>new Float32Array(length));
+      return {numberOfChannels:channels,length,sampleRate,getChannelData:i=>data[i]};
+    }};
+    const buffered=await journal.toAudioBuffer(ctx);
+    if(buffered.length!==3||Math.abs(buffered.getChannelData(1)[2]-.6)>1e-6)
+      throw Error('Journal PCM reconstitution failed');
     journal.close();
   });
   await page.reload({waitUntil:'load'});
