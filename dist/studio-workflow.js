@@ -8,6 +8,7 @@ import {normaliseCurve,putPoint,pointValue} from './automation.js?v=0.14.0';
 import {createPcmCapture,recordingPlacement} from './pcm-capture.js?v=0.14.0';
 import {emitRecordingTelemetry} from './recording-telemetry.js';
 import {createRecordingSignalDiagnostics} from './recording-signal-diagnostics.js';
+import {evaluateLoopbackLatency} from './recording-loopback-analysis.js';
 import {beginRecordingJournal} from './recording-recovery.js';
 import {createRecordingGraph,recordingSettings,measureBuffer,normalisationGain,armedRecordingTracks,captureChannelMode,extractRecordedChannel,recordingInputConstraints,validateRecordingInputChannels} from './recording.js?v=0.14.0';
 import {encodeWav,zipFiles} from './wav.js?v=0.14.0';
@@ -78,7 +79,43 @@ export function installStudioWorkflow(d){
     const collect=()=>({deviceId:$('inputDevice').value,channel:$('inputChannel').value,monitor:$('inputMonitor').checked,monitorLevelDb:Math.max(-36,Math.min(-6,Number($('inputMonitorLevel').value)||-18)),monitorLevel2Db:Math.max(-36,Math.min(-6,Number($('inputMonitorLevel2').value)||-18)),keepTakes:$('keepTakes').checked,latencyMs:Math.max(-500,Math.min(1000,Number($('recordLatency').value)||0))});
     $('saveAudioSetup').onclick=()=>{d.checkpoint();p().audioSetup=collect();p().delayCompensation=$('knownCompensation').checked;p().recording=recordingSettings({gainDb:Number($('workflowMicGain').value),autoLevel:$('workflowAutoLevel').checked});const rec=d.getRecordState().recording;if(rec)rec.graph.setGain(p().recording.gainDb);d.changed();$('modal').close();};
     $('refreshInputs').onclick=async()=>{try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});stream.getTracks().forEach(t=>t.stop());p().audioSetup=collect();await recordingModal();}catch(error){d.toast('Entrée indisponible : '+error.message);}};
-    $('calibrateAudio').onclick=async()=>{const button=$('calibrateAudio'),a=collect();button.disabled=true;let stream,graph,capture;try{await engine().init();stream=await navigator.mediaDevices.getUserMedia(recordingInputConstraints(a));validateRecordingInputChannels(stream.getAudioTracks()[0]?.getSettings?.()||{},[],a.channel);graph=createRecordingGraph(engine().ctx,stream,0);capture=await createPcmCapture(engine().ctx,graph.inputNode,{channel:a.channel});const ctx=engine().ctx,start=ctx.currentTime+.1,pulse=ctx.createBuffer(1,Math.round(ctx.sampleRate*.02),ctx.sampleRate),data=pulse.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=.12*Math.sin(2*Math.PI*997*i/ctx.sampleRate)*Math.sin(Math.PI*i/data.length)**2;const source=ctx.createBufferSource();source.buffer=pulse;source.connect(ctx.destination);capture.start(start);source.start(start+.25);await new Promise(resolve=>setTimeout(resolve,1300));const buffer=await capture.stop(),signal=buffer.getChannelData(0);let best=0,position=0;for(let i=0;i<signal.length;i++)if(Math.abs(signal[i])>best){best=Math.abs(signal[i]);position=i;}if(best<.005)throw Error('Aucun retour détecté. Vérifie le câble et l’entrée.');const ms=(position/ctx.sampleRate-.25-.01)*1000;if(ms<0||ms>1000)throw Error('Mesure incohérente. Vérifie le routage de bouclage.');$('recordLatency').value=ms.toFixed(1);$('calibrationResult').textContent='Décalage estimé : '+ms.toFixed(1)+' ms. Applique les réglages pour l’utiliser.';}catch(error){d.toast(error.message);}finally{capture?.dispose();graph?.dispose();stream?.getTracks().forEach(t=>t.stop());if($('calibrateAudio'))$('calibrateAudio').disabled=false;}};
+    $('calibrateAudio').onclick=async()=>{
+      const button=$('calibrateAudio'),a=collect();
+      if(d.getRecordState().recording||d.getRecordState().recordFinalizing){$('calibrationResult').textContent='Arrête la prise avant de calibrer.';return;}
+      button.disabled=true;
+      let stream,graph,capture;
+      try{
+        await engine().init();
+        const ctx=engine().ctx;
+        stream=await navigator.mediaDevices.getUserMedia(recordingInputConstraints(a));
+        validateRecordingInputChannels(stream.getAudioTracks()[0]?.getSettings?.()||{},[],a.channel);
+        graph=createRecordingGraph(ctx,stream,0);
+        capture=await createPcmCapture(ctx,graph.inputNode,{channel:a.channel});
+        const pulse=ctx.createBuffer(1,Math.round(ctx.sampleRate*.015),ctx.sampleRate);
+        const data=pulse.getChannelData(0);
+        for(let i=0;i<data.length;i++)data[i]=.08*Math.sin(2*Math.PI*(800+400*i/data.length)*i/ctx.sampleRate)*Math.sin(Math.PI*i/data.length)**2;
+        const schedule=ctx.currentTime+.15;
+        capture.start(schedule);
+        // Separate one-shot sources; AudioBufferSourceNode may only be started once.
+        const pulses=[];
+        for(const delay of [.35,.7,1.05]){
+          const shot=ctx.createBufferSource();shot.buffer=pulse;shot.connect(ctx.destination);shot.start(schedule+delay);pulses.push(shot);
+        }
+        $('calibrationResult').textContent='Trois impulsions envoyées : analyse du retour câblé…';
+        await new Promise(resolve=>setTimeout(resolve,1700));
+        const buffer=await capture.stop();capture=null;
+        const result=evaluateLoopbackLatency(buffer.getChannelData(0),data,ctx.sampleRate,{expectedTimes:[.35,.7,1.05]});
+        if(!result.ok)throw Error(result.reason);
+        $('recordLatency').value=result.latencyMs.toFixed(1);
+        $('calibrationResult').textContent='Bouclage câblé : '+result.latencyMs.toFixed(2)+' ms, variation '+result.spreadMs.toFixed(2)+' ms (3 mesures). Clique « Appliquer les réglages » pour enregistrer la compensation. Ce test ne mesure pas directement la latence du casque.';
+        window.dispatchEvent(new CustomEvent('warlike:recording-loopback-measurement',{detail:{...result,at:Date.now()}}));
+      }catch(error){$('calibrationResult').textContent='Calibration non validée : '+error.message;}
+      finally{
+        try{capture?.dispose();}catch{}
+        graph?.dispose();stream?.getTracks().forEach(t=>t.stop());
+        if($('calibrateAudio'))$('calibrateAudio').disabled=false;
+      }
+    };
   }
   // Both armed mono inputs are captured by a single stereo worklet on the
   // same AudioContext clock. This avoids drift between independent recorders.
