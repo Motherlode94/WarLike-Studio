@@ -137,6 +137,18 @@ try{
   await page.locator('.recording-recovery-dialog').getByRole('button',{name:'Supprimer la sauvegarde'}).click();
   await page.locator('.recording-recovery-dialog').getByRole('button',{name:'Fermer'}).click();
 
+  // Nonmodal QA panel: can keep Recording toolbar available and export an honest report.
+  await page.locator('#recordWorkspaceValidate').click();
+  assert.equal(await page.locator('.recording-validation-dialog').getAttribute('open'),'');
+  await page.locator('#validationTarget').selectOption('60');
+  await page.locator('[data-validation-check="mic1"]').check();
+  assert.equal(await page.locator('#recordWorkspaceStart').count(),1);
+  const reportEvent=page.waitForEvent('download');
+  await page.getByRole('button',{name:'Terminer et télécharger le rapport'}).click();
+  const validationDownload=await reportEvent;
+  assert.ok(validationDownload.suggestedFilename().startsWith('WarLike-Recording-validation-') && validationDownload.suggestedFilename().endsWith('.json'));
+  assert.equal(await page.locator('.recording-validation-dialog').evaluate(el=>el.open),false);
+
   assert.deepEqual(errors,[],'Recording Pro must not cause uncaught browser errors');
   console.log('Recording Pro browser QA passed: duo setup, routing persistence, fake mic meter and cleanup.');
 }finally{
