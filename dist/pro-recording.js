@@ -25,7 +25,7 @@ function updateTarget(){
     const names=armed.map(button=>button.closest('.track-row')?.querySelector('.track-title')?.textContent?.trim()).filter(Boolean);
     if(label)label.textContent='Armées : '+names.join(' + ')+' (entrées indépendantes)';
   }
-  if(start)start.disabled=armed.length===0&&!audio;
+  if(start){const nativeRecord=$('record');const busy=nativeRecord?.disabled===true;const taking=nativeRecord?.classList.contains('recording');start.disabled=busy||(!taking&&armed.length===0&&!audio);}
 }
 button?.addEventListener('click',()=>setRecordingWorkspace(!document.body.classList.contains('record-workspace')));
 $('recordWorkspaceStart')?.addEventListener('click',()=>{
