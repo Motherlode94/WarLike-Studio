@@ -9,8 +9,14 @@ export const AI_MASTER_STYLES=Object.freeze({
   transparent:{label:'Transparent',cut:25,low:0,mid:0,high:0,ratio:1.4,ceiling:-1.5,drive:0},
   rap:{label:'Rap / Trap',cut:28,low:.5,mid:.5,high:.75,ratio:2.2,ceiling:-1,drive:1},
   afro:{label:'Afro / Amapiano',cut:28,low:.25,mid:.25,high:.75,ratio:1.7,ceiling:-1.2,drive:.75},
+  afrobeats:{label:'Afrobeats',cut:26,low:.25,mid:.25,high:1,ratio:1.7,ceiling:-1.2,drive:1},
+  amapiano:{label:'Amapiano / Log Drum',cut:20,low:0,mid:-.25,high:.5,ratio:1.4,ceiling:-1.3,drive:.5},
+  afrohouse:{label:'Afro House',cut:24,low:.25,mid:0,high:.75,ratio:1.8,ceiling:-1.2,drive:.75},
   rnb:{label:'R&B / Soul',cut:24,low:.25,mid:-.25,high:.5,ratio:1.5,ceiling:-1.5,drive:.5},
   rock:{label:'Rock',cut:28,low:0,mid:.5,high:.5,ratio:2,ceiling:-1.2,drive:1},
+  altrock:{label:'Alternative Rock',cut:28,low:0,mid:.5,high:.5,ratio:2,ceiling:-1.2,drive:1},
+  indierock:{label:'Indie Rock',cut:25,low:.5,mid:-.25,high:0,ratio:1.5,ceiling:-1.5,drive:.5},
+  heavyalt:{label:'Heavy Alternative',cut:30,low:-.25,mid:.5,high:.5,ratio:2.2,ceiling:-1,drive:1.5},
   cinematic:{label:'Cinematic',cut:22,low:0,mid:0,high:.5,ratio:1.3,ceiling:-2,drive:0}
 });
 export const AI_MIX_TEMPLATES=Object.freeze({
@@ -18,7 +24,13 @@ export const AI_MIX_TEMPLATES=Object.freeze({
   rapVocal:{name:'Rap Front',inserts:['hush','sibil','prism','glue','ember'],note:'Voix en avant, saturation subtile ; ajuster selon le micro.'},
   bass:{name:'Bass Foundation',inserts:['sculpt','prism','glue'],note:'Contrôler le bas du spectre ; vérifier les interactions avec le kick.'},
   drums:{name:'Drum Glue',inserts:['prism','glue','ember'],note:'Préserver les transitoires et éviter la compression excessive.'},
-  musicBus:{name:'Music Bus',inserts:['prism','glue'],note:'Traitement léger ; garder de la marge sur le bus.'}
+  musicBus:{name:'Music Bus',inserts:['prism','glue'],note:'Traitement léger ; garder de la marge sur le bus.'},
+  afroPercussion:{name:'Afro Percussion',inserts:['sculpt','prism','glue','ember'],note:'Percussions aérées, transitoires conservées et chaleur légère : vérifier le groove en contexte.'},
+  amapianoLogDrum:{name:'Amapiano Log Drum',inserts:['sculpt','prism','glue'],note:'Préserver le fondamental du log drum ; vérifier phase, bas-médiums et chevauchement avec le kick.'},
+  afrobeatsVocal:{name:'Afrobeats Lead Vocal',inserts:['hush','sibil','vectoreq','voxlevel','aura'],note:'Voix présente et douce : couper les sifflantes sans écraser les attaques.'},
+  alternativeGuitars:{name:'Alt Rock Guitars',inserts:['sculpt','vectoreq','ember','glue'],note:'Atténuer le bas-médium excessif, préserver la morsure et contrôler les résonances.'},
+  rockDrums:{name:'Rock Drums',inserts:['prism','circuitbus','ember'],note:'Maintenir l’impact de la caisse claire et du kick ; éviter la compression excessive.'},
+  indieVocal:{name:'Indie Vocal',inserts:['voxclean','circuitcolor','glue','slap'],note:'Voix intime, saturation légère et slap discret ; comparer à niveau égal.'}
 });
 export function analyzeAudioBuffer(buffer,{maxSeconds=45}={}){
   if(!buffer||!Number.isFinite(buffer.sampleRate)||buffer.sampleRate<=0||!Number.isInteger(buffer.numberOfChannels)||buffer.numberOfChannels<1||!Number.isInteger(buffer.length)||buffer.length<1||typeof buffer.getChannelData!=='function')throw new Error('AudioBuffer invalide.');
