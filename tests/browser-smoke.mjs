@@ -111,6 +111,22 @@ try {
  await page.locator('#openMastering').click();
  await page.locator('[data-master-power="notch"]').waitFor({state:'visible'});
  assert.ok(await page.locator('#masteringView [data-add-insert-track="master"]').isVisible(),'Mastering needs an add-plugin control');
+ // REAPER RPP must not import silently without media; supplied WAV restores the clip.
+ const reaperText='<REAPER_PROJECT 0.1 "7.5" 1700000000\\n TEMPO 120 4 4\\n <TRACK {AAA}\\n NAME "VOICE"\\n <ITEM\\n POSITION 0\\n LENGTH 0.1\\n <SOURCE WAVE\\n FILE "Voice.wav"\\n >\\n >\\n >\\n>';
+ const wav=Buffer.alloc(44+8820);
+ wav.write('RIFF',0);wav.writeUInt32LE(wav.length-8,4);wav.write('WAVE',8);
+ wav.write('fmt ',12);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);
+ wav.writeUInt32LE(44100,24);wav.writeUInt32LE(88200,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);
+ wav.write('data',36);wav.writeUInt32LE(8820,40);
+ await page.locator('#reaperInput').setInputFiles([{name:'REAPER QA.rpp',mimeType:'text/plain',buffer:Buffer.from(reaperText)}]);
+ await page.locator('#confirmReaper').waitFor({state:'visible'});
+ assert.ok(await page.locator('#confirmReaper').isDisabled(),'RPP media should not be silently omitted');
+ await page.locator('#reaperMediaFiles').setInputFiles([{name:'Voice.wav',mimeType:'audio/wav',buffer:wav}]);
+ await page.locator('#confirmReaper').waitFor({state:'visible'});
+ assert.equal(await page.locator('#confirmReaper').isDisabled(),false,'audio source must be resolved');
+ await page.locator('#confirmReaper').click();
+ await page.locator('#modal').waitFor({state:'hidden'});
+ assert.equal(await page.locator('#projectName').inputValue(),'REAPER QA');
  assert.deepEqual(errors,[],'studio boot raised JavaScript errors');
  const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
  await mobile.goto('http://127.0.0.1:8765/',{waitUntil:'load'});
