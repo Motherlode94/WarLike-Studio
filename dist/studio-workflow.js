@@ -98,13 +98,16 @@ export function installStudioWorkflow(d){
       const start=engine().position,previousLoop=engine().loop;engine().loop=false;
       graph=createRecordingGraph(engine().ctx,stream,recordingSettings(p().recording).gainDb);
       try{
-        journal=await beginRecordingJournal({sampleRate:engine().ctx.sampleRate,channels:mode==='stereo'?2:1,projectName:p().name||'Session'});
+        journal=await beginRecordingJournal({sampleRate:engine().ctx.sampleRate,channels:mode==='stereo'?2:1,projectName:p().name||'Session',onError:error=>{if(activeRec&&d.getRecordState().recording===activeRec){d.toast('Stockage de secours interrompu : '+error.message+'. Finalisation de la prise.');void stopRecording();}}});
       }catch(error){
         journal=null;d.toast('Sauvegarde de secours indisponible : '+error.message+'. Termine et exporte chaque prise.');
       }
       capture=await createPcmCapture(engine().ctx,graph.inputNode,{
         channel:mode,
         onChunk:channels=>journal?.append(channels),
+        // With a durable journal available, keep only the current PCM group
+        // in memory. Fallback to the legacy in-RAM capture if IndexedDB fails to open.
+        retainChunks:!journal,
         onError:error=>{if(activeRec&&d.getRecordState().recording===activeRec){d.toast(error.message+' · Finalisation de la prise partielle.');void stopRecording();}}
       });
       if(a.monitor){
@@ -146,8 +149,11 @@ export function installStudioWorkflow(d){
     d.setRecording(null);d.setFlags({recordFinalizing:true});clearInterval(rec.timer);
     engine().pause();engine().recordingTrackId=null;engine().loop=rec.previousLoop;engine().position=rec.start;d.updateTransport();
     try{
-      const fullBuffer=await rec.capture.stop();
-      try{await rec.journal?.flush();}catch(error){d.toast('Journal de secours incomplet : '+error.message);}
+      const inMemory=await rec.capture.stop();
+      // Journal-backed capture never accumulates PCM blocks in JS memory.
+      // A cursor reads the stored groups directly into the final AudioBuffer.
+      // If this operation fails, retain the journal for recovery/export.
+      const fullBuffer=rec.journal?await rec.journal.toAudioBuffer(engine().ctx):inMemory;
       const targets=rec.assignments||[{track:rec.track,channel:rec.options.channel}];
       // Validate all assets before committing any take; the originals remain separate.
       const prepared=targets.map(({track,channel})=>{

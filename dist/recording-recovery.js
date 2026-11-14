@@ -38,7 +38,7 @@ export function groupRecordingChunks(groups,expectedChannels){
   }
   return {length:total,numberOfChannels:expectedChannels,getChannelData:i=>output[i]};
 }
-export async function beginRecordingJournal({sampleRate,channels,projectName='Session'}){
+export async function beginRecordingJournal({sampleRate,channels,projectName='Session',onError}={}){
   const db=await openRecordingRecoveryDB();
   const id=typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(36).slice(2);
   const meta={id,sampleRate,channels,projectName:String(projectName).slice(0,90),createdAt:Date.now()};
@@ -47,7 +47,7 @@ export async function beginRecordingJournal({sampleRate,channels,projectName='Se
     tx.objectStore('recordings').put(meta);
     await transactionDone(tx);
   }catch(error){db.close();throw error;}
-  let pending=[],pendingFrames=0,index=0,writeQueue=Promise.resolve(),failure=null,closed=false;
+  let pending=[],pendingFrames=0,totalFrames=0,index=0,writeQueue=Promise.resolve(),failure=null,closed=false;
   const limit=Math.max(4096,Math.round(sampleRate*GROUP_SECONDS));
   function queueWrite(){
     if(!pendingFrames)return;
@@ -64,17 +64,19 @@ export async function beginRecordingJournal({sampleRate,channels,projectName='Se
       const tx=db.transaction('blocks','readwrite');
       tx.objectStore('blocks').put({id,index:index++,length,channels:merged});
       await transactionDone(tx);
-    }).catch(error=>{failure=error;throw error;});
+    }).catch(error=>{if(!failure){failure=error;try{onError?.(error);}catch{}}throw error;});
     // Avoid unhandled rejections while the caller awaits flush() later.
     writeQueue.catch(()=>{});
   }
   return {
     id,
+    get frames(){return totalFrames;},
     append(chunk){
       if(closed||failure)return;
       if(!Array.isArray(chunk)||chunk.length!==channels||!chunk[0]?.length)return;
       pending.push(chunk);
       pendingFrames+=chunk[0].length;
+      totalFrames+=chunk[0].length;
       if(pendingFrames>=limit)queueWrite();
     },
     async flush(){
@@ -82,6 +84,35 @@ export async function beginRecordingJournal({sampleRate,channels,projectName='Se
       queueWrite();
       await writeQueue;
       if(failure)throw failure;
+    },
+    async toAudioBuffer(ctx){
+      await this.flush();
+      if(!totalFrames)throw Error('Aucune donnée audio enregistrée.');
+      const buffer=ctx.createBuffer(channels,totalFrames,sampleRate);
+      const destinations=Array.from({length:channels},(_,c)=>buffer.getChannelData(c));
+      let offset=0;
+      const tx=db.transaction('blocks','readonly');
+      await new Promise((resolve,reject)=>{
+        const request=tx.objectStore('blocks').openCursor(IDBKeyRange.bound([id,0],[id,Number.MAX_SAFE_INTEGER]));
+        let bad=null;
+        request.onsuccess=()=>{
+          const cursor=request.result;
+          if(!cursor)return;
+          try{
+            const group=cursor.value;
+            if(group.channels.length!==channels||group.channels.some(values=>values.length!==group.length)||offset+group.length>totalFrames)
+              throw Error('Bloc du journal audio incomplet ou invalide.');
+            for(let c=0;c<channels;c++)destinations[c].set(group.channels[c],offset);
+            offset+=group.length;
+            cursor.continue();
+          }catch(error){bad=error;tx.abort();}
+        };
+        request.onerror=()=>{bad=request.error||Error('Lecture du journal impossible.');};
+        tx.oncomplete=()=>offset===totalFrames?resolve():reject(Error('Journal PCM incomplet : échantillons manquants.'));
+        tx.onerror=()=>reject(bad||tx.error||Error('Lecture du journal impossible.'));
+        tx.onabort=()=>reject(bad||tx.error||Error('Lecture du journal interrompue.'));
+      });
+      return buffer;
     },
     async clear(){
       if(closed)return;
