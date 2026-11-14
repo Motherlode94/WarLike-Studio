@@ -68,3 +68,27 @@ test('PCM recorder salvages completed blocks if the audio worklet fails',async()
    else globalThis.AudioWorkletNode=previous;
  }
 });
+
+test('durable PCM mode forwards blocks but does not retain their samples in memory',async()=>{
+ const original=globalThis.AudioWorkletNode;let node;
+ class Worklet{
+   constructor(){node=this;this.port={postMessage:message=>{if(message.type==='stop')queueMicrotask(()=>this.port.onmessage({data:{type:'done'}}));},close(){}};}
+   connect(){}disconnect(){}
+ }
+ globalThis.AudioWorkletNode=Worklet;
+ try{
+   const input={connect(){},disconnect(){}};
+   const ctx={sampleRate:48000,audioWorklet:{addModule:async()=>{}},destination:{}};
+   const collected=[];
+   const capture=await createPcmCapture(ctx,input,{retainChunks:false,onChunk:channels=>collected.push(channels)});
+   capture.start(0);
+   node.port.onmessage({data:{type:'chunk',channels:[Float32Array.from([0.25,0.5])]}});
+   assert.equal(capture.frames,2);
+   assert.equal(collected.length,1);
+   assert.deepEqual([...collected[0][0]],[0.25,0.5]);
+   assert.equal(await capture.stop(),null,'persistent capture must not allocate an in-memory audio buffer');
+ }finally{
+   if(original===undefined)delete globalThis.AudioWorkletNode;
+   else globalThis.AudioWorkletNode=original;
+ }
+});
