@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="./style.css?v=0.14.0">
   <link rel="stylesheet" href="./studio.css?v=0.14.2-project-home">
   <link rel="stylesheet" href="./android.css?v=0.14.1">
-  <link rel="stylesheet" href="./pro-recording.css?v=0.15.4">
+  <link rel="stylesheet" href="./pro-recording.css?v=0.15.5">
 <style>
 .warlike-workspaces{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 14px;background:#181b20;border-bottom:1px solid #3b4548;color:#d5dedc}
 .warlike-workspaces button{border:1px solid #4c5d60;background:#252d32;color:#e4f3f1;border-radius:7px;padding:7px 11px;cursor:pointer;font:600 12px system-ui,sans-serif}
@@ -52,7 +52,9 @@
   <section id="recordWorkspaceBar" class="record-workspace-bar" aria-label="Barre d’enregistrement" hidden>
     <span class="record-caption">RECORDING / EDIT</span><span id="recordWorkspaceTarget" aria-live="polite">Sélectionne une piste audio</span>
     <button type="button" id="recordWorkspaceStart" disabled>● Enregistrer</button><button type="button" id="recordWorkspaceMic">Entrée / Monitoring</button><button type="button" id="recordWorkspaceMetronome">Clic</button><button type="button" id="recordWorkspaceEdit">Édition</button><button type="button" id="recordWorkspaceMix">Mix</button>
-    <span class="record-note">Enregistrement mono ciblé · sélectionne une piste audio</span>
+    <button type="button" id="recordWorkspaceMicTest" aria-pressed="false">Tester l'entrée</button><span class="record-input-meter" aria-label="Niveau d'entrée micro"><span id="recordWorkspaceInputLevel"></span></span><output id="recordWorkspaceInputDb">— dBFS</output>
+    <div class="record-clip-actions" aria-label="Montage des clips"><button type="button" id="recordClipSelectTool">Sélection</button><button type="button" id="recordClipTrimTool">Rogner</button><button type="button" id="recordClipSplitTool">Couper</button><button type="button" id="recordClipDuplicate">Dupliquer</button><button type="button" id="recordClipDelete">Supprimer</button></div>
+    <span class="record-note">Ctrl+clic sélection multiple · clic central déplacement de la timeline · casque recommandé</span>
   </section>
   <div class="studio-body">
     <aside class="library">
@@ -100,6 +102,6 @@
   <section id="trackQuickControl" class="track-quick-control" role="dialog" aria-modal="false" aria-label="Fader de piste" hidden></section>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script type="module" src="./boot.js?v=0.15.3-public-demos"></script>
-  <script type="module" src="./pro-recording.js?v=0.15.4"></script>
+  <script type="module" src="./pro-recording.js?v=0.15.5"></script>
 </body>
 </html>
