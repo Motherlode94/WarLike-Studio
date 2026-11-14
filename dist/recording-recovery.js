@@ -100,8 +100,9 @@ export async function listRecoverableRecordings(){
   const db=await openRecordingRecoveryDB();
   try{
     const tx=db.transaction('recordings','readonly');
+    const completed=transactionDone(tx);
     const result=await requestDone(tx.objectStore('recordings').getAll());
-    await transactionDone(tx);
+    await completed;
     return result.sort((a,b)=>b.createdAt-a.createdAt);
   }finally{db.close();}
 }
@@ -109,11 +110,12 @@ export async function readRecoverableRecording(id){
   const db=await openRecordingRecoveryDB();
   try{
     const tx=db.transaction(['recordings','blocks'],'readonly');
+    const completed=transactionDone(tx);
     const metadata=await requestDone(tx.objectStore('recordings').get(id));
     if(!metadata)throw Error('Prise introuvable.');
     const range=IDBKeyRange.bound([id,0],[id,Number.MAX_SAFE_INTEGER]);
     const blocks=await requestDone(tx.objectStore('blocks').getAll(range));
-    await transactionDone(tx);
+    await completed;
     return {...metadata,buffer:groupRecordingChunks(blocks,metadata.channels),blockCount:blocks.length};
   }finally{db.close();}
 }
