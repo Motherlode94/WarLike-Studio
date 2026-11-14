@@ -1,5 +1,11 @@
 {
   "name": "warlike-studio",
   "compatibility_date": "2026-10-28",
-  "pages_build_output_dir": "./dist"
+  "pages_build_output_dir": "./dist",
+  "services": [
+    {
+      "binding": "WARLIKE_APP",
+      "service": "warlike-server-runtime"
+    }
+  ]
 }
