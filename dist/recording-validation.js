@@ -17,7 +17,7 @@ if(startButton){
     ['latency','Latence mesurée par bouclage, puis vérifiée à l’écoute'],
     ['saved','Prises retrouvées après sauvegarde et rechargement du projet']
   ];
-  let start=0,elapsed=0,recorded=0,lastTime=0,lastRecording=false,refreshInterval=null,samples=0,interruptions=0,previousAudioFrames=0;
+  let start=0,elapsed=0,recorded=0,lastTime=0,lastRecording=false,refreshInterval=null,interruptions=0;
   const el=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node;};
   function isRecording(){return document.getElementById('record')?.classList.contains('recording')===true;}
   function getAudioStatus(){return document.getElementById('audioStatus')?.textContent?.trim()||'inconnu';}
@@ -35,7 +35,7 @@ if(startButton){
     const recording=isRecording();
     if(recording)recorded+=delta;
     if(recording&&!lastRecording)interruptions++;
-    lastRecording=recording;lastTime=now;samples++;
+    lastRecording=recording;lastTime=now;
     const t=article.querySelector('#validationDuration');
     if(t)t.textContent='Durée de séance : '+Math.floor(elapsed/60000)+' min · capture active observée : '+Math.floor(recorded/60000)+' min · démarrages REC : '+interruptions;
     const target=Number(article.querySelector('#validationTarget')?.value)||30;
@@ -77,8 +77,8 @@ if(startButton){
   }
   startButton.addEventListener('click',()=>{
     if(dialog.open)return;
-    elapsed=0;recorded=0;samples=0;interruptions=0;lastRecording=false;previousAudioFrames=0;
-    draw();start=Date.now();lastTime=start;dialog.showModal();
+    elapsed=0;recorded=0;interruptions=0;lastRecording=false;
+    draw();start=Date.now();lastTime=start;dialog.show();
     refreshInterval=setInterval(update,1000);
   });
   dialog.addEventListener('close',()=>{clearInterval(refreshInterval);refreshInterval=null;start=0;});
