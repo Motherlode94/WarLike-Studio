@@ -38,8 +38,9 @@ test('AI mastering works on finite PCM without uploading and only applies with a
   for(const style of Object.keys(AI_MASTER_STYLES)){
     const rec=recommendMastering(m,{style});
     assert.equal(rec.requiresApproval,true);
+    const previous=structuredClone(project.mastering);
     assert.throws(()=>applyAIMasterRecommendation(project,rec));
-    assert.deepEqual(project.mastering,{original:true});
+    assert.deepEqual(project.mastering,previous);
     applyAIMasterRecommendation(project,rec,{confirm:true});
     assert.ok(project.mastering.inserts.includes('peak'));
   }
