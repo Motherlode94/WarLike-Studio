@@ -85,6 +85,29 @@ try{
   await page.locator('#recordWorkspaceToggle').click();
   assert.equal(await page.locator('#recordWorkspaceBar').isHidden(),true);
 
+  // Deliberately overwhelm a journal in-browser: it should report a bounded
+  // storage backlog and still flush previously accepted PCM for recovery.
+  const overrun=await page.evaluate(async()=>{
+    const {beginRecordingJournal}=await import('./recording-recovery.js');
+    let warning='';
+    const journal=await beginRecordingJournal({sampleRate:48000,channels:1,projectName:'Backpressure QA',onError:e=>warning=e.message});
+    const accepted=journal.append([Float32Array.from([.25,.5])]);
+    const rejected=journal.append([new Float32Array(48000*13)]);
+    const saturated=journal.saturated;
+    await journal.flush();
+    const recovered=await journal.toAudioBuffer({
+      createBuffer:(channels,length)=>{const samples=Array.from({length:channels},()=>new Float32Array(length));return {length,numberOfChannels:channels,getChannelData:c=>samples[c]};}
+    });
+    const frames=recovered.length;
+    await journal.clear();
+    return {accepted,rejected,saturated,frames,warning};
+  });
+  assert.equal(overrun.accepted,true);
+  assert.equal(overrun.rejected,false);
+  assert.equal(overrun.saturated,true);
+  assert.equal(overrun.frames,2);
+  assert.match(overrun.warning,/Stockage trop lent/);
+
   // Crash recovery must survive a reload and export real WAV bytes from IndexedDB.
   await page.evaluate(async()=>{
     const {beginRecordingJournal}=await import('./recording-recovery.js');
