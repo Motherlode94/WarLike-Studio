@@ -32,7 +32,7 @@ export function createRecordingGraph(ctx,stream,gainDb=0) {
   // An independent, attenuated monitor path protects the listener from the
   // recorder's adjustable digital gain. It is never part of captured PCM.
   const monitorGain=ctx.createGain();monitorGain.gain.value=0;
-  gain.connect(monitorGain);
+  source.connect(monitorGain);
   let monitoredTarget=null,disposed=false;
   return {stream:destination.stream,analyser,inputNode:gain,
     monitor(target,{levelDb=-12}={}){
