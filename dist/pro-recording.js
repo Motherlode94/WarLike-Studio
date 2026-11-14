@@ -32,3 +32,28 @@ $('recordWorkspaceEdit')?.addEventListener('click',()=>document.querySelector('[
 const rows=$('trackRows');
 if(rows)new MutationObserver(updateTarget).observe(rows,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
 try{setRecordingWorkspace(localStorage.getItem(key)==='1');}catch{setRecordingWorkspace(false);}
+
+// Middle-mouse hand pan is opt-in to the recording workspace.
+// Primary button interactions remain entirely owned by Studio's clip editor.
+const scroller=$('timelineScroll');
+let hand=null;
+scroller?.addEventListener('pointerdown',event=>{
+  if(event.button!==1||!document.body.classList.contains('record-workspace'))return;
+  event.preventDefault();
+  hand={id:event.pointerId,x:event.clientX,y:event.clientY,left:scroller.scrollLeft,top:scroller.scrollTop};
+  scroller.setPointerCapture(event.pointerId);
+  scroller.classList.add('record-hand-pan');
+});
+scroller?.addEventListener('pointermove',event=>{
+  if(!hand||event.pointerId!==hand.id)return;
+  scroller.scrollLeft=hand.left-(event.clientX-hand.x);
+  scroller.scrollTop=hand.top-(event.clientY-hand.y);
+});
+function endHandPan(event){
+  if(!hand||event.pointerId!==hand.id)return;
+  hand=null;scroller.classList.remove('record-hand-pan');
+  try{scroller.releasePointerCapture(event.pointerId);}catch{}
+}
+scroller?.addEventListener('pointerup',endHandPan);
+scroller?.addEventListener('pointercancel',endHandPan);
+window.addEventListener('blur',()=>{hand=null;scroller?.classList.remove('record-hand-pan');});
