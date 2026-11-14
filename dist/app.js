@@ -548,6 +548,19 @@ let openingProject=false;
 async function openProject(file){if(!file)return;if(openingProject)return toast('Un projet est déjà en cours de chargement.');if(recording||recordFinalizing||micPending)return toast('Termine la prise avant d’ouvrir un projet.');openingProject=true;try{const data=JSON.parse(await file.text());if(data.format!=='chayah-studio')throw new Error('Ce fichier n’est pas un projet Warlike Studio.');validateProject(data.project);if(data.assets!==undefined&&!Array.isArray(data.assets))throw new Error('Liste des fichiers audio invalide.');const media=data.assets||[],ids=new Set();for(const a of media){if(!a||typeof a.id!=='string'||ids.has(a.id))throw new Error('Identifiant audio invalide ou dupliqué.');ids.add(a.id);}const missing=[...audioAssetIds(data.project)].filter(id=>!ids.has(id));if(missing.length)throw new Error(missing.length+' fichier(s) audio manque(nt) dans ce projet. La session actuelle est conservée.');await engine.init();const decoded=new Map();for(const a of media){if(typeof a.id!=='string'||typeof a.name!=='string'||typeof a.data!=='string')throw new Error('Audio invalide.');const raw=fromBase64(a.data),buffer=await engine.ctx.decodeAudioData(raw.slice(0));decoded.set(a.id,{name:a.name,data:raw,buffer});}if(recording||recordFinalizing||micPending)throw new Error('Une prise a démarré pendant le chargement. Termine-la puis réessaie.');await flushCurrent();const id=crypto.randomUUID(),now=Date.now();const importedAssets=media.map(a=>({id:a.id,name:a.name,data:decoded.get(a.id).data})),index=[{id,name:data.project.name,createdAt:now,updatedAt:now},...projectIndex];await writeLocalProject(db,id,{project:clone(data.project),masterVolume:Number.isFinite(data.masterVolume)?data.masterVolume:0,assets:importedAssets},index);projectIndex=index;await chooseProject(id);toast('Projet importé et sauvegardé.');}catch(e){toast('Ouverture impossible : '+e.message);}finally{openingProject=false;}}
 async function exportWav(){if(recording){toast('Termine la prise avant d’exporter.');return;}if(project.tracks.some(t=>t.clips.some(c=>c.audioId&&!assets.has(c.audioId)))){toast('Un fichier audio est manquant. Réimporte-le avant l’export.');return;}const btn=$('exportWav');btn.disabled=true;btn.innerHTML=icon('wave')+' Rendu du mix…';try{const wav=await engine.exportWav();download(wav,safeName()+'.wav','audio/wav');toast('Mix exporté · WAV stéréo 44,1 kHz / 16 bits.');}catch(e){toast('Export impossible : '+e.message);}finally{btn.disabled=false;btn.innerHTML=icon('download')+' Exporter <span>WAV</span>';}}
 
+// One-click solo recording setup for fast voice sessions in a browser.
+$('recordWorkspaceSolo')?.addEventListener('click',()=>{
+ if(recording||micPending||recordFinalizing){toast('Termine la prise avant de modifier les entrées.');return;}
+ let t=currentTrack();
+ if(t?.type!=='audio')t=project.tracks.find(tr=>tr.type==='audio');
+ if(!t&&project.tracks.length>=64){toast('Limite de 64 pistes atteinte.');return;}
+ checkpoint();
+ if(!t)t=addTrack('audio',false);
+ for(const tr of project.tracks)if(tr.type==='audio')tr.recordArm=tr.id===t.id;
+ t.recordInput='1';selectedTrack=t.id;selectedClip=null;changed(true);
+ toast('Prêt pour une voix : '+t.name+' sur IN 1. Vérifie le micro au casque avant REC.');
+});
+
 // Fast two-micro session preparation: uses the same track model and undo
 // history as the regular Add Track dialog. Never arms while capture is active.
 $('recordWorkspaceDuo')?.addEventListener('click',()=>{
