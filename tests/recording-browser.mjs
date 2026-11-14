@@ -146,7 +146,7 @@ try{
   const reportEvent=page.waitForEvent('download');
   await page.getByRole('button',{name:'Terminer et télécharger le rapport'}).click();
   const validationDownload=await reportEvent;
-  assert.match(validationDownload.suggestedFilename(),/Recording-validation.*\\.json/);
+  assert.ok(validationDownload.suggestedFilename().startsWith('WarLike-Recording-validation-') && validationDownload.suggestedFilename().endsWith('.json'));
   assert.equal(await page.locator('.recording-validation-dialog').evaluate(el=>el.open),false);
 
   assert.deepEqual(errors,[],'Recording Pro must not cause uncaught browser errors');
