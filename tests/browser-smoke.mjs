@@ -10,6 +10,9 @@ try {
  }
  // First launch must show a deliberate project choice instead of restoring 'current'.
  await page.locator('#libraryNew').waitFor({state:'visible'});
+ assert.ok(await page.locator('#projectHomeCreate').count(),'project creation form is available');
+ assert.ok(await page.locator('#libraryImport').isVisible(),'portable project import is available');
+ assert.ok(await page.locator('.project-home-banner').isVisible(),'local storage warning is shown');
  assert.ok(await page.locator('#modal').isVisible(),'project library should open on first launch');
  await page.locator('#libraryName').fill('QA Session A');
  await page.locator('#libraryNew').click();
