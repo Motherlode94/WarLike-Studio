@@ -74,3 +74,7 @@
 #recordWorkspaceInput2Db.input-clipping{color:#ff9d98;font-weight:700}
 #recordWorkspaceInput2Db.input-clipping::after{content:' CLIP';font-size:9px}
 #recordWorkspaceDuo{background:#405368;border-color:#8aafc8;font-weight:700}
+
+#recordWorkspaceMicDiagnostic{border-color:#759ab9;background:#354c64;font-weight:700}
+.record-diagnostic-result{font:11px system-ui,sans-serif;flex-basis:100%;line-height:1.4;color:#d5e8fa;min-height:0}
+.record-diagnostic-result:not(:empty){padding:7px 10px;background:#21374b;border-left:3px solid #8ab9d5;border-radius:3px}
