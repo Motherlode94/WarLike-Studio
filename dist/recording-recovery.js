@@ -23,7 +23,7 @@ export async function openRecordingRecoveryDB(){
   };
   return requestDone(request);
 }
-export function groupRecordingChunks(groups,channels,expectedChannels){
+export function groupRecordingChunks(groups,expectedChannels){
   if(!groups.length)throw Error('Aucune donnée audio à restaurer.');
   const total=groups.reduce((sum,group)=>sum+group.length,0);
   const output=Array.from({length:expectedChannels},()=>new Float32Array(total));
@@ -114,7 +114,7 @@ export async function readRecoverableRecording(id){
     const range=IDBKeyRange.bound([id,0],[id,Number.MAX_SAFE_INTEGER]);
     const blocks=await requestDone(tx.objectStore('blocks').getAll(range));
     await transactionDone(tx);
-    return {...metadata,buffer:groupRecordingChunks(blocks,metadata.channels,metadata.channels),blockCount:blocks.length};
+    return {...metadata,buffer:groupRecordingChunks(blocks,metadata.channels),blockCount:blocks.length};
   }finally{db.close();}
 }
 export async function discardRecoverableRecording(id){
