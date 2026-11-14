@@ -61,3 +61,11 @@
 /* Warn visibly when the actual input test approaches full scale. */
 #recordWorkspaceInputDb.input-clipping{color:#ff9d98;font-weight:700}
 #recordWorkspaceInputDb.input-clipping::after{content:' CLIP';font-size:9px}
+
+/* Record-ready strips and independent hardware input mapping. */
+.record-workspace .track-record-arm,.track-record-arm{border:1px solid #89545c;color:#d9a5ac;background:#3b2931;min-width:25px;min-height:25px;border-radius:4px;font-weight:700}
+.record-workspace .track-record-arm.armed,.track-record-arm.armed{border-color:#ff7c7c;background:#9a3440;color:#fff;box-shadow:0 0 0 2px #ef626232}
+.record-workspace [data-record-input],[data-record-input]{background:#283444;border:1px solid #5c6b80;border-radius:3px;color:#cbd8e8;max-width:62px;min-height:24px;font:10px system-ui,sans-serif}
+.record-workspace .track-controls{flex-wrap:wrap;gap:3px;justify-content:flex-start}
+.record-workspace .track-head:has(.track-record-arm.armed){border-left-color:#ee6872!important}
+@media(max-width:700px){.record-workspace [data-record-input]{max-width:49px;font-size:9px}.record-workspace .track-record-arm{min-width:26px;min-height:28px}}
