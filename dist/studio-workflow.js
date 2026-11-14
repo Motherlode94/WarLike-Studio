@@ -7,6 +7,7 @@ import {EFFECTS,effectDefinition,effectType,ensurePlugins} from './plugins.js?v=
 import {normaliseCurve,putPoint,pointValue} from './automation.js?v=0.14.0';
 import {createPcmCapture,recordingPlacement} from './pcm-capture.js?v=0.14.0';
 import {emitRecordingTelemetry} from './recording-telemetry.js';
+import {createRecordingSignalDiagnostics} from './recording-signal-diagnostics.js';
 import {beginRecordingJournal} from './recording-recovery.js';
 import {createRecordingGraph,recordingSettings,measureBuffer,normalisationGain,armedRecordingTracks,captureChannelMode,extractRecordedChannel,recordingInputConstraints,validateRecordingInputChannels} from './recording.js?v=0.14.0';
 import {encodeWav,zipFiles} from './wav.js?v=0.14.0';
@@ -103,9 +104,10 @@ export function installStudioWorkflow(d){
       }catch(error){
         journal=null;d.toast('Sauvegarde de secours indisponible : '+error.message+'. Termine et exporte chaque prise.');
       }
+      const signalDiagnostics=createRecordingSignalDiagnostics({sampleRate:engine().ctx.sampleRate,channels:mode==='stereo'?2:1});
       capture=await createPcmCapture(engine().ctx,graph.inputNode,{
         channel:mode,
-        onChunk:channels=>journal?.append(channels),
+        onChunk:channels=>{signalDiagnostics.add(channels);journal?.append(channels);},
         // With a durable journal available, keep only the current PCM group
         // in memory. Fallback to the legacy in-RAM capture if IndexedDB fails to open.
         retainChunks:!journal,
@@ -120,7 +122,7 @@ export function installStudioWorkflow(d){
         d.toast('Retour casque logiciel actif : utilise impérativement un casque pour éviter les larsens.');
       }
       const telemetryId=uid();
-      const rec={telemetryId,stream,graph,capture,journal,track:targets[0].track,assignments:targets,start,previousLoop,options:clone(a),captureMode:mode,autoLevel:recordingSettings(p().recording).autoLevel};
+      const rec={telemetryId,stream,graph,capture,journal,signalDiagnostics,track:targets[0].track,assignments:targets,start,previousLoop,options:clone(a),captureMode:mode,autoLevel:recordingSettings(p().recording).autoLevel};
       activeRec=rec;d.setRecording(rec);d.setFlags({micPending:false});engine().recordingTrackId=targets[0].track.id;
       stream.getAudioTracks().forEach(inputTrack=>inputTrack.addEventListener('ended',()=>{if(d.getRecordState().recording===rec){d.toast('Micro déconnecté : finalisation et sauvegarde de la prise partielle.');void stopRecording();}},{once:true}));
       await engine().play();capture.start(engine().startTime+start*engine().stepDuration);
@@ -135,7 +137,7 @@ export function installStudioWorkflow(d){
           }
         }else rec.stalledTicks=0;
         rec.previousFrames=capture.frames;
-        emitRecordingTelemetry('progress',{takeId:telemetryId,frames:capture.frames,sampleRate:engine().ctx.sampleRate});
+        emitRecordingTelemetry('progress',{takeId:telemetryId,frames:capture.frames,sampleRate:engine().ctx.sampleRate,signal:signalDiagnostics.snapshot()});
         const seconds=capture.frames/engine().ctx.sampleRate;
         if(seconds>600&&!rec.warned10){rec.warned10=true;d.toast('Prise de 10 minutes : surveille la mémoire du navigateur et sauvegarde dès que possible.');}
         if(seconds>900&&!rec.warned15){rec.warned15=true;d.toast('Prise de 15 minutes : termine bientôt la prise et vérifie la sauvegarde.');}
@@ -185,7 +187,7 @@ export function installStudioWorkflow(d){
       try{
         await d.persistNow();
         try{await rec.journal?.clear();}catch(error){console.warn('Journal de récupération conservé',error);}
-        emitRecordingTelemetry('finalized',{takeId:rec.telemetryId,frames:rec.capture.frames,sampleRate:engine().ctx.sampleRate});
+        emitRecordingTelemetry('finalized',{takeId:rec.telemetryId,frames:rec.capture.frames,sampleRate:engine().ctx.sampleRate,signal:rec.signalDiagnostics.snapshot()});
         d.toast(prepared.length+' prise(s) PCM enregistrée(s) et sauvegardée(s) localement.');
       }catch(saveError){
         emitRecordingTelemetry('error',{takeId:rec.telemetryId,message:'Sauvegarde locale : '+saveError.message});

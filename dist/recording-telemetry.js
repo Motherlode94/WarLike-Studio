@@ -22,7 +22,7 @@ export function createRecordingTelemetrySummary(){
       const sampleRate=Number.isFinite(event.sampleRate)&&event.sampleRate>0?event.sampleRate:previous.sampleRate;
       const channels=Number.isInteger(event.channels)&&event.channels>0?event.channels:previous.channels;
       const status=event.type==='finalized'?'finalized':event.type==='start'?'started':'recording';
-      takes.set(event.takeId,{...previous,frames,sampleRate,channels,status,at:event.at||Date.now()});
+      takes.set(event.takeId,{...previous,frames,sampleRate,channels,status,signal:event.signal||previous.signal||null,at:event.at||Date.now()});
     },
     snapshot(){
       const items=[...takes.values()];
