@@ -1,0 +1,82 @@
+/**
+ * WarLike Studio cloud project API transport.
+ * This module deliberately DOES NOT create accounts or trust a client-provided owner ID.
+ * It is inert until a verified WarLike Server backend exposes these routes.
+ */
+export class StudioCloudError extends Error {
+  constructor(message, status, code) {
+    super(message);
+    this.name = 'StudioCloudError';
+    this.status = status;
+    this.code = code;
+  }
+}
+const fail = (status, code) => {
+  if (status === 401) return new StudioCloudError('Connexion WarLike requise.', status, code);
+  if (status === 403) return new StudioCloudError('Accès au projet refusé.', status, code);
+  if (status === 409) return new StudioCloudError('Conflit de révision : recharge ou conserve une copie locale avant de fusionner.', status, code);
+  return new StudioCloudError('Service de synchronisation indisponible (' + status + ').', status, code);
+};
+function projectId(id) {
+  if (typeof id !== 'string' || !/^[0-9a-f-]{36}$/i.test(id)) throw new TypeError('Identifiant de projet invalide.');
+  return encodeURIComponent(id);
+}
+export class StudioCloudClient {
+  #base;
+  #fetch;
+  constructor({ baseUrl, fetchImpl = fetch } = {}) {
+    if (typeof baseUrl !== 'string' || !/^https:\/\//.test(baseUrl)) throw new TypeError('Une API HTTPS authentifiée est requise.');
+    const url = new URL(baseUrl);
+    if (url.username || url.password || url.search || url.hash) throw new TypeError('Adresse API invalide.');
+    this.#base = url.origin + url.pathname.replace(/\/$/, '');
+    this.#fetch = fetchImpl;
+  }
+  async #request(path, { method = 'GET', payload, signal } = {}) {
+    const options = { method, mode:'cors', credentials:'include', cache:'no-store', headers:{Accept:'application/json'}, signal };
+    if (payload !== undefined) {
+      options.headers['Content-Type'] = 'application/json';
+      options.body = JSON.stringify(payload);
+    }
+    let response;
+    try { response = await this.#fetch(this.#base + path, options); }
+    catch (cause) {
+      if (signal?.aborted) throw cause;
+      throw new StudioCloudError('Réseau indisponible : sauvegarde locale conservée.', 0, 'NETWORK');
+    }
+    if (!response.ok) {
+      let code;
+      try { code = (await response.json()).code; } catch {}
+      throw fail(response.status, code);
+    }
+    if (response.status === 204) return null;
+    const value = await response.json();
+    if (value === null || typeof value !== 'object') throw new StudioCloudError('Réponse serveur invalide.', 502, 'INVALID_RESPONSE');
+    return value;
+  }
+  async identity({ signal } = {}) {
+    const value = await this.#request('/api/studio/me', { signal });
+    if (typeof value.userId !== 'string' || !value.userId || value.studioAccess !== true) {
+      throw new StudioCloudError('Identité WarLike non vérifiée.', 403, 'NO_ACCESS');
+    }
+    return value;
+  }
+  async listProjects({ signal } = {}) {
+    const value = await this.#request('/api/studio/projects', { signal });
+    if (!Array.isArray(value.projects)) throw new StudioCloudError('Liste des projets invalide.', 502, 'INVALID_RESPONSE');
+    return value.projects;
+  }
+  async createProject(project, { signal } = {}) {
+    return this.#request('/api/studio/projects', {method:'POST', payload:{project}, signal});
+  }
+  async getProject(id, { signal } = {}) {
+    return this.#request('/api/studio/projects/' + projectId(id), {signal});
+  }
+  async saveProject(id, project, revision, { signal } = {}) {
+    if (!Number.isSafeInteger(revision) || revision < 1) throw new TypeError('Révision attendue obligatoire.');
+    return this.#request('/api/studio/projects/' + projectId(id), {method:'PUT', payload:{project,expectedRevision:revision},signal});
+  }
+  async deleteProject(id, revision, { signal } = {}) {
+    if (!Number.isSafeInteger(revision) || revision < 1) throw new TypeError('Révision attendue obligatoire.');
+    return this.#request('/api/studio/projects/' + projectId(id), {method:'DELETE',payload:{expectedRevision:revision},signal});
+  }
+}
