@@ -79,4 +79,34 @@ export class StudioCloudClient {
     if (!Number.isSafeInteger(revision) || revision < 1) throw new TypeError('Révision attendue obligatoire.');
     return this.#request('/api/studio/projects/' + projectId(id), {method:'DELETE',payload:{expectedRevision:revision},signal});
   }
+  async uploadAsset(project, file, { signal } = {}) {
+    if (!(file instanceof Blob) || !file.size || file.size > 12 * 1024 * 1024) throw new TypeError('Fichier audio limité à 12 Mo.');
+    const data = new FormData();
+    data.append('file',file,typeof file.name==='string'?file.name:'studio-audio.wav');
+    let response;
+    try {
+      response=await this.#fetch(this.#base+'/api/studio/projects/'+projectId(project)+'/assets',{
+        method:'POST',mode:'cors',credentials:'include',cache:'no-store',body:data,signal,headers:{Accept:'application/json'}
+      });
+    } catch (cause) {
+      if(signal?.aborted)throw cause;
+      throw new StudioCloudError('Envoi audio interrompu : copie locale conservée.',0,'NETWORK');
+    }
+    if(!response.ok)throw fail(response.status);
+    return response.json();
+  }
+  async downloadAsset(project,assetId,{signal}={}){
+    let response;
+    try {
+      response=await this.#fetch(this.#base+'/api/studio/projects/'+projectId(project)+'/assets/'+projectId(assetId),{
+        method:'GET',mode:'cors',credentials:'include',cache:'no-store',signal
+      });
+    } catch(cause) {
+      if(signal?.aborted)throw cause;
+      throw new StudioCloudError('Téléchargement audio interrompu.',0,'NETWORK');
+    }
+    if(!response.ok)throw fail(response.status);
+    return response.arrayBuffer();
+  }
+
 }
