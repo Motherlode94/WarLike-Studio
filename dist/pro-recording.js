@@ -18,8 +18,13 @@ function updateTarget(){
   const name=selected?.querySelector('.track-title')?.textContent?.trim();
   const audio=selected?.querySelector('.track-subtitle')?.textContent?.includes('Audio')||false;
   if(label)label.textContent=audio?'Piste cible : '+name:name?'Sélectionne une piste audio · actuel : '+name:'Sélectionne une piste audio';
+  const armed=[...document.querySelectorAll('#trackRows [data-record-arm][aria-pressed="true"]')];
   const start=$('recordWorkspaceStart');
-  if(start)start.disabled=!audio;
+  if(armed.length){
+    const names=armed.map(button=>button.closest('.track-row')?.querySelector('.track-title')?.textContent?.trim()).filter(Boolean);
+    if(label)label.textContent='Armées : '+names.join(' + ')+' (entrées indépendantes)';
+  }
+  if(start)start.disabled=armed.length===0&&!audio;
 }
 button?.addEventListener('click',()=>setRecordingWorkspace(!document.body.classList.contains('record-workspace')));
 $('recordWorkspaceStart')?.addEventListener('click',()=>{
