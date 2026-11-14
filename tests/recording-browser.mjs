@@ -96,15 +96,16 @@ try{
   await page.reload({waitUntil:'load'});
   await page.locator('[data-project-open]').first().click();
   await page.locator('#modal').waitFor({state:'hidden'});
+  await page.locator('#recordWorkspaceToggle').click();
   await page.locator('#recordWorkspaceRecover').click();
   await page.getByText('Recovery QA', {exact:false}).waitFor({state:'visible'});
   const exported=page.waitForEvent('download');
-  await page.getByRole('button',{name:'Exporter en WAV'}).click();
+  await page.locator('.recording-recovery-dialog').getByRole('button',{name:'Exporter en WAV'}).click();
   const wavDownload=await exported;
   assert.match(wavDownload.suggestedFilename(),/\.wav$/);
   page.once('dialog',modal=>modal.accept());
-  await page.getByRole('button',{name:'Supprimer la sauvegarde'}).click();
-  await page.getByRole('button',{name:'Fermer'}).click();
+  await page.locator('.recording-recovery-dialog').getByRole('button',{name:'Supprimer la sauvegarde'}).click();
+  await page.locator('.recording-recovery-dialog').getByRole('button',{name:'Fermer'}).click();
 
   assert.deepEqual(errors,[],'Recording Pro must not cause uncaught browser errors');
   console.log('Recording Pro browser QA passed: duo setup, routing persistence, fake mic meter and cleanup.');
