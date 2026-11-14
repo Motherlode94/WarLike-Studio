@@ -14,6 +14,17 @@ try {
  assert.ok(await page.locator('#libraryImport').isVisible(),'portable project import is available');
  assert.ok(await page.locator('.project-home-banner').isVisible(),'local storage warning is shown');
  assert.ok(await page.locator('#modal').isVisible(),'project library should open on first launch');
+ const activeProjectStyle=await page.evaluate(()=>({
+   cssHref:[...document.querySelectorAll('link[rel="stylesheet"]')].map(el=>el.href).find(h=>h.includes('studio.css')),
+   contentWidth:document.querySelector('.project-home')?.getBoundingClientRect().width,
+   parentWidth:document.querySelector('#modalBody')?.getBoundingClientRect().width,
+   createButtonRight:document.querySelector('#libraryNew')?.getBoundingClientRect().right,
+   dialogRight:document.querySelector('#modal')?.getBoundingClientRect().right
+ }));
+ assert.ok(activeProjectStyle.cssHref?.includes('0.14.2-project-home'),'browser must load fresh Studio CSS');
+ assert.ok(activeProjectStyle.contentWidth<=activeProjectStyle.parentWidth+1,'project home must fit modal body');
+ assert.ok(activeProjectStyle.createButtonRight<=activeProjectStyle.dialogRight+1,'create action must be visible within modal');
+
  // Project-home UI must never exceed the dialog or viewport (especially cloud actions).
  for(const width of [1104,768,390]){
    await page.setViewportSize({width,height:900});
