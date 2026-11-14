@@ -6,6 +6,7 @@ import {MAX_BARS,fitSession,routeAllowed,addAuxSend,normaliseRouting,ensurePlayl
 import {EFFECTS,effectDefinition,effectType,ensurePlugins} from './plugins.js?v=0.14.0';
 import {normaliseCurve,putPoint,pointValue} from './automation.js?v=0.14.0';
 import {createPcmCapture,recordingPlacement} from './pcm-capture.js?v=0.14.0';
+import {beginRecordingJournal} from './recording-recovery.js';
 import {createRecordingGraph,recordingSettings,measureBuffer,normalisationGain,armedRecordingTracks,captureChannelMode,extractRecordedChannel,recordingInputConstraints,validateRecordingInputChannels} from './recording.js?v=0.14.0';
 import {encodeWav,zipFiles} from './wav.js?v=0.14.0';
 const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),clone=v=>structuredClone(v),safe=s=>String(s).replace(/[^\p{L}\p{N}_-]/gu,'_').slice(0,70),uid=()=>Math.random().toString(36).slice(2,11);
@@ -82,7 +83,7 @@ export function installStudioWorkflow(d){
   async function record(){
     if(d.getRecordState().recording){await stopRecording();return;}
     if(d.getRecordState().recordFinalizing||d.getRecordState().micPending)return;
-    let stream,graph,capture,activeRec=null;
+    let stream,graph,capture,journal,activeRec=null;
     d.setFlags({micPending:true});d.updateTransport();
     try{
       stopTest();await engine().init();
@@ -96,7 +97,16 @@ export function installStudioWorkflow(d){
       engine().pause();engine().patternMode=null;engine().clipPreview=null;
       const start=engine().position,previousLoop=engine().loop;engine().loop=false;
       graph=createRecordingGraph(engine().ctx,stream,recordingSettings(p().recording).gainDb);
-      capture=await createPcmCapture(engine().ctx,graph.inputNode,{channel:mode,onError:error=>{if(activeRec&&d.getRecordState().recording===activeRec){d.toast(error.message+' · Finalisation de la prise partielle.');void stopRecording();}}});
+      try{
+        journal=await beginRecordingJournal({sampleRate:engine().ctx.sampleRate,channels:mode==='stereo'?2:1,projectName:p().name||'Session'});
+      }catch(error){
+        journal=null;d.toast('Sauvegarde de secours indisponible : '+error.message+'. Termine et exporte chaque prise.');
+      }
+      capture=await createPcmCapture(engine().ctx,graph.inputNode,{
+        channel:mode,
+        onChunk:channels=>journal?.append(channels),
+        onError:error=>{if(activeRec&&d.getRecordState().recording===activeRec){d.toast(error.message+' · Finalisation de la prise partielle.');void stopRecording();}}
+      });
       if(a.monitor){
         graph.monitorMany(targets.map(({track,channel})=>({
           target:engine().channels.get(track.id).input,
@@ -105,7 +115,7 @@ export function installStudioWorkflow(d){
         })));
         d.toast('Retour casque logiciel actif : utilise impérativement un casque pour éviter les larsens.');
       }
-      const rec={stream,graph,capture,track:targets[0].track,assignments:targets,start,previousLoop,options:clone(a),captureMode:mode,autoLevel:recordingSettings(p().recording).autoLevel};
+      const rec={stream,graph,capture,journal,track:targets[0].track,assignments:targets,start,previousLoop,options:clone(a),captureMode:mode,autoLevel:recordingSettings(p().recording).autoLevel};
       activeRec=rec;d.setRecording(rec);d.setFlags({micPending:false});engine().recordingTrackId=targets[0].track.id;
       stream.getAudioTracks().forEach(inputTrack=>inputTrack.addEventListener('ended',()=>{if(d.getRecordState().recording===rec){d.toast('Micro déconnecté : finalisation et sauvegarde de la prise partielle.');void stopRecording();}},{once:true}));
       await engine().play();capture.start(engine().startTime+start*engine().stepDuration);
@@ -126,7 +136,7 @@ export function installStudioWorkflow(d){
       },500);
       d.updateTransport();d.toast(targets.length>1?'Capture PCM synchronisée sur deux entrées.':'Capture PCM active. Stop termine la prise.');
     }catch(error){
-      capture?.dispose();graph?.dispose();stream?.getTracks().forEach(t=>t.stop());
+      capture?.dispose();journal?.close();graph?.dispose();stream?.getTracks().forEach(t=>t.stop());
       engine().recordingTrackId=null;d.setRecording(null);d.setFlags({micPending:false,recordFinalizing:false});
       d.toast('Enregistrement impossible : '+error.message);d.updateTransport();
     }
@@ -137,6 +147,7 @@ export function installStudioWorkflow(d){
     engine().pause();engine().recordingTrackId=null;engine().loop=rec.previousLoop;engine().position=rec.start;d.updateTransport();
     try{
       const fullBuffer=await rec.capture.stop();
+      try{await rec.journal?.flush();}catch(error){d.toast('Journal de secours incomplet : '+error.message);}
       const targets=rec.assignments||[{track:rec.track,channel:rec.options.channel}];
       // Validate all assets before committing any take; the originals remain separate.
       const prepared=targets.map(({track,channel})=>{
@@ -162,12 +173,13 @@ export function installStudioWorkflow(d){
       // The WAV buffers remain available in this session if storage fails.
       try{
         await d.persistNow();
+        try{await rec.journal?.clear();}catch(error){console.warn('Journal de récupération conservé',error);}
         d.toast(prepared.length+' prise(s) PCM enregistrée(s) et sauvegardée(s) localement.');
       }catch(saveError){
         d.toast('Prise en mémoire, mais sauvegarde locale échouée : '+saveError.message+'. Exporte le projet avant de fermer.');
       }
     }catch(error){d.toast('Capture impossible : '+error.message);}
-    finally{graphCleanup(rec);d.setFlags({recordFinalizing:false});d.updateTransport();}
+    finally{rec.journal?.close();graphCleanup(rec);d.setFlags({recordFinalizing:false});d.updateTransport();}
   }
   function graphCleanup(rec){rec.graph.dispose();rec.stream.getTracks().forEach(t=>t.stop());}
   function stopTest(){testGraph?.dispose();testGraph=null;}

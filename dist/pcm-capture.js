@@ -1,6 +1,6 @@
 const ready=new WeakMap();
 
-export async function createPcmCapture(ctx,input,{channel='1',onError}={}){
+export async function createPcmCapture(ctx,input,{channel='1',onError,onChunk}={}){
   if(!ctx.audioWorklet||typeof AudioWorkletNode==='undefined')
     throw Error('L’enregistrement PCM nécessite un navigateur compatible AudioWorklet.');
   if(!ready.has(ctx))ready.set(ctx,ctx.audioWorklet.addModule(new URL('./record-worklet.js?v=0.14.0',import.meta.url)));
@@ -13,6 +13,7 @@ export async function createPcmCapture(ctx,input,{channel='1',onError}={}){
   node.port.onmessage=({data})=>{
     if(data.type==='chunk'&&Array.isArray(data.channels)&&data.channels.length){
       chunks.push(data.channels);frames+=data.channels[0].length;
+      try{onChunk?.(data.channels);}catch(error){try{onError?.(error);}catch{}}
     }
     if(data.type==='done')complete();
   };

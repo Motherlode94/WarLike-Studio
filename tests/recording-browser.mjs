@@ -85,6 +85,28 @@ try{
   await page.locator('#recordWorkspaceToggle').click();
   assert.equal(await page.locator('#recordWorkspaceBar').isHidden(),true);
 
+  // Crash recovery must survive a reload and export real WAV bytes from IndexedDB.
+  await page.evaluate(async()=>{
+    const {beginRecordingJournal}=await import('./recording-recovery.js');
+    const journal=await beginRecordingJournal({sampleRate:48000,channels:2,projectName:'Recovery QA'});
+    journal.append([Float32Array.from([.1,.2,.3]),Float32Array.from([.4,.5,.6])]);
+    await journal.flush();
+    journal.close();
+  });
+  await page.reload({waitUntil:'load'});
+  await page.locator('[data-project-open]').first().click();
+  await page.locator('#modal').waitFor({state:'hidden'});
+  await page.locator('#recordWorkspaceToggle').click();
+  await page.locator('#recordWorkspaceRecover').click();
+  await page.getByText('Recovery QA', {exact:false}).waitFor({state:'visible'});
+  const exported=page.waitForEvent('download');
+  await page.locator('.recording-recovery-dialog').getByRole('button',{name:'Exporter en WAV'}).click();
+  const wavDownload=await exported;
+  assert.match(wavDownload.suggestedFilename(),/\.wav$/);
+  page.once('dialog',modal=>modal.accept());
+  await page.locator('.recording-recovery-dialog').getByRole('button',{name:'Supprimer la sauvegarde'}).click();
+  await page.locator('.recording-recovery-dialog').getByRole('button',{name:'Fermer'}).click();
+
   assert.deepEqual(errors,[],'Recording Pro must not cause uncaught browser errors');
   console.log('Recording Pro browser QA passed: duo setup, routing persistence, fake mic meter and cleanup.');
 }finally{
