@@ -16,7 +16,7 @@ test('duplicate hardware inputs are rejected before acquiring the mic',()=>{
  assert.throws(()=>armedRecordingTracks({tracks:[track('one','1'),track('two','1')]}),/distincte/);
 });
 test('more than two armed inputs are rejected',()=>{
- assert.throws(()=>armedRecordingTracks({tracks:[track('one','1'),track('two','2'),track('three','1')]}),/Deux pistes/);
+ assert.throws(()=>armedRecordingTracks({tracks:[track('one','1'),track('two','2'),track('three','1')]}),/deux pistes armées/i);
 });
 test('mono track takes are sample aligned from same stereo buffer',()=>{
  const samples=[[.1,.2,.3],[.4,.5,.6]];
