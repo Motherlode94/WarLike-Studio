@@ -36,12 +36,12 @@ export function createStudioSync({baseUrl=typeof location==='undefined'?'https:/
  const enqueue=task=>{
   const pending=queue.catch(()=>{}).then(task);queue=pending.catch(()=>{});return pending;
  };
- async function push({project,assets,cloudId,revision,ownerId}){
+ async function push({project,assets,cloudId,revision,ownerId,onCreated}){
   if(!identity)throw Error('Connecte ton compte WarLike avant la synchronisation.');
   if(ownerId&&ownerId!==identity.userId)throw Error('Ce projet local appartient à un autre compte cloud.');
   // Local file IDs remain stable. Cloud audio objects are stored privately in R2.
   let id=cloudId,rev=revision||0;
-  if(!id){const created=await client.createProject(project);id=created.id;rev=created.revision;}
+  if(!id){const created=await client.createProject(project);id=created.id;rev=created.revision;if(onCreated)await onCreated({cloudId:id,cloudRevision:rev,cloudOwner:identity.userId,cloudAssets:{}});}
   const mapping={...(project.__cloudAssets||{}),...(knownAssets.get(id)||{})};
   for(const asset of assets){
    if(mapping[asset.id])continue;
