@@ -28,7 +28,7 @@ test('denied project access fails closed',async()=>{
 test('refuses stale writes and requires expected revision',async()=>{
  let seen;
  const c=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async(_url,opts)=>{seen=opts;return response({code:'CONFLICT'},409);}});
- assert.throws(()=>c.saveProject(id,{name:'A'},0),/Révision/);
+ await assert.rejects(c.saveProject(id,{name:'A'},0),/Révision/);
  await assert.rejects(c.saveProject(id,{name:'A'},2),e=>e.status===409);
  assert.equal(JSON.parse(seen.body).expectedRevision,2);
 });
