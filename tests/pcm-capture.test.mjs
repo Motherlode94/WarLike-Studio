@@ -40,3 +40,31 @@ test('PCM capture merges multiple stereo worklet chunks in sample order',async()
    else globalThis.AudioWorkletNode=previous;
  }
 });
+
+test('PCM recorder salvages completed blocks if the audio worklet fails',async()=>{
+ const previous=globalThis.AudioWorkletNode;let instance,errorReceived;
+ class FaultyWorklet{
+   constructor(){instance=this;this.port={postMessage(){},close(){}};}
+   connect(){}disconnect(){}
+ }
+ globalThis.AudioWorkletNode=FaultyWorklet;
+ try{
+   const ctx={sampleRate:48000,audioWorklet:{addModule:async()=>{}},destination:{},
+     createBuffer:(channels,length,sampleRate)=>{
+       const data=Array.from({length:channels},()=>new Float32Array(length));
+       return {length,numberOfChannels:channels,sampleRate,getChannelData:i=>data[i]};
+     }};
+   const input={connect(){},disconnect(){}};
+   const capture=await createPcmCapture(ctx,input,{channel:'1',onError:e=>{errorReceived=e;}});
+   capture.start(0);
+   instance.port.onmessage({data:{type:'chunk',channels:[Float32Array.from([.25,.5,.75])]}});
+   instance.onprocessorerror();
+   assert.match(errorReceived.message,/interrompu/);
+   const partial=await capture.stop();
+   assert.equal(partial.length,3);
+   assert.deepEqual([...partial.getChannelData(0)],[.25,.5,.75]);
+ }finally{
+   if(previous===undefined)delete globalThis.AudioWorkletNode;
+   else globalThis.AudioWorkletNode=previous;
+ }
+});
