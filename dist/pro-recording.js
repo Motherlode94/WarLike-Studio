@@ -86,17 +86,19 @@ refreshClipToolbar();
 // Input test is an actual browser capture/level analyser, not a simulated
 // "live" meter. It never connects the microphone to the speakers or uploads
 // audio. Separate from the recorder to avoid changing existing capture code.
-let micTest=null;
+let micTest=null, micTestGeneration=0;
+
 const testButton=$('recordWorkspaceMicTest'),testOutput=$('recordWorkspaceInputDb'),testLevel=$('recordWorkspaceInputLevel');
 function stopInputTest(){
-  if(!micTest)return;
+  micTestGeneration++;
+  if(!micTest){if(testButton){testButton.textContent='Tester l’entrée';testButton.setAttribute('aria-pressed','false');}return;}
   const old=micTest;micTest=null;
   cancelAnimationFrame(old.frame);
   try{old.source.disconnect();old.analyser.disconnect();}catch{}
   old.stream.getTracks().forEach(t=>t.stop());
   old.context.close().catch(()=>{});
   if(testButton){testButton.textContent='Tester l’entrée';testButton.setAttribute('aria-pressed','false');}
-  if(testOutput)testOutput.textContent='— dBFS';
+  if(testOutput){testOutput.textContent='— dBFS';testOutput.classList.remove('input-clipping');}
   if(testLevel)testLevel.style.width='0%';
 }
 async function toggleInputTest(){
@@ -104,12 +106,17 @@ async function toggleInputTest(){
   if(!navigator.mediaDevices?.getUserMedia){if(testOutput)testOutput.textContent='Micro indisponible (HTTPS requis)';return;}
   if($('record')?.classList.contains('recording')){if(testOutput)testOutput.textContent='Arrêter la prise avant le test';return;}
   if(testButton)testButton.disabled=true;
+  const generation=++micTestGeneration;
   let stream,context;
   try{
-    stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
-    if(!document.body.classList.contains('record-workspace')||$('record')?.classList.contains('recording')){stream.getTracks().forEach(t=>t.stop());return;}
+    // Read the same saved device as the actual PCM recorder; fall back to default only if no device was selected.
+    const savedDevice=(()=>{try{return JSON.parse(localStorage.getItem('warlike.audio.setup')||'{}')?.deviceId||'';}catch{return '';}})();
+    const deviceId=savedDevice||document.querySelector('#inputDevice')?.value||'';
+    stream=await navigator.mediaDevices.getUserMedia({audio:{...(deviceId?{deviceId:{exact:deviceId}}:{}),echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    if(generation!==micTestGeneration||!document.body.classList.contains('record-workspace')||$('record')?.classList.contains('recording')){stream.getTracks().forEach(t=>t.stop());return;}
     context=new AudioContext();
     if(context.state==='suspended')await context.resume();
+    if(generation!==micTestGeneration){stream.getTracks().forEach(t=>t.stop());await context.close();return;}
     const source=context.createMediaStreamSource(stream),analyser=context.createAnalyser();
     analyser.fftSize=2048;source.connect(analyser);
     const samples=new Float32Array(analyser.fftSize);
@@ -121,7 +128,7 @@ async function toggleInputTest(){
       analyser.getFloatTimeDomainData(samples);
       let peak=0;for(const s of samples)peak=Math.max(peak,Math.abs(s));
       const db=peak>0?20*Math.log10(peak):-Infinity;
-      if(testOutput)testOutput.textContent=Number.isFinite(db)?db.toFixed(1)+' dBFS':'−∞ dBFS';
+      if(testOutput){testOutput.textContent=Number.isFinite(db)?db.toFixed(1)+' dBFS':'−∞ dBFS';testOutput.classList.toggle('input-clipping',db>=-0.5);}
       if(testLevel)testLevel.style.width=Math.min(100,Math.max(0,(db+60)/60*100))+'%';
       current.frame=requestAnimationFrame(measure);
     }
@@ -130,7 +137,7 @@ async function toggleInputTest(){
   }catch(error){
     stream?.getTracks().forEach(t=>t.stop());
     await context?.close().catch(()=>{});
-    if(testOutput)testOutput.textContent='Accès refusé : '+error.message;
+    if(testOutput)testOutput.textContent='Entrée indisponible : '+error.message;
   }finally{if(testButton)testButton.disabled=false;}
 }
 testButton?.addEventListener('click',toggleInputTest);
