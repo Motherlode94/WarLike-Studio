@@ -445,8 +445,7 @@ function showNativeChains(){
    if(currentTrack()?.id!==tr.id)throw Error('La piste sélectionnée a changé. Rouvre le menu.');
    const selected=$('nativeChainSelect').value,replace=$('nativeChainReplace').checked;
    if(!nativeChainCapacity(tr,selected,{replace}).valid)throw Error('Pas assez d’emplacements.');
-   applyNativeChain(tr,selected,{replace});
-   checkpoint();changed(true);$('modal').close();toast('Chaîne FX WarLike appliquée à '+tr.name+'.');
+   checkpoint();applyNativeChain(tr,selected,{replace});changed(true);$('modal').close();toast('Chaîne FX WarLike appliquée à '+tr.name+'.');
  }catch(error){toast(error.message);}};
 }
 function renderReaperImport(){
