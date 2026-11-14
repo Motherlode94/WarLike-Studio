@@ -47,3 +47,27 @@ export function createRecordingGraph(ctx,stream,gainDb=0) {
     dispose(){if(disposed)return;disposed=true;monitorGain.gain.value=0;monitorGain.disconnect();source.disconnect();gain.disconnect();analyser.disconnect();destination.disconnect();stream.getTracks().forEach(t=>t.stop());destination.stream.getTracks().forEach(t=>t.stop());}
   };
 }
+
+/** A shared stereo capture is the only clock for both mono tracks. */
+export function armedRecordingTracks(project) {
+  const armed=(project?.tracks||[]).filter(t=>t.type==='audio'&&t.recordArm===true);
+  if(armed.length>2)throw Error('Cette version accepte deux pistes armées maximum.');
+  const selected=new Set();
+  return armed.map(t=>{
+    const channel=t.recordInput==='2'?'2':'1';
+    if(selected.has(channel))throw Error('Affecte une entrée distincte à chaque piste armée (1 ou 2).');
+    selected.add(channel);
+    return {track:t,channel};
+  });
+}
+export function captureChannelMode(assignments,fallback='1') {
+  if(!assignments.length)return fallback;
+  return assignments.length>1?'stereo':assignments[0].channel;
+}
+export function extractRecordedChannel(ctx,buffer,channel) {
+  const index=channel==='2'?1:0;
+  if(index>=buffer.numberOfChannels)throw Error('Entrée audio '+channel+' indisponible dans la prise.');
+  const mono=ctx.createBuffer(1,buffer.length,buffer.sampleRate);
+  mono.getChannelData(0).set(buffer.getChannelData(index));
+  return mono;
+}
