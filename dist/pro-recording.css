@@ -36,7 +36,7 @@
 @media(max-width:700px){.record-workspace .studio-body{height:calc(100dvh - 230px)}.record-workspace-bar{gap:5px;padding:6px}.record-workspace-bar #recordWorkspaceTarget{width:100%;max-width:none}.record-workspace .track-row{height:88px!important;min-height:88px}.record-workspace .track-head{padding:4px}.record-workspace-bar button{padding:8px}}
 
 /* Mouse freedom: canvas art does not swallow clip gestures. */
-.record-workspace .clip canvas,.record-workspace .clip-name,.record-workspace .clip .fade-overlay{pointer-events:none}
+.record-workspace .clip canvas,.record-workspace .clip-name{pointer-events:none}
 .record-workspace .track-head button,.record-workspace .track-controls button,.record-workspace .track-strip-meta button{pointer-events:auto;position:relative;z-index:2}
 .record-workspace .clip{cursor:grab;touch-action:pan-y}
 .record-workspace .clip:active{cursor:grabbing}
