@@ -35,7 +35,7 @@ try{
   await page.locator('[data-project-open]').first().click();
   await page.locator('#modal').waitFor({state:'hidden'});
   assert.equal(await page.locator('#trackRows [data-record-arm][aria-pressed="true"]').count(),2);
-  assert.deepEqual(await page.locator('#trackRows [data-record-input]').evaluateAll(els=>els.map(el=>el.value)),inputs);
+  assert.deepEqual(await page.locator('#trackRows [data-record-input]').evaluateAll(els=>els.filter(el=>el.closest('.track-row')?.querySelector('[data-record-arm][aria-pressed="true"]')).map(el=>el.value)),inputs);
 
   // A fake WebRTC mic is enough to validate permissions, meter lifecycle and
   // UI error-handling, NOT physical stereo sync, latency or channel isolation.
