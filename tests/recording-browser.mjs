@@ -103,6 +103,29 @@ try{
   await page.reload({waitUntil:'load'});
   await page.locator('[data-project-open]').first().click();
   await page.locator('#modal').waitFor({state:'hidden'});
+  // Verify the disk-writer streaming path against the real IndexedDB journal.
+  const verified=await page.evaluate(async()=>{
+    const {listRecoverableRecordings}=await import('./recording-recovery.js');
+    const {exportRecoveryWav}=await import('./recording-wav-stream.js');
+    const items=await listRecoverableRecordings();
+    const chunks=[];
+    const result=await exportRecoveryWav(items.find(x=>x.projectName==='Recovery QA').id,{
+      writer:{async write(chunk){chunks.push(chunk);}}
+    });
+    const bytes=new Uint8Array(result.bytes);let offset=0;
+    for(const chunk of chunks){bytes.set(new Uint8Array(chunk),offset);offset+=chunk.byteLength;}
+    const view=new DataView(bytes.buffer);
+    return {length:bytes.length,channels:view.getUint16(22,true),
+      floatCode:view.getUint16(20,true),samples:view.getUint32(40,true),
+      sample:view.getFloat32(44+4,true)};
+  });
+  assert.equal(verified.length,68);
+  assert.equal(verified.channels,2);
+  assert.equal(verified.floatCode,3);
+  assert.equal(verified.samples,24);
+  assert.ok(Math.abs(verified.sample-.4)<.00001);
+  // Browser download fallback must remain available in CI headless mode.
+  await page.evaluate(()=>{Object.defineProperty(window,'showSaveFilePicker',{value:undefined,configurable:true});});
   await page.locator('#recordWorkspaceToggle').click();
   await page.locator('#recordWorkspaceRecover').click();
   await page.getByText('Recovery QA', {exact:false}).waitFor({state:'visible'});
