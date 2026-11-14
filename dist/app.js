@@ -1,6 +1,6 @@
 import {installedTrackChains,applyTrackChain} from './track-chain-extension.js';
 import {parseReaperRpp,matchReaperMedia,reaperBasename} from './reaper-rpp.js';
-import {NATIVE_CHAINS,nativeEffectsForNames,applyNativeChain} from './native-vocal-chains.js';
+import {NATIVE_CHAINS,nativeEffectsForNames,applyNativeChain,nativeChainCapacity} from './native-vocal-chains.js';
 import {beginStudioPairing,completeStudioPairing,createStudioSync} from './studio-cloud-workflow.js';
 import {workspaceAction,handleWorkspaceAction} from './workspace-shortcuts.js';
 import {installAnnotations} from './annotations.js?v=0.14.0';
@@ -422,11 +422,32 @@ function validateProject(p){
 let reaperSelection=null;
 function showNativeChains(){
  if(!activeProjectId)return toast('Ouvre un projet avant de charger des effets.');
+ const tr=currentTrack();
+ if(!tr)return toast('Sélectionne une piste.');
  const names=Object.entries(NATIVE_CHAINS).map(([key,chain])=>'<option value="'+key+'">'+esc(chain.name)+'</option>').join('');
- modal('Chaînes FX WarLike','<p class="modal-body-copy">Effets originaux de WarLike : fonctions comparables à celles des outils de mixage courants, mais aucun plugin tiers ni preset propriétaire n’est reproduit exactement.</p><label for="nativeChainSelect">Chaîne à ajouter sur la piste sélectionnée</label><select id="nativeChainSelect">'+names+'</select><p class="modal-body-copy" id="nativeChainInfo"></p><div class="modal-actions"><button class="outline-btn" id="nativeChainCancel">Annuler</button><button class="primary-btn" id="nativeChainApply">Ajouter les effets</button></div>','WARLIKE / FX NATIFS');
- const update=()=>{$('nativeChainInfo').textContent=NATIVE_CHAINS[$('nativeChainSelect').value].description;};update();$('nativeChainSelect').onchange=update;
+ modal('Chaînes FX WarLike','<p class="modal-body-copy">Effets originaux WarLike ; aucun preset ni algorithme propriétaire n’est copié. Les effets existants sont conservés sauf si tu choisis explicitement de les remplacer.</p>'+
+ '<label for="nativeChainSelect">Chaîne à ajouter sur '+esc(tr.name)+'</label><select id="nativeChainSelect">'+names+'</select>'+
+ '<p class="modal-body-copy" id="nativeChainInfo"></p>'+
+ '<label class="reaper-fx-checkbox"><input type="checkbox" id="nativeChainReplace"> Remplacer les inserts actuels de cette piste</label>'+
+ '<p class="modal-body-copy" id="nativeChainCapacity" role="status"></p>'+
+ '<div class="modal-actions"><button class="outline-btn" id="nativeChainCancel">Annuler</button><button class="primary-btn" id="nativeChainApply">Ajouter les effets</button></div>','WARLIKE / FX NATIFS');
+ const update=()=>{
+   const selected=$('nativeChainSelect').value,chain=NATIVE_CHAINS[selected],replace=$('nativeChainReplace').checked;
+   const info=nativeChainCapacity(tr,selected,{replace});
+   $('nativeChainInfo').textContent=chain.description;
+   $('nativeChainCapacity').textContent=info.required+' insert(s) nécessaires · '+info.available+' emplacement(s) disponibles.'+
+     (!info.valid?' Sélectionne une chaîne plus courte ou remplace les inserts existants.':'');
+   $('nativeChainApply').disabled=!info.valid;
+   $('nativeChainApply').textContent=replace?'Remplacer les effets':'Ajouter les effets';
+ };update();$('nativeChainSelect').onchange=update;$('nativeChainReplace').onchange=update;
  $('nativeChainCancel').onclick=()=>$('modal').close();
- $('nativeChainApply').onclick=()=>{try{const tr=currentTrack();if(!tr)throw Error('Sélectionne une piste.');checkpoint();applyNativeChain(tr,$('nativeChainSelect').value);changed(true);$('modal').close();toast('Chaîne FX WarLike ajoutée à '+tr.name+'.');}catch(error){toast(error.message);}};
+ $('nativeChainApply').onclick=()=>{try{
+   if(currentTrack()?.id!==tr.id)throw Error('La piste sélectionnée a changé. Rouvre le menu.');
+   const selected=$('nativeChainSelect').value,replace=$('nativeChainReplace').checked;
+   if(!nativeChainCapacity(tr,selected,{replace}).valid)throw Error('Pas assez d’emplacements.');
+   applyNativeChain(tr,selected,{replace});
+   checkpoint();changed(true);$('modal').close();toast('Chaîne FX WarLike appliquée à '+tr.name+'.');
+ }catch(error){toast(error.message);}};
 }
 function renderReaperImport(){
  if(!reaperSelection)return;
