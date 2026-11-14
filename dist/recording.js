@@ -31,19 +31,39 @@ export function createRecordingGraph(ctx,stream,gainDb=0) {
   // The microphone only feeds the recorder. There is no speaker connection.
   // An independent, attenuated monitor path protects the listener from the
   // recorder's adjustable digital gain. It is never part of captured PCM.
-  let monitorGain=null,monitoredTarget=null,disposed=false;
+  let monitorSplitter=null,monitorGains=[],disposed=false;
+  const stopMonitor=()=>{
+    for(const g of monitorGains){g.gain.value=0;g.disconnect();}
+    monitorGains=[];
+    if(monitorSplitter){
+      monitorSplitter.disconnect();
+      source.disconnect(monitorSplitter);
+      monitorSplitter=null;
+    }
+  };
+  const monitorMany=(routes,{levelDb=-18}={})=>{
+    if(disposed)throw Error('Monitoring indisponible : capture terminée.');
+    if(!Array.isArray(routes)||!routes.length||routes.length>2)throw Error('Monitoring : une ou deux pistes sont nécessaires.');
+    for(const route of routes)if(!route.target||typeof route.target.connect!=='function'||!['1','2'].includes(route.channel))throw Error('Routage du monitoring invalide.');
+    stopMonitor();
+    monitorSplitter=ctx.createChannelSplitter(2);
+    source.connect(monitorSplitter);
+    for(const route of routes){
+      const volume=ctx.createGain();volume.gain.value=0;
+      const amount=Number.isFinite(route.levelDb)?route.levelDb:levelDb;
+      const safeDb=Math.max(-36,Math.min(-6,Number.isFinite(amount)?amount:-18));
+      monitorSplitter.connect(volume,route.channel==='2'?1:0);
+      volume.connect(route.target);
+      volume.gain.setTargetAtTime(Math.pow(10,safeDb/20),ctx.currentTime,.02);
+      monitorGains.push(volume);
+    }
+  };
   return {stream:destination.stream,analyser,inputNode:gain,
-    monitor(target,{levelDb=-12}={}){
-      if(disposed||!target||typeof target.connect!=='function')throw Error('Monitoring indisponible.');
-      if(!monitorGain){monitorGain=ctx.createGain();monitorGain.gain.value=0;}
-      if(monitoredTarget){monitorGain.disconnect();source.disconnect(monitorGain);}
-      monitoredTarget=target;source.connect(monitorGain);monitorGain.connect(target);
-      const safeDb=Math.max(-36,Math.min(-6,Number.isFinite(levelDb)?levelDb:-12));
-      monitorGain.gain.setTargetAtTime(Math.pow(10,safeDb/20),ctx.currentTime,.02);
-    },
-    stopMonitor(){if(!monitorGain)return;monitorGain.gain.value=0;monitorGain.disconnect();if(monitoredTarget)source.disconnect(monitorGain);monitoredTarget=null;},
+    monitor(target,{levelDb=-18,channel='1'}={}){monitorMany([{target,levelDb,channel}]);},
+    monitorMany,
+    stopMonitor,
     setGain(db){gain.gain.setTargetAtTime(Math.pow(10,recordingSettings({gainDb:db}).gainDb/20),ctx.currentTime,.01);},
-    dispose(){if(disposed)return;disposed=true;if(monitorGain){monitorGain.gain.value=0;monitorGain.disconnect();}source.disconnect();gain.disconnect();analyser.disconnect();destination.disconnect();stream.getTracks().forEach(t=>t.stop());destination.stream.getTracks().forEach(t=>t.stop());}
+    dispose(){if(disposed)return;disposed=true;stopMonitor();source.disconnect();gain.disconnect();analyser.disconnect();destination.disconnect();stream.getTracks().forEach(t=>t.stop());destination.stream.getTracks().forEach(t=>t.stop());}
   };
 }
 
