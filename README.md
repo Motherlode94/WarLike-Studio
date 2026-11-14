@@ -1,5 +1,21 @@
 # Warlike Studio + CHAYAH Suite
 
+## Gestion locale des projets — branche de correction
+
+La branche `fix/project-library-isolation` introduit une bibliothèque de projets locaux avec identifiants distincts, création, ouverture, renommage, suppression et récupération volontaire de la session historique `current`. Au démarrage, Studio n'affiche plus automatiquement cette ancienne session. Les sauvegardes et versions sont rattachées à un identifiant de projet. La sauvegarde historique demeure intacte.
+
+**Sécurité : ce n'est pas encore une authentification multi-utilisateur.** IndexedDB est propre à l'origine et au profil du navigateur, et tous les projets locaux restent accessibles à quiconque utilise ce même profil. La séparation des comptes exige des sessions validées côté serveur via WarLike Keys, des contrôles d'autorisation pour chaque projet, et des médias privés sur WarLike Server. N'utilisez pas ce mode local sur un navigateur partagé pour des projets confidentiels.
+
+**Vérifications à réaliser avant fusion :**
+1. Créer A, ajouter une piste, enregistrer et recharger ; créer B et vérifier qu'il est vierge.
+2. Basculer A/B et vérifier les clips, effets, médias et versions indépendantes.
+3. Importer un ancien fichier `.chayah` : il doit devenir un nouveau projet, sans écraser A/B.
+4. Importer explicitement la session historique, puis vérifier que `current` existe toujours.
+5. Renommer et supprimer B, puis vérifier que A demeure intact.
+6. Tester la reconnexion, la fermeture d'onglet durant une sauvegarde et les projets avec fichiers audio volumineux.
+7. Exécuter `npm test`, `npm run check` et `npm run build`.
+
+
 Station de création musicale web de HardieBay. Version 0.14.0 : piano roll,
 Channel Rack et patterns liés, prises alternatives et comping, bus, envois,
 automation, analyse de loudness et exports multipistes.
