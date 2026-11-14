@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="./style.css?v=0.14.0">
   <link rel="stylesheet" href="./studio.css?v=0.14.2-project-home">
   <link rel="stylesheet" href="./android.css?v=0.14.1">
+  <link rel="stylesheet" href="./pro-recording.css?v=0.15.7">
 <style>
 .warlike-workspaces{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 14px;background:#181b20;border-bottom:1px solid #3b4548;color:#d5dedc}
 .warlike-workspaces button{border:1px solid #4c5d60;background:#252d32;color:#e4f3f1;border-radius:7px;padding:7px 11px;cursor:pointer;font:600 12px system-ui,sans-serif}
@@ -41,12 +42,20 @@
 
   <nav class="warlike-workspaces" aria-label="Accès rapide aux fenêtres musicales">
     <span class="ws-label">WORKSPACES</span>
+    <button type="button" id="recordWorkspaceToggle" aria-pressed="false" title="Afficher l’espace d’enregistrement inspiré des stations audio professionnelles">Recording</button>
     <button type="button" data-ws="playlist" title="Playlist — F5"><strong>F5</strong> Playlist</button>
     <button type="button" data-ws="rack" title="Channel Rack — F6"><strong>F6</strong> Channel Rack</button>
     <button type="button" data-ws="piano" title="Piano Roll — F7"><strong>F7</strong> Piano Roll</button>
     <button type="button" data-ws="mixer" title="Mixer — F9"><strong>F9</strong> Mixer</button>
     <span class="ws-hint" id="workspaceHint" aria-live="polite">Fenêtres synchronisées avec les pistes de la session</span>
   </nav>
+  <section id="recordWorkspaceBar" class="record-workspace-bar" aria-label="Barre d’enregistrement" hidden>
+    <span class="record-caption">RECORDING / EDIT</span><span id="recordWorkspaceTarget" aria-live="polite">Sélectionne une piste audio</span>
+    <button type="button" id="recordWorkspaceStart" disabled>● Enregistrer</button><button type="button" id="recordWorkspaceMic">Entrée / Monitoring</button><button type="button" id="recordWorkspaceMetronome">Clic</button><button type="button" id="recordWorkspaceEdit">Édition</button><button type="button" id="recordWorkspaceMix">Mix</button>
+    <button type="button" id="recordWorkspaceDuo" title="Préparer deux pistes audio avec entrées 1 et 2">Préparer 2 micros</button><button type="button" id="recordWorkspaceMicTest" aria-pressed="false">Tester l'entrée</button><span class="record-input-meter" aria-label="Niveau d'entrée micro"><span id="recordWorkspaceInputLevel"></span></span><output id="recordWorkspaceInputDb">— dBFS</output><output id="recordWorkspaceInput2Db" title="Niveau du second canal du même périphérique audio">IN 2 : —</output>
+    <div class="record-clip-actions" aria-label="Montage des clips"><button type="button" id="recordClipSelectTool">Sélection</button><button type="button" id="recordClipTrimTool">Rogner</button><button type="button" id="recordClipSplitTool">Couper</button><button type="button" id="recordClipDuplicate">Dupliquer</button><button type="button" id="recordClipDelete">Supprimer</button></div>
+    <span class="record-note">Ctrl+clic sélection multiple · clic central déplacement de la timeline · casque recommandé</span>
+  </section>
   <div class="studio-body">
     <aside class="library">
       <div class="session-sidebar"><div class="sidebar-tabs"><button id="showTrackList" class="selected">PISTES</button><button id="showSoundList">SONS</button></div><div id="sessionTrackList" class="session-track-list"></div><div class="sidebar-section-heading">CLIPS DE LA SESSION <span id="sessionClipCount"></span></div><div id="sessionClipList" class="session-clip-list"></div><div class="sidebar-session-info"><span>WARLIKE SESSION</span><strong id="sessionSummary">16 mesures · 9 pistes</strong><small>Audio local · export WAV</small></div></div>
@@ -93,5 +102,6 @@
   <section id="trackQuickControl" class="track-quick-control" role="dialog" aria-modal="false" aria-label="Fader de piste" hidden></section>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script type="module" src="./boot.js?v=0.15.3-public-demos"></script>
+  <script type="module" src="./pro-recording.js?v=0.15.7"></script>
 </body>
 </html>

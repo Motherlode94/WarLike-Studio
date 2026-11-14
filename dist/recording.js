@@ -29,9 +29,44 @@ export function createRecordingGraph(ctx,stream,gainDb=0) {
   analyser.fftSize=2048;destination.channelCount=1;
   source.connect(gain);gain.connect(analyser);analyser.connect(destination);
   // The microphone only feeds the recorder. There is no speaker connection.
-  let disposed=false;
-  return {stream:destination.stream,analyser,inputNode:gain,monitor(target){gain.connect(target);},
+  // An independent, attenuated monitor path protects the listener from the
+  // recorder's adjustable digital gain. It is never part of captured PCM.
+  let monitorGain=null,monitoredTarget=null,disposed=false;
+  return {stream:destination.stream,analyser,inputNode:gain,
+    monitor(target,{levelDb=-12}={}){
+      if(disposed||!target||typeof target.connect!=='function')throw Error('Monitoring indisponible.');
+      if(!monitorGain){monitorGain=ctx.createGain();monitorGain.gain.value=0;}
+      if(monitoredTarget){monitorGain.disconnect();source.disconnect(monitorGain);}
+      monitoredTarget=target;source.connect(monitorGain);monitorGain.connect(target);
+      const safeDb=Math.max(-36,Math.min(-6,Number.isFinite(levelDb)?levelDb:-12));
+      monitorGain.gain.setTargetAtTime(Math.pow(10,safeDb/20),ctx.currentTime,.02);
+    },
+    stopMonitor(){if(!monitorGain)return;monitorGain.gain.value=0;monitorGain.disconnect();if(monitoredTarget)source.disconnect(monitorGain);monitoredTarget=null;},
     setGain(db){gain.gain.setTargetAtTime(Math.pow(10,recordingSettings({gainDb:db}).gainDb/20),ctx.currentTime,.01);},
-    dispose(){if(disposed)return;disposed=true;source.disconnect();gain.disconnect();analyser.disconnect();destination.disconnect();stream.getTracks().forEach(t=>t.stop());destination.stream.getTracks().forEach(t=>t.stop());}
+    dispose(){if(disposed)return;disposed=true;if(monitorGain){monitorGain.gain.value=0;monitorGain.disconnect();}source.disconnect();gain.disconnect();analyser.disconnect();destination.disconnect();stream.getTracks().forEach(t=>t.stop());destination.stream.getTracks().forEach(t=>t.stop());}
   };
+}
+
+/** A shared stereo capture is the only clock for both mono tracks. */
+export function armedRecordingTracks(project) {
+  const armed=(project?.tracks||[]).filter(t=>t.type==='audio'&&t.recordArm===true);
+  if(armed.length>2)throw Error('Cette version accepte deux pistes armées maximum.');
+  const selected=new Set();
+  return armed.map(t=>{
+    const channel=t.recordInput==='2'?'2':'1';
+    if(selected.has(channel))throw Error('Affecte une entrée distincte à chaque piste armée (1 ou 2).');
+    selected.add(channel);
+    return {track:t,channel};
+  });
+}
+export function captureChannelMode(assignments,fallback='1') {
+  if(!assignments.length)return fallback;
+  return assignments.length>1?'stereo':assignments[0].channel;
+}
+export function extractRecordedChannel(ctx,buffer,channel) {
+  const index=channel==='2'?1:0;
+  if(index>=buffer.numberOfChannels)throw Error('Entrée audio '+channel+' indisponible dans la prise.');
+  const mono=ctx.createBuffer(1,buffer.length,buffer.sampleRate);
+  mono.getChannelData(0).set(buffer.getChannelData(index));
+  return mono;
 }
