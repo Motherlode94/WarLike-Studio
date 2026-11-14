@@ -18,13 +18,13 @@ if(startButton){
     ['latency','Latence mesurée par bouclage, puis vérifiée à l’écoute'],
     ['saved','Prises retrouvées après sauvegarde et rechargement du projet']
   ];
-  let start=0,elapsed=0,recorded=0,lastTime=0,lastRecording=false,refreshInterval=null,interruptions=0,telemetry=createRecordingTelemetrySummary();
+  let start=0,elapsed=0,recorded=0,lastTime=0,lastRecording=false,refreshInterval=null,interruptions=0,telemetry=createRecordingTelemetrySummary(),syncMeasurement=null,loopbackMeasurement=null;
   const el=(tag,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;return node;};
   function isRecording(){return document.getElementById('record')?.classList.contains('recording')===true;}
   function getAudioStatus(){return document.getElementById('audioStatus')?.textContent?.trim()||'inconnu';}
   function state(){
     const measured=telemetry.snapshot();
-    return {pcmEvidence:measured,startedAt:start?new Date(start).toISOString():null,endedAt:new Date().toISOString(),
+    return {pcmEvidence:measured,syncMeasurement,loopbackMeasurement,startedAt:start?new Date(start).toISOString():null,endedAt:new Date().toISOString(),
       elapsedSeconds:Math.floor(elapsed/1000),recordingSeconds:Math.floor(recorded/1000),
       targetMinutes:Number(article.querySelector('#validationTarget')?.value)||30,
       recordings:interruptions,checks:Object.fromEntries(checks.map(([key])=>[key,article.querySelector('[data-validation-check="'+key+'"]')?.checked||false])),
@@ -52,6 +52,10 @@ if(startButton){
         ', saturation '+ch.clippedFrames+' échant., silence max '+ch.longestSilenceSeconds.toFixed(1)+' s'
       ).join(' · '):'Signal PCM : aucune prise mesurée';
     }
+    const hardware=article.querySelector('#validationHardwareEvidence');
+    if(hardware)hardware.textContent='Sync IN 1/2 : '+(syncMeasurement?syncMeasurement.offsetMs.toFixed(2)+' ms (corr. '+syncMeasurement.correlation.toFixed(2)+')':'non mesurée')+
+      ' · Bouclage câblé : '+(loopbackMeasurement?loopbackMeasurement.latencyMs.toFixed(2)+' ms (variation '+loopbackMeasurement.spreadMs.toFixed(2)+' ms)':'non mesuré')+
+      ' · Latence casque à sens unique : non mesurée';
     const targetStatus=article.querySelector('#validationTargetStatus');
     if(targetStatus)targetStatus.textContent=measured.finalizedSeconds>=target*60?'Objectif d’échantillons sauvegardés atteint — vérifier les prises à l’écoute.':'Objectif de '+target+' minutes PCM sauvegardées non atteint.';
   }
@@ -84,6 +88,7 @@ if(startButton){
       const input=el('input');input.type='checkbox';input.dataset.validationCheck=key;
       line.append(input,document.createTextNode(' '+label));article.append(line);
     }
+    const live=el('p','Mesures matérielles : aucune.');live.id='validationHardwareEvidence';article.append(live);
     const note=el('p','Calibration : Recording → Entrée / Monitoring → Mesurer par bouclage. Utilise un câble ligne, coupe le monitoring pendant cette mesure et vérifie le résultat à l’écoute.');
     article.append(note);
     const controls=el('div');controls.className='recording-validation-actions';
@@ -91,10 +96,12 @@ if(startButton){
     const close=el('button','Fermer sans rapport');close.type='button';close.addEventListener('click',()=>dialog.close());
     controls.append(stop,close);article.append(controls);
   }
+  window.addEventListener('warlike:recording-sync-measurement',event=>{if(start&&dialog.open){syncMeasurement=event.detail;update();}});
+  window.addEventListener('warlike:recording-loopback-measurement',event=>{if(start&&dialog.open){loopbackMeasurement=event.detail;update();}});
   window.addEventListener(RECORDING_TELEMETRY_EVENT,event=>{if(start&&dialog.open){telemetry.add(event.detail);update();}});
   startButton.addEventListener('click',()=>{
     if(dialog.open)return;
-    elapsed=0;recorded=0;interruptions=0;lastRecording=false;telemetry=createRecordingTelemetrySummary();
+    elapsed=0;recorded=0;interruptions=0;lastRecording=false;telemetry=createRecordingTelemetrySummary();syncMeasurement=null;loopbackMeasurement=null;
     draw();start=Date.now();lastTime=start;dialog.show();
     refreshInterval=setInterval(update,1000);
   });
