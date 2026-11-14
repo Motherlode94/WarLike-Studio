@@ -69,3 +69,8 @@
 .record-workspace .track-controls{flex-wrap:wrap;gap:3px;justify-content:flex-start}
 .record-workspace .track-head:has(.track-record-arm.armed){border-left-color:#ee6872!important}
 @media(max-width:700px){.record-workspace [data-record-input]{max-width:49px;font-size:9px}.record-workspace .track-record-arm{min-width:26px;min-height:28px}}
+
+#recordWorkspaceInput2Db{font:11px ui-monospace,Consolas,monospace;color:#d3e5f2;min-width:112px}
+#recordWorkspaceInput2Db.input-clipping{color:#ff9d98;font-weight:700}
+#recordWorkspaceInput2Db.input-clipping::after{content:' CLIP';font-size:9px}
+#recordWorkspaceDuo{background:#405368;border-color:#8aafc8;font-weight:700}
