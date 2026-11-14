@@ -8,6 +8,13 @@ try {
  for(const id of ['play','stop','record','bpm','projectName','projectMenuBtn','sessionTrackList','exportWav']) {
   assert.ok(await page.locator('#'+id).count(),id+' must exist');
  }
+ // First launch must show a deliberate project choice instead of restoring 'current'.
+ await page.locator('#libraryNew').waitFor({state:'visible'});
+ assert.ok(await page.locator('#modal').isVisible(),'project library should open on first launch');
+ await page.locator('#libraryName').fill('QA Session A');
+ await page.locator('#libraryNew').click();
+ await page.locator('#modal').waitFor({state:'hidden'});
+ assert.equal(await page.locator('#projectName').inputValue(),'QA Session A');
  await page.locator('#fileMenuBtn').click();
  assert.equal(await page.locator('#fileMenuBtn').getAttribute('aria-expanded'),'true');
  assert.ok(await page.locator('#fileMenuBtn').locator('..').locator('[role="menu"]').isVisible());
@@ -54,6 +61,9 @@ try {
   assert.ok(await el.count(),'missing mobile control '+id);
   const rect=await el.boundingBox();assert.ok(rect&&rect.width>0&&rect.height>0,'hidden mobile control '+id);
  }
+ await mobile.locator('#libraryNew').waitFor({state:'visible'});
+ await mobile.locator('#libraryNew').click();
+ await mobile.locator('#modal').waitFor({state:'hidden'});
  await mobile.close();
  console.log('PASS: Studio desktop transport, project menu, tempo and mobile essentials');
 } finally { await browser.close(); }
