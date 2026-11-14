@@ -110,7 +110,7 @@ async function toggleInputTest(){
   let stream,context;
   try{
     // Read the same saved device as the actual PCM recorder; fall back to default only if no device was selected.
-    const savedDevice=(()=>{try{return JSON.parse(localStorage.getItem('warlike.audio.setup')||'{}')?.deviceId||'';}catch{return '';}})();
+    const savedDevice=bar?.dataset.deviceId||'';
     const deviceId=savedDevice||document.querySelector('#inputDevice')?.value||'';
     stream=await navigator.mediaDevices.getUserMedia({audio:{...(deviceId?{deviceId:{exact:deviceId}}:{}),echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
     if(generation!==micTestGeneration||!document.body.classList.contains('record-workspace')||$('record')?.classList.contains('recording')){stream.getTracks().forEach(t=>t.stop());return;}
