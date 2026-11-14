@@ -53,7 +53,7 @@ if(startButton){
       ).join(' · '):'Signal PCM : aucune prise mesurée';
     }
     const hardware=article.querySelector('#validationHardwareEvidence');
-    if(hardware)hardware.textContent='Sync IN 1/2 : '+(syncMeasurement?syncMeasurement.offsetMs.toFixed(2)+' ms (corr. '+syncMeasurement.correlation.toFixed(2)+')':'non mesurée')+
+    if(hardware)hardware.textContent='Sync IN 1/2 : '+(syncMeasurement?syncMeasurement.offsetMs.toFixed(2)+' ms (3 essais, variation '+(Number.isFinite(syncMeasurement.spreadMs)?syncMeasurement.spreadMs.toFixed(2):'—')+' ms, corr. '+syncMeasurement.correlation.toFixed(2)+')':'non mesurée')+
       ' · Bouclage câblé : '+(loopbackMeasurement?loopbackMeasurement.latencyMs.toFixed(2)+' ms (variation '+loopbackMeasurement.spreadMs.toFixed(2)+' ms)':'non mesuré')+
       ' · Latence casque à sens unique : non mesurée';
     const targetStatus=article.querySelector('#validationTargetStatus');
