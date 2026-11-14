@@ -6,6 +6,7 @@ import {MAX_BARS,fitSession,routeAllowed,addAuxSend,normaliseRouting,ensurePlayl
 import {EFFECTS,effectDefinition,effectType,ensurePlugins} from './plugins.js?v=0.14.0';
 import {normaliseCurve,putPoint,pointValue} from './automation.js?v=0.14.0';
 import {createPcmCapture,recordingPlacement} from './pcm-capture.js?v=0.14.0';
+import {emitRecordingTelemetry} from './recording-telemetry.js';
 import {beginRecordingJournal} from './recording-recovery.js';
 import {createRecordingGraph,recordingSettings,measureBuffer,normalisationGain,armedRecordingTracks,captureChannelMode,extractRecordedChannel,recordingInputConstraints,validateRecordingInputChannels} from './recording.js?v=0.14.0';
 import {encodeWav,zipFiles} from './wav.js?v=0.14.0';
@@ -118,10 +119,12 @@ export function installStudioWorkflow(d){
         })));
         d.toast('Retour casque logiciel actif : utilise impérativement un casque pour éviter les larsens.');
       }
-      const rec={stream,graph,capture,journal,track:targets[0].track,assignments:targets,start,previousLoop,options:clone(a),captureMode:mode,autoLevel:recordingSettings(p().recording).autoLevel};
+      const telemetryId=uid();
+      const rec={telemetryId,stream,graph,capture,journal,track:targets[0].track,assignments:targets,start,previousLoop,options:clone(a),captureMode:mode,autoLevel:recordingSettings(p().recording).autoLevel};
       activeRec=rec;d.setRecording(rec);d.setFlags({micPending:false});engine().recordingTrackId=targets[0].track.id;
       stream.getAudioTracks().forEach(inputTrack=>inputTrack.addEventListener('ended',()=>{if(d.getRecordState().recording===rec){d.toast('Micro déconnecté : finalisation et sauvegarde de la prise partielle.');void stopRecording();}},{once:true}));
       await engine().play();capture.start(engine().startTime+start*engine().stepDuration);
+      emitRecordingTelemetry('start',{takeId:telemetryId,frames:0,sampleRate:engine().ctx.sampleRate,channels:mode==='stereo'?2:1});
       rec.timer=setInterval(()=>{
         if(engine().getPosition()>p().bars*16-32&&p().bars<MAX_BARS){p().bars=fitSession(p().bars,p().bars+16);d.changed(true);}
         if(capture.frames===rec.previousFrames&&engine().playing){
@@ -132,6 +135,7 @@ export function installStudioWorkflow(d){
           }
         }else rec.stalledTicks=0;
         rec.previousFrames=capture.frames;
+        emitRecordingTelemetry('progress',{takeId:telemetryId,frames:capture.frames,sampleRate:engine().ctx.sampleRate});
         const seconds=capture.frames/engine().ctx.sampleRate;
         if(seconds>600&&!rec.warned10){rec.warned10=true;d.toast('Prise de 10 minutes : surveille la mémoire du navigateur et sauvegarde dès que possible.');}
         if(seconds>900&&!rec.warned15){rec.warned15=true;d.toast('Prise de 15 minutes : termine bientôt la prise et vérifie la sauvegarde.');}
@@ -150,6 +154,7 @@ export function installStudioWorkflow(d){
     engine().pause();engine().recordingTrackId=null;engine().loop=rec.previousLoop;engine().position=rec.start;d.updateTransport();
     try{
       const inMemory=await rec.capture.stop();
+      emitRecordingTelemetry('progress',{takeId:rec.telemetryId,frames:rec.capture.frames,sampleRate:engine().ctx.sampleRate});
       // Journal-backed capture never accumulates PCM blocks in JS memory.
       // A cursor reads the stored groups directly into the final AudioBuffer.
       // If this operation fails, retain the journal for recovery/export.
@@ -180,11 +185,13 @@ export function installStudioWorkflow(d){
       try{
         await d.persistNow();
         try{await rec.journal?.clear();}catch(error){console.warn('Journal de récupération conservé',error);}
+        emitRecordingTelemetry('finalized',{takeId:rec.telemetryId,frames:rec.capture.frames,sampleRate:engine().ctx.sampleRate});
         d.toast(prepared.length+' prise(s) PCM enregistrée(s) et sauvegardée(s) localement.');
       }catch(saveError){
+        emitRecordingTelemetry('error',{takeId:rec.telemetryId,message:'Sauvegarde locale : '+saveError.message});
         d.toast('Prise en mémoire, mais sauvegarde locale échouée : '+saveError.message+'. Exporte le projet avant de fermer.');
       }
-    }catch(error){d.toast('Capture impossible : '+error.message);}
+    }catch(error){emitRecordingTelemetry('error',{takeId:rec.telemetryId,message:error.message});d.toast('Capture impossible : '+error.message);}
     finally{rec.journal?.close();graphCleanup(rec);d.setFlags({recordFinalizing:false});d.updateTransport();}
   }
   function graphCleanup(rec){rec.graph.dispose();rec.stream.getTracks().forEach(t=>t.stop());}

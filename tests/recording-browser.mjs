@@ -141,6 +141,20 @@ try{
   await page.locator('#recordWorkspaceValidate').click();
   assert.equal(await page.locator('.recording-validation-dialog').getAttribute('open'),'');
   await page.locator('#validationTarget').selectOption('60');
+  await page.evaluate(()=>{
+    const emit=(type,frames)=>window.dispatchEvent(new CustomEvent('warlike:recording-telemetry',{
+      detail:{type,takeId:'qa-take',frames,sampleRate:48000,channels:2,at:Date.now()}
+    }));
+    emit('start',0);
+    emit('progress',48000);
+  });
+  assert.match(await page.locator('#validationPcmEvidence').innerText(),/PCM reçu : 1.0 s/);
+  assert.match(await page.locator('#validationPcmEvidence').innerText(),/PCM sauvegardé : 0.0 s/);
+  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('warlike:recording-telemetry',{
+    detail:{type:'finalized',takeId:'qa-take',frames:96000,sampleRate:48000,at:Date.now()}
+  })));
+  assert.match(await page.locator('#validationPcmEvidence').innerText(),/PCM sauvegardé : 2.0 s/);
+
   await page.locator('[data-validation-check="mic1"]').check();
   assert.equal(await page.locator('#recordWorkspaceStart').count(),1);
   const reportEvent=page.waitForEvent('download');
