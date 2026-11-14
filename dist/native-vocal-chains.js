@@ -7,25 +7,25 @@ import {effectDefinition,ensurePlugins,placeInsert,INSERT_COUNT} from './plugins
 
 export const NATIVE_CHAINS={
   tracking:{name:'Prise vocale propre',description:'Nettoyage, compression et de-esser pour l’enregistrement.',effects:[
-    {id:'voxclean',params:{}},{id:'voxlevel',params:{}},{id:'sibil',params:{}}
+    {id:'voxclean',params:{highpass:85,range:5,air:0}},{id:'voxlevel',params:{ratio:2.2,levelThreshold:-23,mix:.9}},{id:'sibil',params:{threshold:-26}}
   ]},
   tuning:{name:'Justesse vocale',description:'Correction monophonique native, contrôle vocal et égalisation.',effects:[
-    {id:'voxtune',params:{}},{id:'voxlevel',params:{}},{id:'vectoreq',params:{}}
+    {id:'voxtune',params:{speed:22,amount:.9}},{id:'voxlevel',params:{ratio:2.5}},{id:'vectoreq',params:{g2:-1,g4:1}}
   ]},
   modern:{name:'Voix moderne',description:'Chaîne polyvalente pour rap et chant : justesse, EQ, compression et ambiance.',effects:[
-    {id:'voxtune',params:{}},{id:'vectoreq',params:{}},{id:'vectorcomp',params:{}},{id:'sibil',params:{}},{id:'alterecho',params:{mix:.15}},{id:'exospace',params:{mix:.1}}
+    {id:'voxtune',params:{speed:10,amount:.95}},{id:'vectoreq',params:{g1:-2,g4:1.25,g5:1}},{id:'vectorcomp',params:{threshold:-22,ratio:3.5,attack:12,release:130}},{id:'sibil',params:{threshold:-25}},{id:'alterecho',params:{mix:.15,feedback:.26}},{id:'exospace',params:{mix:.1}}
   ]},
   mix:{name:'Mixage transparent',description:'Égalisation, compression et limitation du bus.',effects:[
-    {id:'vectoreq',params:{}},{id:'vectorcomp',params:{}},{id:'vectorlimit',params:{}}
+    {id:'vectoreq',params:{g1:-.75,g5:.5}},{id:'vectorcomp',params:{threshold:-18,ratio:2.5,mix:.8}},{id:'vectorlimit',params:{ceiling:-1}}
   ]},
   color:{name:'Couleur analogique',description:'Égalisation musicale, dynamique douce et saturation.',effects:[
-    {id:'circuiteq',params:{}},{id:'circuitbus',params:{}},{id:'circuitcolor',params:{}}
+    {id:'circuiteq',params:{body:-1,presence:1.5,air:.5}},{id:'circuitbus',params:{threshold:-17,ratio:2,attack:35,release:180}},{id:'circuitcolor',params:{drive:4,mix:.27}}
   ]},
   creative:{name:'Voix créative',description:'Doublage, écho et réverbération avec des algorithmes WarLike.',effects:[
-    {id:'alterdouble',params:{}},{id:'alterecho',params:{}},{id:'exospace',params:{}}
+    {id:'alterdouble',params:{mix:.36,depth:2.5}},{id:'alterecho',params:{mix:.22,feedback:.35}},{id:'exospace',params:{}}
   ]},
   master:{name:'Pré-master',description:'Traitement de précision avant export, pas un mastering automatique.',effects:[
-    {id:'vectoreq',params:{}},{id:'vectorcomp',params:{}},{id:'vectorlimit',params:{}}
+    {id:'vectoreq',params:{g1:-.5,g5:.5}},{id:'vectorcomp',params:{threshold:-14,ratio:1.5,attack:36,release:200,mix:1}},{id:'vectorlimit',params:{ceiling:-1,drive:.75}}
   ]}
 };
 /**
