@@ -37,6 +37,24 @@ try{
   assert.equal(await page.locator('#trackRows [data-record-arm][aria-pressed="true"]').count(),2);
   assert.deepEqual(await page.locator('#trackRows [data-record-input]').evaluateAll(els=>els.filter(el=>el.closest('.track-row')?.querySelector('[data-record-arm][aria-pressed="true"]')).map(el=>el.value)),inputs);
 
+  // Monitor-mix preferences must persist, but default remains off.
+  await page.locator('#recordWorkspaceMic').click();
+  await page.locator('#inputMonitorLevel').waitFor({state:'visible'});
+  assert.equal(await page.locator('#inputMonitor').isChecked(),false);
+  await page.locator('#inputMonitorLevel').fill('-24');
+  await page.locator('#inputMonitorLevel2').fill('-30');
+  await page.locator('#saveAudioSetup').click();
+  await page.locator('#modal').waitFor({state:'hidden'});
+  await page.locator('#saveStatus').getByText('Enregistré sur cet appareil').waitFor({state:'visible'});
+  await page.reload({waitUntil:'load'});
+  await page.locator('[data-project-open]').first().click();
+  await page.locator('#modal').waitFor({state:'hidden'});
+  await page.locator('#recordWorkspaceMic').click();
+  await page.locator('#inputMonitorLevel').waitFor({state:'visible'});
+  assert.equal(await page.locator('#inputMonitorLevel').inputValue(),'-24');
+  assert.equal(await page.locator('#inputMonitorLevel2').inputValue(),'-30');
+  await page.locator('#closeModal').click();
+
   // A fake WebRTC mic is enough to validate permissions, meter lifecycle and
   // UI error-handling, NOT physical stereo sync, latency or channel isolation.
   await page.locator('#recordWorkspaceMicTest').click();

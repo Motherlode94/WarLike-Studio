@@ -42,3 +42,34 @@ test('takes starting between grid lines play and export with the correct gain',(
   engine.scheduleStep({},engine.channels,4,1,false);assert.equal(calls.length,1);assert.equal(calls[0][3],1.0625);assert.equal(calls[0][7],12);
   engine.schedulePartialAudio(4.2);assert.equal(calls.length,2);assert.equal(calls[1][3],4.5*.125);
 });
+
+test('dual headphone monitor isolates each input, remains attenuated and disconnects on stop',()=>{
+ const connections=[],disconnections=[],gains=[];
+ const node=name=>({name,
+   connect(dest,output=0){connections.push([name,dest.name,output]);},
+   disconnect(dest){disconnections.push([name,dest?.name||'*']);},
+   gain:{value:0,setTargetAtTime(value){this.value=value;}}
+ });
+ const source=node('microphone'),analyser=node('analyser'),destination=node('record');
+ destination.stream={getTracks:()=>[]};
+ const stream={getTracks:()=>[]};
+ const ctx={currentTime:0,createMediaStreamSource:()=>source,
+   createGain:()=>{const item=node('gain'+gains.length);gains.push(item);return item;},
+   createAnalyser:()=>analyser,
+   createMediaStreamDestination:()=>destination,
+   createChannelSplitter:()=>node('splitter')
+ };
+ const graph=createRecordingGraph(ctx,stream,0);
+ const left=node('headphones-one'),right=node('headphones-two');
+ graph.monitorMany([{target:left,channel:'1',levelDb:-24},{target:right,channel:'2',levelDb:-18}]);
+ assert.ok(connections.some(c=>c[0]==='splitter'&&c[2]===0));
+ assert.ok(connections.some(c=>c[0]==='splitter'&&c[2]===1));
+ assert.ok(connections.some(c=>c[0]==='gain1'&&c[1]==='headphones-one'));
+ assert.ok(connections.some(c=>c[0]==='gain2'&&c[1]==='headphones-two'));
+ assert.ok(gains[1].gain.value<=dbGain(-6)&&gains[2].gain.value<=dbGain(-6));
+ graph.stopMonitor();
+ assert.ok(disconnections.some(c=>c[0]==='splitter'));
+ assert.equal(gains[1].gain.value,0);
+ assert.equal(gains[2].gain.value,0);
+ graph.dispose();
+});
