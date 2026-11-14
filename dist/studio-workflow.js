@@ -6,7 +6,7 @@ import {MAX_BARS,fitSession,routeAllowed,addAuxSend,normaliseRouting,ensurePlayl
 import {EFFECTS,effectDefinition,effectType,ensurePlugins} from './plugins.js?v=0.14.0';
 import {normaliseCurve,putPoint,pointValue} from './automation.js?v=0.14.0';
 import {createPcmCapture,recordingPlacement} from './pcm-capture.js?v=0.14.0';
-import {createRecordingGraph,recordingSettings,measureBuffer,normalisationGain} from './recording.js?v=0.14.0';
+import {createRecordingGraph,recordingSettings,measureBuffer,normalisationGain,armedRecordingTracks,captureChannelMode,extractRecordedChannel} from './recording.js?v=0.14.0';
 import {encodeWav,zipFiles} from './wav.js?v=0.14.0';
 const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),clone=v=>structuredClone(v),safe=s=>String(s).replace(/[^\p{L}\p{N}_-]/gu,'_').slice(0,70),uid=()=>Math.random().toString(36).slice(2,11);
 const SUPPORTED={color:['mix','output'],sculpt:['cutoff','highpass'],prism:['low','mid','high','lowFreq','midFreq','highFreq','q'],glue:['threshold','ratio','attack','release','makeup','knee','mix'],echo:['mix','feedback'],aura:['mix'],hush:['threshold'],sibil:['threshold','frequency'],ember:['mix','tone','output'],orbit:['rate','depth','width','mix'],sway:['rate','depth','pan','mix'],relay:['feedback','tone','mix']};
@@ -77,12 +77,76 @@ export function installStudioWorkflow(d){
     $('refreshInputs').onclick=async()=>{try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});stream.getTracks().forEach(t=>t.stop());p().audioSetup=collect();await recordingModal();}catch(error){d.toast('Entrée indisponible : '+error.message);}};
     $('calibrateAudio').onclick=async()=>{const button=$('calibrateAudio'),a=collect();button.disabled=true;let stream,graph,capture;try{await engine().init();stream=await navigator.mediaDevices.getUserMedia({audio:{...(a.deviceId?{deviceId:{exact:a.deviceId}}:{}),echoCancellation:false,noiseSuppression:false,autoGainControl:false}});graph=createRecordingGraph(engine().ctx,stream,0);capture=await createPcmCapture(engine().ctx,graph.inputNode,{channel:a.channel});const ctx=engine().ctx,start=ctx.currentTime+.1,pulse=ctx.createBuffer(1,Math.round(ctx.sampleRate*.02),ctx.sampleRate),data=pulse.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=.12*Math.sin(2*Math.PI*997*i/ctx.sampleRate)*Math.sin(Math.PI*i/data.length)**2;const source=ctx.createBufferSource();source.buffer=pulse;source.connect(ctx.destination);capture.start(start);source.start(start+.25);await new Promise(resolve=>setTimeout(resolve,1300));const buffer=await capture.stop(),signal=buffer.getChannelData(0);let best=0,position=0;for(let i=0;i<signal.length;i++)if(Math.abs(signal[i])>best){best=Math.abs(signal[i]);position=i;}if(best<.005)throw Error('Aucun retour détecté. Vérifie le câble et l’entrée.');const ms=(position/ctx.sampleRate-.25-.01)*1000;if(ms<0||ms>1000)throw Error('Mesure incohérente. Vérifie le routage de bouclage.');$('recordLatency').value=ms.toFixed(1);$('calibrationResult').textContent='Décalage estimé : '+ms.toFixed(1)+' ms. Applique les réglages pour l’utiliser.';}catch(error){d.toast(error.message);}finally{capture?.dispose();graph?.dispose();stream?.getTracks().forEach(t=>t.stop());if($('calibrateAudio'))$('calibrateAudio').disabled=false;}};
   }
-  async function record(){if(d.getRecordState().recording){await stopRecording();return;}if(d.getRecordState().recordFinalizing||d.getRecordState().micPending)return;let stream,graph,capture;d.setFlags({micPending:true});d.updateTransport();
-    try{stopTest();await engine().init();if(!navigator.mediaDevices?.getUserMedia||!engine().ctx.audioWorklet)throw Error('La capture PCM nécessite HTTPS et un navigateur compatible AudioWorklet.');const a=setup();stream=await navigator.mediaDevices.getUserMedia({audio:{...(a.deviceId?{deviceId:{exact:a.deviceId}}:{}),echoCancellation:false,noiseSuppression:false,autoGainControl:false}});let t=track();if(t.type!=='audio')t=d.addTrack('audio');engine().pause();engine().patternMode=null;engine().clipPreview=null;const start=engine().position,previousLoop=engine().loop;engine().loop=false;graph=createRecordingGraph(engine().ctx,stream,recordingSettings(p().recording).gainDb);capture=await createPcmCapture(engine().ctx,graph.inputNode,{channel:a.channel});if(a.monitor)graph.monitor(engine().channels.get(t.id).input);const rec={stream,graph,capture,track:t,start,previousLoop,options:clone(a),autoLevel:recordingSettings(p().recording).autoLevel};d.setRecording(rec);d.setFlags({micPending:false});engine().recordingTrackId=t.id;await engine().play();capture.start(engine().startTime+start*engine().stepDuration);rec.timer=setInterval(()=>{if(engine().getPosition()>p().bars*16-32&&p().bars<MAX_BARS){p().bars=fitSession(p().bars,p().bars+16);d.changed(true);}if(capture.frames/engine().ctx.sampleRate>1200){d.toast('Prise arrêtée après 20 minutes.');stopRecording();}},500);d.updateTransport();d.toast('Capture PCM active. Stop termine la prise.');
-    }catch(error){capture?.dispose();graph?.dispose();stream?.getTracks().forEach(t=>t.stop());engine().recordingTrackId=null;d.setRecording(null);d.setFlags({micPending:false,recordFinalizing:false});d.toast('Enregistrement impossible : '+error.message);d.updateTransport();}
+  // Both armed mono inputs are captured by a single stereo worklet on the
+  // same AudioContext clock. This avoids drift between independent recorders.
+  async function record(){
+    if(d.getRecordState().recording){await stopRecording();return;}
+    if(d.getRecordState().recordFinalizing||d.getRecordState().micPending)return;
+    let stream,graph,capture;
+    d.setFlags({micPending:true});d.updateTransport();
+    try{
+      stopTest();await engine().init();
+      if(!navigator.mediaDevices?.getUserMedia||!engine().ctx.audioWorklet)throw Error('La capture PCM nécessite HTTPS et AudioWorklet.');
+      const a=setup(),assignments=armedRecordingTracks(p());
+      const needsStereo=assignments.length>1||a.channel==='stereo';
+      stream=await navigator.mediaDevices.getUserMedia({audio:{...(a.deviceId?{deviceId:{exact:a.deviceId}}:{}),channelCount:{ideal:needsStereo?2:1},echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+      const channels=stream.getAudioTracks()[0]?.getSettings?.().channelCount;
+      if(assignments.length>1&&channels!==2)throw Error('Deux entrées matérielles accessibles sont nécessaires (interface stéréo 1–2).');
+      let t=track();if(!assignments.length&&t.type!=='audio')t=d.addTrack('audio');
+      const targets=assignments.length?assignments:[{track:t,channel:a.channel==='2'?'2':'1'}];
+      const mode=assignments.length?captureChannelMode(assignments):a.channel;
+      engine().pause();engine().patternMode=null;engine().clipPreview=null;
+      const start=engine().position,previousLoop=engine().loop;engine().loop=false;
+      graph=createRecordingGraph(engine().ctx,stream,recordingSettings(p().recording).gainDb);
+      capture=await createPcmCapture(engine().ctx,graph.inputNode,{channel:mode});
+      if(a.monitor){
+        // Only one monitor mix is used; hardware monitoring remains preferred.
+        graph.monitor(engine().channels.get(targets[0].track.id).input);
+      }
+      const rec={stream,graph,capture,track:targets[0].track,assignments:targets,start,previousLoop,options:clone(a),captureMode:mode,autoLevel:recordingSettings(p().recording).autoLevel};
+      d.setRecording(rec);d.setFlags({micPending:false});engine().recordingTrackId=targets[0].track.id;
+      await engine().play();capture.start(engine().startTime+start*engine().stepDuration);
+      rec.timer=setInterval(()=>{
+        if(engine().getPosition()>p().bars*16-32&&p().bars<MAX_BARS){p().bars=fitSession(p().bars,p().bars+16);d.changed(true);}
+        if(capture.frames/engine().ctx.sampleRate>1200){d.toast('Prise arrêtée après 20 minutes.');stopRecording();}
+      },500);
+      d.updateTransport();d.toast(targets.length>1?'Capture PCM synchronisée sur deux entrées.':'Capture PCM active. Stop termine la prise.');
+    }catch(error){
+      capture?.dispose();graph?.dispose();stream?.getTracks().forEach(t=>t.stop());
+      engine().recordingTrackId=null;d.setRecording(null);d.setFlags({micPending:false,recordFinalizing:false});
+      d.toast('Enregistrement impossible : '+error.message);d.updateTransport();
+    }
   }
-  async function stopRecording(){const rec=d.getRecordState().recording;if(!rec)return;d.setRecording(null);d.setFlags({recordFinalizing:true});clearInterval(rec.timer);engine().pause();engine().recordingTrackId=null;engine().loop=rec.previousLoop;engine().position=rec.start;d.updateTransport();
-    try{const buffer=await rec.capture.stop();graphCleanup(rec);const data=encodeWav(buffer,{bits:32}),levels=measureBuffer(buffer),gain=rec.autoLevel?normalisationGain(levels):{gainDb:0},name='Prise '+new Date().toLocaleTimeString('fr-FR'),id=uid(),placement=recordingPlacement(rec.start/16,buffer.duration,p().bpm,rec.options.latencyMs);if(placement.length<1/10000){d.toast('Prise trop courte.');return;}assets().set(id,{name,data,buffer,levels});d.checkpoint();const c={id:uid(),name,audioId:id,gainDb:gain.gainDb,recorded:true,...placement};recordTake(rec.track,c,p().bpm,uid,rec.options.keepTakes!==false);p().bars=fitSession(p().bars,c.start+c.length);d.selectTrack(rec.track.id,c.id);d.changed(true);d.toast('Prise PCM enregistrée · original avant effets conservé.');}catch(error){d.toast('Capture impossible : '+error.message);}finally{graphCleanup(rec);d.setFlags({recordFinalizing:false});d.updateTransport();}
+  async function stopRecording(){
+    const rec=d.getRecordState().recording;if(!rec)return;
+    d.setRecording(null);d.setFlags({recordFinalizing:true});clearInterval(rec.timer);
+    engine().pause();engine().recordingTrackId=null;engine().loop=rec.previousLoop;engine().position=rec.start;d.updateTransport();
+    try{
+      const fullBuffer=await rec.capture.stop();
+      const targets=rec.assignments||[{track:rec.track,channel:rec.options.channel}];
+      // Validate all assets before committing any take; the originals remain separate.
+      const prepared=targets.map(({track,channel})=>{
+        const buffer=rec.captureMode==='stereo'&&targets.length===1?fullBuffer:
+          rec.captureMode==='2'&&targets.length===1?fullBuffer:
+          extractRecordedChannel(engine().ctx,fullBuffer,targets.length===1?'1':channel);
+        const data=encodeWav(buffer,{bits:32}),levels=measureBuffer(buffer);
+        const gain=rec.autoLevel?normalisationGain(levels):{gainDb:0};
+        const name='Prise '+new Date().toLocaleTimeString('fr-FR')+' · '+track.name;
+        const placement=recordingPlacement(rec.start/16,buffer.duration,p().bpm,rec.options.latencyMs);
+        return {track,id:uid(),name,data,buffer,levels,gain,placement};
+      });
+      if(prepared.some(item=>item.placement.length<1/10000)){d.toast('Prise trop courte.');return;}
+      d.checkpoint();
+      for(const item of prepared){
+        assets().set(item.id,{name:item.name,data:item.data,buffer:item.buffer,levels:item.levels});
+        const c={id:uid(),name:item.name,audioId:item.id,gainDb:item.gain.gainDb,recorded:true,...item.placement};
+        recordTake(item.track,c,p().bpm,uid,rec.options.keepTakes!==false);
+        p().bars=fitSession(p().bars,c.start+c.length);
+      }
+      d.selectTrack(prepared[0].track.id);d.changed(true);
+      d.toast(prepared.length+' prise(s) PCM enregistrée(s) au même point de départ.');
+    }catch(error){d.toast('Capture impossible : '+error.message);}
+    finally{graphCleanup(rec);d.setFlags({recordFinalizing:false});d.updateTransport();}
   }
   function graphCleanup(rec){rec.graph.dispose();rec.stream.getTracks().forEach(t=>t.stop());}
   function stopTest(){testGraph?.dispose();testGraph=null;}
