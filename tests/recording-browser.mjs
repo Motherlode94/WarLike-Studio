@@ -45,6 +45,17 @@ try{
   assert.match(await page.locator('#recordWorkspaceInput2Db').innerText(),/IN 2/);
   await page.locator('#recordWorkspaceMicTest').click();
   assert.equal(await page.locator('#recordWorkspaceMicTest').getAttribute('aria-pressed'),'false');
+  // Fake capture may expose mono or stereo. Either way, the guided diagnostic
+  // must respond without a JS crash or claiming physical verification.
+  await page.locator('#recordWorkspaceMicDiagnostic').click();
+  await page.locator('#recordWorkspaceMicDiagnosticResult').waitFor({state:'visible'});
+  assert.ok((await page.locator('#recordWorkspaceMicDiagnosticResult').innerText()).length>10);
+  if(await page.locator('#recordWorkspaceMicDiagnostic').innerText()==='Étape suivante'){
+    await page.locator('#recordWorkspaceMicDiagnostic').click();
+    await page.locator('#recordWorkspaceMicDiagnostic').click();
+    assert.match(await page.locator('#recordWorkspaceMicDiagnosticResult').innerText(),/non confirmée|Signal insuffisant|Séparation des entrées/);
+  }
+
   await page.locator('#recordWorkspaceToggle').click();
   assert.equal(await page.locator('#recordWorkspaceBar').isHidden(),true);
 
