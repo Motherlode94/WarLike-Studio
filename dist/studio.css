@@ -145,3 +145,48 @@ dialog{background:#303747;border:1px solid #9883b2;color:#dce3f0;border-radius:5
 .project-home-footer{display:flex;flex-wrap:wrap;gap:9px;border-top:1px solid #4d536a;padding-top:16px}
 .project-home-footer button{padding:9px 12px;border-radius:6px}
 @media(max-width:640px){.project-home{width:min(100%,calc(100vw - 52px));gap:14px}.project-home-creation,.project-home-card{flex-direction:column;align-items:stretch}.project-home-card-actions{justify-content:flex-start}.project-home-card-actions button{flex:1}.project-home-footer button{flex:1}}
+
+
+/* Keep the project manager within its dialog, including on narrow desktops. */
+#modal:has(.project-home){
+  box-sizing:border-box;
+  width:min(760px,calc(100vw - 32px));
+  max-width:calc(100vw - 32px);
+  max-height:calc(100dvh - 32px);
+  overflow-x:hidden;
+}
+#modal:has(.project-home) #modalBody{box-sizing:border-box;width:100%;min-width:0;max-width:100%;overflow-x:hidden}
+#modal:has(.project-home) .modal-heading{min-width:0}
+#modal .project-home{
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  max-width:100%;
+  max-height:min(70dvh,690px);
+  overflow-x:hidden;
+  overflow-y:auto;
+  overflow-wrap:anywhere;
+}
+.project-home > *,
+.project-home .project-home-section,
+.project-home .project-home-form,
+.project-home .project-home-creation,
+.project-home .project-home-banner,
+.project-home .project-home-card{box-sizing:border-box;min-width:0;max-width:100%}
+.project-home .project-home-creation{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}
+.project-home .project-home-creation input{width:100%;min-width:0}
+.project-home .project-home-creation .primary-btn{max-width:100%;white-space:normal}
+.project-home .project-home-footer{min-width:0;max-width:100%}
+.project-home .project-home-footer button{white-space:normal;max-width:100%;overflow-wrap:anywhere}
+.project-home .project-home-banner p{overflow-wrap:anywhere}
+@media(max-width:640px){
+ #modal:has(.project-home){width:calc(100vw - 20px);max-width:calc(100vw - 20px);padding:14px}
+ #modal .project-home{max-height:calc(100dvh - 120px)}
+ .project-home .project-home-creation{grid-template-columns:minmax(0,1fr)}
+ .project-home .project-home-creation .primary-btn{width:100%}
+ .project-home .project-home-footer{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .project-home .project-home-footer button{min-width:0}
+}
+@media(max-width:420px){
+ .project-home .project-home-footer{grid-template-columns:minmax(0,1fr)}
+}
