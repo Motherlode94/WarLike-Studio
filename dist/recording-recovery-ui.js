@@ -1,5 +1,5 @@
-import {listRecoverableRecordings,readRecoverableRecording,discardRecoverableRecording} from './recording-recovery.js';
-import {encodeWav} from './wav.js?v=0.14.0';
+import {listRecoverableRecordings,discardRecoverableRecording} from './recording-recovery.js';
+import {exportRecoveryWav} from './recording-wav-stream.js';
 const button=document.getElementById('recordWorkspaceRecover');
 const dialog=document.createElement('dialog');
 dialog.className='recording-recovery-dialog';
@@ -15,11 +15,9 @@ function element(tag,text,className){
   if(className)el.className=className;
   return el;
 }
-function downloadWav(buffer,filename){
-  const data=encodeWav(buffer,{bits:32});
-  const url=URL.createObjectURL(new Blob([data],{type:'audio/wav'}));
-  const a=element('a');
-  a.href=url;a.download=filename;
+function downloadBlob(blob,filename){
+  const url=URL.createObjectURL(blob);
+  const a=element('a');a.href=url;a.download=filename;
   document.body.append(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
@@ -43,10 +41,25 @@ async function refresh(){
       exportButton.addEventListener('click',async()=>{
         if(busy)return;busy=true;exportButton.disabled=true;exportButton.textContent='Récupération…';
         try{
-          const recovered=await readRecoverableRecording(item.id);
-          downloadWav(recovered.buffer,'WarLike-prise-recuperee-'+item.createdAt+'.wav');
-          exportButton.textContent='WAV téléchargé';
-        }catch(error){exportButton.textContent='Échec : '+error.message;}
+          const filename='WarLike-prise-recuperee-'+item.createdAt+'.wav';
+          let writable=null;
+          if(typeof showSaveFilePicker==='function'){
+            const handle=await showSaveFilePicker({suggestedName:filename,types:[{description:'WAV audio',accept:{'audio/wav':['.wav']}}]});
+            writable=await handle.createWritable();
+          }
+          try{
+            const result=await exportRecoveryWav(item.id,{
+              writer:writable,
+              onProgress:({frames,totalFrames})=>{exportButton.textContent='Export '+Math.round(frames/totalFrames*100)+' %';}
+            });
+            if(writable)await writable.close();
+            else downloadBlob(result.blob,filename);
+            exportButton.textContent='WAV exporté ('+Math.round(result.bytes/1048576)+' Mo)';
+          }catch(error){
+            if(writable)try{await writable.abort();}catch{}
+            throw error;
+          }
+        }catch(error){exportButton.textContent=error?.name==='AbortError'?'Export annulé':'Échec : '+error.message;}
         finally{busy=false;exportButton.disabled=false;}
       });
       const deleteButton=element('button','Supprimer la sauvegarde');
