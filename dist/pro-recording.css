@@ -94,3 +94,16 @@
 .recording-recovery-panel button{min-height:40px;padding:8px 12px;border:1px solid #7091a3;border-radius:7px;color:#e6f5ff;background:#26435a;cursor:pointer}
 .recording-recovery-entry{display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:12px;border:1px solid #466374;border-radius:9px}
 .recording-recovery-entry span{font-size:12px;color:#b7cbd4}
+
+
+#recordWorkspaceValidate{background:#365146;border-color:#7fbaa3;font-weight:700}
+.recording-validation-dialog{position:fixed;inset:auto 12px 12px auto;margin:0;z-index:125;width:min(400px,calc(100vw - 24px));max-height:min(78dvh,650px);overflow:auto;background:#16272e;color:#e7f1ef;border:1px solid #82aeaf;border-radius:12px;box-shadow:0 12px 35px #0008}
+.recording-validation-body{display:flex;flex-direction:column;gap:10px;padding:16px;font:13px system-ui,sans-serif}
+.recording-validation-body h2{font-size:17px;margin:0}
+.recording-validation-body p{margin:0;color:#d3e2e6;line-height:1.45}
+.recording-validation-body select{padding:5px;background:#24404e;color:white;border:1px solid #6a9eab}
+.recording-validation-check{display:flex;gap:6px;align-items:flex-start;line-height:1.4}
+.recording-validation-check input{flex:none;margin-top:2px}
+.recording-validation-actions{display:flex;gap:7px;flex-wrap:wrap}
+.recording-validation-actions button{background:#315660;border:1px solid #8cb5af;color:white;border-radius:6px;padding:8px}
+@media(max-width:700px){.recording-validation-dialog{inset:auto 6px 6px 6px;width:calc(100vw - 12px);max-height:55dvh}}
