@@ -82,7 +82,7 @@ export function installStudioWorkflow(d){
   async function record(){
     if(d.getRecordState().recording){await stopRecording();return;}
     if(d.getRecordState().recordFinalizing||d.getRecordState().micPending)return;
-    let stream,graph,capture;
+    let stream,graph,capture,activeRec=null;
     d.setFlags({micPending:true});d.updateTransport();
     try{
       stopTest();await engine().init();
@@ -96,7 +96,7 @@ export function installStudioWorkflow(d){
       engine().pause();engine().patternMode=null;engine().clipPreview=null;
       const start=engine().position,previousLoop=engine().loop;engine().loop=false;
       graph=createRecordingGraph(engine().ctx,stream,recordingSettings(p().recording).gainDb);
-      capture=await createPcmCapture(engine().ctx,graph.inputNode,{channel:mode});
+      capture=await createPcmCapture(engine().ctx,graph.inputNode,{channel:mode,onError:error=>{if(activeRec&&d.getRecordState().recording===activeRec){d.toast(error.message+' · Finalisation de la prise partielle.');void stopRecording();}}});
       if(a.monitor){
         graph.monitorMany(targets.map(({track,channel})=>({
           target:engine().channels.get(track.id).input,
@@ -106,11 +106,23 @@ export function installStudioWorkflow(d){
         d.toast('Retour casque logiciel actif : utilise impérativement un casque pour éviter les larsens.');
       }
       const rec={stream,graph,capture,track:targets[0].track,assignments:targets,start,previousLoop,options:clone(a),captureMode:mode,autoLevel:recordingSettings(p().recording).autoLevel};
-      d.setRecording(rec);d.setFlags({micPending:false});engine().recordingTrackId=targets[0].track.id;
+      activeRec=rec;d.setRecording(rec);d.setFlags({micPending:false});engine().recordingTrackId=targets[0].track.id;
+      stream.getAudioTracks().forEach(inputTrack=>inputTrack.addEventListener('ended',()=>{if(d.getRecordState().recording===rec){d.toast('Micro déconnecté : finalisation et sauvegarde de la prise partielle.');void stopRecording();}},{once:true}));
       await engine().play();capture.start(engine().startTime+start*engine().stepDuration);
       rec.timer=setInterval(()=>{
         if(engine().getPosition()>p().bars*16-32&&p().bars<MAX_BARS){p().bars=fitSession(p().bars,p().bars+16);d.changed(true);}
-        if(capture.frames/engine().ctx.sampleRate>1200){d.toast('Prise arrêtée après 20 minutes.');stopRecording();}
+        if(capture.frames===rec.previousFrames&&engine().playing){
+          rec.stalledTicks=(rec.stalledTicks||0)+1;
+          if(rec.stalledTicks>=12){
+            d.toast('Capture sans nouvelles données : finalisation de la prise pour éviter de perdre le son.');
+            void stopRecording();return;
+          }
+        }else rec.stalledTicks=0;
+        rec.previousFrames=capture.frames;
+        const seconds=capture.frames/engine().ctx.sampleRate;
+        if(seconds>600&&!rec.warned10){rec.warned10=true;d.toast('Prise de 10 minutes : surveille la mémoire du navigateur et sauvegarde dès que possible.');}
+        if(seconds>900&&!rec.warned15){rec.warned15=true;d.toast('Prise de 15 minutes : termine bientôt la prise et vérifie la sauvegarde.');}
+        if(seconds>1200){d.toast('Prise arrêtée après 20 minutes.');void stopRecording();}
       },500);
       d.updateTransport();d.toast(targets.length>1?'Capture PCM synchronisée sur deux entrées.':'Capture PCM active. Stop termine la prise.');
     }catch(error){
