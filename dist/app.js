@@ -2,6 +2,7 @@ import {installedTrackChains,applyTrackChain} from './track-chain-extension.js';
 import {parseReaperRpp,matchReaperMedia,reaperBasename} from './reaper-rpp.js';
 import {NATIVE_CHAINS,nativeEffectsForNames,applyNativeChain,nativeChainCapacity} from './native-vocal-chains.js';
 import {beginStudioPairing,completeStudioPairing,createStudioSync} from './studio-cloud-workflow.js';
+import {readLocalProject,writeLocalProject} from './local-project-store.js';
 import {workspaceAction,handleWorkspaceAction} from './workspace-shortcuts.js';
 import {installAnnotations} from './annotations.js?v=0.14.0';
 import {fadeOverlay,installFadeHandles} from './clip-tools.js?v=0.14.0';
@@ -56,10 +57,10 @@ async function uploadActiveProject(){
  if(!activeProjectId)throw Error('Ouvre un projet local pour le synchroniser.');
  const cloud=getStudioCloud();studioCloudIdentity=await cloud.connect();
  await flushCurrent();
- const id=activeProjectId,meta=projectIndex.find(p=>p.id===id),state=await dbRead(projectKey(id));
+ const id=activeProjectId,meta=projectIndex.find(p=>p.id===id),state=await readLocalProject(db,id);
  if(!state)throw Error('Projet local introuvable.');
  if(meta?.cloudOwner&&meta.cloudOwner!==studioCloudIdentity.userId)throw Error('Ce projet est associé à un autre compte WarLike.');
- const result=await cloud.push({project:state.project,assets:state.assets||[],cloudId:meta?.cloudId,revision:meta?.cloudRevision,ownerId:meta?.cloudOwner,onCreated:created=>rememberCloudState(id,created)});
+ const result=await cloud.push({project:state.project,assets:state.assets||[],cloudId:meta?.cloudId,revision:meta?.cloudRevision,ownerId:meta?.cloudOwner,onCreated:created=>rememberCloudState(id,created),onProgress:progress=>cloudProgress(id,progress)});
  await rememberCloudState(id,result);toast('Projet sauvegardé dans ton cloud WarLike.');
 }
 async function listCloudProjects(){
@@ -72,11 +73,12 @@ async function listCloudProjects(){
   await rememberCloudState(id,remote);toast('Projet téléchargé depuis le cloud.');
  }catch(error){toast(error.message);b.disabled=false;}});
 }
+function cloudProgress(id,{name,part,total}){if(id===activeProjectId)$('saveStatus').textContent='Copie locale enregistrée · Cloud : '+name+' · '+part+'/'+total;}
 function scheduleAutoCloud(id,copy,media){
  const meta=projectIndex.find(p=>p.id===id);
  if(!studioCloudIdentity||!meta?.cloudId||meta.cloudOwner!==studioCloudIdentity.userId)return;
  const cloud=getStudioCloud();
- cloud.push({project:copy,assets:media,cloudId:meta.cloudId,revision:meta.cloudRevision,ownerId:meta.cloudOwner})
+ cloud.push({project:copy,assets:media,cloudId:meta.cloudId,revision:meta.cloudRevision,ownerId:meta.cloudOwner,onProgress:progress=>cloudProgress(id,progress)})
  .then(result=>rememberCloudState(id,result)).then(()=>{if(id===activeProjectId)$('saveStatus').textContent='Sauvegardé sur cet appareil et dans le cloud';})
  .catch(error=>{if(id===activeProjectId)$('saveStatus').textContent='Cloud non synchronisé — copie locale conservée';console.warn('Cloud sync',error.message);});
 }
@@ -90,10 +92,10 @@ const dbWrite=(k,v)=>new Promise((ok,fail)=>{const t=db.transaction('sessions','
 async function chooseProject(id){return exclusive(async()=>{
   if(recording||recordFinalizing||micPending)throw Error('Termine la prise en cours.');
   await flushCurrent();
-  const state=await dbRead(projectKey(id));if(!state)throw Error('Projet absent.');
+  const state=await readLocalProject(db,id);if(!state)throw Error('Projet absent.');
   const next=clone(state.project);validateProject(next);
   const media=new Map(),context=new AudioContext();try{for(const a of state.assets||[])media.set(a.id,{...a,buffer:await context.decodeAudioData(a.data.slice(0))});}finally{await context.close();}
-  engine.resetSession();project=next;assets=media;activeProjectId=id;engine.masterVolume=state.masterVolume??0;selectedTrack=next.tracks[0].id;selectedClip=next.tracks[0].clips[0]?.id;history=[];future=[];closePluginWindow();render();updateUndo();$('modal').close();
+  engine.resetSession();project=next;assets=media;activeProjectId=id;engine.masterVolume=state.masterVolume??0;selectedTrack=next.tracks[0].id;selectedClip=next.tracks[0].clips[0]?.id;history=[];future=[];closePluginWindow();render();updateUndo();$('saveStatus').textContent='Enregistré sur cet appareil';$('modal').close();
 });}
 async function createProjectLocal(name='Nouveau morceau',source=null,media=[]){
   if(recording||recordFinalizing||micPending)throw Error('Termine la prise en cours.');
@@ -101,7 +103,7 @@ async function createProjectLocal(name='Nouveau morceau',source=null,media=[]){
   const next=source?clone(source):emptyProject();next.name=name.slice(0,60);
   const id=crypto.randomUUID(),now=Date.now();
   const nextIndex=[{id,name:next.name,createdAt:now,updatedAt:now},...projectIndex];
-  await new Promise((resolve,reject)=>{const tx=db.transaction('sessions','readwrite'),store=tx.objectStore('sessions');store.put({project:next,masterVolume:0,assets:media},projectKey(id));store.put(nextIndex,'project-index');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Transaction annulée'));});
+  await writeLocalProject(db,id,{project:next,masterVolume:0,assets:media},nextIndex);
   projectIndex=nextIndex;await chooseProject(id);return id;
 }
 function showProjectLibrary(){
@@ -145,12 +147,7 @@ async function persist(){
  const media=[...assets].map(([assetId,a])=>({id:assetId,name:a.name,data:a.data}));
  const job=saveQueue.catch(()=>{}).then(async()=>{
    const index=projectIndex.map(item=>item.id===id?{...item,name:copy.name,updatedAt:Date.now()}:item);
-   await new Promise((resolve,reject)=>{
-    const tx=db.transaction('sessions','readwrite'),store=tx.objectStore('sessions');
-    store.put({project:copy,masterVolume:volume,assets:media},projectKey(id));
-    store.put(index,'project-index');
-    tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Transaction annulée'));
-   });
+   await writeLocalProject(db,id,{project:copy,masterVolume:volume,assets:media},index);
    projectIndex=index;
    if(activeProjectId===id){try{await workflow.snapshot();}catch(error){console.warn('Historique non sauvegardé',error);}if(activeProjectId===id)$('saveStatus').textContent='Enregistré sur cet appareil';}
    scheduleAutoCloud(id,copy,media);
@@ -502,7 +499,7 @@ async function beginReaperImport(files){
  }catch(error){toast('Projet REAPER non reconnu : '+error.message);}
 }
 let openingProject=false;
-async function openProject(file){if(!file)return;if(openingProject)return toast('Un projet est déjà en cours de chargement.');if(recording||recordFinalizing||micPending)return toast('Termine la prise avant d’ouvrir un projet.');openingProject=true;try{const data=JSON.parse(await file.text());if(data.format!=='chayah-studio')throw new Error('Ce fichier n’est pas un projet Warlike Studio.');validateProject(data.project);if(data.assets!==undefined&&!Array.isArray(data.assets))throw new Error('Liste des fichiers audio invalide.');const media=data.assets||[],ids=new Set();for(const a of media){if(!a||typeof a.id!=='string'||ids.has(a.id))throw new Error('Identifiant audio invalide ou dupliqué.');ids.add(a.id);}const missing=[...audioAssetIds(data.project)].filter(id=>!ids.has(id));if(missing.length)throw new Error(missing.length+' fichier(s) audio manque(nt) dans ce projet. La session actuelle est conservée.');await engine.init();const decoded=new Map();for(const a of media){if(typeof a.id!=='string'||typeof a.name!=='string'||typeof a.data!=='string')throw new Error('Audio invalide.');const raw=fromBase64(a.data),buffer=await engine.ctx.decodeAudioData(raw.slice(0));decoded.set(a.id,{name:a.name,data:raw,buffer});}if(recording||recordFinalizing||micPending)throw new Error('Une prise a démarré pendant le chargement. Termine-la puis réessaie.');await flushCurrent();const id=crypto.randomUUID(),now=Date.now();const importedAssets=media.map(a=>({id:a.id,name:a.name,data:decoded.get(a.id).data})),index=[{id,name:data.project.name,createdAt:now,updatedAt:now},...projectIndex];await new Promise((resolve,reject)=>{const tx=db.transaction('sessions','readwrite'),store=tx.objectStore('sessions');store.put({project:clone(data.project),masterVolume:Number.isFinite(data.masterVolume)?data.masterVolume:0,assets:importedAssets},projectKey(id));store.put(index,'project-index');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Transaction annulée'));});projectIndex=index;await chooseProject(id);toast('Projet importé et sauvegardé.');}catch(e){toast('Ouverture impossible : '+e.message);}finally{openingProject=false;}}
+async function openProject(file){if(!file)return;if(openingProject)return toast('Un projet est déjà en cours de chargement.');if(recording||recordFinalizing||micPending)return toast('Termine la prise avant d’ouvrir un projet.');openingProject=true;try{const data=JSON.parse(await file.text());if(data.format!=='chayah-studio')throw new Error('Ce fichier n’est pas un projet Warlike Studio.');validateProject(data.project);if(data.assets!==undefined&&!Array.isArray(data.assets))throw new Error('Liste des fichiers audio invalide.');const media=data.assets||[],ids=new Set();for(const a of media){if(!a||typeof a.id!=='string'||ids.has(a.id))throw new Error('Identifiant audio invalide ou dupliqué.');ids.add(a.id);}const missing=[...audioAssetIds(data.project)].filter(id=>!ids.has(id));if(missing.length)throw new Error(missing.length+' fichier(s) audio manque(nt) dans ce projet. La session actuelle est conservée.');await engine.init();const decoded=new Map();for(const a of media){if(typeof a.id!=='string'||typeof a.name!=='string'||typeof a.data!=='string')throw new Error('Audio invalide.');const raw=fromBase64(a.data),buffer=await engine.ctx.decodeAudioData(raw.slice(0));decoded.set(a.id,{name:a.name,data:raw,buffer});}if(recording||recordFinalizing||micPending)throw new Error('Une prise a démarré pendant le chargement. Termine-la puis réessaie.');await flushCurrent();const id=crypto.randomUUID(),now=Date.now();const importedAssets=media.map(a=>({id:a.id,name:a.name,data:decoded.get(a.id).data})),index=[{id,name:data.project.name,createdAt:now,updatedAt:now},...projectIndex];await writeLocalProject(db,id,{project:clone(data.project),masterVolume:Number.isFinite(data.masterVolume)?data.masterVolume:0,assets:importedAssets},index);projectIndex=index;await chooseProject(id);toast('Projet importé et sauvegardé.');}catch(e){toast('Ouverture impossible : '+e.message);}finally{openingProject=false;}}
 async function exportWav(){if(recording){toast('Termine la prise avant d’exporter.');return;}if(project.tracks.some(t=>t.clips.some(c=>c.audioId&&!assets.has(c.audioId)))){toast('Un fichier audio est manquant. Réimporte-le avant l’export.');return;}const btn=$('exportWav');btn.disabled=true;btn.innerHTML=icon('wave')+' Rendu du mix…';try{const wav=await engine.exportWav();download(wav,safeName()+'.wav','audio/wav');toast('Mix exporté · WAV stéréo 44,1 kHz / 16 bits.');}catch(e){toast('Export impossible : '+e.message);}finally{btn.disabled=false;btn.innerHTML=icon('download')+' Exporter <span>WAV</span>';}}
 
 // Main navigation and project controls.

@@ -1,5 +1,15 @@
 # Warlike Studio + CHAYAH Suite
 
+## 0.15.1 — longues prises et sauvegardes locales
+
+- Sources WAV PCM/flottantes jusqu’à 512 Mio envoyées par morceaux WAV privés de 12 Mio maximum, sans réencodage. Au téléchargement, le fichier d’origine est reconstitué octet pour octet. Les petits WAV/MP3/OGG restent compatibles avec le format cloud précédent.
+- Reprise des morceaux terminés après une panne réseau dans le même onglet ; une fermeture d’onglet ne conserve pas encore cette progression partielle. Les gros médias compressés, WAV extensibles et RF64 restent exclus de la segmentation.
+- Les audios locaux sont enregistrés une fois sous des clés propres au projet. Les changements de notes, volume, tempo et inserts ne réécrivent plus les sources audio déjà stockées. Les anciens projets sont lus tels quels et migrés dans une transaction lors de leur prochaine sauvegarde. Les versions utilisent les mêmes sources.
+- Les protections des chaînes FX de la PR #11 sont intégrées : validation et ajout atomiques, conservation des inserts occupés et instances indépendantes.
+- Le badge et le pied de page affichent la même version. Les états de synchronisation distinguent sauvegarde locale, envoi des morceaux et succès cloud.
+
+Validation : `npm test`, `npm run check`, `npm run build` ; `tests/storage-browser.html` vérifie dans un vrai IndexedDB la migration, l’absence de réécriture audio, l’isolation des projets, le refus atomique et un WAV segmenté décodé par Web Audio. Le parcours authentifié sur deux appareils physiques et l’écoute de vrais projets REAPER restent à effectuer.
+
 ## Gestion locale des projets — branche de correction
 
 La branche `fix/project-library-isolation` introduit une bibliothèque de projets locaux avec identifiants distincts, création, ouverture, renommage, suppression et récupération volontaire de la session historique `current`. Au démarrage, Studio n'affiche plus automatiquement cette ancienne session. Les sauvegardes et versions sont rattachées à un identifiant de projet. La sauvegarde historique demeure intacte.
@@ -16,7 +26,7 @@ La branche `fix/project-library-isolation` introduit une bibliothèque de projet
 7. Exécuter `npm test`, `npm run check` et `npm run build`.
 
 
-Station de création musicale web de HardieBay. Version 0.14.0 : piano roll,
+Station de création musicale web de HardieBay. Version 0.15.1 : piano roll,
 Channel Rack et patterns liés, prises alternatives et comping, bus, envois,
 automation, analyse de loudness et exports multipistes.
 FL Studio guide la composition ; Pro Tools et Reaper guident les workflows
@@ -27,8 +37,7 @@ marque CHAYAH Suite et les projets existants restent compatibles.
 
 Une session vide et ses nouvelles pistes n’ont aucun effet inséré. Les modules
 se choisissent dans les inserts ; seules les sessions démo préparent une chaîne.
-Les sections numérotées ci-dessous décrivent l’historique : la section 0.14
-et `docs/verification-0.14.md` décrivent les capacités et limites actuelles.
+Les sections numérotées décrivent l’historique ; la section 0.15.1 et les documents de synchronisation précisent les derniers changements et leurs limites.
 
 ## Créer un morceau
 

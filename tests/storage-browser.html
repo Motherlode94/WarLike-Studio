@@ -1,0 +1,53 @@
+<!doctype html><meta charset="utf-8"><title>Studio — vérification des sauvegardes</title>
+<style>body{background:#20251f;color:#e2ddc9;font:16px system-ui;padding:32px}button{padding:12px}pre{white-space:pre-wrap}</style>
+<h1>Vérification des sauvegardes Studio</h1><p>Base de test isolée. Aucun projet musical existant n’est modifié.</p>
+<button id="run">Vérifier les sauvegardes</button><pre id="results">Prêt.</pre>
+<script type="module">
+// CI/local QA copies this page into dist/_storage-qa.html temporarily.
+import {writeLocalProject,readLocalProject} from './local-project-store.js';
+import {planWavParts,restoreWavParts,WAV_PARTS_KIND} from './cloud-wav-parts.js';
+import {encodeWav} from './wav.js';
+const output=document.querySelector('#results'),assert=(value,message)=>{if(!value)throw Error(message);},equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+document.querySelector('#run').onclick=async()=>{
+ const name='warlike-storage-qa-'+crypto.randomUUID();let db;
+ output.textContent='';document.querySelector('#run').disabled=true;
+ try{
+  db=await new Promise((resolve,reject)=>{const r=indexedDB.open(name,1);r.onupgradeneeded=()=>r.result.createObjectStore('sessions');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
+  const put=(key,value)=>new Promise((resolve,reject)=>{const tx=db.transaction('sessions','readwrite');tx.objectStore('sessions').put(value,key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});
+  const get=key=>new Promise((resolve,reject)=>{const r=db.transaction('sessions').objectStore('sessions').get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
+  const asset={id:'voice',name:'Voix.wav',data:new Uint8Array([1,2,3,4]).buffer},project={name:'Ancienne session',tracks:[],bpm:120},index=[{id:'old',name:project.name}];
+  await put('project:old',{project,masterVolume:-2,assets:[asset]});
+  let restored=await readLocalProject(db,'old');assert(equal([...new Uint8Array(restored.assets[0].data)],[1,2,3,4]),'lecture ancien format');
+  output.textContent+='PASS ancien projet : audio conservé\n';
+  await writeLocalProject(db,'old',restored,index);
+  const record=await get('project:old');assert(record.mediaVersion===2&&!('data' in record.assets[0]),'métadonnées sans copie audio');
+  restored=await readLocalProject(db,'old');assert(restored.masterVolume===-2&&equal([...new Uint8Array(restored.assets[0].data)],[1,2,3,4]),'migration fidèle');
+  output.textContent+='PASS migration : réglages et audio identiques\n';
+  // Count binary writes to prove that a mix-only update avoids rewriting media.
+  const originalPut=IDBObjectStore.prototype.put;let binaryWrites=0;
+  IDBObjectStore.prototype.put=function(value,...args){if(value?.data instanceof ArrayBuffer)binaryWrites++;return originalPut.call(this,value,...args);};
+  try{restored.project.bpm=117;await writeLocalProject(db,'old',restored,index);}finally{IDBObjectStore.prototype.put=originalPut;}
+  assert(binaryWrites===0,'audio réécrit pendant une modification de tempo');
+  output.textContent+='PASS changement de mix : zéro réécriture audio\n';
+  await writeLocalProject(db,'other',{project:{name:'Autre projet',tracks:[]},assets:[{...asset,data:new Uint8Array([9,8]).buffer}]},index);
+  assert(equal([...new Uint8Array((await readLocalProject(db,'old')).assets[0].data)],[1,2,3,4]),'isolation des projets');
+  assert(equal([...new Uint8Array((await readLocalProject(db,'other')).assets[0].data)],[9,8]),'audio autre projet');
+  output.textContent+='PASS deux projets : sources indépendantes\n';
+  let failed=false;try{await writeLocalProject(db,'old',{project:{name:'Ne doit pas être écrit',tracks:[]},assets:[{id:'bad',data:null}]},[]);}catch{failed=true;}
+  assert(failed&&(await readLocalProject(db,'old')).project.bpm===117,'écriture invalide non atomique');
+  output.textContent+='PASS écriture refusée : sauvegarde précédente intacte\n';
+  await put('project:broken',{mediaVersion:2,project,assets:[{id:'missing',name:'Absent.wav'}]});
+  failed=false;try{await readLocalProject(db,'broken');}catch(error){failed=/manquant/.test(error.message);}
+  assert(failed,'audio manquant non signalé');output.textContent+='PASS média absent : erreur explicite\n';
+  // Real browser WAV decode after a lossless multi-part round trip.
+  const signal=Float32Array.from({length:48000},(_,i)=>Math.sin(i*.03)*.3),wav=encodeWav({numberOfChannels:2,length:signal.length,sampleRate:48000,getChannelData:()=>signal},{bits:32});
+  const plan=planWavParts(wav,{limit:65536}),parts=[...plan.parts()],ids=parts.map(()=>crypto.randomUUID()),manifest={kind:WAV_PARTS_KIND,size:wav.byteLength,dataSize:plan.dataSize,parts:ids};
+  const joined=await restoreWavParts(manifest,async id=>parts[ids.indexOf(id)]);
+  assert(equal([...new Uint8Array(joined)],[...new Uint8Array(wav)]),'WAV modifié');
+  const context=new OfflineAudioContext(2,48000,48000),decoded=await context.decodeAudioData(joined.slice(0));
+  assert(decoded.numberOfChannels===2&&decoded.length===48000,'WAV reconstitué illisible');
+  output.textContent+='PASS WAV segmenté : octets identiques et décodage stéréo réel\n';
+  output.textContent+='TOUS LES CONTRÔLES SAUVEGARDES ONT RÉUSSI';
+ }catch(error){output.textContent+='FAIL '+error.stack;}finally{db?.close();indexedDB.deleteDatabase(name);document.querySelector('#run').disabled=false;}
+};
+</script>

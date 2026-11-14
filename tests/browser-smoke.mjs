@@ -139,5 +139,9 @@ try {
  await mobile.locator('#libraryNew').click();
  await mobile.locator('#modal').waitFor({state:'hidden'});
  await mobile.close();
+ await page.goto('http://127.0.0.1:8765/_storage-qa.html',{waitUntil:'load'});
+ await page.locator('#run').click();
+ await page.waitForFunction(()=>/TOUS LES CONTRÔLES|FAIL/.test(document.querySelector('#results').textContent));
+ assert.match(await page.locator('#results').textContent(),/TOUS LES CONTRÔLES SAUVEGARDES ONT RÉUSSI/);
  console.log('PASS: Studio desktop transport, project menu, tempo and mobile essentials');
 } finally { await browser.close(); }

@@ -24,6 +24,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Browser boot and mobile control regression
         run: |
+          cp tests/storage-browser.html dist/_storage-qa.html
           cd dist
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/warlike-studio-http.log 2>&1 &
           cd ..
