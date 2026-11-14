@@ -29,9 +29,21 @@ export function createRecordingGraph(ctx,stream,gainDb=0) {
   analyser.fftSize=2048;destination.channelCount=1;
   source.connect(gain);gain.connect(analyser);analyser.connect(destination);
   // The microphone only feeds the recorder. There is no speaker connection.
-  let disposed=false;
-  return {stream:destination.stream,analyser,inputNode:gain,monitor(target){gain.connect(target);},
+  // An independent, attenuated monitor path protects the listener from the
+  // recorder's adjustable digital gain. It is never part of captured PCM.
+  const monitorGain=ctx.createGain();monitorGain.gain.value=0;
+  gain.connect(monitorGain);
+  let monitoredTarget=null,disposed=false;
+  return {stream:destination.stream,analyser,inputNode:gain,
+    monitor(target,{levelDb=-12}={}){
+      if(disposed||!target||typeof target.connect!=='function')throw Error('Monitoring indisponible.');
+      if(monitoredTarget)monitorGain.disconnect();
+      monitoredTarget=target;monitorGain.connect(target);
+      const safeDb=Math.max(-36,Math.min(-6,Number.isFinite(levelDb)?levelDb:-12));
+      monitorGain.gain.setTargetAtTime(Math.pow(10,safeDb/20),ctx.currentTime,.02);
+    },
+    stopMonitor(){monitorGain.gain.setValueAtTime(0,ctx.currentTime);monitorGain.disconnect();monitoredTarget=null;},
     setGain(db){gain.gain.setTargetAtTime(Math.pow(10,recordingSettings({gainDb:db}).gainDb/20),ctx.currentTime,.01);},
-    dispose(){if(disposed)return;disposed=true;source.disconnect();gain.disconnect();analyser.disconnect();destination.disconnect();stream.getTracks().forEach(t=>t.stop());destination.stream.getTracks().forEach(t=>t.stop());}
+    dispose(){if(disposed)return;disposed=true;monitorGain.gain.value=0;monitorGain.disconnect();source.disconnect();gain.disconnect();analyser.disconnect();destination.disconnect();stream.getTracks().forEach(t=>t.stop());destination.stream.getTracks().forEach(t=>t.stop());}
   };
 }
