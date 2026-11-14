@@ -55,24 +55,47 @@ export function nativeEffectsForNames(names=[]){
    seen.add(item.replacement);return true;
  });
 }
+/**
+ * Add a chain as one atomic track update: malformed/oversized chains must
+ * leave the active recording/mix untouched. Preserve existing insert order,
+ * including empty slots between currently loaded processors.
+ */
+export function nativeChainCapacity(track,selection,{replace=false}={}){
+ const chain=typeof selection==='string'?NATIVE_CHAINS[selection]?.effects:selection;
+ if(!Array.isArray(chain)||!chain.length)return {required:0,available:0,valid:false};
+ const inserts=Array.isArray(track?.inserts)?track.inserts:[];
+ const available=replace?INSERT_COUNT:INSERT_COUNT-inserts.filter(Boolean).length;
+ return {required:chain.length,available,valid:chain.length<=available&&chain.every(item=>item&&effectDefinition(item.id))};
+}
 export function applyNativeChain(track,selection,{replace=false}={}){
- ensurePlugins(track);
  const chain=typeof selection==='string'?NATIVE_CHAINS[selection]?.effects:selection;
  if(!Array.isArray(chain)||!chain.length)throw new Error('Chaîne native inconnue.');
- const existing=(replace?[]:track.inserts.filter(Boolean));
- if(existing.length+chain.length>INSERT_COUNT)throw new Error('Pas assez d’emplacements disponibles pour cette chaîne.');
- if(replace){for(const id of track.inserts.filter(Boolean))if(track.effects[id])track.effects[id].enabled=false;track.inserts.fill(null);}
- let index=replace?0:track.inserts.findIndex(id=>id===null);
+ if(!track||typeof track!=='object')throw new Error('Piste invalide.');
+ const capacity=nativeChainCapacity(track,chain,{replace});
+ if(chain.some(item=>!item||!effectDefinition(item.id)))throw new Error('Cette chaîne contient un effet indisponible.');
+ if(!capacity.valid)throw new Error('Pas assez d’emplacements disponibles pour cette chaîne ('+capacity.required+' requis, '+capacity.available+' libres).');
+ // Prepare a complete copy, then commit only if all processors and values pass.
+ const draft=structuredClone(track);
+ ensurePlugins(draft);
+ if(replace){
+   for(const effectId of draft.inserts.filter(Boolean))if(draft.effects[effectId])draft.effects[effectId].enabled=false;
+   draft.inserts.fill(null);
+ }
  for(const item of chain){
-   if(!effectDefinition(item.id))throw new Error('Effet WarLike non disponible : '+item.id);
-   const inserted=placeInsert(track,index,item.id);
-   const state=track.effects[inserted];
+   const index=draft.inserts.indexOf(null);
+   if(index<0)throw new Error('Pas assez d’emplacements disponibles.');
+   const inserted=placeInsert(draft,index,item.id);
+   const state=draft.effects[inserted];
+   const definition=effectDefinition(item.id);
    for(const [key,value] of Object.entries(item.params||{})){
-     const def=effectDefinition(item.id).controls.find(x=>x.key===key);
-     if(def&&Number.isFinite(value))state[key]=Math.max(def.min,Math.min(def.max,value));
+     const def=definition.controls.find(x=>x.key===key);
+     if(!def||!Number.isFinite(value))throw new Error('Paramètre FX non valide : '+item.id+'.'+key);
+     state[key]=Math.max(def.min,Math.min(def.max,value));
    }
    state.enabled=true;
-   index=track.inserts.findIndex((id,i)=>i>index&&id===null);
  }
+ track.inserts=draft.inserts;
+ track.effects=draft.effects;
+ if(draft.pluginComparisons)track.pluginComparisons=draft.pluginComparisons;
  return track;
 }

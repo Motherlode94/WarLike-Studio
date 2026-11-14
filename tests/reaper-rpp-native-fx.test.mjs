@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {parseReaperRpp,matchReaperMedia,reaperBasename} from '../dist/reaper-rpp.js';
-import {NATIVE_CHAINS,suggestNativeReplacement,nativeEffectsForNames,applyNativeChain} from '../dist/native-vocal-chains.js';
+import {NATIVE_CHAINS,suggestNativeReplacement,nativeEffectsForNames,applyNativeChain,nativeChainCapacity} from '../dist/native-vocal-chains.js';
 
 const sample=`<REAPER_PROJECT 0.1 "7.5" 1700000000
   TEMPO 100 4 4
@@ -87,4 +87,34 @@ test('native chains add working effect definitions to real track state',()=>{
  assert.ok(tr.inserts.includes('vectorcomp'));
  assert.equal(tr.effects.voxtune.enabled,true);
  assert.ok(tr.inserts.filter(Boolean).length>=5);
+});
+
+test('native chains preserve existing inserts, fill gaps and retain audio clips',()=>{
+ const tr={id:'track1',name:'Voice',type:'audio',clips:[{id:'clip1',start:0,length:4}],inserts:['glue',null,'echo',...Array(9).fill(null)],effects:{}};
+ applyNativeChain(tr,'tracking');
+ assert.equal(tr.inserts[0],'glue');
+ assert.equal(tr.inserts[2],'echo');
+ assert.equal(tr.inserts[1],'voxclean');
+ assert.deepEqual(tr.clips,[{id:'clip1',start:0,length:4}]);
+});
+test('FX chain capacity and invalid preset parameters never partially mutate an existing mix',()=>{
+ const tr={id:'track2',name:'Master',type:'bus',clips:[],inserts:Array(12).fill('glue'),effects:{glue:{enabled:true}}};
+ const previous=structuredClone(tr);
+ assert.deepEqual(nativeChainCapacity(tr,'modern'),{required:6,available:0,valid:false});
+ assert.throws(()=>applyNativeChain(tr,'modern'),/Pas assez/);
+ assert.deepEqual(tr,previous);
+ assert.throws(()=>applyNativeChain(tr,[{id:'glue',params:{threshold:-20}},{id:'vectoreq',params:{notAParameter:3}}],{replace:true}),/Paramètre FX non valide/);
+ assert.deepEqual(tr,previous);
+ applyNativeChain(tr,'master',{replace:true});
+ assert.ok(tr.inserts.includes('vectorlimit'));
+ assert.equal(tr.inserts.filter(Boolean).length,3);
+});
+test('repeated native inserts create distinct instances without overwriting their settings',()=>{
+ const tr={id:'track3',name:'Voice',type:'audio',clips:[]};
+ applyNativeChain(tr,[{id:'vectorcomp',params:{ratio:2}},{id:'vectorcomp',params:{ratio:5}}]);
+ const active=tr.inserts.filter(Boolean);
+ assert.equal(active.length,2);
+ assert.notEqual(active[0],active[1]);
+ assert.equal(tr.effects[active[0]].ratio,2);
+ assert.equal(tr.effects[active[1]].ratio,5);
 });
