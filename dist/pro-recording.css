@@ -1,0 +1,36 @@
+/* Recording workspace: Pro Tools-inspired, not a clone of its trade dress. */
+.record-workspace .studio-body{height:calc(100dvh - 193px);min-height:360px}
+.record-workspace .library{width:0;min-width:0;border:0;visibility:hidden;overflow:hidden}
+.record-workspace .detail-panel{display:none!important}
+.record-workspace .workspace-main{min-width:0}
+.record-workspace .track-inspector{width:210px;min-width:210px}
+.record-workspace .workspace-toolbar{background:#28313b}
+.record-workspace .edit-selection-bar{background:#202b35;border-bottom:1px solid #526173}
+.record-workspace .track-row{height:100px!important;min-height:100px}
+.record-workspace .track-head{background:#303b48!important;padding:7px 9px;border-bottom:1px solid #19242d;gap:5px;align-items:flex-start}
+.record-workspace .track-row:nth-child(even) .track-head{background:#2b3642!important}
+.record-workspace .track-row.selected .track-head{background:#4a5063!important;box-shadow:inset 0 0 0 1px #a6c6de}
+.record-workspace .track-lane{background-color:#1c2733;background-image:linear-gradient(#ffffff06 1px,transparent 1px);background-size:100% 25%}
+.record-workspace .track-row:nth-child(even) .track-lane{background-color:#222e3b}
+.record-workspace .clip{border:1px solid #a6d0d8;border-radius:3px;background:#416478}
+.record-workspace .track-select:focus-visible,.record-workspace button:focus-visible{outline:2px solid #c4e6ff;outline-offset:2px}
+.record-workspace .transport{background:linear-gradient(#374656,#26323e)}
+.record-workspace #record{border-color:#e58c8c}
+.record-workspace .track-mini-meter{min-height:5px}
+.record-workspace #timelineScroll{scrollbar-width:auto}
+.record-workspace .track-title{font-size:12px}
+.record-workspace .track-subtitle{font-size:10px}
+.record-workspace #studioEditbar{border-color:#617387}
+.record-workspace #recordWorkspaceToggle{background:#6b3743;color:#ffe6e6;border-color:#bc6470}
+#recordWorkspaceToggle[aria-pressed="true"]{background:#ad5364;color:white;border-color:#e9a0ac}
+.record-workspace-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 13px;background:#232e3a;color:#e1ebf6;border-bottom:1px solid #617588;font:12px system-ui,sans-serif}
+.record-workspace-bar[hidden]{display:none!important}
+.record-workspace-bar .record-caption{font-weight:700;letter-spacing:.12em;color:#a6c8e1;font-size:10px;margin-right:3px}
+.record-workspace-bar #recordWorkspaceTarget{margin-right:auto;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#d9e5ec}
+.record-workspace-bar button{background:#394959;border:1px solid #62778c;border-radius:4px;padding:7px 10px;color:#eff5fc;cursor:pointer;min-height:33px}
+.record-workspace-bar button:hover{background:#52657a}
+.record-workspace-bar button:disabled{opacity:.45;cursor:not-allowed}
+.record-workspace-bar #recordWorkspaceStart{background:#9f4353;border-color:#d17684;font-weight:700}
+.record-workspace-bar .record-note{font-size:10px;color:#9db2c3}
+@media(max-width:950px){.record-workspace .track-inspector{display:none}.record-workspace-bar .record-note{display:none}}
+@media(max-width:700px){.record-workspace .studio-body{height:calc(100dvh - 230px)}.record-workspace-bar{gap:5px;padding:6px}.record-workspace-bar #recordWorkspaceTarget{width:100%;max-width:none}.record-workspace .track-row{height:88px!important;min-height:88px}.record-workspace .track-head{padding:4px}.record-workspace-bar button{padding:8px}}
