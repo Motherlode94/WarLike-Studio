@@ -40,3 +40,22 @@ test('network outage remains an explicit error, not a fake success',async()=>{
  const c=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async()=>{throw Error('offline')}});
  await assert.rejects(c.listProjects(),e=>e.code==='NETWORK');
 });
+
+test('private audio upload includes session credentials but no owner ID',async()=>{
+ let seen;
+ const c=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async(url,options)=>{seen={url,options};return response({id});}});
+ const file=new Blob(['RIFFfakeWAVE'],{type:'audio/wav'});
+ const reply=await c.uploadAsset(id,file);
+ assert.equal(reply.id,id);
+ assert.equal(seen.options.credentials,'include');
+ assert.equal(seen.options.method,'POST');
+ assert.equal(seen.options.headers['Content-Type'],undefined);
+ assert.equal(seen.url,'https://example.test/api/studio/projects/'+id+'/assets');
+});
+test('private audio download returns binary and rejects unauthorized access',async()=>{
+ const c=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async(_url,options)=>({ok:true,status:200,arrayBuffer:async()=>new Uint8Array([1,2,3]).buffer})});
+ const bytes=await c.downloadAsset(id,id);
+ assert.equal(new Uint8Array(bytes).length,3);
+ const denied=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async()=>response({code:'DENIED'},403)});
+ await assert.rejects(denied.downloadAsset(id,id),e=>e.status===403);
+});
