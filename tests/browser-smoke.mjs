@@ -14,6 +14,23 @@ try {
  assert.ok(await page.locator('#libraryImport').isVisible(),'portable project import is available');
  assert.ok(await page.locator('.project-home-banner').isVisible(),'local storage warning is shown');
  assert.ok(await page.locator('#modal').isVisible(),'project library should open on first launch');
+ // Project-home UI must never exceed the dialog or viewport (especially cloud actions).
+ for(const width of [1104,768,390]){
+   await page.setViewportSize({width,height:900});
+   const bounds=await page.evaluate(()=>{
+     const dialog=document.querySelector('#modal'),body=document.querySelector('.project-home');
+     const input=document.querySelector('#libraryName'),button=document.querySelector('#libraryNew');
+     const cloud=document.querySelector('#studioCloudSave');
+     const d=dialog.getBoundingClientRect(),b=body.getBoundingClientRect();
+     const a=[input,button,cloud].map(el=>el.getBoundingClientRect());
+     return {vw:innerWidth,dialog:[d.left,d.right],body:[b.left,b.right],elements:a.map(x=>[x.left,x.right]),scroll:body.scrollWidth,client:body.clientWidth};
+   });
+   assert.ok(bounds.dialog[0]>=-1&&bounds.dialog[1]<=width+1,'dialog exceeds viewport '+width+': '+JSON.stringify(bounds));
+   assert.ok(bounds.body[0]>=bounds.dialog[0]-1&&bounds.body[1]<=bounds.dialog[1]+1,'project home exceeds dialog '+width);
+   assert.ok(bounds.scroll<=bounds.client+2,'horizontal scrolling in project home '+width+': '+JSON.stringify(bounds));
+   for(const [left,right] of bounds.elements)assert.ok(left>=bounds.dialog[0]-1&&right<=bounds.dialog[1]+1,'project action clipped '+width);
+ }
+ await page.setViewportSize({width:1440,height:900});
  await page.locator('#libraryName').fill('QA Session A');
  await page.locator('#libraryNew').click();
  await page.locator('#modal').waitFor({state:'hidden'});
