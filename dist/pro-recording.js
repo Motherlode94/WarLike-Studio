@@ -92,11 +92,12 @@ refreshClipToolbar();
 // Input test is an actual browser capture/level analyser, not a simulated
 // "live" meter. It never connects the microphone to the speakers or uploads
 // audio. Separate from the recorder to avoid changing existing capture code.
-let micTest=null, micTestGeneration=0;
+let micTest=null, micTestGeneration=0, micDiagnostic=null;
 
 const testButton=$('recordWorkspaceMicTest'),testOutput=$('recordWorkspaceInputDb'),testLevel=$('recordWorkspaceInputLevel'),testOutput2=$('recordWorkspaceInput2Db');
 function stopInputTest(){
   micTestGeneration++;
+  if(micDiagnostic){micDiagnostic=null;updateMicDiagnostic();}
   if(!micTest){if(testButton){testButton.textContent='Tester l’entrée';testButton.setAttribute('aria-pressed','false');}return;}
   const old=micTest;micTest=null;
   cancelAnimationFrame(old.frame);
@@ -108,7 +109,7 @@ function stopInputTest(){
   if(testLevel)testLevel.style.width='0%';
   if(testOutput2){testOutput2.textContent='IN 2 : —';testOutput2.classList.remove('input-clipping');}
 }
-async function toggleInputTest(){
+async function toggleInputTest(forceStereo=false){
   if(micTest){stopInputTest();return;}
   if(!navigator.mediaDevices?.getUserMedia){if(testOutput)testOutput.textContent='Micro indisponible (HTTPS requis)';return;}
   if($('record')?.classList.contains('recording')){if(testOutput)testOutput.textContent='Arrêter la prise avant le test';return;}
@@ -122,7 +123,7 @@ async function toggleInputTest(){
     const channel=bar?.dataset.channel||'1';
     const armed=[...document.querySelectorAll('#trackRows [data-record-arm][aria-pressed="true"]')]
       .map(button=>({channel:document.querySelector('[data-record-input="'+button.dataset.recordArm+'"]')?.value||'1'}));
-    stream=await navigator.mediaDevices.getUserMedia(recordingInputConstraints({deviceId,channel},armed));
+    stream=await navigator.mediaDevices.getUserMedia(recordingInputConstraints({deviceId,channel:forceStereo?'stereo':channel},armed));
     if(generation!==micTestGeneration||!document.body.classList.contains('record-workspace')||$('record')?.classList.contains('recording')){stream.getTracks().forEach(t=>t.stop());return;}
     context=new AudioContext();
     if(context.state==='suspended')await context.resume();
@@ -133,7 +134,7 @@ async function toggleInputTest(){
     source.connect(splitter);splitter.connect(analyser,0);splitter.connect(analyser2,1);
     const samples=new Float32Array(analyser.fftSize),samples2=new Float32Array(analyser2.fftSize);
     const channels=stream.getAudioTracks()[0]?.getSettings?.().channelCount||1;
-    const current=micTest={stream,context,source,splitter,analyser,analyser2,frame:0};
+    const current=micTest={stream,context,source,splitter,analyser,analyser2,channels,frame:0};
     testButton.textContent='Arrêter test micro';testButton.setAttribute('aria-pressed','true');
     function measure(){
       if(micTest!==current)return;
@@ -151,6 +152,11 @@ async function toggleInputTest(){
           testOutput2.classList.toggle('input-clipping',db2>=-.5);
         }
       }
+      if(micDiagnostic&&micTest===current&&channels>=2){
+        const second=(()=>{analyser2.getFloatTimeDomainData(samples2);let level=0;for(const value of samples2)level=Math.max(level,Math.abs(value));return level;})();
+        const sample=[peak,second];const store=micDiagnostic.results[micDiagnostic.stage];
+        store[0]=Math.max(store[0],sample[0]);store[1]=Math.max(store[1],sample[1]);
+      }
       if(testOutput){testOutput.textContent=Number.isFinite(db)?db.toFixed(1)+' dBFS':'−∞ dBFS';testOutput.classList.toggle('input-clipping',db>=-0.5);}
       if(testLevel)testLevel.style.width=Math.min(100,Math.max(0,(db+60)/60*100))+'%';
       current.frame=requestAnimationFrame(measure);
@@ -163,7 +169,40 @@ async function toggleInputTest(){
     if(testOutput)testOutput.textContent='Entrée indisponible : '+error.message;
   }finally{if(testButton)testButton.disabled=false;}
 }
-testButton?.addEventListener('click',toggleInputTest);
+testButton?.addEventListener('click',()=>toggleInputTest(false));
+const diagnosticButton=$('recordWorkspaceMicDiagnostic'),diagnosticResult=$('recordWorkspaceMicDiagnosticResult');
+function updateMicDiagnostic(){
+  if(diagnosticButton)diagnosticButton.textContent=micDiagnostic?'Étape suivante':'Diagnostic 2 micros';
+  if(!micDiagnostic)return;
+  if(diagnosticResult)diagnosticResult.textContent=micDiagnostic.stage===0?
+    'Étape 1/2 : parle uniquement dans le micro branché sur IN 1, puis clique « Étape suivante ».':
+    'Étape 2/2 : parle uniquement dans le micro branché sur IN 2, puis clique « Étape suivante ».';
+}
+function diagnosticSummary(results){
+  const valid=(i)=>results[i][i]>=0.008; // approximately -42 dBFS
+  const isolated=(i)=>20*Math.log10(Math.max(1e-8,results[i][i])/Math.max(1e-8,results[i][1-i]))>=8;
+  if(!valid(0)||!valid(1))return 'Signal insuffisant sur au moins une entrée. Vérifie le branchement et le gain, puis recommence.';
+  if(!isolated(0)||!isolated(1))return 'Séparation IN 1 / IN 2 non confirmée. Vérifie les entrées, évite de parler dans les deux micros et recommence.';
+  return 'Séparation des entrées détectée. Reste à enregistrer, réécouter et vérifier la synchronisation réelle des deux prises.';
+}
+diagnosticButton?.addEventListener('click',async()=>{
+  if(!micDiagnostic){
+    if(micTest)stopInputTest();
+    if(diagnosticResult)diagnosticResult.textContent='Autorisation micro et ouverture des deux canaux…';
+    await toggleInputTest(true);
+    if(!micTest||micTest.channels<2){
+      stopInputTest();
+      if(diagnosticResult)diagnosticResult.textContent='Deux canaux audio indisponibles. Sélectionne ton interface dans « Entrée / Monitoring ».';
+      return;
+    }
+    micDiagnostic={stage:0,results:[[0,0],[0,0]]};updateMicDiagnostic();
+    return;
+  }
+  if(micDiagnostic.stage===0){micDiagnostic.stage=1;updateMicDiagnostic();return;}
+  const result=diagnosticSummary(micDiagnostic.results);stopInputTest();
+  if(diagnosticResult)diagnosticResult.textContent=result;
+});
+
 button?.addEventListener('click',()=>{if(!document.body.classList.contains('record-workspace'))stopInputTest();});
 $('recordWorkspaceStart')?.addEventListener('click',stopInputTest,{capture:true});
 $('record')?.addEventListener('click',stopInputTest,{capture:true});
