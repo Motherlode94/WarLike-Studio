@@ -56,9 +56,10 @@ async function createProjectLocal(name='Nouveau morceau',source=null,media=[]){
   if(recording||recordFinalizing||micPending)throw Error('Termine la prise en cours.');
   await flushCurrent();
   const next=source?clone(source):emptyProject();next.name=name.slice(0,60);
-  const id=crypto.randomUUID();await dbWrite(projectKey(id),{project:next,masterVolume:0,assets:media});
-  const nextIndex=[{id,name:next.name,createdAt:Date.now(),updatedAt:Date.now()},...projectIndex];
-  await dbWrite('project-index',nextIndex);projectIndex=nextIndex;await chooseProject(id);return id;
+  const id=crypto.randomUUID(),now=Date.now();
+  const nextIndex=[{id,name:next.name,createdAt:now,updatedAt:now},...projectIndex];
+  await new Promise((resolve,reject)=>{const tx=db.transaction('sessions','readwrite'),store=tx.objectStore('sessions');store.put({project:next,masterVolume:0,assets:media},projectKey(id));store.put(nextIndex,'project-index');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Transaction annulée'));});
+  projectIndex=nextIndex;await chooseProject(id);return id;
 }
 function showProjectLibrary(){
  if(!db)return toast('Stockage local indisponible.');
