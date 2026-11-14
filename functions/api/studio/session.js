@@ -19,6 +19,8 @@ export async function onRequestDelete(context){
  const {request}=context;
  if(!guardOrigin(request))return json({error:'Origine refusée'},403);
  const token=getToken(request);
- if(token)await forwardServer(context,'/api/studio/revoke',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:'{}'}).catch(()=>null);
- return json({connected:false},200,{'Set-Cookie':noSessionCookie()});
+ let revoked=!token;
+ if(token){try{const response=await forwardServer(context,'/api/studio/revoke',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:'{}'});revoked=response.ok;}catch{revoked=false;}}
+ // Always drop the local credential, but report when remote revocation could not be confirmed.
+ return json({connected:false,revoked},revoked?200:202,{'Set-Cookie':noSessionCookie()});
 }
