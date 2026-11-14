@@ -473,7 +473,7 @@ function renderReaperImport(){
  }catch(error){toast('Import REAPER : '+error.message);if(button.isConnected)button.disabled=false;}};
 }
 async function beginReaperImport(files){
- const list=[...files],rpp=list.find(file=>/\\.rpp(?:-bak)?$/i.test(file.name));
+ const list=[...files],rpp=list.find(file=>/\.rpp(?:-bak)?$/i.test(file.name));
  if(!rpp){toast('Sélectionne un fichier REAPER .rpp (avec les médias si possible).');return;}
  try{
   const parsed=parseReaperRpp(await rpp.text(),{name:rpp.name});
