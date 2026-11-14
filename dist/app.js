@@ -210,7 +210,7 @@ async function restore(){
 
 function render(){
   // Expose only non-sensitive device routing to the Recording Pro input tester.
-  if($('recordWorkspaceBar'))$('recordWorkspaceBar').dataset.deviceId=project.audioSetup?.deviceId||'';
+  if($('recordWorkspaceBar')){ $('recordWorkspaceBar').dataset.deviceId=project.audioSetup?.deviceId||''; $('recordWorkspaceBar').dataset.channel=project.audioSetup?.channel||'1'; }
   project.recording=recordingSettings(project.recording);project.mastering=masteringSettings(project.mastering);
   $('sessionRoot').value=String(project.pianoKey??9);$('sessionScale').value=project.pianoScale||'minor';$('sessionKey').textContent=project.keyName||(['Do','Do♯','Ré','Mi♭','Mi','Fa','Fa♯','Sol','La♭','La','Si♭','Si'][project.pianoKey??9]+' '+(project.pianoScale==='major'?'majeur':project.pianoScale==='chromatic'?'chromatique':'mineur'));$('projectName').value=project.name;$('bpm').value=project.bpm;$('bars').value=project.bars;
   document.documentElement.style.setProperty('--bars',project.bars);
