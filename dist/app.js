@@ -38,23 +38,27 @@ icons();
 let project=emptyProject(),assets=new Map(),selectedTrack=project.tracks[0].id,selectedClip=project.tracks[0].clips[0]?.id,view='arrange',detail='plugins',editingTool='select',timelineZoom=1,suppressClipClickUntil=0,editMode='grid',editGrid=1/16,clipClipboard=null,suppressTrackClickUntil=0,quickTrackId=null,multiClips=new Set();
 let history=[],future=[],saveTimer,recording=null,db=null,dragState=null,toastTimer,loaded=false,tuneBusy=false,micPreview=null,recordFinalizing=false,micPending=false,pluginWindow=null,bankState={tab:'sounds',filter:'all',search:''},backupAvailable=false;
 let activeProjectId=null,projectIndex=[];
+let saveQueue=Promise.resolve(),transitionQueue=Promise.resolve();
+const exclusive=fn=>{const task=transitionQueue.catch(()=>{}).then(fn);transitionQueue=task.catch(()=>{});return task;};
+async function flushCurrent(){if(saveTimer!==null){clearTimeout(saveTimer);saveTimer=null;await persist();}await saveQueue;}
 const projectKey=id=>'project:'+id, scopedKey=k=>activeProjectId?'project:'+activeProjectId+':'+k:null;
 const dbRead=k=>new Promise((ok,fail)=>{const r=db.transaction('sessions').objectStore('sessions').get(k);r.onsuccess=()=>ok(r.result);r.onerror=()=>fail(r.error)});
 const dbWrite=(k,v)=>new Promise((ok,fail)=>{const t=db.transaction('sessions','readwrite');t.objectStore('sessions').put(v,k);t.oncomplete=ok;t.onerror=()=>fail(t.error)});
-async function chooseProject(id){
+async function chooseProject(id){return exclusive(async()=>{
   if(recording||recordFinalizing||micPending)throw Error('Termine la prise en cours.');
-  if(saveTimer!==null){clearTimeout(saveTimer);saveTimer=null;await persist();}
+  await flushCurrent();
   const state=await dbRead(projectKey(id));if(!state)throw Error('Projet absent.');
   const next=clone(state.project);validateProject(next);
   const media=new Map(),context=new AudioContext();try{for(const a of state.assets||[])media.set(a.id,{...a,buffer:await context.decodeAudioData(a.data.slice(0))});}finally{await context.close();}
   engine.resetSession();project=next;assets=media;activeProjectId=id;engine.masterVolume=state.masterVolume??0;selectedTrack=next.tracks[0].id;selectedClip=next.tracks[0].clips[0]?.id;history=[];future=[];closePluginWindow();render();updateUndo();$('modal').close();
-}
+});}
 async function createProjectLocal(name='Nouveau morceau',source=null,media=[]){
   if(recording||recordFinalizing||micPending)throw Error('Termine la prise en cours.');
+  await flushCurrent();
   const next=source?clone(source):emptyProject();next.name=name.slice(0,60);
   const id=crypto.randomUUID();await dbWrite(projectKey(id),{project:next,masterVolume:0,assets:media});
-  projectIndex.unshift({id,name:next.name,createdAt:Date.now(),updatedAt:Date.now()});
-  await dbWrite('project-index',projectIndex);await chooseProject(id);return id;
+  const nextIndex=[{id,name:next.name,createdAt:Date.now(),updatedAt:Date.now()},...projectIndex];
+  await dbWrite('project-index',nextIndex);projectIndex=nextIndex;await chooseProject(id);return id;
 }
 function showProjectLibrary(){
  if(!db)return toast('Stockage local indisponible.');
@@ -80,13 +84,25 @@ function checkpoint(){history.push(clone(project));if(history.length>40)history.
 function updateUndo(){$('undo').disabled=!history.length;$('redo').disabled=!future.length;}
 function undo(redo=false){const from=redo?future:history,to=redo?history:future;if(!from.length)return;engine.pause();to.push(clone(project));project=from.pop();project.tracks.forEach(ensurePlugins);if(!project.tracks.some(t=>t.id===selectedTrack)){selectedTrack=project.tracks[0]?.id;selectedClip=null;}if(!currentTrack()?.clips.some(c=>c.id===selectedClip))selectedClip=currentTrack()?.clips[0]?.id;engine.sync();render();save();}
 function changed(full=false){project.tracks.forEach(ensurePlugins);engine.sync();save();if(full)render();}
-function save(){if(!loaded||!activeProjectId)return;$('saveStatus').innerHTML='<em></em> Enregistrement…';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{saveTimer=null;persist();},500);}
+function save(){if(!loaded||!activeProjectId)return;$('saveStatus').innerHTML='<em></em> Enregistrement…';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{saveTimer=null;persist().catch(()=>{});},500);}
 async function openDB(){return new Promise((resolve,reject)=>{const request=indexedDB.open('chayah-studio',1);request.onupgradeneeded=()=>request.result.createObjectStore('sessions');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}
 async function persist(){
-  if(!activeProjectId)return;
-  if(!db){$('saveStatus').innerHTML='<em style="background:#dc9c77"></em> Télécharger pour conserver';return;}
-  try{await new Promise((resolve,reject)=>{const tx=db.transaction('sessions','readwrite');tx.objectStore('sessions').put({project:clone(project),masterVolume:engine.masterVolume,assets:[...assets].map(([id,a])=>({id,name:a.name,data:a.data}))},projectKey(activeProjectId));const meta=projectIndex.find(p=>p.id===activeProjectId);if(meta){meta.name=project.name;meta.updatedAt=Date.now();tx.objectStore('sessions').put(projectIndex,'project-index');}tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});await workflow.snapshot();$('saveStatus').innerHTML='<em></em> Enregistré sur cet appareil';}
-  catch{$('saveStatus').innerHTML='<em style="background:#dc9c77"></em> Sauvegarde locale indisponible';toast('Le stockage est plein. Télécharge ton projet pour conserver cette session.');}
+ if(!activeProjectId||!db)return;
+ const id=activeProjectId,copy=clone(project),volume=engine.masterVolume;
+ const media=[...assets].map(([assetId,a])=>({id:assetId,name:a.name,data:a.data}));
+ const job=saveQueue.catch(()=>{}).then(async()=>{
+   const index=projectIndex.map(item=>item.id===id?{...item,name:copy.name,updatedAt:Date.now()}:item);
+   await new Promise((resolve,reject)=>{
+    const tx=db.transaction('sessions','readwrite'),store=tx.objectStore('sessions');
+    store.put({project:copy,masterVolume:volume,assets:media},projectKey(id));
+    store.put(index,'project-index');
+    tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Transaction annulée'));
+   });
+   projectIndex=index;
+   if(activeProjectId===id){await workflow.snapshot();$('saveStatus').textContent='Enregistré sur cet appareil';}
+ });
+ saveQueue=job;
+ try{await job;}catch(error){if(activeProjectId===id){$('saveStatus').textContent='Sauvegarde impossible';toast(error.message);}throw error;}
 }
 async function restore(){
  try{db=await openDB();projectIndex=await dbRead('project-index')||[];if(!Array.isArray(projectIndex))projectIndex=[]}catch{toast('Stockage local indisponible.')}
@@ -360,7 +376,7 @@ $('help').onclick=helpModal;$('browsePlugins').onclick=openSuite;$('openBundle')
 $('projectMenuBtn').onclick=e=>{e.stopPropagation();$('projectMenu').hidden=!$('projectMenu').hidden;};
 document.addEventListener('click',e=>{if(!e.target.closest('.menu-anchor'))$('projectMenu').hidden=true;});
 $('myProjects').onclick=()=>{showProjectLibrary();$('projectMenu').hidden=true;};$('saveProject').onclick=()=>{saveProject();$('projectMenu').hidden=true;};$('openProject').onclick=()=>{$('projectInput').click();$('projectMenu').hidden=true;};
-$('newProject').onclick=()=>{$('projectMenu').hidden=true;modal('Nouvelle session',`<p class="modal-body-copy">La session actuelle reste récupérable avec Annuler. Télécharge-la d’abord si tu veux la conserver séparément.</p><div class="modal-actions"><button class="outline-btn" id="downloadCurrent">Télécharger le projet actuel</button><button class="primary-btn" id="confirmNew">Créer une session vide</button></div>`);$('downloadCurrent').onclick=saveProject;$('confirmNew').onclick=()=>{if(recording){toast('Termine la prise avant de changer de session.');return;}engine.resetSession();checkpoint();createProjectLocal().catch(e=>toast(e.message));};};
+$('newProject').onclick=()=>{$('projectMenu').hidden=true;modal('Nouvelle session',`<p class="modal-body-copy">La session actuelle reste récupérable avec Annuler. Télécharge-la d’abord si tu veux la conserver séparément.</p><div class="modal-actions"><button class="outline-btn" id="downloadCurrent">Télécharger le projet actuel</button><button class="primary-btn" id="confirmNew">Créer une session vide</button></div>`);$('downloadCurrent').onclick=saveProject;$('confirmNew').onclick=()=>{if(recording){toast('Termine la prise avant de changer de session.');return;}createProjectLocal().catch(e=>toast(e.message));};};
 $('exportWav').onclick=()=>workflow.exportModal();$('importBtn').onclick=()=>$('audioInput').click();
 $('audioInput').onchange=async e=>{const tr=currentTrack();await importAudio(e.target.files,tr?.type==='audio'?tr:null,Math.floor(engine.getPosition()/16));e.target.value='';};
 $('projectInput').onchange=async e=>{await openProject(e.target.files[0]);e.target.value='';};
@@ -497,7 +513,7 @@ document.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();undo(e.shiftKey);}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();undo(true);}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='d'){e.preventDefault();duplicateClip();}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveProject();}else if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteClip();}else if(e.key.toLowerCase()==='v'&&!e.ctrlKey&&!e.metaKey)setEditingTool('select');else if(e.key.toLowerCase()==='p'&&!e.ctrlKey&&!e.metaKey)setEditingTool('draw');else if(e.key==='/'){e.preventDefault();document.querySelector('.library').classList.add('sounds-open');$('librarySearch').focus();}
 });
 let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(render,100);});
-function flushPendingSave(){if(!loaded||saveTimer==null)return;clearTimeout(saveTimer);saveTimer=null;persist();}
+function flushPendingSave(){if(!loaded||saveTimer==null)return;clearTimeout(saveTimer);saveTimer=null;persist().catch(()=>{});}
 // Save before the browser freezes a hidden page; unloading alone cannot guarantee completion.
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushPendingSave();});
 window.addEventListener('pagehide',flushPendingSave);
