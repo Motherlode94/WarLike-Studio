@@ -44,6 +44,14 @@ if(startButton){
     const measured=telemetry.snapshot();
     const evidence=article.querySelector('#validationPcmEvidence');
     if(evidence)evidence.textContent='PCM reçu : '+measured.capturedSeconds.toFixed(1)+' s · PCM sauvegardé : '+measured.finalizedSeconds.toFixed(1)+' s · prises confirmées : '+measured.finalizedCount+'/'+measured.startedCount+' · erreurs : '+measured.errors.length;
+    const quality=article.querySelector('#validationSignalQuality');
+    if(quality){
+      const latest=measured.takes.filter(t=>t.signal?.channelStats?.length).at(-1);
+      quality.textContent=latest?'Signal PCM : '+latest.signal.channelStats.map(ch=>
+        'IN '+ch.channel+' : pic '+(ch.peakDbfs===null?'—':ch.peakDbfs.toFixed(1)+' dBFS')+
+        ', saturation '+ch.clippedFrames+' échant., silence max '+ch.longestSilenceSeconds.toFixed(1)+' s'
+      ).join(' · '):'Signal PCM : aucune prise mesurée';
+    }
     const targetStatus=article.querySelector('#validationTargetStatus');
     if(targetStatus)targetStatus.textContent=measured.finalizedSeconds>=target*60?'Objectif d’échantillons sauvegardés atteint — vérifier les prises à l’écoute.':'Objectif de '+target+' minutes PCM sauvegardées non atteint.';
   }
@@ -62,12 +70,14 @@ if(startButton){
     article.replaceChildren();
     article.append(el('h2','Validation matérielle / endurance'));
     article.append(el('p','Pour 30–60 minutes, enregistre plusieurs prises (20 minutes maximum chacune). La durée PCM comptabilise les échantillons reçus ; seule la durée des prises sauvegardées compte vers l’objectif.'));
+    article.append(el('p','Les silences et saturations sont des indices de qualité audio, pas une preuve de perte de paquets ou de panne de microphone.'));
     const selector=el('label','Objectif de capture cumulée : ');
     const select=el('select');select.id='validationTarget';
     for(const minutes of [30,60]){const option=el('option',minutes+' minutes');option.value=minutes;select.append(option);}
     selector.append(select);article.append(selector);
     const counter=el('p','Durée de séance : 0 min · capture active observée : 0 min');counter.id='validationDuration';article.append(counter);
     const evidence=el('p','PCM reçu : 0 s · PCM sauvegardé : 0 s');evidence.id='validationPcmEvidence';article.append(evidence);
+    const quality=el('p','Signal PCM : aucune prise mesurée');quality.id='validationSignalQuality';article.append(quality);
     const progress=el('p','Objectif de 30 minutes PCM sauvegardées non atteint.');progress.id='validationTargetStatus';article.append(progress);
     for(const [key,label] of checks){
       const line=el('label');line.className='recording-validation-check';
