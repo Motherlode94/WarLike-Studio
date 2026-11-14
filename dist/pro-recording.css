@@ -34,3 +34,12 @@
 .record-workspace-bar .record-note{font-size:10px;color:#9db2c3}
 @media(max-width:950px){.record-workspace .track-inspector{display:none}.record-workspace-bar .record-note{display:none}}
 @media(max-width:700px){.record-workspace .studio-body{height:calc(100dvh - 230px)}.record-workspace-bar{gap:5px;padding:6px}.record-workspace-bar #recordWorkspaceTarget{width:100%;max-width:none}.record-workspace .track-row{height:88px!important;min-height:88px}.record-workspace .track-head{padding:4px}.record-workspace-bar button{padding:8px}}
+
+/* Mouse freedom: canvas art does not swallow clip gestures. */
+.record-workspace .clip canvas,.record-workspace .clip-name,.record-workspace .clip .fade-overlay{pointer-events:none}
+.record-workspace .track-head button,.record-workspace .track-controls button,.record-workspace .track-strip-meta button{pointer-events:auto;position:relative;z-index:2}
+.record-workspace .clip{cursor:grab;touch-action:pan-y}
+.record-workspace .clip:active{cursor:grabbing}
+.record-workspace .clip-resize,.record-workspace .clip-trim-left{pointer-events:auto;z-index:3;cursor:ew-resize}
+.record-workspace .timeline-empty{pointer-events:none}
+.record-workspace #timelineScroll.record-hand-pan,.record-workspace #timelineScroll.record-hand-pan *{cursor:grabbing!important;user-select:none!important}
