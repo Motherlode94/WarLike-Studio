@@ -75,7 +75,7 @@ function part(style,role,section){
    if(role===1)c.forEach((pitch,j)=>add(b+j*.02,pitch,14,.4));
    if(role===2&&!intro)for(const [i,step] of [0,3,6,8,12,14].entries())add(b+step,c[(i+2)%4]+12,1.5,.47);
    if(role===3)for(const [i,step] of [2,6,10,14].entries())add(b+step,c[i%4]+12,1.4,.6);
-   if(role===4&&(hook||section===2))for(const [i,step] of [0,7,10].entries())add(b+step,c[(i+bar)%4]+24,2,.32);
+   if(role===4&&!intro)for(const [i,step] of (section===1?[0,10]:[0,7,10]).entries())add(b+step,c[(i+bar)%4]+24,2,section===1?.24:.32);
    if(role===5)for(const step of [0,8])c.slice(0,3).forEach((pitch,i)=>add(b+step+i*.07,pitch,6.3,.37));
   }else{
    if(role===1)for(const [i,step] of [1,5,9,13].entries())c.slice(0,3).forEach((pitch,j)=>add(b+step+j*.04,pitch,1.8,.49-(j*.04)));
