@@ -4,7 +4,7 @@ import {INSTRUMENTS,EFFECTS,pluginDefaults,ensurePlugins,placeInsert,INSERT_COUN
 import {FACTORY_PRESETS} from '../dist/bundle.js';
 
 test('every registered instrument and effect has a factory preset bank',()=>{
-  assert.equal(Object.keys(INSTRUMENTS).length,20);
+  assert.equal(Object.keys(INSTRUMENTS).length,30);
   assert.equal(Object.keys(EFFECTS).length,38);
   for(const id of [...Object.keys(INSTRUMENTS),...Object.keys(EFFECTS)]){
     assert.ok(Array.isArray(FACTORY_PRESETS[id]),id+' is missing factory presets');
