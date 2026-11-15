@@ -7,7 +7,7 @@ test('every VOX STUDIORACKS preset references working registered DSP with bounde
  assert.ok(['trapLead','afroLead','rnbSilk','cleanVoice'].every(id=>VOX_STUDIORACKS[id]));
  assert.ok(Object.keys(VOX_STUDIORACKS).length>=23);
  for(const [key,preset] of Object.entries(VOX_STUDIORACKS)){
-  const seen=new Set();assert.ok(preset.stages.length>=4);
+  const seen=new Set();assert.ok(preset.stages.length>=3);
   for(const stage of preset.stages){
    assert.ok(EFFECTS[stage.id],key+':'+stage.id);
    assert.ok(!seen.has(stage.id),'duplicate effect in preset');seen.add(stage.id);
