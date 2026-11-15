@@ -95,3 +95,22 @@
 .floating-plugin[data-pack] .suite-knob,.floating-plugin[data-pack] .plugin-knob{border-radius:var(--face-radius,12px);}
 .floating-plugin[data-pack] .suite-catalog{background:linear-gradient(180deg,var(--face-surface,#111a24),#10141c);}
 .floating-plugin[data-pack] .suite-catalog:after{content:"";display:block;height:2px;margin-top:10px;background:repeating-linear-gradient(90deg,var(--face-grid,#2b4350) 0 6px,transparent 6px 11px);opacity:.75;}
+
+/* VOX STUDIORACKS — a real insert-chain control surface, not a static mockup. */
+.vox-rack-launch{display:flex;align-items:center;justify-content:space-between;gap:16px;border:1px solid #7a568b;background:linear-gradient(105deg,#291c37,#111e2b);padding:14px 16px;border-radius:13px;margin:12px 0;color:#f1e5fc}
+.vox-rack-launch strong{display:block;font-size:15px;letter-spacing:.13em}.vox-rack-launch small{display:block;color:#bbadc7;margin-top:6px;line-height:1.5}
+.vox-rack-mini{border:1px solid #8f68aa;background:#342543;color:#e9d5f9;border-radius:5px;font:700 9px system-ui,sans-serif;padding:4px 6px;cursor:pointer}
+.vox-studioracks{color:#e4edf7;display:grid;gap:15px;min-width:0}
+.vox-studioracks header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-radius:12px;border:1px solid #9a6ab7;background:linear-gradient(110deg,#40274f,#121f2d)}
+.vox-studioracks header strong{color:#f0d0ff;letter-spacing:.13em}.vox-studioracks header span{color:#a7c9df;font-size:11px}
+.vox-studioracks p{line-height:1.5;color:#bdcddb;margin:0}
+.vox-rack-apply{display:flex;align-items:end;gap:12px;flex-wrap:wrap;padding:12px;background:#192632;border-radius:12px}
+.vox-rack-apply label{flex:1;display:grid;gap:7px;font:700 11px system-ui,sans-serif;letter-spacing:.08em}
+.vox-rack-apply select{width:100%;min-width:160px;background:#0e1924;color:#eef3fa;border:1px solid #796095;border-radius:7px;padding:9px}
+.vox-rack-stages{display:grid;gap:8px}
+.vox-rack-stage{display:grid;grid-template-columns:30px minmax(100px,1fr) repeat(4,auto);gap:8px;align-items:center;background:#152331;border:1px solid #395368;border-left:4px solid #b885d6;border-radius:9px;padding:9px}
+.vox-rack-stage strong{font-size:12px;min-width:0;overflow-wrap:anywhere}.vox-rack-stage .outline-btn{padding:6px 8px;font-size:11px}
+.vox-rack-position{color:#f0c3fc;text-align:center;font-weight:700}
+.vox-rack-stage [aria-pressed="true"]{color:#c0cbdb;border-color:#7d8590}
+.vox-studioracks small{color:#b2c0ce;line-height:1.5}
+@media(max-width:680px){.vox-rack-stage{grid-template-columns:24px minmax(0,1fr) auto auto}.vox-rack-stage [data-vr-move]{grid-row:2}.vox-rack-apply button{width:100%}.vox-rack-launch{flex-direction:column;align-items:start}}

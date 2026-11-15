@@ -6,10 +6,16 @@ export const STUDIO_PACKS={
  alter:{name:'ALTER',label:'CRÉATIF / VOIX & EFFETS',color:'#d89971',description:'Approche créative inspirée de Soundtoys : doublage modulé, écho avec ducking et filtre animé.',modules:['alterdouble','alterecho','alterfilter']},
  vector:{name:'VECTOR',label:'PRÉCISION / MIX & MASTER',color:'#87c6bb',description:'Approche visuelle inspirée de FabFilter : EQ six bandes, compression parallèle et plafond de crête sur échantillons.',modules:['vectoreq','vectorcomp','vectorlimit']},
  voxlab:{name:'VOX LAB',label:'VOIX / JUSTESSE & CONTRÔLE',color:'#b89dd1',description:'Traitements vocaux originaux WarLike : correction monophonique, compression en deux étages et nettoyage de voix.',modules:['voxtune','voxlevel','voxclean']},
- voxpro:{...VOXPRO_PACK,modules:[...VOXPRO_STARTER_MODULES,'voxmicmodel','voxwarm','voxdoubler'],description:'Chaîne VOX LAB PRO avec 7 processeurs existants et 3 effets DSP originaux supplémentaires. Le plan des 12 modules dédiés est documenté séparément dans voxlab-pro-spec.js ; ces modules avancés ne sont pas encore intégrés au DSP.'}
+ voxpro:{...VOXPRO_PACK,modules:[...VOXPRO_STARTER_MODULES,'voxmicmodel','voxwarm','voxdoubler','voxaireq','voxambience'],description:'VOX LAB PRO avec 7 processeurs existants et 5 effets DSP originaux supplémentaires. Le plan des 12 modules dédiés est documenté séparément dans voxlab-pro-spec.js ; ces modules avancés ne sont pas encore intégrés au DSP.'}
 };
 const def=(name,subtitle,pack,description,controls)=>({name,subtitle,pack,color:STUDIO_PACKS[pack].color,defaultEnabled:false,description,controls});
 export const STUDIO_EFFECTS={
+ voxaireq:def('VOX AIR EQ','AIR / PRESENCE EQ','voxpro','Coupe-bas, présence paramétrique et shelf air. Traitement minimum-phase Web Audio avec bypass lissé.',[
+  c('highpass','Coupe-bas',30,350,5,80,'Hz'),c('presenceFreq','Fréq présence',1000,8000,100,3500,'Hz'),c('presence','Présence',-9,9,.5,1.5),
+  c('airFreq','Fréq air',6000,18000,100,12000,'Hz'),c('air','Air',-9,9,.5,2),c('mix','Mix',0,1,.01,1,'%'),c('output','Sortie',-12,12,.5,0)]),
+ voxambience:def('VOX AMBIENCE','ROOM / SLAPBACK','voxpro','Slapback filtré 70–130 ms avec feedback contrôlé, réverbération à convolution courte et centre sec conservé.',[
+  c('slap','Slap',70,130,1,105,'ms'),c('feedback','Feedback',0,.45,.01,.12,'%'),c('tone','Tone',500,12000,100,5600,'Hz'),
+  c('slapLevel','Slap level',0,1,.01,.65,'%'),c('room','Room level',0,1,.01,.3,'%'),c('mix','Mix FX',0,.7,.01,.28,'%')]),
  voxmicmodel:VOXPRO_MODULES.voxmicmodel,
  voxwarm:VOXPRO_MODULES.voxwarm,
  voxdoubler:VOXPRO_MODULES.voxdoubler,
@@ -27,6 +33,8 @@ export const STUDIO_EFFECTS={
  voxclean:def('VOX CLEAN','VOCAL CLEANUP & AIR','voxlab','Coupe-bas, atténuation dynamique des sifflantes et shelf d’air. Le détecteur agit sur la bande aiguë, sans prétendre retirer tous les bruits.',[c('highpass','Coupe-bas',40,350,5,80,'Hz'),c('frequency','Sifflantes Hz',3000,10000,100,6500,'Hz'),c('threshold','Seuil sifflantes',-48,-6,1,-25),c('range','Réduction max',0,18,.5,6),c('air','Air',-6,9,.25,0),c('output','Sortie',-12,12,.5,0)])
 };
 const variations={
+ voxaireq:[['Natural air',{air:1.5,presence:1,highpass:85}],['Bright lead',{air:4,presence:2,highpass:100}],['Dark cleanup',{air:-3,presence:-2}],['Mix bus air',{air:1,presence:0,mix:.6}],['Warm vocal',{air:-1,presence:1.5}]],
+ voxambience:[['Lead intimate',{slap:90,feedback:.08,room:.15,mix:.15}],['R&B room',{slap:118,feedback:.15,room:.5,mix:.35}],['Trap slap',{slap:95,feedback:.2,room:.12,mix:.32}],['Afro chorus space',{slap:127,feedback:.18,room:.35,mix:.3}],['Short chamber',{slap:77,feedback:0,room:.7,mix:.23}]],
  voxmicmodel:[['Warm close',{source:0,target:1,proximity:1,air:-1}],['Bright condenser',{source:0,target:1,air:2}],['Soft dynamic',{source:2,target:0,presence:-2}],['Neutral',{source:0,target:0,mix:0}],['Radio focus',{source:3,target:1,proximity:-2,presence:3}]],
  voxwarm:[['Gentle tube',{drive:3,bias:.1,mix:.2,output:-1}],['Tape voice',{drive:6,bias:.25,tone:9000,mix:.35,output:-2}],['Parallel grit',{drive:12,bias:-.2,mix:.25,output:-3}],['Clean bypass',{mix:0,output:0}],['R&B silk',{drive:2,bias:.15,tone:14000,mix:.3,output:-1}]],
  voxdoubler:[['Natural width',{voices:2,detune:6,delay:21,width:.6,mix:.22}],['Wide hook',{voices:2,detune:13,delay:30,width:1,mix:.45}],['Tight rap',{voices:2,detune:3,delay:12,width:.35,mix:.16}],['Mono-ish',{voices:1,detune:2,delay:16,width:0,mix:.2}],['Stereo cloud',{voices:4,detune:18,delay:42,width:1,mix:.48}]],

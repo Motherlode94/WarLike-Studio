@@ -4,7 +4,7 @@ import {createExoEffects,syncExoEffect} from './exo-audio.js?v=0.14.0';
 import {gateControl,deessControl,gain,relayTimes} from './packs.js?v=0.14.0';
 const curve=fn=>Float32Array.from({length:4097},(_,i)=>fn(i/2048-1));
 const rectifierCurve=curve(Math.abs);
-function makeScope(ctx){const nodes=[],oscillators=[];return {nodes,oscillators,node(kind,...args){const n=ctx[kind](...args);nodes.push(n);return n;},dispose(){for(const n of oscillators)try{n.stop();}catch{}for(const n of nodes){try{if(n.curve instanceof Float32Array)n.curve=null;}catch{}try{n.disconnect();}catch{}}}};}
+function makeScope(ctx){const nodes=[],oscillators=[];return {nodes,oscillators,node(kind,...args){const n=ctx[kind](...args);nodes.push(n);return n;},dispose(){for(const n of oscillators)try{n.stop();}catch{}for(const n of nodes){try{if(n.curve instanceof Float32Array)n.curve=null;}catch{}try{if(typeof n.normalize==='boolean'&&'buffer' in n)n.buffer=null;}catch{}try{n.disconnect();}catch{}}}};}
 function module(ctx,scope){return {input:scope.node('createGain'),output:scope.node('createGain')};}
 function envelope(ctx,scope,input){const rectifier=scope.node('createWaveShaper'),smooth=scope.node('createBiquadFilter'),scale=scope.node('createGain'),control=scope.node('createWaveShaper');rectifier.curve=rectifierCurve;smooth.type='lowpass';smooth.Q.value=.5;smooth.frequency.value=25;input.connect(rectifier);rectifier.connect(smooth);smooth.connect(scale);scale.connect(control);return {smooth,scale,control};}
 function blend(scope,input,wetSource,output){const dry=scope.node('createGain'),wet=scope.node('createGain');input.connect(dry);wetSource.connect(wet);dry.connect(output);wet.connect(output);return {dry,wet};}

@@ -30,7 +30,7 @@ test('new effects are discoverable and can be inserted independently',()=>{
  }
  assert.deepEqual(filterPluginChoices(EFFECTS,{query:'TILT EQ'}).map(([id])=>id),['tilteq']);
  assert.deepEqual(filterPluginChoices(EFFECTS,{query:'NOTCH'}).map(([id])=>id),['notch']);
- assert.deepEqual(filterPluginChoices(EFFECTS,{query:'SLAP'}).map(([id])=>id),['slap']);
+ assert.deepEqual(filterPluginChoices(EFFECTS,{query:'SLAP'}).map(([id])=>id),['slap','voxambience']);
 });
 test('slapback tail increases bounce duration during export',()=>{
  const a={effects:{slap:{enabled:true,time:240,feedback:.6,mix:.5}}};
