@@ -14,7 +14,8 @@ const S={
    ['wlclean','CLEAN · CHORDS',-19,['voxaireq']],
    ['wlsteel','STEEL · ARPEGGIOS',-18,['voxambience']],
    ['wlvirtual','VANGUARD · BASS',-21,['vectorcomp']],
-   ['wljazz','JAZZ · LEAD BREAK',-21,['alterecho']]
+   ['wljazz','JAZZ · LEAD BREAK',-21,['alterecho']],
+   ['wlrompler','HUMM · CHOIR PAD',-25,['voxaireq','exospace']]
   ]
  },
  pop:{
@@ -74,6 +75,7 @@ function part(style,role,section){
    if(role===3)for(const [i,step] of [0,3,6,10,14].entries())add(b+step,c[(i+bar)%4]+12,1.5,.46);
    if(role===4)for(const [i,step] of [0,7,10,14].entries())add(b+step,r-12+(i===1?7:i===3?12:0),i===0?4:1.9,.61);
    if(role===5&&!intro)for(const [i,step] of (section===1?[0,8,12]:[0,4,6,9,12,15]).entries())add(b+step,c[(i+2)%4]+12,Math.min(1.8,16-step),section===1?.42:.57);
+   if(role===6){const melody=[c[1]+12,c[2]+12,c[3]+12,c[2]+12],positions=[0,4,8,12],lengths=[3.4,3.4,3.75,3.75];for(let i=0;i<4;i++)add(b+positions[i],melody[i],lengths[i],intro?.29:hook?.5:.37);if(hook)for(const pitch of [c[0],c[2]])add(b,pitch,15,.14);}
   }else if(style==='pop'){
    if(role===1)for(const step of [0,8])c.forEach((pitch,j)=>add(b+step+j*.04,pitch,step===0?7.6:6.6,hook?.52:.42));
    if(role===2)for(const [i,step] of [0,4,7,10,12,14].entries())add(b+step,c[[2,1,3,2,1,0][i]]+(hook?12:0),Math.min(2,16-step),hook?.62:.47);
@@ -96,6 +98,7 @@ export function createGenreDemoSession(style){
  const tracks=x.palette.map(([type,name,volume,effects],role)=>{
   const t=createContentTrack(type,0);
   t.name=name;t.volume=volume;t.pan=role===3?-.17:role===4?.17:0;
+  if(style==='rock'&&role===6){Object.assign(t.instrument,{layer:.62,wave:0,texture:1,cutoff:2300,attack:.22,release:1.8,space:.55,output:-14});t.pan=0;}
   if(style==='pop'){
    const v=role===2?{brightness:5900,body:.7,attack:.008,release:.24,drive:0,output:-9}:
     role===3?{brightness:4100,body:.7,decay:.55,release:.1,drive:0,output:-11}:
