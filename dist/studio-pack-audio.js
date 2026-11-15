@@ -11,6 +11,32 @@ export function createStudioEffects(ctx,scope,types=null){const modules={},node=
   if(id==='alterfilter'){m.filter=node('createBiquadFilter');m.filter.type='lowpass';m.lfo=node('createOscillator');m.depth=node('createGain');m.dry=node('createGain');m.wet=node('createGain');join(m.input,m.filter);join(m.filter,m.wet);join(m.input,m.dry);join(m.wet,m.output);join(m.dry,m.output);join(m.lfo,m.depth);m.depth.connect(m.filter.detune);m.lfo.start(0);scope.oscillators.push(m.lfo);m.bindings={cutoff:[m.filter.frequency],q:[m.filter.Q],depth:[m.depth.gain],mix:[[m.dry.gain,x=>1-x],m.wet.gain]};}
   if(id==='vectorlimit'){m.drive=node('createGain');m.comp=node('createDynamicsCompressor');m.comp.knee.value=0;m.comp.ratio.value=20;m.comp.attack.value=0;m.scaleIn=node('createGain');m.guard=node('createWaveShaper');m.guard.curve=new Float32Array([-1,0,1]);m.scaleOut=node('createGain');join(m.input,m.drive);join(m.drive,m.comp);join(m.comp,m.scaleIn);join(m.scaleIn,m.guard);join(m.guard,m.scaleOut);join(m.scaleOut,m.output);m.bindings={drive:[[m.drive.gain,db,true]],release:[[m.comp.release,x=>x/1000]],ceiling:[m.comp.threshold,[m.scaleIn.gain,x=>1/db(x),true],[m.scaleOut.gain,db,true]]};}
   if(id==='voxtune'){if(!ctx.audioWorklet||typeof AudioWorkletNode==='undefined')throw Error('VOX TUNE demande AudioWorklet et une connexion HTTPS.');m.pitch=new AudioWorkletNode(ctx,'warlike-vocal-pitch',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2],channelCount:2,channelCountMode:'explicit'});scope.nodes.push(m.pitch);join(m.input,m.pitch);join(m.pitch,m.output);m.bindings=Object.fromEntries([...m.pitch.parameters].map(([key,value])=>[key,[value]]));}
+  if(id==='voxmicmodel'){
+    m.low=node('createBiquadFilter');m.low.type='lowshelf';m.low.frequency.value=180;
+    m.presence=node('createBiquadFilter');m.presence.type='peaking';m.presence.frequency.value=3200;m.presence.Q.value=.85;
+    m.air=node('createBiquadFilter');m.air.type='highshelf';m.air.frequency.value=9500;
+    m.dry=node('createGain');m.wet=node('createGain');
+    join(m.input,m.dry);join(m.dry,m.output);
+    join(m.input,m.low);join(m.low,m.presence);join(m.presence,m.air);join(m.air,m.wet);join(m.wet,m.output);
+  }
+  if(id==='voxwarm'){
+    m.shaper=node('createWaveShaper');m.shaper.oversample='4x';
+    m.dc=node('createBiquadFilter');m.dc.type='highpass';m.dc.frequency.value=24;
+    m.tone=node('createBiquadFilter');m.tone.type='lowpass';m.tone.Q.value=.5;
+    m.dry=node('createGain');m.wet=node('createGain');m.level=node('createGain');
+    join(m.input,m.shaper);join(m.shaper,m.dc);join(m.dc,m.tone);join(m.tone,m.wet);
+    join(m.input,m.dry);join(m.wet,m.level);join(m.dry,m.level);join(m.level,m.output);
+  }
+  if(id==='voxdoubler'){
+    m.dry=node('createGain');m.wet=node('createGain');
+    join(m.input,m.dry);join(m.dry,m.output);join(m.wet,m.output);
+    m.voices=[];for(const sign of [-1,1]){
+      const delay=node('createDelay',.15),lfo=node('createOscillator'),depth=node('createGain'),pan=node('createStereoPanner'),level=node('createGain');
+      join(m.input,delay);join(delay,pan);join(pan,level);join(level,m.wet);
+      join(lfo,depth);depth.connect(delay.delayTime);lfo.start(0);scope.oscillators.push(lfo);
+      m.voices.push({delay,lfo,depth,pan,level,sign});
+    }
+  }
   if(id==='voxclean'){m.hp=node('createBiquadFilter');m.hp.type='highpass';m.hp.Q.value=.5;m.band=node('createBiquadFilter');m.band.type='bandpass';m.band.Q.value=.8;m.rect=node('createWaveShaper');m.rect.curve=curve(Math.abs);m.smooth=node('createBiquadFilter');m.smooth.type='lowpass';m.smooth.frequency.value=30;m.scale=node('createGain');m.control=node('createWaveShaper');m.correction=node('createGain');m.correction.gain.value=0;m.air=node('createBiquadFilter');m.air.type='highshelf';m.air.frequency.value=10000;m.level=node('createGain');join(m.input,m.hp);join(m.hp,m.band);join(m.hp,m.air);join(m.band,m.correction);join(m.correction,m.air);join(m.band,m.rect);join(m.rect,m.smooth);join(m.smooth,m.scale);join(m.scale,m.control);m.control.connect(m.correction.gain);join(m.air,m.level);join(m.level,m.output);m.bindings={highpass:[m.hp.frequency],frequency:[m.band.frequency],air:[m.air.gain],threshold:[[m.scale.gain,x=>1/32/db(x),true]],output:[[m.level.gain,db,true]]};}
  }
  return modules;
@@ -24,5 +50,19 @@ export function syncStudioEffect(ctx,id,m,s,bpm,now,initial,inputChannels=1){con
  if(id==='alterfilter'){set(m.filter.frequency,s.cutoff);set(m.filter.Q,s.q);set(m.lfo.frequency,bpm/60/s.beats);set(m.depth.gain,s.depth);set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);}
  if(id==='vectorlimit'){set(m.drive.gain,db(s.drive));set(m.comp.threshold,s.ceiling);set(m.comp.release,s.release/1000);set(m.scaleIn.gain,1/db(s.ceiling));set(m.scaleOut.gain,db(s.ceiling));}
  if(id==='voxtune')for(const key of ['key','scale','speed','amount','mix'])set(m.pitch.parameters.get(key),s[key]);
+ if(id==='voxmicmodel'){
+   const profiles=[[0,0,0],[1,-.5,2],[-2,1,-1],[2,-1,-2]],from=profiles[Math.round(s.source)]||profiles[0],to=profiles[Math.round(s.target)]||profiles[0];
+   set(m.low.gain,s.proximity+to[0]-from[0]);set(m.presence.gain,s.presence+to[1]-from[1]);set(m.air.gain,s.air+to[2]-from[2]);
+   set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);
+ }
+ if(id==='voxwarm'){
+   const k=db(s.drive),bias=s.bias*.2,offset=Math.tanh(bias*k),norm=Math.max(.001,Math.abs(Math.tanh((1+bias)*k)-offset),Math.abs(Math.tanh((-1+bias)*k)-offset));
+   m.shaper.curve=curve(x=>(Math.tanh((x+bias)*k)-offset)/norm);
+   set(m.tone.frequency,Math.min(s.tone,ctx.sampleRate*.45));set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);set(m.level.gain,db(s.output));
+ }
+ if(id==='voxdoubler'){
+   set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);
+   for(const voice of m.voices){set(voice.delay.delayTime,(s.delay+(voice.sign>0?3:0))/1000);set(voice.lfo.frequency,voice.sign>0?.7:.53);set(voice.depth.gain,s.detune/10000);set(voice.pan.pan,s.width*voice.sign);set(voice.level.gain,Math.min(1,s.voices/2)/2);}
+ }
  if(id==='voxclean'){set(m.hp.frequency,s.highpass);set(m.band.frequency,s.frequency);set(m.scale.gain,1/32/db(s.threshold));m.control.curve=curve(x=>{const relative=Math.abs(x)*32;return relative<=1?0:Math.max(db(-s.range),relative**(-.75))-1;});set(m.air.gain,s.air);set(m.level.gain,db(s.output));}
 }
