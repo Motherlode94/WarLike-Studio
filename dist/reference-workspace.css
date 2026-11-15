@@ -181,3 +181,18 @@ body.reference-studio{--track-label:270px;--detail-height:280px;display:flex;fle
  .reference-studio .signature-workspaces > div:first-of-type{display:flex!important}
  .reference-studio .signature-workspaces [data-workspace]{font-size:11px;padding:8px 10px}
 }
+
+/* Native track reordering handle shared by arrange and mixer. */
+.reference-studio .mixer-channel .mixer-track-grip{
+  flex:0 0 18px;width:18px;height:18px;min-width:18px;
+  border:1px solid transparent;border-radius:4px;padding:0;
+  background:transparent;color:#a9b9ce;line-height:16px;
+  cursor:grab;touch-action:none;user-select:none;
+}
+.reference-studio .mixer-channel .mixer-track-grip:hover,
+.reference-studio .mixer-channel .mixer-track-grip:focus-visible{
+  background:#3c475b;border-color:#7b92b0;color:#fff;
+}
+.reference-studio .mixer-channel .mixer-track-grip:active{cursor:grabbing}
+.reference-studio .mixer-channel .channel-top{gap:3px;min-width:0}
+.reference-studio .mixer-channel .channel-top span:last-of-type{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
