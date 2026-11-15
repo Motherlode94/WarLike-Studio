@@ -2,8 +2,10 @@
 // Each stage is an existing Web Audio processor. Studio's normal inserts
 // retain responsibility for Play, bypass, automation, persistence and WAV export.
 import {EFFECTS,ensurePlugins,placeInsert,moveInsert} from './plugins.js?v=0.14.0';
+import {STUDIORACK_MIX_PRESETS,STUDIORACK_CATEGORIES} from './studiorack-mix-presets.js';
+export {STUDIORACK_CATEGORIES};
 
-const rack=(name,description,stages)=>({name,description,stages});
+const rack=(name,description,stages)=>({name,category:'Voix',description,stages});
 export const VOX_STUDIORACKS=Object.freeze({
  trapLead:rack('TRAP / LEAD','Coupe-bas, accordage, densité, couleur et slapback.',[
   {id:'voxclean',values:{highpass:90,range:5}},
@@ -33,10 +35,11 @@ export const VOX_STUDIORACKS=Object.freeze({
   {id:'voxlevel',values:{peakThreshold:-13,levelThreshold:-24,ratio:2.5}},
   {id:'voxaireq',values:{presence:1.5,air:1.5}}
  ])
+ ,...STUDIORACK_MIX_PRESETS
 });
 
 export function rackCapacity(track,key){
- const preset=VOX_STUDIORACKS[key];if(!preset)throw Error('Rack vocal inconnu.');
+ const preset=VOX_STUDIORACKS[key];if(!preset)throw Error('Preset de rack inconnu.');
  ensurePlugins(track);
  for(const stage of preset.stages)if(!EFFECTS[stage.id])throw Error('DSP indisponible : '+stage.id);
  return {required:preset.stages.length,available:track.inserts.filter(id=>id===null).length};

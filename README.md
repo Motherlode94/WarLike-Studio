@@ -53,6 +53,38 @@ Les échantillons de batterie sont une **dépendance externe sous licence CC BY 
 
 ---
 
+## VOX STUDIORACKS — presets de mixage par type de piste
+
+Les **19 nouveaux presets de rack** chargent une liste ordonnée de vrais processeurs WarLike Web Audio, en plus des quatre chaînes vocales d'origine. Dans **Plugins → VOX STUDIORACKS**, les presets sont classés par usage ; sélectionner un preset affiche la **liste des plugins dans leur ordre exact**, puis le bouton d'ajout crée les inserts sur la piste choisie. Aucun n'est injecté automatiquement dans les démos existantes.
+
+| Catégorie | Presets | Chaîne (ordre du signal) |
+| --- | --- | --- |
+| Voix | Rock Lead | VOX CLEAN → SIBIL → VOX LEVEL → CIRCUIT COLOR → VOX AIR EQ → VOX AMBIENCE |
+| Voix | Pop Lead | VOX CLEAN → VOX TUNE → SIBIL → VOX LEVEL → VOX AIR EQ → VOX AMBIENCE |
+| Voix | Rumba Lead | VOX CLEAN → SIBIL → VOX LEVEL → CIRCUIT EQ → VOX AMBIENCE |
+| Voix | Backing / Harmonies | VOX CLEAN → SIBIL → VECTOR COMP → VOX DOUBLER → EXO SPACE |
+| Voix | Trap Adlibs | VOX CLEAN → VECTOR COMP → ALTER DOUBLE → ALTER ECHO → EXO SPACE |
+| Voix | Spoken / Podcast | VOX CLEAN → SIBIL → VOX LEVEL → VOX AIR EQ |
+| Guitares | Rock Guitar Bus | CIRCUIT EQ → CIRCUIT COLOR → CIRCUIT BUS |
+| Guitares | Clean / Acoustic | CIRCUIT EQ → VECTOR COMP → VOX AMBIENCE |
+| Guitares | Rumba Guitares | CIRCUIT EQ → VECTOR COMP → VOX AMBIENCE |
+| Basse | 808 / Sub Bass | VECTOR EQ → VECTOR COMP → CIRCUIT COLOR |
+| Basse | Live Bass | CIRCUIT EQ → VECTOR COMP → CIRCUIT COLOR |
+| Batterie | Drum Bus Punch | CIRCUIT EQ → CIRCUIT BUS → CIRCUIT COLOR |
+| Batterie | Afro Percussions | VECTOR EQ → VECTOR COMP → VOX AMBIENCE |
+| Instruments | Piano / Keys | VECTOR EQ → VECTOR COMP → EXO SPACE |
+| Instruments | Synth / Pads | ALTER FILTER → VOX AIR EQ → EXO SPACE |
+| Bus | Mix Bus Glue | VECTOR EQ → CIRCUIT BUS → CIRCUIT COLOR |
+| Bus | Vocal Bus Group | VECTOR EQ → VECTOR COMP → SIBIL → VOX AIR EQ |
+| Master | Master Clean | VECTOR EQ → VECTOR COMP → VECTOR LIMIT |
+| Master | Master Dense | VECTOR EQ → CIRCUIT BUS → VECTOR LIMIT |
+
+**Important :** les presets de catégorie « Master » ne remplacent pas automatiquement la chaîne de mastering global de Studio : ils sont destinés à une piste ou un bus de pré-master dans le rack d'inserts. Le volume final, la vraie valeur LUFS, les crêtes inter-échantillons et les variations de gain doivent être contrôlés à l'écoute et à la mesure. L'insertion est refusée si le rack ne dispose pas du nombre de slots libres requis ; les autres inserts restent intacts.
+
+Les paramètres des 19 presets sont éditables dans [`dist/studiorack-mix-presets.js`](dist/studiorack-mix-presets.js). Le moteur est celui de [`dist/vox-studioracks.js`](dist/vox-studioracks.js), qui utilise les inserts existants.
+
+---
+
 ## VOX STUDIORACKS — chaînes vocales DSP intégrées
 
 **VOX STUDIORACKS est une interface fonctionnelle de gestion de chaînes d'inserts**, et non une planche SVG. Dans Studio, ouvre l'onglet des plugins, puis **VOX STUDIORACKS → Ouvrir le rack** ; un raccourci est également présent sur les pistes du mixeur.
