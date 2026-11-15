@@ -17,7 +17,7 @@ test('existing Trap/Afro/R&B demos are unchanged and new genres are separate',()
 test('Rock, Pop and Rumba are playable 16-bar arrangements with distinct WL instruments and real effects',()=>{
  const expected={
   rock:['wlcrunch','wlclean','wlsteel','wlvirtual','wljazz'],
-  pop:['grand','wlclean','wlmuted','wlrompler','wlsteel'],
+  pop:['piano','wlclean','wlmuted','wlrompler','wlsteel'],
   rumba:['wlnylon','wlclean','wlmuted','wlsteel','wljazz']
  };
  const bpm={rock:126,pop:112,rumba:102};
@@ -66,7 +66,7 @@ test('new demo instances do not leak project state across launches',()=>{
 
 test('Pop and Rumba are warm organic arrangements, not synthetic demos',()=>{
  const pop=createGenreDemoSession('pop'),rumba=createGenreDemoSession('rumba');
- assert.ok(pop.tracks.some(t=>t.type==='grand'));
+ assert.ok(pop.tracks.some(t=>t.type==='piano'));
  assert.ok(pop.tracks.some(t=>t.type==='wlsteel'));
  assert.ok(!pop.tracks.some(t=>t.type==='wlspectral'||t.type==='wlvirtual'));
  assert.deepEqual(rumba.tracks.slice(1,6).map(t=>t.type),['wlnylon','wlclean','wlmuted','wlsteel','wljazz']);
