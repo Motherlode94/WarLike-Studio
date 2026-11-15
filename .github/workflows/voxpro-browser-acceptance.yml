@@ -1,0 +1,27 @@
+name: VOX LAB PRO browser DSP acceptance
+on:
+  pull_request:
+    paths:
+      - 'dist/studio-pack-audio.js'
+      - 'dist/studio-packs.js'
+      - 'dist/voxlab-pro-spec.js'
+      - 'dist/voxpro-browser-test.*'
+      - 'scripts/test-voxpro-browser.mjs'
+      - '.github/workflows/voxpro-browser-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-dsp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-package-lock
+      - run: npm install --no-save --no-package-lock playwright
+      - run: npx playwright install --with-deps chromium
+      - name: Verify DSP PCM, bypass and mono compatibility in Chromium
+        run: node scripts/test-voxpro-browser.mjs
