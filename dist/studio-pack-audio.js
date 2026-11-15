@@ -25,7 +25,7 @@ export function createStudioEffects(ctx,scope,types=null){const modules={},node=
     m.tone=node('createBiquadFilter');m.tone.type='lowpass';m.tone.Q.value=.5;
     m.dry=node('createGain');m.wet=node('createGain');m.level=node('createGain');
     join(m.input,m.shaper);join(m.shaper,m.dc);join(m.dc,m.tone);join(m.tone,m.wet);
-    join(m.input,m.dry);join(m.wet,m.level);join(m.dry,m.level);join(m.level,m.output);
+    join(m.input,m.dry);join(m.dry,m.output);join(m.wet,m.level);join(m.level,m.output);
   }
   if(id==='voxdoubler'){
     m.dry=node('createGain');m.wet=node('createGain');
@@ -52,17 +52,18 @@ export function syncStudioEffect(ctx,id,m,s,bpm,now,initial,inputChannels=1){con
  if(id==='voxtune')for(const key of ['key','scale','speed','amount','mix'])set(m.pitch.parameters.get(key),s[key]);
  if(id==='voxmicmodel'){
    const profiles=[[0,0,0],[1,-.5,2],[-2,1,-1],[2,-1,-2]],from=profiles[Math.round(s.source)]||profiles[0],to=profiles[Math.round(s.target)]||profiles[0];
+   set(m.low.frequency,Math.min(180,ctx.sampleRate*.45));set(m.presence.frequency,Math.min(3200,ctx.sampleRate*.45));set(m.air.frequency,Math.min(9500,ctx.sampleRate*.45));
    set(m.low.gain,s.proximity+to[0]-from[0]);set(m.presence.gain,s.presence+to[1]-from[1]);set(m.air.gain,s.air+to[2]-from[2]);
-   set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);
+   set(m.dry.gain,s.enabled===false?1:1-s.mix);set(m.wet.gain,s.enabled===false?0:s.mix);
  }
  if(id==='voxwarm'){
    const k=db(s.drive),bias=s.bias*.2,offset=Math.tanh(bias*k),norm=Math.max(.001,Math.abs(Math.tanh((1+bias)*k)-offset),Math.abs(Math.tanh((-1+bias)*k)-offset));
    m.shaper.curve=curve(x=>(Math.tanh((x+bias)*k)-offset)/norm);
-   set(m.tone.frequency,Math.min(s.tone,ctx.sampleRate*.45));set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);set(m.level.gain,db(s.output));
+   set(m.tone.frequency,Math.min(s.tone,ctx.sampleRate*.45));set(m.dry.gain,s.enabled===false?1:1-s.mix);set(m.wet.gain,s.enabled===false?0:s.mix);set(m.level.gain,db(s.output));
  }
  if(id==='voxdoubler'){
-   set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);
-   for(const voice of m.voices){set(voice.delay.delayTime,(s.delay+(voice.sign>0?3:0))/1000);set(voice.lfo.frequency,voice.sign>0?.7:.53);set(voice.depth.gain,s.detune/10000);set(voice.pan.pan,s.width*voice.sign);set(voice.level.gain,Math.min(1,s.voices/2)/2);}
+   set(m.dry.gain,s.enabled===false?1:1-s.mix);set(m.wet.gain,s.enabled===false?0:s.mix);
+   for(const voice of m.voices){const base=(s.delay+(voice.sign>0?3:0))/1000,depth=Math.min(s.detune/10000,base-.001);set(voice.delay.delayTime,base);set(voice.lfo.frequency,voice.sign>0?.7:.53);set(voice.depth.gain,Math.max(0,depth));set(voice.pan.pan,s.width*voice.sign);set(voice.level.gain,Math.min(1,s.voices/2)/2);}
  }
  if(id==='voxclean'){set(m.hp.frequency,s.highpass);set(m.band.frequency,s.frequency);set(m.scale.gain,1/32/db(s.threshold));m.control.curve=curve(x=>{const relative=Math.abs(x)*32;return relative<=1?0:Math.max(db(-s.range),relative**(-.75))-1;});set(m.air.gain,s.air);set(m.level.gain,db(s.output));}
 }
