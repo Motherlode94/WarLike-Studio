@@ -43,3 +43,56 @@
  .record-advanced-content{position:fixed;top:auto;bottom:12px;right:12px;left:12px;width:auto;max-height:65dvh}
  .record-workspace-bar{gap:6px}
 }
+
+/* WarLike Studio Pro: original layout informed by established Edit/Mix DAW workflows.
+   One transport, one view switcher, one central editor, contextual inspector. */
+body.studio-pro-layout{--track-label:210px;--detail-height:260px}
+.studio-pro-layout .topbar{height:auto;min-height:44px;padding:6px 12px;gap:10px}
+.studio-pro-layout .brand{min-width:0}
+.studio-pro-layout .project-heading{min-width:0;flex:1}
+.studio-pro-layout .top-actions{margin-left:auto}
+.studio-pro-layout .warlike-workspaces{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding:5px 12px;background:#242831;border-bottom:1px solid #4c525e}
+.studio-pro-layout .warlike-workspaces button{flex:0 0 auto;padding:7px 13px;min-height:34px;border-radius:4px;background:transparent;border:1px solid transparent}
+.studio-pro-layout .warlike-workspaces button.ws-active,.studio-pro-layout .warlike-workspaces button[aria-pressed="true"]{background:#3d4956;border-color:#788a98;color:#f3f5f7}
+.studio-pro-layout .warlike-workspaces .ws-label{width:auto;align-self:center;margin-right:8px;white-space:nowrap}
+.studio-pro-layout .arrangement .workspace-toolbar{display:flex;align-items:center;gap:10px;min-height:44px;padding:5px 10px;background:#30343e;border-bottom:1px solid #4c525e}
+.studio-pro-layout .arrangement .view-tabs{display:none!important}
+.studio-pro-layout .arrangement .workspace-toolbar .arrangement-actions{margin-left:auto;display:flex;align-items:center;gap:7px}
+.studio-pro-layout .studio-editbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;min-height:42px;padding:5px 10px;background:#282d36}
+.studio-pro-layout .studio-editbar .edit-tools{display:flex;gap:3px}
+.studio-pro-layout .studio-editbar .edit-tools button{min-height:31px}
+.studio-pro-layout .studio-editbar .edit-modes{display:flex;gap:3px}
+.studio-pro-layout .studio-edit-options,.studio-pro-layout .studio-arrange-options{position:relative;flex:0 0 auto}
+.studio-pro-layout .studio-edit-options>summary,.studio-pro-layout .studio-arrange-options>summary{cursor:pointer;list-style:none;display:flex;align-items:center;min-height:32px;padding:6px 10px;border:1px solid #596373;border-radius:4px;color:#dce3ed;background:#39414d}
+.studio-pro-layout .studio-edit-options>summary::-webkit-details-marker,.studio-pro-layout .studio-arrange-options>summary::-webkit-details-marker{display:none}
+.studio-pro-layout .studio-edit-options-content,.studio-pro-layout .studio-arrange-options-content{position:absolute;right:0;top:calc(100% + 5px);z-index:60;display:flex;align-items:center;gap:10px;min-width:210px;max-width:min(440px,90vw);padding:12px;border:1px solid #687482;border-radius:7px;background:#303945;box-shadow:0 12px 28px #0009}
+.studio-pro-layout .workspace-main{min-width:0}
+.studio-pro-layout .timeline-view{min-height:180px}
+.studio-pro-layout .edit-selection-bar{min-height:30px}
+.studio-pro-layout .studio-body>.library{border-right:1px solid #525d68}
+.studio-pro-layout #trackInspector{border-left:1px solid #525d68}
+.studio-pro-layout .record-workspace-bar{padding:6px 10px;min-height:44px;gap:7px}
+.studio-pro-layout .record-workspace-bar .record-caption{font-weight:750;letter-spacing:.09em}
+.studio-pro-layout .workspace-status{font-size:11px}
+@media(max-width:1100px){
+ .studio-pro-layout .topbar .save-status{display:none}
+ .studio-pro-layout .studio-editbar .edit-tools{max-width:100%;overflow-x:auto}
+ .studio-pro-layout .studio-editbar .edit-tools button{flex-shrink:0}
+ .studio-pro-layout .edit-selection-bar{overflow-x:auto}
+}
+@media(max-width:760px){
+ body.studio-pro-layout{--track-label:126px;--detail-height:225px}
+ .studio-pro-layout .topbar{min-height:46px;padding:5px 7px}
+ .studio-pro-layout .project-heading input{max-width:110px}
+ .studio-pro-layout .warlike-workspaces{gap:2px;padding:4px 6px}
+ .studio-pro-layout .warlike-workspaces .ws-label{display:none}
+ .studio-pro-layout .warlike-workspaces button{padding:8px;min-height:40px}
+ .studio-pro-layout .arrangement .workspace-toolbar{flex-wrap:wrap;gap:4px}
+ .studio-pro-layout .arrangement .workspace-toolbar .arrangement-actions{gap:4px}
+ .studio-pro-layout .studio-editbar{flex-wrap:nowrap;overflow-x:auto;gap:5px;padding:5px 7px}
+ .studio-pro-layout .studio-editbar>*{flex:0 0 auto}
+ .studio-pro-layout .studio-edit-options-content,.studio-pro-layout .studio-arrange-options-content{position:fixed;left:10px;right:10px;top:auto;bottom:12px;max-width:none;flex-wrap:wrap;z-index:100}
+ .studio-pro-layout .record-workspace-bar{flex-wrap:wrap}
+ .studio-pro-layout .record-workspace-bar .record-caption{display:none}
+ .studio-pro-layout .workspace-status span:nth-child(2){display:none}
+}
