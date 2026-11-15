@@ -43,6 +43,38 @@ function setup(){
    if(nav)nav.append(toggle);else body.prepend(toggle);
    setOpen(false);
  }
+ // Professional DAW layout: one primary Edit/Mix navigation, contextual tool groups.
+ document.body.classList.add('studio-pro-layout');
+ const workspaces=document.querySelector('.warlike-workspaces');
+ if(workspaces){
+   const label=workspaces.querySelector('.ws-label');if(label)label.textContent='VUES';
+   const hint=workspaces.querySelector('.ws-hint');if(hint)hint.hidden=true;
+   // Keep native workspace controls and their keyboard shortcuts; no duplicate view tabs.
+ }
+ const arrangement=document.getElementById('arrangementSection');
+ const editbar=document.getElementById('studioEditbar');
+ if(arrangement&&editbar){
+   const details=document.createElement('details');details.className='studio-edit-options';
+   const trigger=document.createElement('summary');trigger.textContent='Outils d’édition';
+   trigger.setAttribute('aria-label','Afficher les outils d’édition avancés');
+   const contents=document.createElement('div');contents.className='studio-edit-options-content';
+   const editModes=editbar.querySelector('.edit-modes');
+   const editTools=editbar.querySelector('.edit-tools');
+   // Keep Smart tool and grid in the main edit strip. Secondary actions in disclosure.
+   for(const selector of ['.nudge-controls','.edit-split']){const node=editbar.querySelector(selector);if(node)contents.append(node);}
+   details.append(trigger,contents);editbar.append(details);
+ }
+ const arrangementToolbar=document.querySelector('.arrangement .workspace-toolbar');
+ if(arrangementToolbar){
+   const actions=arrangementToolbar.querySelector('.arrangement-actions');
+   if(actions){
+     const extra=document.createElement('details');extra.className='studio-arrange-options';
+     const trigger=document.createElement('summary');trigger.textContent='Affichage';
+     const contents=document.createElement('div');contents.className='studio-arrange-options-content';
+     for(const selector of ['.timeline-zoom','.bars-control']){const node=actions.querySelector(selector);if(node)contents.append(node);}
+     extra.append(trigger,contents);actions.append(extra);
+   }
+ }
  document.addEventListener('pointerdown',event=>{if(details.open&&!details.contains(event.target))details.open=false;});
  document.addEventListener('keydown',event=>{if(event.key==='Escape')details.open=false;});
 }
