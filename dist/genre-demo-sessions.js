@@ -3,6 +3,7 @@
 import {createContentTrack} from './content.js';
 import {placeInsert,ensurePlugins,DRUM_VOICES} from './plugins.js';
 import {applyGenreSoundProfile,validateGenreSoundProfile} from './genre-sound-profiles.js';
+import {mixDemoVocalTrack,makeDemoMastering} from './genre-vocal-mix-master.js';
 const uid=()=>Math.random().toString(36).slice(2,12);
 const note=(step,midi,len=2,velocity=.66)=>({id:uid(),step,midi,len,velocity});
 const S={
@@ -142,6 +143,7 @@ export function createGenreDemoSession(style){
   const t=createContentTrack('wlvox',0);t.name=voice.name;t.volume=voice.volume;t.pan=voice.pan;
   Object.assign(t.instrument,{vowel:voice.vowel,attack:voice.role==='backs'?.16:.075,release:voice.role==='backs'?.6:.26,vibrato:voice.role==='lead'?.36:.18,tone:style==='rumba'?.34:.55,output:-8});
   for(const effectId of voice.effects){const slot=t.inserts.indexOf(null);if(slot<0)throw Error('Aucun insert disponible pour la voix de démo.');placeInsert(t,slot,effectId);}
+  mixDemoVocalTrack(t,style,voice.role);
   for(let sec=0;sec<4;sec++){
    if(voice.role==='adlibs'&&sec===0)continue;
    const notes=[],first=sec*4;
@@ -165,7 +167,7 @@ export function createGenreDemoSession(style){
  return {
   version:1,demo:true,demoRevision:style==='rock'?2:3,demoGenre:style,
   name:x.name,bpm:x.bpm,bars:16,swing:x.swing,masterVolume:x.masterVolume,
-  mastering:{inserts:['peak'],peak:{enabled:true,drive:0,ceiling:-1.5,release:140}},
+  mastering:makeDemoMastering(style),
   recording:{gainDb:0,autoLevel:true},pianoKey:x.pianoKey,pianoScale:x.pianoScale,keyName:x.keyName,
   sections,tracks
  };
