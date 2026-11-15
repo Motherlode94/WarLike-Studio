@@ -13,3 +13,11 @@ html[data-warlike-app="warlike-studio"] :is(nav button,nav a,.nav button,.filter
 html[data-warlike-app="warlike-studio"] :is(.mark,.brand-mark,.logo:not(a),.brand .mark){background:var(--wl-forest);border-color:var(--wl-sage);color:var(--wl-ivory)}
 html[data-warlike-app="warlike-studio"] :is(.warlike-workspaces button,.public-demo-links button){background:var(--wl-surface-alt);color:var(--wl-text);border-color:var(--wl-border)}
 html[data-warlike-app="warlike-studio"] .warlike-workspaces button strong{color:var(--wl-accent)}
+/* Complete workspace chrome, project browser and floating-window frames. */
+html[data-warlike-app="warlike-studio"] :is(.workspace-toolbar,.studio-editbar,.sidebar-tabs,.sidebar-section-heading,.sidebar-session-info,.edit-readout,.detail-toolbar,.workspace-status,.track-inspector,.floating-plugin-header,.track-quick-control,dialog,.modal-heading,.project-home-banner,.project-home-card,.recording-recovery-dialog,.recording-validation-dialog){background:var(--wl-surface);border-color:var(--wl-border);color:var(--wl-text)}
+html[data-warlike-app="warlike-studio"] :is(.project-home-banner p,.project-home-form label,.project-home-section h3,.project-home-empty,.tempo-control>span,.signature>span,.key-signature,.output-label,.workspace-status,.engine-label){color:var(--wl-text-muted)}
+html[data-warlike-app="warlike-studio"] :is(.primary-btn,.project-home-demo){background:var(--wl-primary);border-color:var(--wl-primary);color:var(--wl-primary-text)}
+html[data-warlike-app="warlike-studio"] :is(.text-btn,.outline-btn,.project-home-footer button,.project-home-card-actions button:not(.project-home-delete)){background:var(--wl-surface-alt);border-color:var(--wl-border);color:var(--wl-text)}
+html[data-warlike-app="warlike-studio"] :is(.view-tab,.detail-tab,.edit-tool,.edit-mode,.mode-button,.sidebar-tabs button):is(.selected,.active,[aria-pressed=true]){background:var(--wl-surface-alt);color:var(--wl-text);border-color:var(--wl-focus)}
+html[data-warlike-app="warlike-studio"] .brandmark b{background:var(--wl-accent)}
+html[data-warlike-app="warlike-studio"] .export-btn span{background:var(--wl-forest);color:var(--wl-ivory)}
