@@ -6,6 +6,16 @@
 import {effectDefinition,ensurePlugins,placeInsert,INSERT_COUNT} from './plugins.js';
 
 export const NATIVE_CHAINS={
+  heritageTracking:{name:'WL Heritage / Studio Tracking',description:'Chaîne de console vintage originale : égalisation, coloration et compression de bus.',effects:[
+    {id:'circuiteq',params:{}},{id:'circuitcolor',params:{drive:2,mix:.15}},{id:'circuitbus',params:{threshold:-18,ratio:2,attack:30,release:180}}
+  ]},
+  heritageRoom:{name:'WL Heritage / Live Room',description:'Salle courte, ruban coloré et écho de studio.',effects:[
+    {id:'circuiteq',params:{}},{id:'circuitcolor',params:{drive:3,mix:.22}},{id:'voxambience',params:{slap:100,room:.4,mix:.24}},{id:'alterecho',params:{mix:.1}}
+  ]},
+  heritageMix:{name:'WL Heritage / Mix Bus',description:'Compression musicale et tonalité analogique originale pour mixage.',effects:[
+    {id:'circuiteq',params:{}},{id:'circuitbus',params:{threshold:-15,ratio:2,attack:35,release:200}},{id:'circuitcolor',params:{drive:1.5,mix:.12}},{id:'vectorlimit',params:{ceiling:-1}}
+  ]},
+
   tracking:{name:'Prise vocale propre',description:'Nettoyage, compression et de-esser pour l’enregistrement.',effects:[
     {id:'voxclean',params:{highpass:85,range:5,air:0}},{id:'voxlevel',params:{ratio:2.2,levelThreshold:-23,mix:.9}},{id:'sibil',params:{threshold:-26}}
   ]},
