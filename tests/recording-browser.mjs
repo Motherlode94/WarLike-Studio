@@ -19,6 +19,13 @@ try{
   assert.equal(await page.locator('#recordWorkspaceBar').isVisible(),true,'recording toolbar is visible');
   assert.equal(await page.locator('body').evaluate(el=>el.classList.contains('record-workspace')),true);
 
+  // Secondary recording tools are intentionally in a disclosure in the Pro layout.
+  const openAdvanced=async()=>{
+    const menu=page.locator('.record-advanced-menu');
+    if(await menu.count() && !(await menu.evaluate(el=>el.open)))
+      await menu.locator('summary').click();
+  };
+  await openAdvanced();
   await page.locator('#recordWorkspaceDuo').click();
   const arms=page.locator('#trackRows [data-record-arm][aria-pressed="true"]');
   assert.equal(await arms.count(),2,'duo must arm exactly two real audio tracks');
@@ -57,6 +64,7 @@ try{
 
   // A fake WebRTC mic is enough to validate permissions, meter lifecycle and
   // UI error-handling, NOT physical stereo sync, latency or channel isolation.
+  await openAdvanced();
   await page.locator('#recordWorkspaceMicTest').click();
   await page.locator('#recordWorkspaceMicTest[aria-pressed="true"]').waitFor({state:'visible',timeout:10000});
   assert.match(await page.locator('#recordWorkspaceInputDb').innerText(),/dBFS/);
@@ -150,6 +158,7 @@ try{
   // Browser download fallback must remain available in CI headless mode.
   await page.evaluate(()=>{Object.defineProperty(window,'showSaveFilePicker',{value:undefined,configurable:true});});
   await page.locator('#recordWorkspaceToggle').click();
+  await openAdvanced();
   await page.locator('#recordWorkspaceRecover').click();
   await page.getByText('Recovery QA', {exact:false}).waitFor({state:'visible'});
   const exported=page.waitForEvent('download');

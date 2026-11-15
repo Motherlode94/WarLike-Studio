@@ -1,0 +1,120 @@
+/* Studio clarity: secondary tools live in one disclosure, with a readable mobile layout. */
+.topbar .top-actions{min-width:0;gap:6px}
+.studio-more-menu{position:relative;flex:0 0 auto;font:inherit;z-index:80}
+.studio-more-menu>summary{cursor:pointer;list-style:none;min-height:38px;display:flex;align-items:center;padding:8px 12px;border:1px solid #4b605c;border-radius:8px;background:#25312e;color:#e1f3eb;font-weight:650}
+.studio-more-menu>summary::-webkit-details-marker{display:none}
+.studio-more-menu[open]>summary{background:#345348;border-color:#7ab99d}
+.studio-more-panel{position:absolute;right:0;top:calc(100% + 7px);width:min(380px,calc(100vw - 24px));max-height:min(65vh,560px);overflow:auto;padding:14px;background:#202925;border:1px solid #527269;border-radius:12px;box-shadow:0 15px 35px #0009;display:flex;flex-direction:column;gap:10px}
+.studio-more-panel>strong{font-size:12px;color:#bdd6c9}
+.studio-more-panel .public-demo-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.studio-more-panel .public-demo-links button{min-width:0;white-space:normal;min-height:42px}
+.studio-more-panel>button{width:100%;text-align:left;justify-content:flex-start;min-height:42px}
+.fl-piano .pr-toolbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.fl-piano .pr-toolbar button,.fl-piano .pr-toolbar select{min-height:34px}
+.fl-piano #prNzambe{border:1px solid #7f9f88;border-radius:7px;color:#d9f7d8;background:#2b4538;font-weight:700}
+#modal .nzambe-ui{width:min(100%,440px);box-sizing:border-box}
+#modal .nzambe-ui label{display:grid;gap:5px;min-width:0}
+#modal .nzambe-ui input,#modal .nzambe-ui select{max-width:100%;box-sizing:border-box}
+@media(max-width:760px){
+ .topbar{gap:7px}
+ .topbar .top-actions{flex-wrap:wrap;justify-content:flex-start;max-width:100%}
+ .studio-more-menu{position:static}
+ .studio-more-panel{position:fixed;top:auto;right:12px;left:12px;bottom:12px;width:auto;max-height:65dvh;z-index:1000}
+ .fl-piano .pr-toolbar{gap:5px}
+ .fl-piano .pr-toolbar>strong{flex-basis:100%;font-size:12px}
+ .fl-piano .pr-toolbar button{font-size:12px}
+ .studio-more-panel .public-demo-links{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* Progressive disclosure for recording and the asset browser. */
+.record-advanced-menu{position:relative;flex:0 0 auto}
+.record-advanced-menu>summary,.studio-library-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 11px;cursor:pointer;background:#263831;border:1px solid #527369;color:#e0f2e9;border-radius:8px;font:600 12px system-ui,sans-serif}
+.record-advanced-menu>summary{list-style:none}
+.record-advanced-menu>summary::-webkit-details-marker{display:none}
+.record-advanced-content{position:absolute;right:0;top:calc(100% + 6px);z-index:90;width:min(460px,calc(100vw - 24px));max-height:65vh;overflow:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px;border:1px solid #527369;border-radius:12px;background:#202925;box-shadow:0 14px 32px #0009}
+.record-advanced-content>button{min-height:40px;white-space:normal}
+.record-advanced-content>output,.record-advanced-content>.record-note,.record-advanced-content>.record-clip-actions{grid-column:1/-1}
+.studio-library-toggle{margin-left:auto}
+@media(max-width:760px){
+ .warlike-workspaces{align-items:center}
+ .studio-body:not(.studio-library-visible)>.library{display:none!important}
+ .studio-body.studio-library-visible>.library{display:block!important;position:relative!important;width:100%!important;max-width:100%!important;max-height:42dvh;overflow:auto;z-index:3}
+ .studio-body.studio-library-visible{display:flex;flex-direction:column}
+ .record-advanced-content{position:fixed;top:auto;bottom:12px;right:12px;left:12px;width:auto;max-height:65dvh}
+ .record-workspace-bar{gap:6px}
+}
+
+/* WarLike Studio Pro: original layout informed by established Edit/Mix DAW workflows.
+   One transport, one view switcher, one central editor, contextual inspector. */
+body.studio-pro-layout{--track-label:210px;--detail-height:260px}
+.studio-pro-layout .topbar{height:auto;min-height:44px;padding:6px 12px;gap:10px}
+.studio-pro-layout .brand{min-width:0}
+.studio-pro-layout .project-heading{min-width:0;flex:1}
+.studio-pro-layout .top-actions{margin-left:auto}
+.studio-pro-layout .warlike-workspaces{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding:5px 12px;background:#242831;border-bottom:1px solid #4c525e}
+.studio-pro-layout .warlike-workspaces button{flex:0 0 auto;padding:7px 13px;min-height:34px;border-radius:4px;background:transparent;border:1px solid transparent}
+.studio-pro-layout .warlike-workspaces button.ws-active,.studio-pro-layout .warlike-workspaces button[aria-pressed="true"]{background:#3d4956;border-color:#788a98;color:#f3f5f7}
+.studio-pro-layout .warlike-workspaces .ws-label{width:auto;align-self:center;margin-right:8px;white-space:nowrap}
+.studio-pro-layout .arrangement .workspace-toolbar{display:flex;align-items:center;gap:10px;min-height:44px;padding:5px 10px;background:#30343e;border-bottom:1px solid #4c525e}
+.studio-pro-layout .arrangement .view-tabs{display:flex!important;align-items:center;gap:4px;flex:0 0 auto}
+.studio-pro-layout .arrangement .view-tabs .view-tab{display:inline-flex;align-items:center;min-height:34px;padding:6px 10px;border-radius:4px}
+.studio-pro-layout .arrangement .view-tabs .view-tab.selected{background:#43515c;color:#f5f7fa}
+@media(max-width:760px){.studio-pro-layout .arrangement .view-tabs{width:100%;overflow-x:auto;scrollbar-width:thin}.studio-pro-layout .arrangement .view-tabs .view-tab{flex:0 0 auto}}
+.studio-pro-layout .arrangement .workspace-toolbar .arrangement-actions{margin-left:auto;display:flex;align-items:center;gap:7px}
+.studio-pro-layout .studio-editbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;min-height:42px;padding:5px 10px;background:#282d36}
+.studio-pro-layout .studio-editbar .edit-tools{display:flex;gap:3px}
+.studio-pro-layout .studio-editbar .edit-tools button{min-height:31px}
+.studio-pro-layout .studio-editbar .edit-modes{display:flex;gap:3px}
+.studio-pro-layout .studio-edit-options,.studio-pro-layout .studio-arrange-options{position:relative;flex:0 0 auto}
+.studio-pro-layout .studio-edit-options>summary,.studio-pro-layout .studio-arrange-options>summary{cursor:pointer;list-style:none;display:flex;align-items:center;min-height:32px;padding:6px 10px;border:1px solid #596373;border-radius:4px;color:#dce3ed;background:#39414d}
+.studio-pro-layout .studio-edit-options>summary::-webkit-details-marker,.studio-pro-layout .studio-arrange-options>summary::-webkit-details-marker{display:none}
+.studio-pro-layout .studio-edit-options-content,.studio-pro-layout .studio-arrange-options-content{position:absolute;right:0;top:calc(100% + 5px);z-index:60;display:flex;align-items:center;gap:10px;min-width:210px;max-width:min(440px,90vw);padding:12px;border:1px solid #687482;border-radius:7px;background:#303945;box-shadow:0 12px 28px #0009}
+.studio-pro-layout .workspace-main{min-width:0}
+.studio-pro-layout .timeline-view{min-height:180px}
+.studio-pro-layout .edit-selection-bar{min-height:30px}
+.studio-pro-layout .studio-body>.library{border-right:1px solid #525d68}
+.studio-pro-layout #trackInspector{border-left:1px solid #525d68}
+.studio-pro-layout .record-workspace-bar{padding:6px 10px;min-height:44px;gap:7px}
+.studio-pro-layout .record-workspace-bar .record-caption{font-weight:750;letter-spacing:.09em}
+.studio-pro-layout .workspace-status{font-size:11px}
+@media(max-width:1100px){
+ .studio-pro-layout .topbar .save-status{display:none}
+ .studio-pro-layout .studio-editbar .edit-tools{max-width:100%;overflow-x:auto}
+ .studio-pro-layout .studio-editbar .edit-tools button{flex-shrink:0}
+ .studio-pro-layout .edit-selection-bar{overflow-x:auto}
+}
+@media(max-width:760px){
+ body.studio-pro-layout{--track-label:126px;--detail-height:225px}
+ .studio-pro-layout .topbar{min-height:46px;padding:5px 7px}
+ .studio-pro-layout .project-heading input{max-width:110px}
+ .studio-pro-layout .warlike-workspaces{gap:2px;padding:4px 6px}
+ .studio-pro-layout .warlike-workspaces .ws-label{display:none}
+ .studio-pro-layout .warlike-workspaces button{padding:8px;min-height:40px}
+ .studio-pro-layout .arrangement .workspace-toolbar{flex-wrap:wrap;gap:4px}
+ .studio-pro-layout .arrangement .workspace-toolbar .arrangement-actions{gap:4px}
+ .studio-pro-layout .studio-editbar{flex-wrap:nowrap;overflow-x:auto;gap:5px;padding:5px 7px}
+ .studio-pro-layout .studio-editbar>*{flex:0 0 auto}
+ .studio-pro-layout .studio-edit-options-content,.studio-pro-layout .studio-arrange-options-content{position:fixed;left:10px;right:10px;top:auto;bottom:12px;max-width:none;flex-wrap:wrap;z-index:100}
+ .studio-pro-layout .record-workspace-bar{flex-wrap:wrap}
+ .studio-pro-layout .record-workspace-bar .record-caption{display:none}
+ .studio-pro-layout .workspace-status span:nth-child(2){display:none}
+}
+
+/* FL-style Piano Roll arrangement, with WarLike's own styling and controls. */
+.studio-pro-layout .fl-piano{display:flex;flex-direction:column;min-height:0;background:#20252c}
+.studio-pro-layout .fl-piano .pr-toolbar{order:0;display:flex;align-items:center;flex-wrap:wrap;gap:5px;padding:7px 9px;background:#303841;border-bottom:1px solid #52606b}
+.studio-pro-layout .fl-piano .pr-toolbar>strong{margin-right:8px;white-space:nowrap}
+.studio-pro-layout .fl-piano .pr-musical{order:1;display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:5px 9px;background:#272e36;border-bottom:1px solid #4a5762}
+.studio-pro-layout .fl-piano .pr-scroll{order:2;flex:1;min-height:150px;background:#1c232a}
+.studio-pro-layout .fl-piano .pr-velocity-heading{order:3;padding:5px 9px;background:#2b323b}
+.studio-pro-layout .fl-piano .pr-velocity-scroll{order:4;flex:0 0 auto;background:#222a32;border-top:1px solid #53606a}
+.studio-pro-layout .fl-piano .pr-keyboard{background:#d4d9db}
+.studio-pro-layout .fl-piano .pr-grid{background-color:#232c33}
+.studio-pro-layout .fl-piano #prNzambe{order:10}
+@media(max-width:760px){
+ .studio-pro-layout .fl-piano .pr-toolbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
+ .studio-pro-layout .fl-piano .pr-toolbar>*{flex:0 0 auto}
+ .studio-pro-layout .fl-piano .pr-toolbar>strong{flex-basis:auto}
+ .studio-pro-layout .fl-piano .pr-musical{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
+ .studio-pro-layout .fl-piano .pr-musical>*{flex:0 0 auto}
+}
