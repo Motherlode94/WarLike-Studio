@@ -14,7 +14,8 @@ export const INSTRUMENTS = {
   drums:{name:'PULSE',subtitle:'DRUM MACHINE',color:'#d9a06f',description:'Huit voix de percussion synthétisées. Aucun sample externe.',controls:[
     {key:'punch',name:'Punch',min:.2,max:1,step:.01,default:.85,unit:'%'},
     {key:'decay',name:'Decay',min:.1,max:.8,step:.01,default:.38,unit:'s'},
-    {key:'hat',name:'Hi-hats',min:.1,max:1,step:.01,default:.75,unit:'%'}]},
+    {key:'hat',name:'Hi-hats',min:.1,max:1,step:.01,default:.75,unit:'%'},
+    {key:'kit',name:'Drum Kit (0 Synth / 1 Rock / 2 Pop / 3 Rumba)',min:0,max:3,step:1,default:0,unit:'kit'}]},
   bass:{name:'MONO',subtitle:'808 SYNTHESIZER',color:'#b3acdf',description:'Sub oscillateur, attaque descendante et harmoniques réglables.',controls:[
     {key:'body',name:'Body',min:.1,max:1,step:.01,default:.6,unit:'%'},
     {key:'harmonics',name:'Harmonics',min:0,max:.5,step:.01,default:.08,unit:'%'},
