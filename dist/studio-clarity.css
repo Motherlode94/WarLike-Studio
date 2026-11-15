@@ -1,0 +1,27 @@
+/* Studio clarity: secondary tools live in one disclosure, with a readable mobile layout. */
+.topbar .top-actions{min-width:0;gap:6px}
+.studio-more-menu{position:relative;flex:0 0 auto;font:inherit;z-index:80}
+.studio-more-menu>summary{cursor:pointer;list-style:none;min-height:38px;display:flex;align-items:center;padding:8px 12px;border:1px solid #4b605c;border-radius:8px;background:#25312e;color:#e1f3eb;font-weight:650}
+.studio-more-menu>summary::-webkit-details-marker{display:none}
+.studio-more-menu[open]>summary{background:#345348;border-color:#7ab99d}
+.studio-more-panel{position:absolute;right:0;top:calc(100% + 7px);width:min(380px,calc(100vw - 24px));max-height:min(65vh,560px);overflow:auto;padding:14px;background:#202925;border:1px solid #527269;border-radius:12px;box-shadow:0 15px 35px #0009;display:flex;flex-direction:column;gap:10px}
+.studio-more-panel>strong{font-size:12px;color:#bdd6c9}
+.studio-more-panel .public-demo-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.studio-more-panel .public-demo-links button{min-width:0;white-space:normal;min-height:42px}
+.studio-more-panel>button{width:100%;text-align:left;justify-content:flex-start;min-height:42px}
+.fl-piano .pr-toolbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.fl-piano .pr-toolbar button,.fl-piano .pr-toolbar select{min-height:34px}
+.fl-piano #prNzambe{border:1px solid #7f9f88;border-radius:7px;color:#d9f7d8;background:#2b4538;font-weight:700}
+#modal .nzambe-ui{width:min(100%,440px);box-sizing:border-box}
+#modal .nzambe-ui label{display:grid;gap:5px;min-width:0}
+#modal .nzambe-ui input,#modal .nzambe-ui select{max-width:100%;box-sizing:border-box}
+@media(max-width:760px){
+ .topbar{gap:7px}
+ .topbar .top-actions{flex-wrap:wrap;justify-content:flex-start;max-width:100%}
+ .studio-more-menu{position:static}
+ .studio-more-panel{position:fixed;top:auto;right:12px;left:12px;bottom:12px;width:auto;max-height:65dvh;z-index:1000}
+ .fl-piano .pr-toolbar{gap:5px}
+ .fl-piano .pr-toolbar>strong{flex-basis:100%;font-size:12px}
+ .fl-piano .pr-toolbar button{font-size:12px}
+ .studio-more-panel .public-demo-links{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
