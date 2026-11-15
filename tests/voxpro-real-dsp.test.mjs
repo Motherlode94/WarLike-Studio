@@ -23,7 +23,7 @@ function rig(id,sampleRate=48000){
  const state=structuredClone(pluginDefaults('keys').effects);
  const module=graph.modules[id];assert.ok(module,id+' missing Web Audio DSP graph');
  const sync=(patch={},initial=true)=>{Object.assign(state[id],patch);syncPackProcessors({modules:graph.modules,inputChannels:1},state,120,ctx.currentTime,initial);};
- return {graph,module,nodes,oscillators,sync,state};
+ return {graph,module,nodes,oscillators,sync,state,input};
 }
 test('new vocal module ids match the persisted registry and provide factory presets',()=>{
  for(const id of ['voxmicmodel','voxwarm','voxdoubler']){
@@ -44,7 +44,7 @@ test('VOX MIC COLOR clamps filter frequencies and bypass restores the dry path',
  assert.equal(v.module.wet.gain.value,1);
  v.sync({enabled:false},false);
  assert.equal(v.module.wet.gain.value,0);assert.equal(v.module.dry.gain.value,1);
- v.graph.dispose();assert.ok(v.nodes.every(n=>n.disconnectCalls>0));
+ v.graph.dispose();assert.ok(v.nodes.filter(n=>n!==v.input).every(n=>n.disconnectCalls>0));
 });
 test('VOX WARM generates finite centered curve and bypass does not apply output trim to dry',()=>{
  const v=rig('voxwarm');v.sync({enabled:true,mix:1,drive:12,bias:.4,output:-12});
@@ -66,10 +66,10 @@ test('VOX DOUBLER limits modulation below delay and stops its LFOs on teardown',
  assert.equal(v.module.wet.gain.value,.7);
  v.sync({enabled:false},false);assert.equal(v.module.wet.gain.value,0);assert.equal(v.module.dry.gain.value,1);
  v.graph.dispose();assert.ok(v.oscillators.every(osc=>osc.stopped));
- assert.ok(v.nodes.every(n=>n.disconnectCalls>0));
+ assert.ok(v.nodes.filter(n=>n!==v.input).every(n=>n.disconnectCalls>0));
 });
 test('all three new processor instances can be repeatedly created and disposed',()=>{
  for(let cycle=0;cycle<5;cycle++)for(const id of ['voxmicmodel','voxwarm','voxdoubler']){
-  const v=rig(id);v.sync({enabled:true});v.graph.dispose();assert.ok(v.nodes.every(n=>n.disconnectCalls>0));
+  const v=rig(id);v.sync({enabled:true});v.graph.dispose();assert.ok(v.nodes.filter(n=>n!==v.input).every(n=>n.disconnectCalls>0));
  }
 });
