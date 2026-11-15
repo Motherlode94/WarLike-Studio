@@ -24,7 +24,7 @@ const S={
   chords:[[60,64,67,72],[57,60,64,69],[53,57,60,65],[55,59,62,67]],roots:[36,33,29,31],
   palette:[
    ['drums','POP · LIVE GROOVE',-14,[]],
-   ['grand','GRAND · WARM PIANO',-17,['circuiteq']],
+   ['piano','GRAND · WARM PIANO',-17,['circuiteq']],
    ['wlclean','CLEAN · MELODIC HOOK',-18,['voxaireq']],
    ['wlmuted','MUTED · RHYTHM CHOPS',-21,['circuiteq']],
    ['wlrompler','ATLAS · SOFT PAD',-27,['exospace']],
