@@ -1,5 +1,51 @@
 # Warlike Studio + CHAYAH Suite
 
+## Bundles — identités visuelles et VOX LAB PRO (spécification 2026-11-15)
+
+La galerie ci-dessous couvre **les huit familles principales et les douze bundles DIVINITÉS**. Les visuels sont des illustrations SVG originales, non des captures ; ils ne prouvent ni une simulation matérielle ni des résultats audio. Les modules déjà présents dans les chaînes restent des traitements Web Audio originaux.
+
+### Familles principales
+
+| Bundle et identité visuelle | Modules disponibles | Rôle |
+| --- | --- | --- |
+| ![Identité CIRCUIT](docs/bundles/circuit.svg) **CIRCUIT** | CIRCUIT EQ · BUS · COLOR | Console, EQ, dynamique |
+| ![Identité ALTER](docs/bundles/alter.svg) **ALTER** | ALTER DOUBLE · ECHO · FILTER | Echos et mouvement |
+| ![Identité VECTOR](docs/bundles/vector.svg) **VECTOR** | VECTOR EQ · COMP · LIMIT | Précision et mastering |
+| ![Identité VOX LAB](docs/bundles/voxlab.svg) **VOX LAB** | VOX TUNE · LEVEL · CLEAN | Traitement vocal standard |
+| ![Identité VOX LAB PRO](docs/bundles/voxpro.svg) **VOX LAB PRO** | VOX CLEAN · SIBIL · TUNE · LEVEL · ALTER DOUBLE · CIRCUIT COLOR · EXO AIR | 7 effets disponibles ; 12 modules dédiés spécifiés |
+| ![Identité EXO](docs/bundles/exo.svg) **EXO** | EXO STRIP · FOCUS · AIR · SPACE | Mixage hybride |
+| ![Identité Vocal Essentials](docs/bundles/vocal.svg) **Vocal Essentials** | HUSH · SIBIL | Préparation de voix |
+| ![Identité Motion & Color](docs/bundles/motion.svg) **Motion & Color** | EMBER · ORBIT · SWAY · RELAY · TILT EQ · NOTCH · SLAP · PHASE · RING | Modulation, texture |
+
+### Bundles DIVINITÉS
+
+Les noms DIVINITÉS servent d'identité artistique aux chaînes de traitement WarLike ; ces packs ne représentent ni des produits tiers ni des rituels.
+
+| Bundle | Image dédiée | Modules intégrés |
+| --- | --- | --- |
+| **OGUN** | ![OGUN](docs/bundles/ogun.svg) | `circuiteq · circuitbus · circuitcolor` |
+| **SHANGO** | ![SHANGO](docs/bundles/shango.svg) | `voxclean · voxlevel · ember · alterecho` |
+| **OSHUN** | ![OSHUN](docs/bundles/oshun.svg) | `voxclean · vectorcomp · exoair · exospace` |
+| **YEMOJA** | ![YEMOJA](docs/bundles/yemoja.svg) | `alterdouble · orbit · exoair · exospace` |
+| **OBATALA** | ![OBATALA](docs/bundles/obatala.svg) | `voxclean · vectoreq · vectorcomp` |
+| **NYAME** | ![NYAME](docs/bundles/nyame.svg) | `vectoreq · circuitbus · vectorlimit` |
+| **ASASE YAA** | ![ASASE YAA](docs/bundles/asaseyaa.svg) | `exofocus · circuiteq · vectorcomp` |
+| **MAWU** | ![MAWU](docs/bundles/mawu.svg) | `vectoreq · vectorcomp · vectorlimit` |
+| **LISA** | ![LISA](docs/bundles/lisa.svg) | `circuiteq · circuitbus · vectorlimit` |
+| **ANANSI** | ![ANANSI](docs/bundles/anansi.svg) | `alterfilter · alterdouble · alterecho · phase` |
+| **ASET** | ![ASET](docs/bundles/aset.svg) | `sibil · voxlevel · exoair · exospace` |
+| **DJEHUTY** | ![DJEHUTY](docs/bundles/djehuty.svg) | `vectoreq · exofocus · vectorlimit` |
+
+### VOX LAB PRO — périmètre réel
+
+- **Accessible dans les packs :** une chaîne originale de **7 effets existants** : `voxclean`, `sibil`, `voxtune`, `voxlevel`, `alterdouble`, `circuitcolor`, `exoair`. Ce sont des processeurs déjà intégrés à Studio, non des clones binaires ou officiels.
+- **Spécification produit :** **12 modules dédiés** décrits dans [`dist/voxlab-pro-spec.js`](dist/voxlab-pro-spec.js) avec paramètres, contraintes DSP et ordre des traitements, documentés dans [`docs/voxlab-pro-architecture.md`](docs/voxlab-pro-architecture.md).
+- **Non terminé :** les douze nouveaux ID ne sont **pas** injectés dans `STUDIO_EFFECTS` tant que leurs chemins DSP, tests de rendu audio, import/export et interfaces ne sont pas opérationnels. La correction graphique hors ligne et la création d'harmonies ne peuvent pas être réalisées en renommant une simple chaîne de Web Audio.
+- **Indépendance :** aucune affiliation à Antares, pas de copie de leurs algorithmes, interfaces, marques ou présélections.
+- **Différenciation :** `dist/plugin-faces.css` affecte à chaque famille une palette, des surfaces, des en-têtes et une géométrie de contrôles. Les images de documentation ne remplacent pas l'interface réellement rendue.
+
+---
+
 ## Catalogue actuel des plugins — instruments et effets
 
 > **Source de vérité :** les définitions du code dans `dist/plugins.js`, `dist/acoustic.js`, `dist/exo.js`, `dist/sampler.js`, `dist/packs.js`, `dist/studio-packs.js` et `dist/exo-pack.js`. Les sections numérotées plus bas documentent des versions antérieures ; leurs chiffres peuvent différer du registre actuel. Les visuels suivants sont des **illustrations originales**, pas des captures du logiciel ni une preuve de validation audio.

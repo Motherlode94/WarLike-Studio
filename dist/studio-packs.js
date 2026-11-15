@@ -1,10 +1,12 @@
+import {VOXPRO_PACK,VOXPRO_STARTER_MODULES} from './voxlab-pro-spec.js';
 const c=(key,name,min,max,step,value,unit='dB')=>({key,name,min,max,step,default:value,unit});
 const comp=[c('threshold','Seuil',-60,0,.5,-20),c('ratio','Ratio',1,20,.1,3,':1'),c('attack','Attaque',1,100,1,20,'ms'),c('release','Release',20,1000,5,180,'ms'),c('knee','Knee',0,30,1,6),c('mix','Mix',0,1,.01,1,'%'),c('output','Sortie',-18,18,.5,0)];
 export const STUDIO_PACKS={
  circuit:{name:'CIRCUIT',label:'CONSOLE / EQ & DYNAMIQUE',color:'#93b9d0',description:'Approche console inspirée des usages API : EQ à Q proportionnel, compression de bus et couleur. Modèles WarLike originaux.',modules:['circuiteq','circuitbus','circuitcolor']},
  alter:{name:'ALTER',label:'CRÉATIF / VOIX & EFFETS',color:'#d89971',description:'Approche créative inspirée de Soundtoys : doublage modulé, écho avec ducking et filtre animé.',modules:['alterdouble','alterecho','alterfilter']},
  vector:{name:'VECTOR',label:'PRÉCISION / MIX & MASTER',color:'#87c6bb',description:'Approche visuelle inspirée de FabFilter : EQ six bandes, compression parallèle et plafond de crête sur échantillons.',modules:['vectoreq','vectorcomp','vectorlimit']},
- voxlab:{name:'VOX LAB',label:'VOIX / JUSTESSE & CONTRÔLE',color:'#b89dd1',description:'Approche vocale inspirée d’Antares : correction monophonique en direct, compression en deux étages et nettoyage de voix.',modules:['voxtune','voxlevel','voxclean']}
+ voxlab:{name:'VOX LAB',label:'VOIX / JUSTESSE & CONTRÔLE',color:'#b89dd1',description:'Traitements vocaux originaux WarLike : correction monophonique, compression en deux étages et nettoyage de voix.',modules:['voxtune','voxlevel','voxclean']},
+ voxpro:{...VOXPRO_PACK,modules:VOXPRO_STARTER_MODULES,description:'Chaîne VOX LAB PRO opérationnelle avec 7 processeurs WarLike existants. Le plan des 12 modules dédiés est documenté séparément dans voxlab-pro-spec.js ; ces modules avancés ne sont pas encore intégrés au DSP.'}
 };
 const def=(name,subtitle,pack,description,controls)=>({name,subtitle,pack,color:STUDIO_PACKS[pack].color,defaultEnabled:false,description,controls});
 export const STUDIO_EFFECTS={
