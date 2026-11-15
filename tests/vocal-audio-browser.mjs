@@ -24,7 +24,7 @@ try{
        assets.set(source.id,{...source,buffer});
        source.peak=peak;source.rms=Math.sqrt(energy/data.length);
      }
-     for(const t of project.tracks)t.mute=t.type!=='audio'||!t.name.startsWith('LEAD');
+     project.tracks=project.tracks.filter(t=>t.type==='audio'&&t.name.startsWith('LEAD'));
      project.masterVolume=0;
      const renderer=new AudioEngine(()=>project,()=>assets);
      const rendered=await renderer.renderRange({sampleRate:44100,startBar:4,endBar:5,tail:false});
