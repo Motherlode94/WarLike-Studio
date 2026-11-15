@@ -77,7 +77,7 @@ body.reference-studio{--track-label:270px;--detail-height:280px;display:flex;fle
   min-width:176px;
   max-width:176px;
   min-height:690px;
-  grid-template-rows:18px 26px 56px 226px 36px 42px 26px minmax(155px,1fr) 27px 28px;
+  grid-template-rows:18px 26px 56px 165px 36px 42px 26px minmax(205px,1fr) 27px 28px;
   overflow:hidden;
   padding-left:9px;
   padding-right:9px;
