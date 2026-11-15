@@ -56,7 +56,10 @@ body.studio-pro-layout{--track-label:210px;--detail-height:260px}
 .studio-pro-layout .warlike-workspaces button.ws-active,.studio-pro-layout .warlike-workspaces button[aria-pressed="true"]{background:#3d4956;border-color:#788a98;color:#f3f5f7}
 .studio-pro-layout .warlike-workspaces .ws-label{width:auto;align-self:center;margin-right:8px;white-space:nowrap}
 .studio-pro-layout .arrangement .workspace-toolbar{display:flex;align-items:center;gap:10px;min-height:44px;padding:5px 10px;background:#30343e;border-bottom:1px solid #4c525e}
-.studio-pro-layout .arrangement .view-tabs{display:none!important}
+.studio-pro-layout .arrangement .view-tabs{display:flex!important;align-items:center;gap:4px;flex:0 0 auto}
+.studio-pro-layout .arrangement .view-tabs .view-tab{display:inline-flex;align-items:center;min-height:34px;padding:6px 10px;border-radius:4px}
+.studio-pro-layout .arrangement .view-tabs .view-tab.selected{background:#43515c;color:#f5f7fa}
+@media(max-width:760px){.studio-pro-layout .arrangement .view-tabs{width:100%;overflow-x:auto;scrollbar-width:thin}.studio-pro-layout .arrangement .view-tabs .view-tab{flex:0 0 auto}}
 .studio-pro-layout .arrangement .workspace-toolbar .arrangement-actions{margin-left:auto;display:flex;align-items:center;gap:7px}
 .studio-pro-layout .studio-editbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;min-height:42px;padding:5px 10px;background:#282d36}
 .studio-pro-layout .studio-editbar .edit-tools{display:flex;gap:3px}
