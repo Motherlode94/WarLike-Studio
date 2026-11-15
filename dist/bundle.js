@@ -1,3 +1,4 @@
+import {WL_INSTRUMENT_PRESETS} from './wl-instrument-presets.js';
 import {ACOUSTIC_PRESETS} from './acoustic.js?v=0.14.0';
 import {EXO_PRESETS} from './exo.js?v=0.14.0';
 import {packPresetBank} from './packs.js?v=0.14.0';
@@ -489,7 +490,7 @@ export const FACTORY_PRESETS={
     }
   ]
 };
-Object.assign(FACTORY_PRESETS,ACOUSTIC_PRESETS,packPresetBank(),{exo:EXO_PRESETS.map(p=>({...p,values:{...p.values}}))});
+Object.assign(FACTORY_PRESETS,WL_INSTRUMENT_PRESETS,ACOUSTIC_PRESETS,packPresetBank(),{exo:EXO_PRESETS.map(p=>({...p,values:{...p.values}}))});
 export function presetsFor(track,id){return FACTORY_PRESETS[id==='instrument'?track.type:effectType(id)]||[];}
 export function matchPreset(track,id){const state=id==='instrument'?track.instrument:track.effects[id];return presetsFor(track,id).findIndex(p=>Object.entries(p.values).every(([key,value])=>Math.abs(state[key]-value)<1e-8));}
 for(const [id,presets] of Object.entries(FACTORY_PRESETS)){const def=INSTRUMENTS[id]||EFFECTS[id];for(const preset of presets)preset.values={...Object.fromEntries(def.controls.map(c=>[c.key,c.default])),...preset.values};}

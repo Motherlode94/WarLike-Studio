@@ -1,8 +1,12 @@
+import {HERITAGE_PACK,GUITAR_PACK,SYNTH_PACKS} from './wl-instrument-packs.js';
 import {STUDIO_PACKS,STUDIO_EFFECTS,STUDIO_PRESETS} from './studio-packs.js?v=0.14.0';
 import {EXO_EFFECTS,EXO_EFFECT_PRESETS} from './exo-pack.js?v=0.14.0';
 import {DIVINITY_BUNDLES} from './divinity-bundles.js';
 // CHAYAH originals. Functional references are described in docs; no vendor DSP/assets.
 export const EFFECT_PACKS={
+  heritage:HERITAGE_PACK,
+  wlguitars:GUITAR_PACK,
+  ...SYNTH_PACKS,
   ...STUDIO_PACKS,
   ...DIVINITY_BUNDLES,
   exo:{name:'EXO',label:'EXO / MIX & INSTRUMENT',color:'#8acdc8',description:'Quatre traitements pour les voix et le mix, avec un synthé à deux couches et sa banque de 32 sons originaux.',modules:['exostrip','exofocus','exoair','exospace'],instruments:['exo','sampler']},
