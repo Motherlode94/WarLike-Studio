@@ -55,6 +55,7 @@ export function recommendMastering(metrics,{style='transparent'}={}){
   const p=AI_MASTER_STYLES[style];
   if(!p)throw new Error('Style de mastering inconnu.');
   if(!metrics||![metrics.samplePeakDbfs,metrics.rmsDbfs,metrics.crestDb].every(Number.isFinite))throw new Error('Analyse audio invalide.');
+  if(metrics.rmsDbfs<=-70||metrics.samplePeakDbfs<=-70)throw new Error('Le mix est silencieux ou trop faible pour proposer un mastering. Vérifie les pistes, les clips et les sorties audio.');
   const warnings=[];
   if(metrics.samplePeakDbfs>=-.1||metrics.clippedFraction>0)warnings.push('Crêtes proches de 0 dBFS ou écrêtage : réduire le gain du mix avant mastering.');
   if(Math.abs(metrics.dcOffset)>0.02)warnings.push('Offset DC détecté : examiner la source.');

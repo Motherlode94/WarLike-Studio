@@ -8,7 +8,7 @@ const safe = s => String(s).replace(/[&<>"']/g, x => ({'&':'&amp;','<':'&lt;','>
 const short = x => Number.isFinite(x) ? x.toFixed(1) : '—';
 
 export function createDivinityUI({getProject,getTrack,engine,checkpoint,changed,toast,renderMastering,renderLibrary}) {
-  let proposal = null, activeProject = null, busy = false;
+  let proposal = null, activeProject = null, busy = false, analysisError = null, chosenStyle = 'transparent';
   const css = `
   .divinity-action{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 2px}
   .divinity-action button,.chayah-ai-panel button{cursor:pointer;min-height:34px}
@@ -61,24 +61,46 @@ export function createDivinityUI({getProject,getTrack,engine,checkpoint,changed,
   }
   async function analyze(button) {
     if(busy)return;
-    const project=getProject();if(!project)return;
-    busy=true;proposal=null;activeProject=null;button.disabled=true;button.textContent='Analyse en cours…';
+    const source=getProject();
+    if(!source)return;
+    const style=document.getElementById('chayah-ai-style')?.value||chosenStyle;
+    chosenStyle=Object.hasOwn(AI_MASTER_STYLES,style)?style:'transparent';
+    const bars=Number(source.bars);
+    if(!Number.isFinite(bars)||bars<=0){analysisError='Aucune plage musicale valide à analyser.';drawProposal();return;}
+    if(!Array.isArray(source.tracks)||!source.tracks.some(track=>track.clips?.some(clip=>!clip.muted))){
+      analysisError='Le projet ne contient aucun clip actif. Ajoute un enregistrement ou une partie instrumentale avant le mastering.';
+      drawProposal();return;
+    }
+    busy=true;proposal=null;activeProject=null;analysisError=null;
+    button.disabled=true;button.textContent='Analyse en cours…';
+    drawProposal();
     try{
-      // Render at most 8 bars; preview reflects the actual current bus processing.
-      const endBar=Math.min(8,project.bars);
-      const buffer=await engine.renderRange({startBar:0,endBar,tail:false,sampleRate:44100});
+      // Analyze the PRE-master mix, otherwise existing mastering skews the new recommendation.
+      // Keep track FX, sends, arrangement and automation exactly as in the project.
+      const dryMasterProject={...source,mastering:{...source.mastering,bypass:true}};
+      const buffer=await engine.renderRange({
+        startBar:0,endBar:Math.min(4,bars),tail:false,sampleRate:44100,
+        project:dryMasterProject
+      });
+      if(source!==getProject())throw Error('La session a changé pendant l’analyse. Relance-la sur le projet actif.');
       const metrics=analyzeAudioBuffer(buffer,{maxSeconds:45});
-      const style=document.getElementById('chayah-ai-style')?.value||'transparent';
-      proposal=recommendMastering(metrics,{style});
-      activeProject=project;
+      proposal=recommendMastering(metrics,{style:chosenStyle});
+      activeProject=source;
+      toast('Analyse locale terminée : vérifie la proposition avant de l’appliquer.');
+    }catch(error){
+      analysisError='Analyse impossible : '+(error?.message||String(error));
+      toast(analysisError);
+    }finally{
+      busy=false;
+      if(button.isConnected){button.disabled=false;button.textContent='Analyser le mix';}
       drawProposal();
-      toast('Analyse locale terminée : vérifier la proposition avant de l’appliquer.');
-    }catch(error){toast('Analyse impossible : '+error.message);}
-    finally{busy=false;button.disabled=false;button.textContent='Analyser le mix';}
+    }
   }
   function drawProposal(){
     const root=document.getElementById('chayah-ai-result');
     if(!root)return;
+    if(busy){root.innerHTML='<p role="status">Rendu et analyse du mix en cours… Ne change pas de projet pendant cette opération.</p>';return;}
+    if(analysisError){root.innerHTML=`<div class="chayah-ai-result chayah-ai-warning" role="alert">${safe(analysisError)}<p>Vérifie les clips, les médias importés et le chargement des instruments, puis relance l’analyse.</p></div>`;return;}
     if(!proposal||activeProject!==getProject()){root.innerHTML='<p>Aucune analyse effectuée pour cette session.</p>';return;}
     const m=proposal.metrics;
     root.innerHTML=`<div class="chayah-ai-result" role="status"><strong>${safe(proposal.label)}</strong> · crête ${short(m.samplePeakDbfs)} dBFS · RMS ${short(m.rmsDbfs)} dBFS · dynamique ${short(m.crestDb)} dB
@@ -93,10 +115,11 @@ export function createDivinityUI({getProject,getTrack,engine,checkpoint,changed,
     if(!root)return;
     const panel=document.createElement('section');panel.className='chayah-ai-panel';
     panel.innerHTML=`<h3>CHAYAH AI MASTER</h3><p>Assistant d'analyse DSP locale : recommandations de mastering, écoute A/B via le bypass du Master et validation manuelle.</p>
-    <div class="chayah-ai-controls"><label for="chayah-ai-style">Style musical</label><select id="chayah-ai-style">${Object.entries(AI_MASTER_STYLES).map(([id,s])=>`<option value="${id}">${safe(s.label)}</option>`).join('')}</select>
-    <button type="button" class="content-add" data-chayah-master-analyze>Analyser le mix</button></div>
+    <div class="chayah-ai-controls"><label for="chayah-ai-style">Style musical</label><select id="chayah-ai-style">${Object.entries(AI_MASTER_STYLES).map(([id,s])=>`<option value="${id}" ${id===chosenStyle?'selected':''}>${safe(s.label)}</option>`).join('')}</select>
+    <button type="button" class="content-add" data-chayah-master-analyze ${busy?'disabled':''}>${busy?'Analyse en cours…':'Analyser le mix'}</button></div>
     <div id="chayah-ai-result" aria-live="polite"></div><small>Analyse des 8 premières mesures au maximum ; aucun audio envoyé au serveur. Pour comparer à l'oreille, utilise le bypass A/B Master présent au-dessus.</small>`;
     root.querySelector('.mastering-tools')?.after(panel);
+    panel.querySelector('#chayah-ai-style')?.addEventListener('change',event=>{chosenStyle=event.target.value;proposal=null;activeProject=null;analysisError=null;drawProposal();});
     drawProposal();
   }
   document.addEventListener('click', event=>{
