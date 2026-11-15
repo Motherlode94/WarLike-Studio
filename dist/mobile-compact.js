@@ -32,7 +32,7 @@ if(host){
   // The editor can be opened from its existing controls; don't interfere with its state.
   document.addEventListener('click',e=>{
     if(!isMobile())return;
-    if(e.target.closest('[data-view]')){
+    if(e.target.closest('[data-view],[data-ws]')){
       active=null;refresh();
     }else if(e.target.closest('#channelRack,#openBundle')){
       active='detail';refresh();

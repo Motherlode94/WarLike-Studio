@@ -17,6 +17,7 @@ export function installReferenceWorkspace({bar,onView,setDetailOpen}){
   if(event.target.closest('button[data-workspace]'))document.body.dataset.studioSurface='playlist';
   if(view){document.body.dataset.studioSurface='playlist';onView(view);if(view!=='library')setDetailOpen(false);}
  });
+ panel.addEventListener('click',event=>{if(event.target.closest('button'))menu.open=false;});
  document.addEventListener('pointerdown',event=>{if(!menu.contains(event.target))menu.open=false;});
  document.addEventListener('keydown',event=>{if(event.key==='Escape')menu.open=false;});
 }

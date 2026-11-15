@@ -52,3 +52,5 @@ body.reference-studio{--track-label:270px;--detail-height:280px;display:flex;fle
 .reference-studio.mobile-compact[data-studio-surface=piano] .detail-panel{display:flex!important}
 .reference-studio.mobile-compact .pr-key{min-height:0!important}
 }
+
+.reference-studio .signature-workspaces [data-workspace=library]{display:none!important}
