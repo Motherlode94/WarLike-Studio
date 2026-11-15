@@ -128,7 +128,7 @@ async function launchPublicDemo(kind){
  try{
    const demo=config.vocal?createVocalDemoSession(kind):createFactorySession(config.template);
    demo.name=config.name;demo.publicDemo=true;
-   demo.demoRevision=config.vocal?4:3;
+   demo.demoRevision=config.vocal?5:3;
    const demoMedia=config.vocal?createVocalDemoMedia(demo):[];
    if(db){
      await createProjectLocal(demo.name,demo,demoMedia);
@@ -146,7 +146,7 @@ async function launchPublicDemo(kind){
    }
    $('modal').close();
    setView('arrange');fitTimeline();updateTransport();
-   toast(config.vocal?'Démo '+config.label+' · voix-guides synthétiques en REFRAIN (mesure 13) · mix natif WarLike sur LEAD, BACKS, ADLIBS. Appuie sur Lecture.':'Démo '+config.label+' chargée · '+demo.bpm+' BPM · '+demo.keyName+' · 16 mesures. Appuie sur Lecture.');
+   toast(config.vocal?'Démo '+config.label+' · voix-guides originales dès le COUPLET (mesure 5), puis au REFRAIN · mix natif WarLike sur LEAD, BACKS, ADLIBS. Appuie sur Lecture.':'Démo '+config.label+' chargée · '+demo.bpm+' BPM · '+demo.keyName+' · 16 mesures. Appuie sur Lecture.');
  }catch(error){toast('Démo '+config.label+' indisponible : '+error.message);}
  finally{publicDemoOpening=false;document.querySelectorAll('[data-public-demo]').forEach(b=>b.disabled=false);}
 }
