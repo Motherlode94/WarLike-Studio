@@ -1,5 +1,27 @@
 # Warlike Studio + CHAYAH Suite
 
+## Catalogue actuel des plugins — instruments et effets
+
+> **Source de vérité :** les définitions du code dans `dist/plugins.js`, `dist/acoustic.js`, `dist/exo.js`, `dist/sampler.js`, `dist/packs.js`, `dist/studio-packs.js` et `dist/exo-pack.js`. Les sections numérotées plus bas documentent des versions antérieures ; leurs chiffres peuvent différer du registre actuel. Les visuels suivants sont des **illustrations originales**, pas des captures du logiciel ni une preuve de validation audio.
+
+![Illustration originale du catalogue des effets CHAYAH](docs/plugin-catalog-fx.svg)
+
+**33 effets Web Audio déclarés dans le registre** : égalisation et filtres, compression et dynamique, saturation, spatialisation et effets temporels. Les familles incluent SCULPT, PRISM, GLUE, ECHO, AURA, CIRCUIT, ALTER, VECTOR, VOX LAB et EXO. Ces traitements sont des modules natifs du Studio dans le navigateur, **pas des fichiers VST/VST3**.
+
+![Illustration originale du catalogue des instruments WarLike](docs/plugin-catalog-instruments.svg)
+
+**20 instruments déclarés** : 12 instruments acoustiques à échantillons (GRAND, UPRIGHT, FM KEYS, HARP, MARIMBA, VIBES, KALIMBA, STRUM, VIOLIN, CELLO, FLUTE, TRUMPET), six instruments de synthèse PULSE, MONO, VELVET, NOVA, HALO et STRING, plus EXO et EXO SLICE. Les banques acoustiques chargent des fichiers audio ; EXO SLICE utilise un échantillon choisi par l'utilisateur.
+
+![Illustration originale de la famille vocale CHAYAH](docs/plugin-catalog-vocals.svg)
+
+**Traitement vocal** : VOX TUNE, VOX LEVEL, VOX CLEAN et les autres modules de dynamique/tonalité du registre. Leurs fonctionnalités précises dépendent du traitement implémenté ; ne pas confondre la présence d'un module avec une validation de sa qualité sonore ou une fonction IA opérationnelle.
+
+**Statut de validation :** les tests de registre et certains tests DSP existent dans le dépôt. Les tests de rendu audio réel de tous les 33 effets et 20 instruments, les prises physiques et les comparaisons complètes avec l'export WAV ne sont pas encore tous confirmés. Les nouvelles PR de diagnostic doivent être fusionnées et exécutées avant toute revendication de validation générale.
+
+**Pour consulter le code :** [registre des plugins](dist/plugins.js) · [banques acoustiques](dist/acoustic.js) · [synthèse EXO](dist/exo.js) · [sampler EXO SLICE](dist/sampler.js) · [tests automatisés](tests/).
+
+---
+
 ## Export WAV — écriture progressive
 
 - Le dialogue d'export encode maintenant le WAV par blocs de 32 768 frames, avec progression et annulation. Les formats PCM 16/24 bits, le dither et le flottant 32 bits conservent le même encodage.
