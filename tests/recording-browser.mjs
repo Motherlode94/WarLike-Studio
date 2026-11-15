@@ -15,7 +15,12 @@ try{
   await page.locator('#libraryNew').click();
   await page.locator('#modal').waitFor({state:'hidden'});
 
-  await page.locator('#recordWorkspaceToggle').click();
+  const toggleRecording=async()=>{
+    const menu=page.locator('.reference-window-menu');
+    if(await menu.count() && !(await menu.evaluate(el=>el.open)))await menu.locator(':scope > summary').click();
+    await page.locator('#recordWorkspaceToggle').click();
+  };
+  await toggleRecording();
   assert.equal(await page.locator('#recordWorkspaceBar').isVisible(),true,'recording toolbar is visible');
   assert.equal(await page.locator('body').evaluate(el=>el.classList.contains('record-workspace')),true);
 
@@ -90,7 +95,7 @@ try{
   await page.locator('#recordWorkspaceDuo').click();
   assert.equal(await page.locator('#trackRows [data-record-arm][aria-pressed="true"]').count(),2);
 
-  await page.locator('#recordWorkspaceToggle').click();
+  await toggleRecording();
   assert.equal(await page.locator('#recordWorkspaceBar').isHidden(),true);
 
   // Deliberately overwhelm a journal in-browser: it should report a bounded
@@ -157,7 +162,7 @@ try{
   assert.ok(Math.abs(verified.sample-.4)<.00001);
   // Browser download fallback must remain available in CI headless mode.
   await page.evaluate(()=>{Object.defineProperty(window,'showSaveFilePicker',{value:undefined,configurable:true});});
-  await page.locator('#recordWorkspaceToggle').click();
+  await toggleRecording();
   await openAdvanced();
   await page.locator('#recordWorkspaceRecover').click();
   await page.getByText('Recovery QA', {exact:false}).waitFor({state:'visible'});

@@ -1,3 +1,4 @@
+import {instrumentVoice} from './instrument-voices.js';
 import {prepareStudioContext} from './studio-pack-audio.js?v=0.14.0';
 import {samplerVoice} from './sampler.js?v=0.14.0';
 import {ACOUSTIC_INSTRUMENTS} from './acoustic.js?v=0.14.0';
@@ -8,6 +9,7 @@ import {resolvePatternClip,patternPlaybackProject} from './piano-model.js?v=0.14
 import {normaliseRouting,audibleIds,compensationDelays,fadeValue} from './studio-model.js?v=0.14.0';
 import {bindings,automateParam} from './automation.js?v=0.14.0';
 import {encodeWav} from './wav.js?v=0.14.0';
+import {encodeWavBlob,writeWav} from './wav-export.js';
 import {createPackProcessors,syncPackProcessors} from './pack-audio.js?v=0.14.0';
 import {packTail} from './packs.js?v=0.14.0';
 import {ensurePlugins,DRUM_VOICES,EFFECTS,pluginDefaults,effectType} from './plugins.js?v=0.14.0';
@@ -194,15 +196,33 @@ export class AudioEngine {
   scheduler() {
     if(!this.playing)return;
     const p=this.getPlaybackProject(), total=p.bars*16,sd=this.stepDuration;
-    // A background tab can wake up minutes late. Skip the elapsed time instead of
-    // allocating thousands of overdue voices synchronously on the main thread.
-    const current=(this.ctx.currentTime-this.startTime)/sd;
-    if(current-this.scheduledStep>2){this.killVoices();this.scheduledStep=Math.max(0,Math.ceil(current));if(!this.patternMode&&!this.clipPreview&&this.loop){const local=this.scheduledStep%total;this.startTime=this.ctx.currentTime-local*sd;this.scheduledStep=local;this.schedulePartialAudio(local);this.scheduleAutomation(this.ctx,this.graph,local/16,p.bars,this.ctx.currentTime);}}
-    while(this.startTime+this.scheduledStep*sd<this.ctx.currentTime+.14) {
+    // Never fire missed note-on events immediately: a main-thread stall can
+    // otherwise pile up drums and synth transients into one audible crackle.
+    const now=this.ctx.currentTime,current=(now-this.startTime)/sd;
+    if(current-this.scheduledStep>2){
+      const overdue=(current-this.scheduledStep)*sd,hardRecovery=overdue>1;
+      this.audioUnderruns=(this.audioUnderruns||0)+1;
+      this.onAudioUnderrun?.({overdueSeconds:overdue,hardRecovery,count:this.audioUnderruns});
+      // A small timer delay must not cut off notes and recorded clips still
+      // sustaining. Only a genuine background-tab gap needs a full resync.
+      if(hardRecovery)this.killVoices();
+      this.scheduledStep=Math.max(0,Math.ceil(current));
+      if(hardRecovery&&this.loop&&!this.patternMode&&!this.clipPreview){
+        const local=this.scheduledStep%total;
+        const resumeAt=now+.03;
+        this.startTime=resumeAt-local*sd;this.scheduledStep=local;
+        this.schedulePartialAudio(local);
+        this.scheduleAutomation(this.ctx,this.graph,local/16,p.bars,resumeAt);
+      }
+    }
+    const earliest=now+.004;
+    while(this.startTime+this.scheduledStep*sd<now+.14) {
       if(!this.loop&&this.scheduledStep>=total){this.pause();this.position=0;this.onEnded?.();return;}
-      const local=this.scheduledStep%total, time=this.startTime+this.scheduledStep*sd;
+      const local=this.scheduledStep%total,time=this.startTime+this.scheduledStep*sd;
+      // Skipped steps are never rescheduled in the past.
+      if(time<earliest){this.scheduledStep++;continue;}
       if(local===0&&this.scheduledStep>0)this.scheduleAutomation(this.ctx,this.graph,0,p.bars,time);
-      this.scheduleStep(this.ctx,this.channels,local,time,true);
+      this.scheduleStep(this.ctx,this.channels,local,time,true,earliest);
       if(this.metronome&&local%4===0)this.click(time,local%16===0);
       this.scheduledStep++;
     }
@@ -260,15 +280,9 @@ export class AudioEngine {
     if(type==='sampler')return samplerVoice(ctx,out,this.getAssets().get(sampler?.assetId)?.buffer,midi,t,duration,sampler||{},params,velocity,live?o=>this.remember(o):null);
     if(ACOUSTIC_INSTRUMENTS[type]){if(velocity<=0)return;return acousticVoice(ctx,out,type,midi,t,duration,params,velocity,this.instrumentBanks?.get(type),live?o=>this.remember(o):null);}
     const scope=this.voiceScope(ctx),node=scope.node;
+    if(['bass','keys','lead','pad','pluck'].includes(type))return instrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null);
     if(velocity!==1){const level=node('createGain');level.gain.value=Math.max(0,Math.min(1,velocity));level.connect(out);out=level;}
-    t=Math.max(t,ctx.currentTime);if(type==='exo'){return exoVoice(ctx,out,midi,t,duration,params,o=>{scope.watch(o);if(live)this.remember(o);});} const hz=midiHz(midi),env=node('createGain'),filter=node('createBiquadFilter');
-    filter.type='lowpass';filter.frequency.value=type==='bass'?650:type==='lead'?(params.cutoff??3200):type==='pluck'?(params.brightness??5000):type==='pad'?2200:3200;env.connect(filter);filter.connect(out);
-    const level=type==='bass'?(params.body??.6):type==='lead'?.11:type==='pad'?.075:type==='pluck'?(params.body??.18):.19,attack=type==='bass'?.008:type==='pluck'?.003:(params.attack??(type==='pad'?.45:.018)),release=params.release??(type==='bass'?.16:type==='pad'?1.6:type==='pluck'?.04:.5);
-    if(type==='pluck')duration=Math.min(duration,params.decay??.3);
-    duration=Math.max(duration,attack+.04);
-    env.gain.setValueAtTime(.0001,t);env.gain.linearRampToValueAtTime(level,t+attack);env.gain.exponentialRampToValueAtTime(level*.48,t+Math.max(attack+.02,duration*.65));env.gain.setValueAtTime(level*.48,t+Math.max(attack+.03,duration));env.gain.exponentialRampToValueAtTime(.0001,t+duration+release);
-    const o=node('createOscillator');o.type=type==='bass'?'sine':['lead','pad'].includes(type)?'sawtooth':'triangle';o.frequency.setValueAtTime(hz,t);o.detune.value=type==='pad'?-(params.width??12):0;if(type==='bass'){o.frequency.setValueAtTime(hz*1.6,t);o.frequency.exponentialRampToValueAtTime(hz,t+.035);}o.connect(env);o.start(t);o.stop(t+duration+release+.02);scope.watch(o);if(live)this.remember(o);
-    if(type!=='bass'||params.harmonics>0){const o2=node('createOscillator'),g=node('createGain');o2.type=['lead','pad'].includes(type)?'sawtooth':'sine';o2.frequency.value=hz*(['lead','pad'].includes(type)?1:2);o2.detune.value=type==='bass'?0:type==='pad'?(params.width??12):(params.detune??5);g.gain.value=type==='bass'?params.harmonics:['lead','pad'].includes(type)?.55:.22;o2.connect(g);g.connect(env);o2.start(t);o2.stop(t+duration+release+.02);scope.watch(o2);if(live)this.remember(o2);}
+    t=Math.max(t,ctx.currentTime);if(type==='exo')return exoVoice(ctx,out,midi,t,duration,params,o=>{scope.watch(o);if(live)this.remember(o);});
   }
   audioVoice(ctx,out,buffer,t,offset,duration,live=false,gainDb=0,clipId=null,envelope={}) {
     if(offset>=buffer.duration||duration<=0)return;
@@ -287,17 +301,25 @@ export class AudioEngine {
   async previewPreset(type,params){const request=this.previewRequest=(this.previewRequest||0)+1;await this.init();if(ACOUSTIC_INSTRUMENTS[type])await this.prepareBank(this.ctx,type);if(request!==this.previewRequest)return;this.capturePreview(()=>{const t=this.ctx.currentTime+.03;if(ACOUSTIC_INSTRUMENTS[type]){const sustained=['violin','cello'].includes(type),melody=['flute','trumpet'].includes(type),notes=melody?[72,74,76,79]:[48,60,64,67];notes.forEach((midi,i)=>this.synth(this.ctx,this.master,type,midi,t+(sustained?0:i*.18),sustained?1.6:melody?.35:.8,true,params,[.45,.65,.8,.95][i]));}else if(type==='exo'){const sd=60/this.getProject().bpm/4,notes=exoArpeggiate([57,60,64].map(midi=>({midi,step:0,len:16,velocity:.8})),16,params);for(const n of notes)this.synth(this.ctx,this.master,'exo',n.midi,t+n.step*sd,n.len*sd,true,params,n.velocity);}else if(type==='drums'){const pattern=DRUM_GROOVES[0].pattern,sd=60/120/4;for(let i=0;i<16;i++)for(const [voice,steps] of Object.entries(pattern))if(steps[i])this.drum(this.ctx,this.master,voice,t+i*sd,true,params);}else{const notes=type==='bass'?[33]:type==='lead'?[69]:type==='pluck'?[69,72,76]:[57,60,64];notes.forEach((midi,i)=>this.synth(this.ctx,this.master,type,midi,t+(type==='pluck'?i*.15:0),type==='pad'?1.4:.55,true,params));}});}
   async previewGroove(groove){await this.init();this.capturePreview(()=>{const t=this.ctx.currentTime+.03,sd=60/groove.bpm/4;for(let i=0;i<16;i++)for(const [voice,steps] of Object.entries(groove.pattern))if(steps[i])this.drum(this.ctx,this.master,voice,t+i*sd,true);});}
   async renderDrumWav(voice){if(!Object.hasOwn(DRUM_VOICES,voice))throw new Error('Percussion inconnue.');const ctx=new OfflineAudioContext(1,44100,44100);this.drum(ctx,ctx.destination,voice,.01);return bufferToWav(await ctx.startRendering());}
-  async renderRange({sampleRate=44100,startBar=0,endBar=this.getProject().bars,tail=true,captureId=null,preFader=false,clean=false}={}){
-    const p=structuredClone(this.getProject());if(clean){for(const t of p.tracks)for(const e of Object.values(t.effects||{}))e.enabled=false;p.mastering={bypass:true};}
-    const renderer=new AudioEngine(()=>p,this.getAssets),sd=60/p.bpm/4,start=startBar*16,end=endBar*16,duration=(end-start)*sd+(tail?packTail(p):0)+.01;
-    if(![44100,48000,96000].includes(sampleRate)||end<=start||duration*sampleRate*2*8>768*1024*1024)throw Error('Rendu trop volumineux : réduis la plage exportée ou la fréquence.');
+  async renderRange({sampleRate=44100,startBar=0,endBar=this.getProject().bars,tail=true,captureId=null,preFader=false,clean=false,project=null,assets=null,signal}={}){
+    signal?.throwIfAborted();
+    const p=structuredClone(project||this.getProject());if(clean){for(const t of p.tracks)for(const e of Object.values(t.effects||{}))e.enabled=false;p.mastering={bypass:true};}
+    const getAssets=assets?()=>assets:this.getAssets,renderer=new AudioEngine(()=>p,getAssets),sd=60/p.bpm/4,start=startBar*16,end=endBar*16,duration=(end-start)*sd+(tail?packTail(p):0)+.01;
+    if(![44100,48000,96000].includes(sampleRate)||![startBar,endBar,duration].every(Number.isFinite)||startBar<0||end<=start||duration<=0)throw Error('Plage ou fréquence de rendu invalide.');
+    if(duration*sampleRate*2*8>768*1024*1024)throw Error('Rendu trop volumineux : exporte une plage plus courte ou choisis une fréquence plus basse.');
+    for(const tr of p.tracks)for(const clip of tr.clips)if(clip.audioId&&!clip.muted&&clip.start<endBar&&clip.start+clip.length>startBar&&!getAssets().get(clip.audioId)?.buffer)throw Error('Un fichier audio est manquant : '+(clip.name||tr.name||clip.audioId)+'. Réimporte-le avant l’export.');
     const ctx=new OfflineAudioContext(2,Math.ceil(duration*sampleRate),sampleRate);await renderer.prepareInstruments(ctx,p);await prepareStudioContext(ctx);const graph=renderer.buildGraph(ctx,{captureId,preFader});
-    for(const tr of p.tracks)for(const clip of tr.clips)if(clip.audioId&&!clip.muted&&clip.start*16<start&&(clip.start+clip.length)*16>start){const a=this.getAssets().get(clip.audioId);if(a)renderer.audioVoice(ctx,graph.channels.get(tr.id).input,a.buffer,.01,(clip.sourceOffset||0)+(start-clip.start*16)*sd,Math.min((clip.start+clip.length)*16-start,end-start)*sd,false,clip.gainDb,clip.id,{...clip,total:clip.length*16*sd,elapsed:(start-clip.start*16)*sd});}
+    for(const tr of p.tracks)for(const clip of tr.clips)if(clip.audioId&&!clip.muted&&clip.start*16<start&&(clip.start+clip.length)*16>start){const a=getAssets().get(clip.audioId);if(a)renderer.audioVoice(ctx,graph.channels.get(tr.id).input,a.buffer,.01,(clip.sourceOffset||0)+(start-clip.start*16)*sd,Math.min((clip.start+clip.length)*16-start,end-start)*sd,false,clip.gainDb,clip.id,{...clip,total:clip.length*16*sd,elapsed:(start-clip.start*16)*sd});}
     for(let i=Math.floor(start);i<end;i++)renderer.scheduleStep(ctx,graph.channels,i,.01+(i-start)*sd,false,.01);
     renderer.scheduleAutomation(ctx,graph,startBar,endBar,.01);
-    try{return await ctx.startRendering();}finally{for(const ch of graph.channels.values())renderer.disposeChannel(ch);for(const stage of graph.mastering.effects.values())stage.dispose();}
+    try{const buffer=await ctx.startRendering();signal?.throwIfAborted();return buffer;}finally{for(const ch of graph.channels.values())renderer.disposeChannel(ch);for(const stage of graph.mastering.effects.values())stage.dispose();}
   }
-  async exportWav(options={}){return encodeWav(await this.renderRange(options),options);}
+  async exportWav(options={}){
+    const buffer=await this.renderRange(options);
+    if(options.writer)return writeWav(buffer,options.writer,options);
+    if(options.asBlob)return encodeWavBlob(buffer,options);
+    return encodeWav(buffer,options);
+  }
 
 }
 

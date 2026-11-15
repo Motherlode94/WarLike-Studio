@@ -25,11 +25,22 @@ jobs:
       - name: Browser boot and mobile control regression
         run: |
           cp tests/storage-browser.html dist/_storage-qa.html
+          cp tests/instrument-qa.html dist/_instrument-qa.html
           cd dist
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/warlike-studio-http.log 2>&1 &
           cd ..
           sleep 2
           node tests/browser-smoke.mjs
+          node tests/reference-workspace-browser.mjs
           node tests/effects-dsp-browser.mjs
+          node tests/instrument-dsp-browser.mjs
           node tests/recording-browser.mjs
           node tests/vocal-audio-browser.mjs
+          node tests/export-browser.mjs
+      - name: Reference workspace screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: studio-reference-workspaces
+          path: artifacts/reference-workspaces/
+          if-no-files-found: ignore

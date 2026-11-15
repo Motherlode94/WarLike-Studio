@@ -12,7 +12,7 @@ test('legacy sessions get disabled master modules and bounded parameters',()=>{
 test('master presets preserve track settings and master fader; projects do not share state',()=>{
   const first=createFactorySession(),second=createFactorySession(),tracks=structuredClone(first.tracks),volume=first.masterVolume;
   for(let i=0;i<MASTER_PRESETS.length;i++){applyMasterPreset(first,i);assert.equal(matchMasterPreset(first),i);assert.deepEqual(first.tracks,tracks);assert.equal(first.masterVolume,volume);}
-  assert.equal(second.mastering,undefined);assert.throws(()=>applyMasterPreset(first,100));
+  assert.deepEqual(second.mastering,{inserts:['peak'],peak:{enabled:true,drive:0,ceiling:-1.5,release:140}});assert.throws(()=>applyMasterPreset(first,100));
 });
 test('master racks round-trip including bypass; invalid imports are atomic',()=>{
   const project=createFactorySession();applyMasterPreset(project,2);project.mastering.bypass=true;

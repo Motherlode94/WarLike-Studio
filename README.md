@@ -1,5 +1,38 @@
 # Warlike Studio + CHAYAH Suite
 
+## Catalogue actuel des plugins — instruments et effets
+
+> **Source de vérité :** les définitions du code dans `dist/plugins.js`, `dist/acoustic.js`, `dist/exo.js`, `dist/sampler.js`, `dist/packs.js`, `dist/studio-packs.js` et `dist/exo-pack.js`. Les sections numérotées plus bas documentent des versions antérieures ; leurs chiffres peuvent différer du registre actuel. Les visuels suivants sont des **illustrations originales**, pas des captures du logiciel ni une preuve de validation audio.
+
+![Illustration originale du catalogue des effets CHAYAH](docs/plugin-catalog-fx.svg)
+
+**33 effets Web Audio déclarés dans le registre** : égalisation et filtres, compression et dynamique, saturation, spatialisation et effets temporels. Les familles incluent SCULPT, PRISM, GLUE, ECHO, AURA, CIRCUIT, ALTER, VECTOR, VOX LAB et EXO. Ces traitements sont des modules natifs du Studio dans le navigateur, **pas des fichiers VST/VST3**.
+
+![Illustration originale du catalogue des instruments WarLike](docs/plugin-catalog-instruments.svg)
+
+**20 instruments déclarés** : 12 instruments acoustiques à échantillons (GRAND, UPRIGHT, FM KEYS, HARP, MARIMBA, VIBES, KALIMBA, STRUM, VIOLIN, CELLO, FLUTE, TRUMPET), six instruments de synthèse PULSE, MONO, VELVET, NOVA, HALO et STRING, plus EXO et EXO SLICE. Les banques acoustiques chargent des fichiers audio ; EXO SLICE utilise un échantillon choisi par l'utilisateur.
+
+![Illustration originale de la famille vocale CHAYAH](docs/plugin-catalog-vocals.svg)
+
+**Traitement vocal** : VOX TUNE, VOX LEVEL, VOX CLEAN et les autres modules de dynamique/tonalité du registre. Leurs fonctionnalités précises dépendent du traitement implémenté ; ne pas confondre la présence d'un module avec une validation de sa qualité sonore ou une fonction IA opérationnelle.
+
+**Statut de validation :** les tests de registre et certains tests DSP existent dans le dépôt. Les tests de rendu audio réel de tous les 33 effets et 20 instruments, les prises physiques et les comparaisons complètes avec l'export WAV ne sont pas encore tous confirmés. Les nouvelles PR de diagnostic doivent être fusionnées et exécutées avant toute revendication de validation générale.
+
+**Pour consulter le code :** [registre des plugins](dist/plugins.js) · [banques acoustiques](dist/acoustic.js) · [synthèse EXO](dist/exo.js) · [sampler EXO SLICE](dist/sampler.js) · [tests automatisés](tests/).
+
+---
+
+## Export WAV — écriture progressive
+
+- Le dialogue d'export encode maintenant le WAV par blocs de 32 768 frames, avec progression et annulation. Les formats PCM 16/24 bits, le dither et le flottant 32 bits conservent le même encodage.
+- Chrome/Edge, si la fonction est disponible et autorisée, proposent l'enregistrement direct du mix ou de la piste dans un fichier choisi. L'écriture attend chaque bloc avant le suivant ; une erreur ou une annulation abandonne le fichier en cours au lieu de valider un WAV partiel.
+- Le téléchargement classique reste disponible. Les stems sont conservés en Blobs et assemblés dans un ZIP sans copie complète de chaque WAV en tableau d'octets. Les noms des stems ont un suffixe numérique pour éviter les collisions après nettoyage des noms de pistes.
+- Le projet et les références des sources sont figés au lancement pour tous les fichiers d'un même export. Une source audio manquante référencée dans la plage demandée bloque le rendu avec une erreur explicite. Le dernier lien de téléchargement reste disponible si le nouvel export échoue.
+
+**Limite conservée :** le calcul du mix utilise toujours un `OfflineAudioContext` complet. Il garde sa limite préventive de 768 Mio estimés ; cette modification réduit les allocations de l'encodage et de l'archive, pas celles du rendu ni des sources décodées. Les réverbérations, delays et compresseurs ne sont pas redémarrés entre les blocs. Les archives ZIP et les WAV classiques restent limités à environ 4 Go. Le mode téléchargement conserve le WAV encodé dans un Blob ; l'écriture directe évite cette rétention.
+
+Validation : comparaison des octets avec l'encodeur existant en 16/24/32 bits, contrôle indépendant du ZIP et de ses CRC, écriture bornée et annulation. `tests/export-browser.mjs` vérifie dans Chromium un vrai rendu avec delay, l'égalité téléchargement/fichier, l'échec d'écriture et l'annulation. Les essais d'endurance avec matériel audio restent distincts.
+
 ## 0.15.1 — longues prises et sauvegardes locales
 
 - Sources WAV PCM/flottantes jusqu’à 512 Mio envoyées par morceaux WAV privés de 12 Mio maximum, sans réencodage. Au téléchargement, le fichier d’origine est reconstitué octet pour octet. Les petits WAV/MP3/OGG restent compatibles avec le format cloud précédent.

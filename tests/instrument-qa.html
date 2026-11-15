@@ -1,0 +1,18 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><title>Contrôle des timbres WarLike</title><style>body{background:#24282d;color:#eee;font:16px system-ui;padding:25px}button{padding:12px}pre{white-space:pre-wrap}audio{display:block;margin:10px}</style><h1>Contrôle des timbres · Web Audio</h1><p>Rendu sec d’une même note Do 4, sans inserts, puis vérification des banques enregistrées.</p><button id="run">Rendre et vérifier</button><pre id="results">Prêt</pre><div id="audio"></div><script type="module">
+import {AudioEngine} from '/audio.js';
+import {pluginDefaults} from '/plugins.js';
+import {ACOUSTIC_BANKS} from '/acoustic.js';
+import {encodeWavBlob} from '/wav-export.js';
+const output=document.querySelector('#results');
+function measure(buffer){const data=buffer.getChannelData(0),sr=buffer.sampleRate;let peak=0,energy=0,difference=0,attack=0,tail=0,dc=0;const right=buffer.getChannelData(1);for(let i=0;i<data.length;i++){if(!Number.isFinite(data[i]))throw Error('Signal non fini');peak=Math.max(peak,Math.abs(data[i]));energy+=data[i]**2;dc+=data[i];difference+=(data[i]-right[i])**2;if(i<sr*.07)attack+=data[i]**2;if(i>sr*.8&&i<sr*.87)tail+=data[i]**2;}const harmonics=[];for(let h=1;h<=12;h++){let re=0,im=0;for(let i=sr*.08|0;i<sr*.24;i++){const phase=2*Math.PI*261.625565*h*i/sr;re+=data[i]*Math.cos(phase);im+=data[i]*Math.sin(phase);}harmonics.push(Math.sqrt(re*re+im*im));}const norm=Math.sqrt(harmonics.reduce((n,x)=>n+x*x,0));return {peak,rms:Math.sqrt(energy/data.length),dc:dc/data.length,stereo:Math.sqrt(difference/data.length),attack,tail,spectrum:harmonics.map(v=>v/norm)};}
+window.renderTimbres=async()=>{
+ const engine=new AudioEngine(()=>({tracks:[],masterVolume:0}),()=>new Map()),profiles={};const clips=[];
+ for(const type of ['bass','keys','lead','pad','pluck']){const ctx=new OfflineAudioContext(2,44100*3,44100);engine.synth(ctx,ctx.destination,type,60,.01,.65,false,pluginDefaults(type).instrument,.75);const buffer=await ctx.startRendering(),m=measure(buffer);if(m.peak<.001||m.peak>1||Math.abs(m.dc)>.01)throw Error(type+' : niveau invalide '+JSON.stringify(m));profiles[type]=m;clips.push([type,buffer]);}
+ for(const [a,x] of Object.entries(profiles))for(const [b,y] of Object.entries(profiles)){if(a>=b)continue;const distance=Math.sqrt(x.spectrum.reduce((n,v,i)=>n+(v-y.spectrum[i])**2,0));if(distance<.06)throw Error('Timbres trop proches '+a+'/'+b+': '+distance);}
+ if(profiles.pad.stereo<.005)throw Error('HALO n’est pas stéréo');if(profiles.pluck.tail>profiles.pluck.attack*.05)throw Error('La corde ne décroît pas');
+ const banks={};for(const type of Object.keys(ACOUSTIC_BANKS)){const ctx=new OfflineAudioContext(2,44100*2,44100);await engine.prepareBank(ctx,type);engine.synth(ctx,ctx.destination,type,60,.01,.55,false,pluginDefaults(type).instrument,.75);banks[type]=measure(await ctx.startRendering());if(banks[type].peak<.0001||banks[type].peak>1)throw Error(type+' : banque muette ou écrêtée');}
+ document.querySelector('#audio').replaceChildren();for(const [type,buffer] of clips){const label=document.createElement('label');label.textContent=type;const audio=document.createElement('audio');audio.controls=true;audio.src=URL.createObjectURL(await encodeWavBlob(buffer));label.append(audio);document.querySelector('#audio').append(label);}
+ return {profiles,banks};
+};
+document.querySelector('#run').onclick=async()=>{output.textContent='Rendus en cours…';try{const result=await window.renderTimbres();output.textContent='PASS\n'+JSON.stringify(result,null,2);}catch(e){output.textContent='FAIL '+e.stack;}};
+</script></html>

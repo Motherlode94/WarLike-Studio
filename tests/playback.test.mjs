@@ -25,3 +25,34 @@ test('stop during pending initialisation cancels playback before loading instrum
  const e=new AudioEngine(()=>emptyProject(),()=>new Map());let release,prepared=0;e.init=()=>new Promise(resolve=>release=resolve);e.prepareInstruments=async()=>prepared++;
  const pending=e.play();e.stop();release();await pending;assert.equal(prepared,0);assert.equal(e.playing,false);assert.equal(e.position,0);
 });
+
+
+test('short scheduler stalls keep sustaining voices and skip overdue drum attacks',()=>{
+ const p=emptyProject(),e=new AudioEngine(()=>p,()=>new Map());e.ctx={currentTime:.37};e.playing=true;e.startTime=0;e.scheduledStep=0;e.loop=true;
+ let stopped=0;const tail={stop(){stopped++;}};e.voices.add(tail);
+ const scheduled=[],underruns=[];e.scheduleStep=(...args)=>scheduled.push(args);e.scheduleAutomation=()=>{};e.onAudioUnderrun=x=>underruns.push(x);
+ e.scheduler();
+ assert.equal(stopped,0,'a 370ms main-thread stall must not cut a sustained audio clip');
+ assert.equal(e.voices.has(tail),true);
+ assert.equal(underruns.length,1);assert.equal(underruns[0].hardRecovery,false);
+ assert.equal(e.audioUnderruns,1);
+ assert.ok(scheduled.length>=1);
+ assert.ok(scheduled.every(args=>args[3]>=e.ctx.currentTime+.004-1e-9),'never fire a late event in the past');
+ assert.ok(scheduled.every(args=>args[5]>=e.ctx.currentTime+.004-1e-9),'pass minimumTime to the per-note scheduler');
+});
+
+test('small late events are skipped rather than played as an immediate burst',()=>{
+ const p=emptyProject(),e=new AudioEngine(()=>p,()=>new Map());e.ctx={currentTime:.124};e.playing=true;e.startTime=0;e.scheduledStep=0;e.loop=true;
+ const scheduled=[];e.scheduleStep=(...args)=>scheduled.push(args);e.scheduleAutomation=()=>{};
+ e.scheduler();
+ assert.equal(scheduled.length,1);
+ assert.equal(scheduled[0][2],2,'both past note-on steps must be skipped');
+ assert.ok(scheduled[0][3]>.124);
+});
+
+test('large background wake-up bounds backlog and reports hard recovery',()=>{
+ const p=emptyProject(),e=new AudioEngine(()=>p,()=>new Map());e.ctx={currentTime:100};e.playing=true;e.startTime=0;e.scheduledStep=0;e.loop=true;
+ const events=[];let resumed=0;e.onAudioUnderrun=e=>events.push(e);e.scheduleStep=()=>{};e.schedulePartialAudio=()=>resumed++;e.scheduleAutomation=()=>{};
+ e.scheduler();assert.equal(events.length,1);assert.equal(events[0].hardRecovery,true);assert.equal(resumed,1);
+ assert.equal(e.audioUnderruns,1);
+});
