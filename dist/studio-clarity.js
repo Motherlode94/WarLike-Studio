@@ -7,7 +7,7 @@ function setup(){
  const panel=document.createElement('div');panel.className='studio-more-panel';
  details.append(summary,panel);
  const demo=top.querySelector('.public-demo-links');
- if(demo){const heading=document.createElement('strong');heading.textContent='Sessions de démonstration';panel.append(heading,demo);}
+ if(demo){demo.setAttribute('aria-label','Sessions de démonstration');}
  for(const id of ['openBundle','help']){const node=document.getElementById(id);if(node)panel.append(node);}
  const anchor=top.querySelector('#projectMenuBtn')?.closest('.menu-anchor');
  if(anchor)top.insertBefore(details,anchor);else top.append(details);
