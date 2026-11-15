@@ -1,3 +1,4 @@
+import {GUITAR_INSTRUMENTS,SYNTH_INSTRUMENTS} from './wl-instrument-packs.js';
 import {SAMPLER_INSTRUMENT} from './sampler.js?v=0.14.0';
 import {EXO_INSTRUMENT,EXO_WAVES} from './exo.js?v=0.14.0';
 import {PACK_EFFECTS} from './packs.js?v=0.14.0';
@@ -5,6 +6,8 @@ import {PACK_EFFECTS} from './packs.js?v=0.14.0';
 // processors, not native VST binaries. Each definition owns its controls/defaults.
 import {ACOUSTIC_INSTRUMENTS} from './acoustic.js?v=0.14.0';
 export const INSTRUMENTS = {
+  ...GUITAR_INSTRUMENTS,
+  ...SYNTH_INSTRUMENTS,
   ...ACOUSTIC_INSTRUMENTS,
   sampler:SAMPLER_INSTRUMENT,
   exo:EXO_INSTRUMENT,
