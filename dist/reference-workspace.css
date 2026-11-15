@@ -54,3 +54,109 @@ body.reference-studio{--track-label:270px;--detail-height:280px;display:flex;fle
 }
 
 .reference-studio .signature-workspaces [data-workspace=library]{display:none!important}
+
+
+/* Mixer layout stabilization: fixed readable strips and contained rack controls.
+   Horizontal scroll belongs to the mixer, vertical scroll to its insert list. */
+.reference-studio .mixer-view{
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:stretch;
+  gap:0;
+  min-width:0;
+  min-height:0;
+  overflow-x:auto;
+  overflow-y:auto;
+  overscroll-behavior-x:contain;
+  scrollbar-gutter:stable;
+}
+.reference-studio .mixer-channel{
+  box-sizing:border-box;
+  flex:0 0 176px;
+  width:176px;
+  min-width:176px;
+  max-width:176px;
+  min-height:690px;
+  grid-template-rows:18px 26px 56px 226px 36px 42px 26px minmax(155px,1fr) 27px 28px;
+  overflow:hidden;
+  padding-left:9px;
+  padding-right:9px;
+}
+.reference-studio .mixer-channel .channel-inserts{
+  min-width:0;
+  min-height:0;
+  height:auto;
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-width:thin;
+}
+.reference-studio .mixer-channel .channel-inserts .strip-label{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  gap:3px;
+  align-items:center;
+  min-width:0;
+  height:auto;
+  line-height:1.25;
+}
+.reference-studio .mixer-channel .channel-inserts .strip-label > button{
+  flex:0 0 auto;
+  max-width:100%;
+  min-width:0;
+  white-space:nowrap;
+}
+.reference-studio .mixer-channel .channel-inserts .vox-rack-mini{
+  font-size:9px;
+  padding:3px 5px;
+}
+.reference-studio .mixer-channel .channel-inserts .insert-slots,
+.reference-studio .mixer-channel .channel-inserts .insert-slot{
+  width:100%;
+  box-sizing:border-box;
+  min-width:0;
+  max-width:100%;
+}
+.reference-studio .mixer-channel .channel-inserts .insert-slot > button{
+  min-width:0;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.reference-studio .mixer-channel .channel-name,
+.reference-studio .mixer-channel .channel-footer{
+  min-width:0;
+  max-width:100%;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+.reference-studio .mixer-channel .pan-control,
+.reference-studio .mixer-channel .mixer-buttons,
+.reference-studio .mixer-channel .mixer-fader{
+  min-width:0;
+}
+.reference-studio .mixer-channel .mixer-fader{
+  min-height:155px;
+  gap:12px;
+  padding:4px 0;
+}
+.reference-studio .mixer-master{
+  flex:0 0 176px;
+  width:176px;
+  min-width:176px;
+  max-width:176px;
+  margin-left:0;
+  position:sticky;
+  right:0;
+  z-index:3;
+}
+@media(max-width:760px){
+  .reference-studio .mixer-channel,
+  .reference-studio .mixer-master{
+    flex-basis:156px;
+    width:156px;
+    min-width:156px;
+    max-width:156px;
+  }
+}
