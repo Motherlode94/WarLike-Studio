@@ -1,5 +1,5 @@
 import {installedTrackChains,applyTrackChain} from './track-chain-extension.js';
-import {VOX_STUDIORACKS,rackCapacity,applyVoxStudioRack,shiftVoxStudioInsert,bypassVoxStudioInsert} from './vox-studioracks.js';
+import {VOX_STUDIORACKS,STUDIORACK_CATEGORIES,rackCapacity,applyVoxStudioRack,shiftVoxStudioInsert,bypassVoxStudioInsert} from './vox-studioracks.js';
 import {parseReaperRpp,matchReaperMedia,reaperBasename} from './reaper-rpp.js';
 import {NATIVE_CHAINS,nativeEffectsForNames,applyNativeChain,nativeChainCapacity} from './native-vocal-chains.js';
 import {VOCAL_DEMOS,createVocalDemoSession} from './vocal-demo-sessions.js';
@@ -813,10 +813,19 @@ function syncParameterWidgets(target,control,value,attribute='data-param',trackI
 }
 function openVoxStudioRacks(trackId=selectedTrack){
  const tr=project.tracks.find(t=>t.id===trackId);if(!tr)return;ensurePlugins(tr);
- const choices=Object.entries(VOX_STUDIORACKS).map(([key,p])=>{
-  const c=rackCapacity(tr,key);
-  return `<option value="${key}">${esc(p.name)} · ${p.stages.length} DSP${c.available<c.required?' (inserts insuffisants)':''}</option>`;
+ const categories=[...new Set([...STUDIORACK_CATEGORIES,...Object.values(VOX_STUDIORACKS).map(p=>p.category||'Voix')])];
+ const choices=categories.map(category=>{
+  const items=Object.entries(VOX_STUDIORACKS).filter(([,p])=>(p.category||'Voix')===category).map(([key,p])=>{
+   const c=rackCapacity(tr,key);
+   return `<option value="${esc(key)}" ${c.available<c.required?'disabled':''}>${esc(p.name)} · ${p.stages.length} DSP${c.available<c.required?' · manque de slots':''}</option>`;
+  }).join('');
+  return items?`<optgroup label="${esc(category)}">${items}</optgroup>`:'';
  }).join('');
+ const rackSummary=key=>{
+  const preset=VOX_STUDIORACKS[key];
+  if(!preset)return '';
+  return `<strong>${esc(preset.name)}</strong><p>${esc(preset.description)}</p><ol>${preset.stages.map(stage=>`<li>${esc(effectDefinition(stage.id)?.name||stage.id)}</li>`).join('')}</ol><small>Les réglages individuels restent éditables après insertion.</small>`;
+ };
  const slots=tr.inserts.map((id,i)=>id?`<div class="vox-rack-stage">
    <span class="vox-rack-position">${String.fromCharCode(65+i)}</span>
    <strong>${esc(effectDefinition(id)?.name||id)}</strong>
@@ -827,13 +836,18 @@ function openVoxStudioRacks(trackId=selectedTrack){
   </div>`:'').join('');
  modal('VOX STUDIORACKS · '+tr.name,`<section class="vox-studioracks" data-vox-track="${tr.id}">
   <header><strong>WARLIKE / VOX STUDIORACKS</strong><span>RACK DSP ACTIF · ${tr.inserts.filter(Boolean).length} / ${tr.inserts.length} INSERTS</span></header>
-  <p>Les modules ci-dessous sont les vrais inserts du moteur audio. L'ordre affiché est celui de Play et de l'export WAV.</p>
-  <div class="vox-rack-apply"><label>CHAÎNE VOCALE <select id="voxStudioPreset">${choices}</select></label>
+  <p>Choisis un mix vocal, instrumental, bus ou mastering. La liste ci-dessous montre l’ordre réel des plugins. Les traitements sont les inserts de Play et de l’export WAV.</p>
+  <div class="vox-rack-apply"><label>PRESET / TYPE DE MIX <select id="voxStudioPreset">${choices}</select></label>
   <button class="primary-btn" id="voxStudioApply">Ajouter aux inserts libres</button></div>
+  <div class="vox-rack-preset-details" id="voxStudioPreview" aria-live="polite"></div>
   <div class="vox-rack-stages">${slots||'<p>Aucun effet sur cette piste. Choisis une chaîne ci-dessus.</p>'}</div>
   <small>Déplacer modifie le routage de la piste · Bypass conserve le réglage · Les inserts déjà présents sont préservés.</small>
   </section>`,'CHAYAH SUITE / DSP');
  const root=document.querySelector('#modalBody .vox-studioracks');
+ const presetSelect=root.querySelector('#voxStudioPreset'),preview=root.querySelector('#voxStudioPreview');
+ const refreshRackPreview=()=>{preview.innerHTML=rackSummary(presetSelect.value);};
+ presetSelect.addEventListener('change',refreshRackPreview);
+ refreshRackPreview();
  root.querySelector('#voxStudioApply').onclick=async()=>{
   const key=root.querySelector('#voxStudioPreset').value;
   try{
