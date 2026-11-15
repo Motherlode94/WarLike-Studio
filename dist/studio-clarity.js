@@ -8,7 +8,7 @@ function setup(){
  details.append(summary,panel);
  const demo=top.querySelector('.public-demo-links');
  if(demo){const heading=document.createElement('strong');heading.textContent='Sessions de démonstration';panel.append(heading,demo);}
- for(const id of ['openBundle','openMastering','help']){const node=document.getElementById(id);if(node)panel.append(node);}
+ for(const id of ['openBundle','help']){const node=document.getElementById(id);if(node)panel.append(node);}
  const anchor=top.querySelector('#projectMenuBtn')?.closest('.menu-anchor');
  if(anchor)top.insertBefore(details,anchor);else top.append(details);
  const observer=new MutationObserver(()=>{if(details.open&&window.innerWidth<=760)details.scrollIntoView({block:'nearest'});});
