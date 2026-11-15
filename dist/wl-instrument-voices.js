@@ -4,13 +4,28 @@ const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const gain=db=>10**(db/20);
 const waves=['sine','triangle','sawtooth','square'];
 const stringCache=new WeakMap();
-function stringBuffer(ctx,hz,decay,brightness){
+function stringBuffer(ctx,hz,decay,brightness,style,pickPosition=.32,damping=.25){
  let m=stringCache.get(ctx);if(!m){m=new Map();stringCache.set(ctx,m);}
- const key=[hz.toFixed(3),decay.toFixed(3),brightness].join(':');
+ const key=[hz.toFixed(3),decay.toFixed(3),brightness,style,pickPosition.toFixed(2),damping.toFixed(2)].join(':');
  if(m.has(key))return m.get(key);
- const data=pluckedString(ctx.sampleRate,hz,decay,brightness),b=ctx.createBuffer(1,data.length,ctx.sampleRate);
- b.copyToChannel(data,0);
- if(m.size>48)m.delete(m.keys().next().value);m.set(key,b);return b;
+ const data=pluckedString(ctx.sampleRate,hz,decay,brightness);
+ // A physically motivated pick-position comb: short averaging at the pluck
+ // point suppresses harmonics near the contact position (not just EQ).
+ const period=Math.max(3,Math.round(ctx.sampleRate/hz));
+ const distance=Math.max(1,Math.round(period*pickPosition));
+ let low=0;
+ const colour={nylon:.5,jazz:.42,steel:.13,twelve:.12,clean:.25,crunch:.29,muted:.67}[style]??.25;
+ for(let i=0;i<data.length;i++){
+  const x=data[i],shifted=i>=distance?data[i-distance]:0;
+  const comb=x-(shifted*.46);
+  low+=((1-colour*.55)*(comb-low));
+  const softened=comb*(1-colour)+low*colour;
+  const attack=i<period?.82:1;
+  const fall=Math.exp(-Math.max(0,i-period)*damping/(ctx.sampleRate*Math.max(.09,decay)));
+  data[i]=Math.max(-1,Math.min(1,softened*attack*fall));
+ }
+ const b=ctx.createBuffer(1,data.length,ctx.sampleRate);b.copyToChannel(data,0);
+ if(m.size>72)m.delete(m.keys().next().value);m.set(key,b);return b;
 }
 function envelope(ctx,scope,out,t,duration,attack,release,peak,sustain=.8){
  const g=scope.node('createGain'),a=Math.min(.3,Math.max(.001,attack)),end=t+duration+release;
@@ -29,7 +44,7 @@ export function warlikeInstrumentVoice(ctx,out,type,midi,t,duration,values={},ve
  const safe=f=>clamp(f,35,nyq);
  if(GUITAR_VOICES[type]){
   const style=GUITAR_VOICES[type].style,muted=style==='muted',electric=['jazz','clean','crunch','muted'].includes(style);
-  const decay=Math.min(p.decay*(muted?.16:style==='nylon'?.8:style==='clean'?.75:1),muted?.24:3.4);
+  const decay=Math.min(p.decay*(muted?.16:style==='nylon'?.82:style==='clean'?.75:1),muted?.24:3.4);
   const env=envelope(ctx,scope,out,t,duration,p.attack,p.release,gain(p.output)*vel*.45);
   const body=scope.node('createBiquadFilter'),tone=scope.node('createBiquadFilter');
   body.type='peaking';body.frequency.value=style==='nylon'?360:style==='jazz'?280:style==='crunch'?1150:style==='muted'?1200:240;
@@ -40,7 +55,7 @@ export function warlikeInstrumentVoice(ctx,out,type,midi,t,duration,values={},ve
   for(let i=0;i<count;i++){
    const ratio=style==='twelve'&&midi<60&&i===1?2:1;
    const detuned=style==='twelve'&&i===1?1.003:style==='crunch'&&i===1?1.006:1;
-   const b=stringBuffer(ctx,hz*ratio*detuned,decay,p.brightness),src=scope.node('createBufferSource');
+   const b=stringBuffer(ctx,hz*ratio*detuned,decay,p.brightness,style,p.pickPosition,p.damping),src=scope.node('createBufferSource');
    src.buffer=b;const g=scope.node('createGain');g.gain.value=(style==='twelve'?i===0?.72:.32:1/count);
    src.connect(g);g.connect(body);playSource(src,scope,remember,t,Math.min(t+b.duration,t+duration+p.release+.04));
   }

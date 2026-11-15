@@ -1,4 +1,5 @@
 import {GUITAR_INSTRUMENTS,SYNTH_INSTRUMENTS} from './wl-instrument-packs.js';
+import {WL_VOCAL_INSTRUMENT} from './wl-vocal-voices.js';
 import {SAMPLER_INSTRUMENT} from './sampler.js?v=0.14.0';
 import {EXO_INSTRUMENT,EXO_WAVES} from './exo.js?v=0.14.0';
 import {PACK_EFFECTS} from './packs.js?v=0.14.0';
@@ -6,6 +7,7 @@ import {PACK_EFFECTS} from './packs.js?v=0.14.0';
 // processors, not native VST binaries. Each definition owns its controls/defaults.
 import {ACOUSTIC_INSTRUMENTS} from './acoustic.js?v=0.14.0';
 export const INSTRUMENTS = {
+  wlvox:WL_VOCAL_INSTRUMENT,
   ...GUITAR_INSTRUMENTS,
   ...SYNTH_INSTRUMENTS,
   ...ACOUSTIC_INSTRUMENTS,
@@ -14,7 +16,8 @@ export const INSTRUMENTS = {
   drums:{name:'PULSE',subtitle:'DRUM MACHINE',color:'#d9a06f',description:'Huit voix de percussion synthétisées. Aucun sample externe.',controls:[
     {key:'punch',name:'Punch',min:.2,max:1,step:.01,default:.85,unit:'%'},
     {key:'decay',name:'Decay',min:.1,max:.8,step:.01,default:.38,unit:'s'},
-    {key:'hat',name:'Hi-hats',min:.1,max:1,step:.01,default:.75,unit:'%'}]},
+    {key:'hat',name:'Hi-hats',min:.1,max:1,step:.01,default:.75,unit:'%'},
+    {key:'kit',name:'Drum Kit (0 Synth / 1 Rock / 2 Pop / 3 Rumba)',min:0,max:3,step:1,default:0,unit:'kit'}]},
   bass:{name:'MONO',subtitle:'808 SYNTHESIZER',color:'#b3acdf',description:'Sub oscillateur, attaque descendante et harmoniques réglables.',controls:[
     {key:'body',name:'Body',min:.1,max:1,step:.01,default:.6,unit:'%'},
     {key:'harmonics',name:'Harmonics',min:0,max:.5,step:.01,default:.08,unit:'%'},

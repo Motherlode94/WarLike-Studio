@@ -160,3 +160,39 @@ body.reference-studio{--track-label:270px;--detail-height:280px;display:flex;fle
     max-width:156px;
   }
 }
+
+/* One predictable main navigation row. The signature toolbar drives real views;
+   duplicate Edit/Mix/Library tabs below it must not consume workspace height. */
+.reference-studio .workspace-toolbar > .view-tabs{display:none!important}
+.reference-studio .signature-workspaces{
+  display:flex;align-items:center;height:32px;min-height:32px;max-height:32px;
+  box-sizing:border-box;flex:0 0 32px;flex-wrap:nowrap;padding:0 8px;
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;gap:8px;
+}
+.reference-studio .signature-workspaces > div:first-of-type{
+  display:flex;flex:0 0 auto;align-items:center;gap:2px;white-space:nowrap;
+}
+.reference-studio .signature-workspaces [data-workspace]{
+  flex:0 0 auto;min-width:0;white-space:nowrap;padding:6px 11px;
+}
+.reference-studio .workspace-toolbar{min-height:28px}
+@media(max-width:760px){
+ .reference-studio .signature-workspaces{overflow-x:auto}
+ .reference-studio .signature-workspaces > div:first-of-type{display:flex!important}
+ .reference-studio .signature-workspaces [data-workspace]{font-size:11px;padding:8px 10px}
+}
+
+/* Native track reordering handle shared by arrange and mixer. */
+.reference-studio .mixer-channel .mixer-track-grip{
+  flex:0 0 18px;width:18px;height:18px;min-width:18px;
+  border:1px solid transparent;border-radius:4px;padding:0;
+  background:transparent;color:#a9b9ce;line-height:16px;
+  cursor:grab;touch-action:none;user-select:none;
+}
+.reference-studio .mixer-channel .mixer-track-grip:hover,
+.reference-studio .mixer-channel .mixer-track-grip:focus-visible{
+  background:#3c475b;border-color:#7b92b0;color:#fff;
+}
+.reference-studio .mixer-channel .mixer-track-grip:active{cursor:grabbing}
+.reference-studio .mixer-channel .channel-top{gap:3px;min-width:0}
+.reference-studio .mixer-channel .channel-top span:last-of-type{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
