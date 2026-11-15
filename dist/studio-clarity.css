@@ -96,3 +96,22 @@ body.studio-pro-layout{--track-label:210px;--detail-height:260px}
  .studio-pro-layout .record-workspace-bar .record-caption{display:none}
  .studio-pro-layout .workspace-status span:nth-child(2){display:none}
 }
+
+/* FL-style Piano Roll arrangement, with WarLike's own styling and controls. */
+.studio-pro-layout .fl-piano{display:flex;flex-direction:column;min-height:0;background:#20252c}
+.studio-pro-layout .fl-piano .pr-toolbar{order:0;display:flex;align-items:center;flex-wrap:wrap;gap:5px;padding:7px 9px;background:#303841;border-bottom:1px solid #52606b}
+.studio-pro-layout .fl-piano .pr-toolbar>strong{margin-right:8px;white-space:nowrap}
+.studio-pro-layout .fl-piano .pr-musical{order:1;display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:5px 9px;background:#272e36;border-bottom:1px solid #4a5762}
+.studio-pro-layout .fl-piano .pr-scroll{order:2;flex:1;min-height:150px;background:#1c232a}
+.studio-pro-layout .fl-piano .pr-velocity-heading{order:3;padding:5px 9px;background:#2b323b}
+.studio-pro-layout .fl-piano .pr-velocity-scroll{order:4;flex:0 0 auto;background:#222a32;border-top:1px solid #53606a}
+.studio-pro-layout .fl-piano .pr-keyboard{background:#d4d9db}
+.studio-pro-layout .fl-piano .pr-grid{background-color:#232c33}
+.studio-pro-layout .fl-piano #prNzambe{order:10}
+@media(max-width:760px){
+ .studio-pro-layout .fl-piano .pr-toolbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
+ .studio-pro-layout .fl-piano .pr-toolbar>*{flex:0 0 auto}
+ .studio-pro-layout .fl-piano .pr-toolbar>strong{flex-basis:auto}
+ .studio-pro-layout .fl-piano .pr-musical{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
+ .studio-pro-layout .fl-piano .pr-musical>*{flex:0 0 auto}
+}
