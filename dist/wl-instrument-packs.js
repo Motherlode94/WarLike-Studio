@@ -13,6 +13,8 @@ export const GUITAR_VOICES={
 const guitarControls=[
  c('brightness','Pick / Brightness',450,16000,50,7600,'Hz'),
  c('body','Body',0,1,.01,.52,'%'),
+ c('pickPosition','Pick Position',.08,.65,.01,.32,'%'),
+ c('damping','String Damping',0,1,.01,.25,'%'),
  c('attack','Pick Attack',.001,.1,.001,.007,'s'),
  c('decay','String Decay',.07,3.2,.01,1.3,'s'),
  c('release','Release',.04,2,.01,.23,'s'),
