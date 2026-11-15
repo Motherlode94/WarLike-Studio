@@ -33,3 +33,4 @@ jobs:
           node tests/effects-dsp-browser.mjs
           node tests/recording-browser.mjs
           node tests/vocal-audio-browser.mjs
+          node tests/export-browser.mjs
