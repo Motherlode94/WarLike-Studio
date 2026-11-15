@@ -127,6 +127,19 @@ try {
  await page.locator('#confirmReaper').click();
  await page.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await page.locator('#projectName').inputValue(),'REAPER QA');
+ // Public vocal demo must open as a real local project with audible guide WAV
+ // and native WarLike insert chains on its vocal lanes.
+ await page.locator('[data-public-demo="vox-trap"]').click();
+ await page.locator('#projectName').waitFor({state:'visible'});
+ assert.equal(await page.locator('#projectName').inputValue(),'WARLIKE · Trap VOX Mix');
+ assert.ok(await page.locator('#trackRows').getByText('LEAD · TRAP VOX').count(),'lead vocal lane missing');
+ await page.locator('[data-view="mixer"]').click();
+ assert.ok(await page.locator('#mixerView').getByText('LEAD · TRAP VOX').count(),'mixed vocal lane missing from mixer');
+ await page.locator('#saveStatus').getByText('Enregistré sur cet appareil').waitFor({state:'visible',timeout:15000});
+ await page.reload({waitUntil:'load'});
+ await page.locator('[data-project-open]').first().click();
+ await page.locator('#modal').waitFor({state:'hidden'});
+ assert.equal(await page.locator('#projectName').inputValue(),'WARLIKE · Trap VOX Mix','voice demo must persist with WAV media assets');
  assert.deepEqual(errors,[],'studio boot raised JavaScript errors');
  const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
  await mobile.goto('http://127.0.0.1:8765/',{waitUntil:'load'});
