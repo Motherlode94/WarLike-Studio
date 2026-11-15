@@ -87,5 +87,10 @@ export function createFactoryArrangement(template,makeTrack){
   return track;
  });
  for(const [name,volume,color] of [['LEAD VOX',-3,'#ca909a'],['BACKS',-7,'#8fa7c4'],['ADLIBS',-9,'#b1a584']]){const t=makeTrack('keys');Object.assign(t,{name,type:'audio',color,volume,instrument:{},clips:[]});tracks.push(t);}
- return {version:1,demo:true,demoRevision:2,name:template.name,bpm:template.bpm,bars:16,swing:template.swing,masterVolume:({nocturne:-5,soleil:0,brume:1.5})[style],recording:{gainDb:0,autoLevel:true},pianoKey:spec.key,pianoScale:spec.scale,keyName:spec.keyName,sections,tracks};
+ // Demo-only safety headroom. A 0 dB/+1.5 dB master clips when the
+ // kick, bass and layered polyphonic parts sum; do not alter user projects.
+ // The existing PEAK stage is a last-resort guard shared by Play and WAV export.
+ const masterVolume=({nocturne:-9,soleil:-9,brume:-9})[style];
+ const mastering={inserts:['peak'],peak:{enabled:true,drive:0,ceiling:-1.5,release:140}};
+ return {version:1,demo:true,demoRevision:4,name:template.name,bpm:template.bpm,bars:16,swing:template.swing,masterVolume,mastering,recording:{gainDb:0,autoLevel:true},pianoKey:spec.key,pianoScale:spec.scale,keyName:spec.keyName,sections,tracks};
 }
