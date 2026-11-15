@@ -25,8 +25,20 @@ test('Rock, Pop and Rumba are playable 16-bar arrangements with distinct WL inst
   const p=createGenreDemoSession(style);
   assert.equal(p.bpm,bpm[style]);
   assert.equal(p.bars,16);assert.ok(p.masterVolume<=-9);
-  assert.equal(p.tracks.length,9);assert.equal(p.tracks.filter(t=>t.type==='audio').length,3);
+  assert.equal(p.tracks.length,style==='rock'?10:9);assert.equal(p.tracks.filter(t=>t.type==='audio').length,3);
   assert.deepEqual(p.tracks.slice(1,6).map(t=>t.type),expected[style]);
+  if(style==='rock'){
+   const choir=p.tracks.find(t=>t.name==='HUMM · CHOIR PAD');
+   assert.ok(choir,'choir pad must be an actual dedicated track');
+   assert.equal(choir.type,'wlrompler');
+   assert.ok(choir.instrument.attack>=.2);
+   assert.ok(choir.instrument.release>=1.5);
+   assert.equal(choir.clips.length,4);
+   for(const clip of choir.clips){
+    assert.ok(clip.notes.length>=16,'repeat humm motif across four harmonic bars');
+    assert.ok(clip.notes.some(n=>n.len>=3.4),'long vowel sustain');
+   }
+  }
   assert.ok(p.tracks.some(t=>t.inserts.some(Boolean)),'new plug DSP inserts absent');
   for(const t of p.tracks){
    ensurePlugins(t);
