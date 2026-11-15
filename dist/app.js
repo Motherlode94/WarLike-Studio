@@ -2,6 +2,7 @@ import {installedTrackChains,applyTrackChain} from './track-chain-extension.js';
 import {parseReaperRpp,matchReaperMedia,reaperBasename} from './reaper-rpp.js';
 import {NATIVE_CHAINS,nativeEffectsForNames,applyNativeChain,nativeChainCapacity} from './native-vocal-chains.js';
 import {VOCAL_DEMOS,createVocalDemoSession} from './vocal-demo-sessions.js';
+import {createVocalDemoMedia} from './vocal-guide-audio.js';
 import {beginStudioPairing,completeStudioPairing,createStudioSync} from './studio-cloud-workflow.js';
 import {readLocalProject,writeLocalProject} from './local-project-store.js';
 import {workspaceAction,handleWorkspaceAction} from './workspace-shortcuts.js';
@@ -128,13 +129,16 @@ async function launchPublicDemo(kind){
    const demo=config.vocal?createVocalDemoSession(kind):createFactorySession(config.template);
    demo.name=config.name;demo.publicDemo=true;
    demo.demoRevision=config.vocal?4:3;
+   const demoMedia=config.vocal?createVocalDemoMedia(demo):[];
    if(db){
-     await createProjectLocal(demo.name,demo,[]);
+     await createProjectLocal(demo.name,demo,demoMedia);
      engine.masterVolume=Number.isFinite(demo.masterVolume)?demo.masterVolume:0;
      save();
    }else{
      engine.pause();engine.resetSession();
-     project=demo;assets=new Map();activeProjectId=null;
+     project=demo;assets=new Map();
+     if(demoMedia.length){await engine.init();for(const m of demoMedia)assets.set(m.id,{...m,buffer:await engine.ctx.decodeAudioData(m.data.slice(0))});}
+     activeProjectId=null;
      selectedTrack=demo.tracks[0].id;selectedClip=demo.tracks[0].clips[0]?.id;
      engine.masterVolume=Number.isFinite(demo.masterVolume)?demo.masterVolume:0;
      history=[];future=[];updateUndo();render();
@@ -142,7 +146,7 @@ async function launchPublicDemo(kind){
    }
    $('modal').close();
    setView('arrange');fitTimeline();updateTransport();
-   toast(config.vocal?'Démo '+config.label+' chargée · mix plugins WarLike sur LEAD / BACKS / ADLIBS · pistes prêtes à enregistrer.':'Démo '+config.label+' chargée · '+demo.bpm+' BPM · '+demo.keyName+' · 16 mesures. Appuie sur Lecture.');
+   toast(config.vocal?'Démo '+config.label+' · voix-guides synthétiques en REFRAIN (mesure 13) · mix natif WarLike sur LEAD, BACKS, ADLIBS. Appuie sur Lecture.':'Démo '+config.label+' chargée · '+demo.bpm+' BPM · '+demo.keyName+' · 16 mesures. Appuie sur Lecture.');
  }catch(error){toast('Démo '+config.label+' indisponible : '+error.message);}
  finally{publicDemoOpening=false;document.querySelectorAll('[data-public-demo]').forEach(b=>b.disabled=false);}
 }
