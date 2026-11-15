@@ -18,14 +18,14 @@ test('VOX LAB PRO specifies twelve distinct processor contracts, without adverti
    assert.ok(control.min<=control.default&&control.default<=control.max,id+':'+control.key);
    assert.ok(control.step>0,id+':'+control.key);
   }
-  assert.equal(Object.hasOwn(STUDIO_EFFECTS,id),false,id+' must not appear as a fake usable effect');
+  assert.equal(Object.hasOwn(STUDIO_EFFECTS,id),['voxmicmodel','voxwarm','voxdoubler'].includes(id),id+' must be registered only when DSP is implemented');
  }
  const order=VOXPRO_SIGNAL_ORDER.flatMap(section=>section[1]);
  assert.equal(order.length,ids.length);
  assert.deepEqual(new Set(order),new Set(ids));
 });
 test('VOX LAB PRO starter includes only real registered Web Audio processors',()=>{
- assert.deepEqual(STUDIO_PACKS.voxpro.modules,VOXPRO_STARTER_MODULES);
+ assert.deepEqual(STUDIO_PACKS.voxpro.modules,[...VOXPRO_STARTER_MODULES,'voxmicmodel','voxwarm','voxdoubler']);
  assert.equal(VOXPRO_STARTER_MODULES.length,7);
  for(const id of VOXPRO_STARTER_MODULES){
   assert.ok(EFFECTS[id],id+' missing from the actual effect registry');
