@@ -4,7 +4,7 @@ import {INSTRUMENTS,EFFECTS} from './plugins.js';
 const profile=(instruments,effects)=>({instruments,effects});
 export const GENRE_SOUND_PROFILES={
  pop:profile({
-  grand:{},wlclean:{brightness:5600,body:.72,pickPosition:.42,damping:.34,drive:0,attack:.009},
+  piano:{brightness:7200,tone:-1.2,attack:.008,release:1.4,dynamics:.68,width:.8},wlclean:{brightness:5600,body:.72,pickPosition:.42,damping:.34,drive:0,attack:.009},
   wlmuted:{brightness:3800,body:.73,pickPosition:.48,damping:.63,drive:0,decay:.48},
   wlrompler:{wave:1,texture:0,layer:.2,cutoff:2500,attack:.48,release:2.5,space:.24},
   wlsteel:{brightness:5400,body:.7,pickPosition:.4,damping:.32,attack:.013}
