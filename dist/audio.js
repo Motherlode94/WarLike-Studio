@@ -19,7 +19,7 @@ export const dbGain = db => Math.pow(10, db / 20);
 export const midiHz = n => 440 * Math.pow(2, (n - 69) / 12);
 export const noteName = n => ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'][((n % 12) + 12) % 12] + (Math.floor(n / 12) - 1);
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-const packTypes=tr=>tr.inserts.filter(id=>id&&!id.includes('__')&&!['color','sculpt','prism','glue','echo','aura'].includes(id)).sort();
+const packTypes=tr=>tr.inserts.filter(id=>id&&!id.includes('__')&&!['color','sculpt','prism','glue','echo','aura','tilt'].includes(id)).sort();
 
 export function defaultProject(){return createFactorySession('nocturne');}
 export function emptyProject(){
@@ -78,6 +78,7 @@ export class AudioEngine {
     drive.oversample='2x';highpass.type='highpass';highpass.Q.value=.5;
     reverb.buffer=this.impulse(ctx);
     filter.type='lowpass'; filter.frequency.value=tr.tone??18000; filter.Q.value=.5;
+    const tiltLow=ctx.createBiquadFilter(),tiltHigh=ctx.createBiquadFilter(),tiltOutput=ctx.createGain();tiltLow.type='lowshelf';tiltHigh.type='highshelf';tiltLow.connect(tiltHigh);tiltHigh.connect(tiltOutput);
     const compInput=ctx.createGain(),echoInput=ctx.createGain(),echoOutput=ctx.createGain(),auraInput=ctx.createGain(),auraOutput=ctx.createGain();
     const pack=createPackProcessors(ctx,input,makeup,{detached:true,types:packTypes(tr)});
     const colorInput=ctx.createGain();colorInput.connect(drive);drive.connect(colorWet);colorWet.connect(colorOut);colorInput.connect(colorDry);colorDry.connect(colorOut);
@@ -88,7 +89,7 @@ export class AudioEngine {
     echoInput.connect(echoOutput);echoInput.connect(send);send.connect(delay);delay.connect(feedback);feedback.connect(delay);delay.connect(echoOutput);
     auraInput.connect(auraOutput);auraInput.connect(space);space.connect(reverb);reverb.connect(auraOutput);
     delay.delayTime.value=60/this.getProject().bpm*.75; send.gain.value=tr.delay||0; feedback.gain.value=.3; analyser.fftSize=128;
-    const ch={input,filter,pan,gain,analyser,send,delay,feedback,drive,highpass,space,eqLow,eqMid,eqHigh,compressor,makeup,colorDry,colorWet,colorOut,compressDry,compressWet,compressDelay,pack,packSignature:packTypes(tr).join(','),instanceChannels:new Map(),sendNodes:new Map(),routeDelay:ctx.createDelay(1),stages:{...pack.modules,color:{input:colorInput,output:colorOut},sculpt:{input:highpass,output:filter},prism:{input:eqLow,output:eqHigh},glue:{input:compInput,output:makeup},echo:{input:echoInput,output:echoOutput},aura:{input:auraInput,output:auraOutput}}};this.syncEffects(ch,tr,ctx.currentTime,true);return ch;
+    const ch={tiltLow,tiltHigh,tiltOutput,input,filter,pan,gain,analyser,send,delay,feedback,drive,highpass,space,eqLow,eqMid,eqHigh,compressor,makeup,colorDry,colorWet,colorOut,compressDry,compressWet,compressDelay,pack,packSignature:packTypes(tr).join(','),instanceChannels:new Map(),sendNodes:new Map(),routeDelay:ctx.createDelay(1),stages:{...pack.modules,tilt:{input:tiltLow,output:tiltOutput},color:{input:colorInput,output:colorOut},sculpt:{input:highpass,output:filter},prism:{input:eqLow,output:eqHigh},glue:{input:compInput,output:makeup},echo:{input:echoInput,output:echoOutput},aura:{input:auraInput,output:auraOutput}}};this.syncEffects(ch,tr,ctx.currentTime,true);return ch;
   }
   impulse(ctx) {
     if(!this.impulses)this.impulses=new WeakMap();
@@ -97,6 +98,7 @@ export class AudioEngine {
   }
   syncEffects(ch,tr,now,initial=false) {
     ensurePlugins(tr);const e=tr.effects,set=(param,value)=>initial?param.setValueAtTime(value,now):param.setTargetAtTime(value,now,.02);
+    set(ch.tiltLow.frequency,e.tilt.pivot);set(ch.tiltHigh.frequency,e.tilt.pivot);set(ch.tiltLow.gain,e.tilt.enabled?-e.tilt.tilt:0);set(ch.tiltHigh.gain,e.tilt.enabled?e.tilt.tilt:0);set(ch.tiltOutput.gain,dbGain(e.tilt.enabled?e.tilt.output:0));
     set(ch.filter.frequency,e.sculpt.enabled?e.sculpt.cutoff:20000);
     set(ch.highpass.frequency,e.sculpt.enabled?e.sculpt.highpass:20);
     set(ch.send.gain,e.echo.enabled?e.echo.mix:0);
