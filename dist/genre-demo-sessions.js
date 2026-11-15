@@ -2,6 +2,7 @@
 // Existing Trap, Afro and R&B demos and demo arrangements are not modified.
 import {createContentTrack} from './content.js';
 import {placeInsert,ensurePlugins,DRUM_VOICES} from './plugins.js';
+import {applyGenreSoundProfile,validateGenreSoundProfile} from './genre-sound-profiles.js';
 const uid=()=>Math.random().toString(36).slice(2,12);
 const note=(step,midi,len=2,velocity=.66)=>({id:uid(),step,midi,len,velocity});
 const S={
@@ -94,6 +95,7 @@ function part(style,role,section){
 }
 export function createGenreDemoSession(style){
  const x=S[style];if(!x)throw Error('Démo musicale inconnue.');
+ if(style==='pop'||style==='rumba')validateGenreSoundProfile(style);
  const sections=['INTRO','COUPLET','PONT','REFRAIN'].map((name,i)=>({name,start:i*4,length:4}));
  const tracks=x.palette.map(([type,name,volume,effects],role)=>{
   const t=createContentTrack(type,0);
@@ -118,8 +120,9 @@ export function createGenreDemoSession(style){
    const index=t.inserts.indexOf(null);
    if(index<0)throw Error('Trop d’inserts sur la piste de démo.');
    placeInsert(t,index,effectId);
-   // Keep factory effect defaults; users can edit real DSP from the mixer.
+   // User-editable real DSP; genre sound profile applies below.
   }
+  applyGenreSoundProfile(t,style);
   for(let sec=0;sec<4;sec++){
    if(role===5&&sec===0)continue;
    const clip={id:uid(),name:sections[sec].name+' · '+name,start:sec*4,length:4,patternSteps:64};
