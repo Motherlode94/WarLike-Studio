@@ -27,7 +27,7 @@ if(host){
     if(!button)return;
     active=active===button.dataset.mobilePanel?null:button.dataset.mobilePanel;
     refresh();
-    if(active==='detail')document.querySelector('.detail-panel')?.scrollIntoView({block:'nearest'});
+    if(active==='detail'){const toggle=document.getElementById('toggleDetail');if(toggle?.getAttribute('aria-expanded')==='false')toggle.click();document.querySelector('.detail-panel')?.scrollIntoView({block:'nearest'});}
   });
   // The editor can be opened from its existing controls; don't interfere with its state.
   document.addEventListener('click',e=>{

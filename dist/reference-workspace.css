@@ -42,3 +42,13 @@ body.reference-studio{--track-label:270px;--detail-height:280px;display:flex;fle
 @media(max-width:600px){.instrument-audition-slots{grid-template-columns:1fr}.reference-studio .pr-more-tools>div{position:fixed;right:12px;left:12px;top:auto;bottom:12px}}
 
 .reference-studio #modal:has(.channel-rack){border-radius:3px;background:#363c43;border:1px solid #6d7883}.reference-studio #modal:has(.channel-rack) .modal-header{padding:10px 14px;background:#454d57}.reference-studio #modal:has(.channel-rack) #modalTitle{font-size:15px}.reference-studio .channel-rack{padding:10px;gap:9px;background:#343b42}.reference-studio .rack-channel{border:0;border-bottom:1px solid #262d34;border-left:3px solid var(--track-color);border-radius:0;background:#444d56;padding:5px;gap:5px}.reference-studio .rack-channel-name{font-size:11px}.reference-studio .channel-rack select,.reference-studio .channel-rack input{padding:4px;font-size:10px;border-radius:2px;background:#303942}.reference-studio .rack-note-preview{background:#263b40;border-radius:0}.reference-studio .rack-inline-steps>div{background:#38424a}.reference-studio .rack-inline-steps button{border-radius:2px}.reference-studio .rack-toolbar button,.reference-studio .rack-add button{border-radius:2px;font-size:10px;min-height:26px}.reference-studio .channel-rack>p{font-size:10px;margin:0;color:#bac5cf}
+/* Edit / Mix / Library remain reachable when the desktop tabs move into mobile chrome. */
+@media(max-width:700px){
+.reference-studio.mobile-compact .signature-workspaces{display:flex!important;height:44px!important;min-height:44px;flex-wrap:nowrap!important;padding:0 4px;gap:0;overflow:visible}
+.reference-studio.mobile-compact .signature-workspaces>.view-tabs{display:flex!important;flex:1 1 auto;flex-wrap:nowrap;gap:0;min-width:0}
+.reference-studio.mobile-compact .signature-workspaces>.view-tabs button{flex:1 1 auto;min-width:0;min-height:44px;padding:5px 8px;white-space:nowrap}
+.reference-studio.mobile-compact .signature-workspaces>div:not(.view-tabs){display:none!important}
+.reference-studio.mobile-compact .reference-window-menu{width:0;height:0;margin:0}.reference-studio.mobile-compact .reference-window-menu>summary{display:none}
+.reference-studio.mobile-compact[data-studio-surface=piano] .detail-panel{display:flex!important}
+.reference-studio.mobile-compact .pr-key{min-height:0!important}
+}
