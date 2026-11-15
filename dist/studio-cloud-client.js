@@ -18,7 +18,7 @@ const fail = (status, code) => {
   return new StudioCloudError('Service de synchronisation indisponible (' + status + ').', status, code);
 };
 function projectId(id) {
-  if (typeof id !== 'string' || !/^[0-9a-f-]{36}$/i.test(id)) throw new TypeError('Identifiant de projet invalide.');
+  if (typeof id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) throw new TypeError('Identifiant de projet invalide.');
   return encodeURIComponent(id);
 }
 export class StudioCloudClient {
@@ -27,8 +27,8 @@ export class StudioCloudClient {
   constructor({ baseUrl, fetchImpl = fetch } = {}) {
     if (typeof baseUrl !== 'string' || !/^https:\/\//.test(baseUrl)) throw new TypeError('Une API HTTPS authentifiée est requise.');
     const url = new URL(baseUrl);
-    if (url.username || url.password || url.search || url.hash) throw new TypeError('Adresse API invalide.');
-    this.#base = url.origin + url.pathname.replace(/\/$/, '');
+    if (url.username || url.password || url.search || url.hash || url.pathname !== '/' || url.port || url.hostname.endsWith('.')) throw new TypeError('Adresse API invalide.');
+    this.#base = url.origin;
     this.#fetch = fetchImpl;
   }
   async #request(path, { method = 'GET', payload, signal } = {}) {
@@ -50,7 +50,7 @@ export class StudioCloudClient {
     }
     if (response.status === 204) return null;
     const value = await response.json();
-    if (value === null || typeof value !== 'object') throw new StudioCloudError('Réponse serveur invalide.', 502, 'INVALID_RESPONSE');
+    if (value === null || typeof value !== 'object' || Array.isArray(value)) throw new StudioCloudError('Réponse serveur invalide.', 502, 'INVALID_RESPONSE');
     return value;
   }
   async identity({ signal } = {}) {
