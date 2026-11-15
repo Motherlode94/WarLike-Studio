@@ -15,8 +15,8 @@ function context(){
  ctx.createBuffer=(channels,length,rate)=>{const data=new Float32Array(length);return {duration:length/rate,length,sampleRate:rate,numberOfChannels:channels,copyToChannel(values){data.set(values);},getChannelData(){return data;}};};
  return ctx;
 }
-test('phase 3: all 20 instrument definitions have finite MIDI-safe controls',()=>{
- assert.equal(Object.keys(INSTRUMENTS).length,20);
+test('phase 3: all 30 instrument definitions have finite MIDI-safe controls',()=>{
+ assert.equal(Object.keys(INSTRUMENTS).length,30);
  for(const [id,def] of Object.entries(INSTRUMENTS)){
   const keys=new Set();
   for(const control of def.controls){assert.ok(!keys.has(control.key),id+' duplicated '+control.key);keys.add(control.key);assert.ok([control.min,control.max,control.default].every(Number.isFinite),id+' invalid '+control.key);assert.ok(control.default>=control.min&&control.default<=control.max,id+' out-of-range '+control.key);}
