@@ -22,11 +22,21 @@ async function render({id,frequency=1000,amplitude=.1,values={},enabled=true}){
  source.connect(module.input);module.output.connect(ctx.destination);
  const effects=pluginDefaults('keys').effects;
  effects[id]={...effects[id],...values,enabled};
- syncPackProcessors({modules:graph.modules,inputChannels:1},effects,120,0,true);
+syncPackProcessors(
+  {modules: graph.modules, inputChannels: 1},
+  effects,
+  120,
+  0,
+  true
+);
  source.start(0);
- const rendered=await ctx.startRendering();
- graph.dispose();
- return rms(rendered.getChannelData(0),.15);
+try {
+  source.start(0);
+  const rendered = await ctx.startRendering();
+  return rms(rendered.getChannelData(0), .15);
+} finally {
+  graph.dispose();
+}
 }
 async function run(){
  button.disabled=true;output.replaceChildren();let pass=0,total=0;
