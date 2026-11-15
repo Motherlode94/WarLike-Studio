@@ -34,6 +34,7 @@ export const INSTRUMENTS = {
     {key:'body',name:'Body',min:.05,max:.6,step:.01,default:.18,unit:'%'}]}
 };
 export const EFFECTS = {
+  tilt:{name:'MAAT TILT',subtitle:'DUAL SHELF EQ',controls:[{key:'tilt',name:'Tilt',min:-12,max:12,step:.5,default:0,unit:'dB'},{key:'pivot',name:'Pivot',min:200,max:3000,step:10,default:900,unit:'Hz'},{key:'output',name:'Output',min:-12,max:12,step:.5,default:0,unit:'dB'}]},
   color:{name:'COLOR',subtitle:'SATURATION',controls:[{key:'drive',name:'Drive',min:0,max:1,step:.01,default:.12,unit:'%'},{key:'mix',name:'Mix',min:0,max:1,step:.01,default:1,unit:'%'},{key:'output',name:'Output',min:-18,max:6,step:.25,default:0,unit:'dB'}]},
   sculpt:{name:'SCULPT',subtitle:'FILTER / EQ',controls:[{key:'highpass',name:'Low cut',min:20,max:1000,step:1,default:20,unit:'Hz'},{key:'cutoff',name:'High cut',min:300,max:20000,step:10,default:18000,unit:'Hz'}]},
   echo:{name:'ECHO',subtitle:'TEMPO DELAY',controls:[{key:'mix',name:'Mix',min:0,max:.65,step:.01,default:0,unit:'%'},{key:'feedback',name:'Feedback',min:.05,max:.75,step:.01,default:.3,unit:'%'}]},
