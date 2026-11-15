@@ -80,11 +80,23 @@ export function createVocalDemoMedia(project,{sampleRate=22050}={}){
   const buffer=synthVocalGuide({duration,sampleRate,voice:index,bpm:project.bpm,style:project.vocalDemoKind});
   const data=encodeWav(buffer,{bits:16});
   const audioId=id(),name='WarLike_'+project.vocalDemoKind+'_VocalGuide_'+(index+1)+'.wav';
-  track.clips.push({id:id(),name:'GUIDE SYNTHÉTIQUE · '+track.name,start:12,length:duration/secondsPerBar,audioId});
-  // Give the user a vocal sound earlier, rather than hiding all vocal content
-  // until bar 13. Reuse this same WAV for both copies without extra storage.
-  if(index===0)track.clips.push({id:id(),name:'GUIDE LEAD · COUPLET',start:4,length:duration/secondsPerBar,audioId});
-  if(index===1)track.clips.push({id:id(),name:'GUIDE HARMONIE · COUPLET',start:8,length:duration/secondsPerBar,audioId});
+  const addClip=(start,length,label,gainDb=0)=>{
+    track.clips.push({id:id(),name:'GUIDE VOCAL SYNTHÉTIQUE · '+label,start,length,audioId,gainDb});
+  };
+  const fullLength=duration/secondsPerBar;
+  if(index===0){
+    addClip(4,fullLength,'LEAD · COUPLET A',3);
+    addClip(8,fullLength,'LEAD · COUPLET B',3);
+    addClip(12,fullLength,'LEAD · REFRAIN',3);
+  }else if(index===1){
+    addClip(4,fullLength,'HARMONIE · COUPLET A',1);
+    addClip(8,fullLength,'HARMONIE · COUPLET B',1);
+    addClip(12,fullLength,'HARMONIE · REFRAIN',1);
+  }else{
+    const shortLength=Math.min(fullLength,.72);
+    for(const bar of [3,7,11,15])addClip(bar,shortLength,'ADLIB · RÉPONSE',2);
+    addClip(12,Math.min(fullLength,1.2),'ADLIB · REFRAIN',2);
+  }
   media.push({id:audioId,name,data});
  });
  project.vocalDemoInfo.hasSyntheticGuides=true;
