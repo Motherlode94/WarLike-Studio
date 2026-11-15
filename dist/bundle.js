@@ -256,6 +256,13 @@ export const FACTORY_PRESETS={
       }
     }
   ],
+  "tilt": [
+    {"name":"Neutral","values":{"tilt":0,"pivot":900,"output":0}},
+    {"name":"Vocal Air","values":{"tilt":3,"pivot":1300,"output":-1}},
+    {"name":"Warm Mix","values":{"tilt":-2.5,"pivot":900,"output":0}},
+    {"name":"Dark Pad","values":{"tilt":-5,"pivot":700,"output":-1}},
+    {"name":"Bright Guitar","values":{"tilt":4,"pivot":1200,"output":-2}}
+  ],
   "color": [
     {
       "name": "Clean",
