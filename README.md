@@ -1,5 +1,41 @@
 # Warlike Studio + CHAYAH Suite
 
+## Nouvelle collection : WL HERITAGE, sept guitares et trois synthétiseurs
+
+**Produits WarLike originaux** inspirés des usages de studio analogique, des guitares virtuelles articulées et des synthétiseurs à presets. Aucun sample, algorithme, interface ou préréglage propriétaire d'Abbey Road, Ample Sound, reFX Nexus, LennarDigital Sylenth1 ou Spectrasonics Omnisphere n'est fourni ou reproduit.
+
+### WL HERITAGE ROOMS — console / espace / coloration
+
+Ce bundle est une **collection de vrais effets existants de WarLike**, accessible par les chaînes FX natives : *WL Heritage / Studio Tracking*, *WL Heritage / Live Room* et *WL Heritage / Mix Bus*. Les chaînes sont composées de CIRCUIT EQ, CIRCUIT COLOR, CIRCUIT BUS, VOX AMBIENCE, ALTER ECHO et VECTOR LIMIT selon le preset. Leurs processeurs utilisent les nœuds Web Audio de Studio : ce ne sont pas des copies de modules Abbey Road.
+
+### WL GUITAR COLLECTION — sept instruments différents
+
+| Instrument | Identifiant | Génération audio |
+| --- | --- | --- |
+| WL STEEL 6 | `wlsteel` | Cordes acier physiques, attaque et résonance |
+| WL NYLON | `wlnylon` | Cordes nylon adoucies et corps acoustique |
+| WL FOLK 12 | `wlfolk12` | Douze cordes simulées par doublage et octaves |
+| WL JAZZ HOLLOW | `wljazz` | Guitare jazz à caisse creuse et filtrage tonal |
+| WL CLEAN SINGLE | `wlclean` | Guitare électrique claire, timbre brillant |
+| WL CRUNCH | `wlcrunch` | Cordes électriques et saturation waveshaper 4× |
+| WL MUTED FUNK | `wlmuted` | Résonance étouffée, jeu rythmique court |
+
+Les guitares génèrent réellement des sons à partir d'un **modèle simplifié de corde Karplus–Strong** et de circuits de filtre/saturation selon la guitare. Elles ne comprennent pas encore des banques d'enregistrements multicouches, techniques de frettes sophistiquées, hammer-ons/pull-offs, ni le réalisme intégral d'une bibliothèque Ample Sound. Trois presets originaux par instrument sont inclus.
+
+### Synthèse : trois moteurs réellement distincts
+
+| Pack | Instrument | Architecture |
+| --- | --- | --- |
+| WL ATLAS | `wlrompler` | Synthé multicouche à deux oscillateurs et sélection de formes d'onde, conçu pour les presets rapides |
+| WL VANGUARD | `wlvirtual` | Analogique virtuel à oscillateurs désaccordés, filtre et enveloppe |
+| WL NEBULA | `wlspectral` | FM/modulation de fréquence et harmoniques, avec contrôle des textures |
+
+Chacun possède ses paramètres propres et trois presets. **WL ATLAS est actuellement un synthétiseur à couches, pas un lecteur de ROM de samples** ; WL NEBULA n'est pas encore un synthétiseur spectral FFT/granulaire. Les trois déclenchent de véritables sources Web Audio et sont disponibles comme instruments dans les projets.
+
+**Démos inchangées :** `nocturne` (Trap), `soleil` (Afro) et `brume` (R&B) continuent d'utiliser leurs instruments et arrangements originaux. Aucune des nouvelles guitares ou synthèses n'est automatiquement ajoutée aux démos. Tests Node pour le registre, les presets, la création des voix et l'absence de contamination des démos ; rendu acoustique en navigateur et écoute humaine restent à confirmer.
+
+---
+
 ## VOX STUDIORACKS — chaînes vocales DSP intégrées
 
 **VOX STUDIORACKS est une interface fonctionnelle de gestion de chaînes d'inserts**, et non une planche SVG. Dans Studio, ouvre l'onglet des plugins, puis **VOX STUDIORACKS → Ouvrir le rack** ; un raccourci est également présent sur les pistes du mixeur.
