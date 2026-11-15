@@ -13,7 +13,7 @@ export function installReferenceWorkspace({bar,onView,setDetailOpen}){
  const extras=document.querySelector('.studio-more-panel');if(demos&&extras)extras.prepend(demos);
  bar.addEventListener('click',event=>{
   const view=event.target.closest('[data-view]')?.dataset.view;
-  if(event.target.closest('[data-workspace]'))document.body.dataset.studioSurface='playlist';
+  if(event.target.closest('button[data-workspace]'))document.body.dataset.studioSurface='playlist';
   if(view){document.body.dataset.studioSurface='playlist';onView(view);if(view!=='library')setDetailOpen(false);}
  });
  document.addEventListener('pointerdown',event=>{if(!menu.contains(event.target))menu.open=false;});
