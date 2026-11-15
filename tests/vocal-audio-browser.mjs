@@ -40,7 +40,7 @@ try{
  console.log('VOX AUDIBILITY:',JSON.stringify(details));
  for(const result of details){
    assert.ok(result.assets===3,result.kind+' has missing WAV assets');
-   assert.ok(result.clips[0]>=2,result.kind+' has no verse lead vocal');
+   assert.ok(result.clips[0]>=3,result.kind+' has no lead vocal in both verses and chorus');
    assert.ok(result.inputRms>.01,result.kind+' synthetic vocal WAV is virtually inaudible');
    assert.ok(result.renderRms>.006,result.kind+' lead through WarLike FX is inaudible in the rendered verse');
  }
