@@ -145,8 +145,10 @@ async function launchPublicDemo(kind){
      toast('Démo temporaire : le stockage local est indisponible. Exporte ton projet pour le conserver.');
    }
    $('modal').close();
-   setView('arrange');fitTimeline();updateTransport();
-   toast(config.vocal?'Démo '+config.label+' · voix-guides originales dès le COUPLET (mesure 5), puis au REFRAIN · mix natif WarLike sur LEAD, BACKS, ADLIBS. Appuie sur Lecture.':'Démo '+config.label+' chargée · '+demo.bpm+' BPM · '+demo.keyName+' · 16 mesures. Appuie sur Lecture.');
+   setView('arrange');fitTimeline();
+   if(config.vocal)engine.seek(4*16); // Start at the first lead vocal, not four empty intro bars.
+   updateTransport();
+   toast(config.vocal?'Démo '+config.label+' · lecture positionnée au COUPLET (mesure 5) · voix-guides synthétiques, mix FX WarLike · mix natif WarLike sur LEAD, BACKS, ADLIBS. Appuie sur Lecture.':'Démo '+config.label+' chargée · '+demo.bpm+' BPM · '+demo.keyName+' · 16 mesures. Appuie sur Lecture.');
  }catch(error){toast('Démo '+config.label+' indisponible : '+error.message);}
  finally{publicDemoOpening=false;document.querySelectorAll('[data-public-demo]').forEach(b=>b.disabled=false);}
 }
