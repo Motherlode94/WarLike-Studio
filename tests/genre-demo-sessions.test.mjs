@@ -25,7 +25,7 @@ test('Rock, Pop and Rumba are playable 16-bar arrangements with distinct WL inst
   const p=createGenreDemoSession(style);
   assert.equal(p.bpm,bpm[style]);
   assert.equal(p.bars,16);assert.ok(p.masterVolume<=-9);
-  assert.equal(p.tracks.length,style==='rock'?10:9);assert.equal(p.tracks.filter(t=>t.type==='audio').length,3);
+  assert.equal(p.tracks.length,style==='rock'?13:12);assert.equal(p.tracks.filter(t=>t.type==='audio').length,3);
   assert.deepEqual(p.tracks.slice(1,6).map(t=>t.type),expected[style]);
   assert.ok(p.tracks.some(t=>t.inserts.some(Boolean)),'new plug DSP inserts absent');
   for(const t of p.tracks){
@@ -71,8 +71,8 @@ test('Pop and Rumba are warm organic arrangements, not synthetic demos',()=>{
  assert.ok(!pop.tracks.some(t=>t.type==='wlspectral'||t.type==='wlvirtual'));
  assert.deepEqual(rumba.tracks.slice(1,6).map(t=>t.type),['wlnylon','wlclean','wlmuted','wlsteel','wljazz']);
  assert.ok(!rumba.tracks.some(t=>t.type==='wlrompler'));
- assert.equal(rumba.demoRevision,2);
- assert.equal(pop.demoRevision,2);
+ assert.equal(rumba.demoRevision,3);
+ assert.equal(pop.demoRevision,3);
  assert.ok(rumba.tracks[2].clips[0].notes.length>=20,'sebene melodic movement');
  assert.ok(pop.tracks[2].clips[3].notes.length>=20,'Pop refrain melodic hook');
 });
