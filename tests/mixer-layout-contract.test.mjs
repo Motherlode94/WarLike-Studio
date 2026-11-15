@@ -7,7 +7,7 @@ test('mixer strips keep a readable width, horizontally scroll and align vertical
  const marker=css.slice(css.lastIndexOf('/* Mixer layout stabilization:'));
  assert.ok(marker.includes('overflow-x:auto'),'mixer needs horizontal scroll');
  assert.match(marker,/\.reference-studio \.mixer-channel\{[^}]*flex:0 0 176px/s);
- assert.match(marker,/grid-template-rows:18px 26px 56px 165px 36px 42px 26px minmax\(155px,1fr\) 27px 28px/);
+ assert.match(marker,/grid-template-rows:18px 26px 56px 165px 36px 42px 26px minmax\(205px,1fr\) 27px 28px/);
  assert.match(marker,/\.reference-studio \.mixer-master\{[^}]*position:sticky/s);
  assert.match(marker,/\.reference-studio \.mixer-channel \.channel-inserts\{[^}]*overflow-y:auto/s);
 });
