@@ -25,7 +25,7 @@ test('VOX LAB PRO specifies twelve distinct processor contracts, without adverti
  assert.deepEqual(new Set(order),new Set(ids));
 });
 test('VOX LAB PRO starter includes only real registered Web Audio processors',()=>{
- assert.deepEqual(STUDIO_PACKS.voxpro.modules,[...VOXPRO_STARTER_MODULES,'voxmicmodel','voxwarm','voxdoubler']);
+ assert.deepEqual(STUDIO_PACKS.voxpro.modules,[...VOXPRO_STARTER_MODULES,'voxmicmodel','voxwarm','voxdoubler','voxaireq','voxambience']);
  assert.equal(VOXPRO_STARTER_MODULES.length,7);
  for(const id of VOXPRO_STARTER_MODULES){
   assert.ok(EFFECTS[id],id+' missing from the actual effect registry');
