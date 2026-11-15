@@ -1,4 +1,5 @@
 import {warlikeInstrumentVoice} from './wl-instrument-voices.js';
+import {playWLVocal} from './wl-vocal-voices.js';
 import {loadRecordedDrumKit,playRecordedDrum} from './recorded-drum-kits.js';
 import {instrumentVoice} from './instrument-voices.js';
 import {prepareStudioContext} from './studio-pack-audio.js?v=0.14.0';
@@ -291,6 +292,7 @@ export class AudioEngine {
     if(type==='sampler')return samplerVoice(ctx,out,this.getAssets().get(sampler?.assetId)?.buffer,midi,t,duration,sampler||{},params,velocity,live?o=>this.remember(o):null);
     if(ACOUSTIC_INSTRUMENTS[type]){if(velocity<=0)return;return acousticVoice(ctx,out,type,midi,t,duration,params,velocity,this.instrumentBanks?.get(type),live?o=>this.remember(o):null);}
     const scope=this.voiceScope(ctx),node=scope.node;
+    if(type==='wlvox')return playWLVocal(ctx,out,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null);
     if(warlikeInstrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null))return;
     if(['bass','keys','lead','pad','pluck'].includes(type))return instrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null);
     if(velocity!==1){const level=node('createGain');level.gain.value=Math.max(0,Math.min(1,velocity));level.connect(out);out=level;}
