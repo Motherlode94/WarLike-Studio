@@ -131,11 +131,39 @@ export function createGenreDemoSession(style){
   }
   return t;
  });
+ // Audible ORIGINAL formant-synth vocal demo tracks. Audio input tracks remain
+ // independent below, ready for user-recorded human takes.
+ const vocalProfiles=[
+  {name:'DEMO VOICE · LEAD (voyelles)',role:'lead',volume:-12,vowel:style==='rock'?2:style==='pop'?1:3,pan:0,effects:['voxclean','voxlevel','voxambience']},
+  {name:'DEMO VOICE · BACKS (harmonies)',role:'backs',volume:-18,vowel:style==='rumba'?4:2,pan:-.23,effects:['voxclean','voxdoubler','voxambience']},
+  {name:'DEMO VOICE · ADLIBS (réponses)',role:'adlibs',volume:-21,vowel:2,pan:.24,effects:['voxclean','alterecho']}
+ ];
+ for(const voice of vocalProfiles){
+  const t=createContentTrack('wlvox',0);t.name=voice.name;t.volume=voice.volume;t.pan=voice.pan;
+  Object.assign(t.instrument,{vowel:voice.vowel,attack:voice.role==='backs'?.16:.075,release:voice.role==='backs'?.6:.26,vibrato:voice.role==='lead'?.36:.18,tone:style==='rumba'?.34:.55,output:-8});
+  for(const effectId of voice.effects){const slot=t.inserts.indexOf(null);if(slot<0)throw Error('Aucun insert disponible pour la voix de démo.');placeInsert(t,slot,effectId);}
+  for(let sec=0;sec<4;sec++){
+   if(voice.role==='adlibs'&&sec===0)continue;
+   const notes=[],first=sec*4;
+   for(let bar=0;bar<4;bar++){
+    const c=x.chords[bar],root=c[0],offset=bar*16;
+    const offsets=voice.role==='lead'?[0,4,8,12]:voice.role==='backs'?[0,8]:[3,11];
+    for(const [i,pos] of offsets.entries()){
+     const notePitch=voice.role==='lead'?c[[2,1,3,2][i]]+(style==='rumba'?0:12):
+       voice.role==='backs'?c[[1,2][i]]+12:c[[3,2][i]]+12;
+     const len=voice.role==='lead'?[3.35,3.35,3.7,3.55][i]:voice.role==='backs'?7.2:2.7;
+     notes.push(note(offset+pos,Math.min(86,notePitch),len,voice.role==='lead'?(sec===3?.65:.52):voice.role==='backs'?.36:.34));
+    }
+   }
+   t.clips.push({id:uid(),name:sections[sec].name+' · '+voice.name,start:first,length:4,patternSteps:64,notes,description:'Voyelles synthétiques WarLike, non enregistrées par un chanteur.'});
+  }
+  tracks.push(t);
+ }
  for(const [name,vol,color] of [['LEAD VOX (vide)',-5,'#d59da1'],['BACKS (vide)',-10,'#8dbbd2'],['ADLIBS (vide)',-13,'#b7a4d3']]){
   const t=createContentTrack('keys');Object.assign(t,{name,type:'audio',color,volume:vol,instrument:{},clips:[]});ensurePlugins(t);tracks.push(t);
  }
  return {
-  version:1,demo:true,demoRevision:style==='rock'?1:2,demoGenre:style,
+  version:1,demo:true,demoRevision:style==='rock'?2:3,demoGenre:style,
   name:x.name,bpm:x.bpm,bars:16,swing:x.swing,masterVolume:x.masterVolume,
   mastering:{inserts:['peak'],peak:{enabled:true,drive:0,ceiling:-1.5,release:140}},
   recording:{gainDb:0,autoLevel:true},pianoKey:x.pianoKey,pianoScale:x.pianoScale,keyName:x.keyName,
