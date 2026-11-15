@@ -36,6 +36,23 @@ Chacun possède ses paramètres propres et trois presets. **WL ATLAS est actuell
 
 ---
 
+## Démos Rock, Pop et Rumba — voix, mix et mastering WarLike
+
+Les trois démos utilisent les **kits de batterie enregistrés** propres au style (Rock = kit 1, Pop = kit 2, Rumba = kit 3), des instruments WarLike arrangés et des **pistes de voix synthétiques réellement audibles** : `DEMO VOICE · LEAD`, `BACKS` et `ADLIBS`. Les voix sont produites par l'instrument original **WL VOCAL FORMANT** : oscillateurs, filtres formants, notes MIDI, vibrato et enveloppes. **Il ne s'agit pas encore de voix chantées humaines, ni de vrais couplets enregistrés.** Trois pistes audio distinctes restent vides pour que les utilisateurs puissent enregistrer leurs prises.
+
+Chaque voix passe par les vrais inserts WarLike :
+- **Lead** : VOX CLEAN → VOX LEVEL → VOX AMBIENCE
+- **Backs** : VOX CLEAN → VOX DOUBLER → VOX AMBIENCE
+- **Adlibs** : VOX CLEAN → ALTER ECHO
+
+Les paramètres des inserts sont adaptés au genre (`dist/genre-vocal-mix-master.js`). La sortie complète passe par **BALANCE → PRESS → PEAK**, avec trois profils de mastering différents. Les niveaux LUFS et les crêtes inter-échantillons ne sont pas certifiés : l'écoute et les mesures à l'export restent nécessaires.
+
+Les pistes conservent l'ordre libre et peuvent être réordonnées dans l'éditeur et le mixeur par glisser-déposer, sans recréer les clips, inserts ou paramètres. Une poignée de déplacement est visible sur les tranches du mixeur.
+
+Les échantillons de batterie sont une **dépendance externe sous licence CC BY 3.0**, non exclusive à WarLike Corps ; voir [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Les prises enregistrées doivent rester créditées. Les anciennes sessions Trap et Afro ne sont pas modifiées.
+
+---
+
 ## VOX STUDIORACKS — chaînes vocales DSP intégrées
 
 **VOX STUDIORACKS est une interface fonctionnelle de gestion de chaînes d'inserts**, et non une planche SVG. Dans Studio, ouvre l'onglet des plugins, puis **VOX STUDIORACKS → Ouvrir le rack** ; un raccourci est également présent sur les pistes du mixeur.
