@@ -41,7 +41,7 @@ export const PACK_EFFECTS={
   tilteq:{name:'TILT EQ',subtitle:'SPECTRAL BALANCE',pack:'motion',color:'#c6bc9a',defaultEnabled:false,description:'Balance les graves et aigus en sens opposés autour d’une fréquence pivot. Le gain global reste contrôlable.',controls:[
     {key:'tilt',name:'Tilt',min:-12,max:12,step:.5,default:0,unit:'dB'},
     {key:'pivot',name:'Pivot',min:250,max:3000,step:25,default:1000,unit:'Hz'},
-    {key:'mix',name:'Mix',min:0,max:1,step:.01,default:1,unit:'%'}]},
+    {key:'mix',name:'Mix',min:0,max:1,step:.01,default:1,unit:'%'},{key:'output',name:'Output',min:-12,max:12,step:.5,default:0,unit:'dB'}]},
   notch:{name:'NOTCH',subtitle:'RESONANCE REMOVER',pack:'motion',color:'#99b0c5',defaultEnabled:false,description:'Coupe une résonance précise avec un filtre notch à fréquence et largeur réglables.',controls:[
     {key:'frequency',name:'Frequency',min:40,max:12000,step:10,default:1200,unit:'Hz'},
     {key:'q',name:'Width (Q)',min:.25,max:24,step:.25,default:6,unit:'Q'},
