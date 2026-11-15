@@ -129,6 +129,7 @@ try {
  assert.equal(await page.locator('#projectName').inputValue(),'REAPER QA');
  // Public vocal demo must open as a real local project with audible guide WAV
  // and native WarLike insert chains on its vocal lanes.
+ await page.locator('#studioMoreMenu>summary').click();
  await page.locator('[data-public-demo="vox-trap"]').click();
  await page.waitForFunction(()=>document.getElementById('projectName').value==='WARLIKE · Trap VOX Mix',null,{timeout:20000});
  assert.equal(await page.locator('#projectName').inputValue(),'WARLIKE · Trap VOX Mix');
