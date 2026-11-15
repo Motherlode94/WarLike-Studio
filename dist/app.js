@@ -1,6 +1,7 @@
 import {installedTrackChains,applyTrackChain} from './track-chain-extension.js';
 import {parseReaperRpp,matchReaperMedia,reaperBasename} from './reaper-rpp.js';
 import {NATIVE_CHAINS,nativeEffectsForNames,applyNativeChain,nativeChainCapacity} from './native-vocal-chains.js';
+import {VOCAL_DEMOS,createVocalDemoSession} from './vocal-demo-sessions.js';
 import {beginStudioPairing,completeStudioPairing,createStudioSync} from './studio-cloud-workflow.js';
 import {readLocalProject,writeLocalProject} from './local-project-store.js';
 import {workspaceAction,handleWorkspaceAction} from './workspace-shortcuts.js';
@@ -112,7 +113,8 @@ async function createProjectLocal(name='Nouveau morceau',source=null,media=[]){
 const PUBLIC_DEMOS=Object.freeze({
  trap:{template:'nocturne',label:'Trap',name:'WARLIKE · Trap pour tous'},
  afro:{template:'soleil',label:'Afro',name:'WARLIKE · Afro pour tous'},
- rnb:{template:'brume',label:'R&B',name:'WARLIKE · R&B pour tous'}
+ rnb:{template:'brume',label:'R&B',name:'WARLIKE · R&B pour tous'},
+ ...Object.fromEntries(Object.entries(VOCAL_DEMOS).map(([key,value])=>[key,{...value,vocal:true}]))
 });
 let publicDemoOpening=false;
 async function launchPublicDemo(kind){
@@ -123,9 +125,9 @@ async function launchPublicDemo(kind){
  publicDemoOpening=true;
  document.querySelectorAll('[data-public-demo]').forEach(b=>b.disabled=true);
  try{
-   const demo=createFactorySession(config.template);
+   const demo=config.vocal?createVocalDemoSession(kind):createFactorySession(config.template);
    demo.name=config.name;demo.publicDemo=true;
-   demo.demoRevision=3;
+   demo.demoRevision=config.vocal?4:3;
    if(db){
      await createProjectLocal(demo.name,demo,[]);
      engine.masterVolume=Number.isFinite(demo.masterVolume)?demo.masterVolume:0;
@@ -140,7 +142,7 @@ async function launchPublicDemo(kind){
    }
    $('modal').close();
    setView('arrange');fitTimeline();updateTransport();
-   toast('Démo '+config.label+' chargée · '+demo.bpm+' BPM · '+demo.keyName+' · 16 mesures. Appuie sur Lecture.');
+   toast(config.vocal?'Démo '+config.label+' chargée · mix plugins WarLike sur LEAD / BACKS / ADLIBS · pistes prêtes à enregistrer.':'Démo '+config.label+' chargée · '+demo.bpm+' BPM · '+demo.keyName+' · 16 mesures. Appuie sur Lecture.');
  }catch(error){toast('Démo '+config.label+' indisponible : '+error.message);}
  finally{publicDemoOpening=false;document.querySelectorAll('[data-public-demo]').forEach(b=>b.disabled=false);}
 }
