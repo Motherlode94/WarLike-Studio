@@ -7,6 +7,7 @@ export function installReferenceWorkspace({bar,onView,setDetailOpen}){
  const panel=document.createElement('div');panel.className='reference-window-options';menu.append(summary,panel);
  const windows=document.querySelector('.warlike-workspaces');if(windows)panel.append(windows);
  for(const id of ['organiseTracks','openVariants','openLyrics','mixCompare','referenceCompare']){const node=document.getElementById(id);if(node)panel.append(node);}
+ const mastering=document.createElement('button');mastering.type='button';mastering.textContent='Mastering';mastering.onclick=()=>{document.getElementById('openMastering')?.click();menu.open=false;};panel.append(mastering);
  const editor=document.createElement('button');editor.type='button';editor.textContent='Afficher / masquer l’éditeur inférieur';
  editor.onclick=()=>{document.getElementById('toggleDetail')?.click();menu.open=false;};panel.append(editor);bar.append(menu);
  const demos=document.querySelector('.top-actions .public-demo-links');
