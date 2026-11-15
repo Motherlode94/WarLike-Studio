@@ -6,7 +6,7 @@ import {createFactorySession} from '../dist/content.js';
 
 test('original effect packs retain twenty-seven processors and their complete presets',()=>{
   const originals=Object.values(EFFECT_PACKS).filter(pack=>pack.kind!== 'track' && pack.kind!== 'master');
-  assert.equal(originals.length,7);assert.equal(Object.keys(PACK_EFFECTS).length,27);
+  assert.equal(originals.length,8);assert.equal(Object.keys(PACK_EFFECTS).length,27);
   for(const pack of originals)for(const id of pack.modules){assert.ok(PACK_EFFECTS[id]);assert.equal(FACTORY_PRESETS[id].length,['phase','ring'].includes(id)?10:5);for(const preset of FACTORY_PRESETS[id])for(const c of PACK_EFFECTS[id].controls)assert.ok(preset.values[c.key]>=c.min&&preset.values[c.key]<=c.max);}
 });
 test('envelope curves stay bounded, preserve quiet sibilants and obey maximum attenuation',()=>{
