@@ -196,15 +196,33 @@ export class AudioEngine {
   scheduler() {
     if(!this.playing)return;
     const p=this.getPlaybackProject(), total=p.bars*16,sd=this.stepDuration;
-    // A background tab can wake up minutes late. Skip the elapsed time instead of
-    // allocating thousands of overdue voices synchronously on the main thread.
-    const current=(this.ctx.currentTime-this.startTime)/sd;
-    if(current-this.scheduledStep>2){this.killVoices();this.scheduledStep=Math.max(0,Math.ceil(current));if(!this.patternMode&&!this.clipPreview&&this.loop){const local=this.scheduledStep%total;this.startTime=this.ctx.currentTime-local*sd;this.scheduledStep=local;this.schedulePartialAudio(local);this.scheduleAutomation(this.ctx,this.graph,local/16,p.bars,this.ctx.currentTime);}}
-    while(this.startTime+this.scheduledStep*sd<this.ctx.currentTime+.14) {
+    // Never fire missed note-on events immediately: a main-thread stall can
+    // otherwise pile up drums and synth transients into one audible crackle.
+    const now=this.ctx.currentTime,current=(now-this.startTime)/sd;
+    if(current-this.scheduledStep>2){
+      const overdue=(current-this.scheduledStep)*sd,hardRecovery=overdue>1;
+      this.audioUnderruns=(this.audioUnderruns||0)+1;
+      this.onAudioUnderrun?.({overdueSeconds:overdue,hardRecovery,count:this.audioUnderruns});
+      // A small timer delay must not cut off notes and recorded clips still
+      // sustaining. Only a genuine background-tab gap needs a full resync.
+      if(hardRecovery)this.killVoices();
+      this.scheduledStep=Math.max(0,Math.ceil(current));
+      if(hardRecovery&&this.loop&&!this.patternMode&&!this.clipPreview){
+        const local=this.scheduledStep%total;
+        const resumeAt=now+.03;
+        this.startTime=resumeAt-local*sd;this.scheduledStep=local;
+        this.schedulePartialAudio(local);
+        this.scheduleAutomation(this.ctx,this.graph,local/16,p.bars,resumeAt);
+      }
+    }
+    const earliest=now+.004;
+    while(this.startTime+this.scheduledStep*sd<now+.14) {
       if(!this.loop&&this.scheduledStep>=total){this.pause();this.position=0;this.onEnded?.();return;}
-      const local=this.scheduledStep%total, time=this.startTime+this.scheduledStep*sd;
+      const local=this.scheduledStep%total,time=this.startTime+this.scheduledStep*sd;
+      // Skipped steps are never rescheduled in the past.
+      if(time<earliest){this.scheduledStep++;continue;}
       if(local===0&&this.scheduledStep>0)this.scheduleAutomation(this.ctx,this.graph,0,p.bars,time);
-      this.scheduleStep(this.ctx,this.channels,local,time,true);
+      this.scheduleStep(this.ctx,this.channels,local,time,true,earliest);
       if(this.metronome&&local%4===0)this.click(time,local%16===0);
       this.scheduledStep++;
     }
