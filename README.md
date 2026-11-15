@@ -91,11 +91,11 @@ Les véritables définitions et paramètres se trouvent dans [`dist/plugins.js`]
 | Trap / Nocturne | 138 | 808, EXO, GRAND, nappes | Pistes vocales libres |
 | Afro / Soleil | 108 | STRUM, MARIMBA, KALIMBA, FLUTE | Pistes vocales libres |
 | R&B / Brume | 84 | FM KEYS, GRAND, VIBES | Pistes vocales libres |
-| **Rock électrique** | **126** | WL CRUNCH, CLEAN, STEEL, VANGUARD, JAZZ | Pistes vocales libres |
+| **Rock électrique** | **126** | WL CRUNCH, CLEAN, STEEL, VANGUARD, JAZZ + **HUMM CHOIR PAD** (WL ATLAS) | Pistes vocales libres |
 | **Pop lumière** | **116** | WL ATLAS, VANGUARD, CLEAN, NEBULA, STEEL | Pistes vocales libres |
 | **Rumba congolaise** | **104** | WL NYLON, CLEAN (sébène), MUTED, STEEL, ATLAS | Pistes vocales libres |
 
-Les trois nouvelles démos sont des arrangements de 16 mesures distincts, avec leurs batteries, notes MIDI, instruments et inserts DSP WarLike. Elles ne remplacent pas Trap/Afro/R&B et ne contiennent **pas de voix préenregistrée**. Leur code est dans [`dist/genre-demo-sessions.js`](dist/genre-demo-sessions.js). Leur écoute réelle en navigateur doit encore être validée.
+Les trois nouvelles démos sont des arrangements de 16 mesures distincts, avec leurs batteries, notes MIDI, instruments et inserts DSP WarLike. **Rock inclut une septième piste musicale, HUMM · CHOIR PAD : motif « humm, humm, huuu, huuuu » sur quatre notes tenues, répété selon les accords, joué par un synthétiseur doux avec attaque lente et réverbération. Il s'agit d'un pad synthétique évoquant une voix chantonnée, pas d'un enregistrement de voix réelle.** Elles ne remplacent pas Trap/Afro/R&B et ne contiennent **pas de voix préenregistrée**. Leur code est dans [`dist/genre-demo-sessions.js`](dist/genre-demo-sessions.js). Leur écoute réelle en navigateur doit encore être validée.
 
 ### VOX LAB PRO — périmètre réel
 
