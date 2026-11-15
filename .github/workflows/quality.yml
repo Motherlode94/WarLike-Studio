@@ -32,3 +32,4 @@ jobs:
           node tests/browser-smoke.mjs
           node tests/effects-dsp-browser.mjs
           node tests/recording-browser.mjs
+          node tests/vocal-audio-browser.mjs
