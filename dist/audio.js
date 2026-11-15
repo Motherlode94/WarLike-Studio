@@ -1,3 +1,4 @@
+import {instrumentVoice} from './instrument-voices.js';
 import {prepareStudioContext} from './studio-pack-audio.js?v=0.14.0';
 import {samplerVoice} from './sampler.js?v=0.14.0';
 import {ACOUSTIC_INSTRUMENTS} from './acoustic.js?v=0.14.0';
@@ -240,6 +241,7 @@ export class AudioEngine {
   }
   drum(ctx,out,voice,t,live=false,params={},velocity=1) {
     const scope=this.voiceScope(ctx),node=scope.node;
+    if(['bass','keys','lead','pad','pluck'].includes(type))return instrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null);
     if(velocity!==1){const level=node('createGain');level.gain.value=Math.max(0,Math.min(1,velocity));level.connect(out);out=level;}
     t=Math.max(t,ctx.currentTime);
     const g=node('createGain');g.connect(out);
@@ -261,15 +263,9 @@ export class AudioEngine {
     if(type==='sampler')return samplerVoice(ctx,out,this.getAssets().get(sampler?.assetId)?.buffer,midi,t,duration,sampler||{},params,velocity,live?o=>this.remember(o):null);
     if(ACOUSTIC_INSTRUMENTS[type]){if(velocity<=0)return;return acousticVoice(ctx,out,type,midi,t,duration,params,velocity,this.instrumentBanks?.get(type),live?o=>this.remember(o):null);}
     const scope=this.voiceScope(ctx),node=scope.node;
+    if(['bass','keys','lead','pad','pluck'].includes(type))return instrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null);
     if(velocity!==1){const level=node('createGain');level.gain.value=Math.max(0,Math.min(1,velocity));level.connect(out);out=level;}
-    t=Math.max(t,ctx.currentTime);if(type==='exo'){return exoVoice(ctx,out,midi,t,duration,params,o=>{scope.watch(o);if(live)this.remember(o);});} const hz=midiHz(midi),env=node('createGain'),filter=node('createBiquadFilter');
-    filter.type='lowpass';filter.frequency.value=type==='bass'?650:type==='lead'?(params.cutoff??3200):type==='pluck'?(params.brightness??5000):type==='pad'?2200:3200;env.connect(filter);filter.connect(out);
-    const level=type==='bass'?(params.body??.6):type==='lead'?.11:type==='pad'?.075:type==='pluck'?(params.body??.18):.19,attack=type==='bass'?.008:type==='pluck'?.003:(params.attack??(type==='pad'?.45:.018)),release=params.release??(type==='bass'?.16:type==='pad'?1.6:type==='pluck'?.04:.5);
-    if(type==='pluck')duration=Math.min(duration,params.decay??.3);
-    duration=Math.max(duration,attack+.04);
-    env.gain.setValueAtTime(.0001,t);env.gain.linearRampToValueAtTime(level,t+attack);env.gain.exponentialRampToValueAtTime(level*.48,t+Math.max(attack+.02,duration*.65));env.gain.setValueAtTime(level*.48,t+Math.max(attack+.03,duration));env.gain.exponentialRampToValueAtTime(.0001,t+duration+release);
-    const o=node('createOscillator');o.type=type==='bass'?'sine':['lead','pad'].includes(type)?'sawtooth':'triangle';o.frequency.setValueAtTime(hz,t);o.detune.value=type==='pad'?-(params.width??12):0;if(type==='bass'){o.frequency.setValueAtTime(hz*1.6,t);o.frequency.exponentialRampToValueAtTime(hz,t+.035);}o.connect(env);o.start(t);o.stop(t+duration+release+.02);scope.watch(o);if(live)this.remember(o);
-    if(type!=='bass'||params.harmonics>0){const o2=node('createOscillator'),g=node('createGain');o2.type=['lead','pad'].includes(type)?'sawtooth':'sine';o2.frequency.value=hz*(['lead','pad'].includes(type)?1:2);o2.detune.value=type==='bass'?0:type==='pad'?(params.width??12):(params.detune??5);g.gain.value=type==='bass'?params.harmonics:['lead','pad'].includes(type)?.55:.22;o2.connect(g);g.connect(env);o2.start(t);o2.stop(t+duration+release+.02);scope.watch(o2);if(live)this.remember(o2);}
+    t=Math.max(t,ctx.currentTime);if(type==='exo')return exoVoice(ctx,out,midi,t,duration,params,o=>{scope.watch(o);if(live)this.remember(o);});
   }
   audioVoice(ctx,out,buffer,t,offset,duration,live=false,gainDb=0,clipId=null,envelope={}) {
     if(offset>=buffer.duration||duration<=0)return;

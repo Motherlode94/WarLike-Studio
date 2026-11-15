@@ -14,6 +14,7 @@ if(host){
   function refresh(){
     const mobile=isMobile();
     document.body.classList.toggle('mobile-compact',mobile);
+    const windowMenu=document.querySelector('.reference-window-menu');if(windowMenu)windowMenu.open=mobile&&active==='windows';
     document.body.dataset.mobilePanel=mobile?(active||'none'):'desktop';
     for(const b of nav.querySelectorAll('button')){
       const expanded=mobile&&active===b.dataset.mobilePanel;
@@ -26,12 +27,12 @@ if(host){
     if(!button)return;
     active=active===button.dataset.mobilePanel?null:button.dataset.mobilePanel;
     refresh();
-    if(active==='detail')document.querySelector('.detail-panel')?.scrollIntoView({block:'nearest'});
+    if(active==='detail'){const toggle=document.getElementById('toggleDetail');if(toggle?.getAttribute('aria-expanded')==='false')toggle.click();document.querySelector('.detail-panel')?.scrollIntoView({block:'nearest'});}
   });
   // The editor can be opened from its existing controls; don't interfere with its state.
   document.addEventListener('click',e=>{
     if(!isMobile())return;
-    if(e.target.closest('[data-view]')){
+    if(e.target.closest('[data-view],[data-ws]')){
       active=null;refresh();
     }else if(e.target.closest('#channelRack,#openBundle')){
       active='detail';refresh();

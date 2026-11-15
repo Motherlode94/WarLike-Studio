@@ -16,19 +16,19 @@ export const INSTRUMENTS = {
     {key:'body',name:'Body',min:.1,max:1,step:.01,default:.6,unit:'%'},
     {key:'harmonics',name:'Harmonics',min:0,max:.5,step:.01,default:.08,unit:'%'},
     {key:'release',name:'Release',min:.03,max:1,step:.01,default:.16,unit:'s'}]},
-  keys:{name:'VELVET',subtitle:'POLYPHONIC SYNTH',color:'#94b7aa',description:'Deux oscillateurs, désaccordage et enveloppe douce.',controls:[
+  keys:{name:'VELVET',subtitle:'FM TINE KEYS',color:'#94b7aa',description:'Piano électrique FM : tines métalliques, attaque sensible à la vélocité et corps sinusoïdal.',controls:[
     {key:'attack',name:'Attack',min:.005,max:.6,step:.001,default:.018,unit:'s'},
     {key:'release',name:'Release',min:.05,max:2,step:.01,default:.5,unit:'s'},
     {key:'detune',name:'Detune',min:0,max:25,step:.1,default:5,unit:'ct'}]},
-  lead:{name:'NOVA',subtitle:'DUAL OSC LEAD',color:'#d0bd7d',description:'Deux oscillateurs en dents de scie, filtre et enveloppe courte pour les mélodies.',controls:[
+  lead:{name:'NOVA',subtitle:'DUAL OSC LEAD',color:'#d0bd7d',description:'Dents de scie et impulsion désaccordées, filtre résonant et attaque de brillance.',controls:[
     {key:'cutoff',name:'Cutoff',min:200,max:12000,step:10,default:3200,unit:'Hz'},
     {key:'detune',name:'Detune',min:0,max:35,step:.1,default:8,unit:'ct'},
     {key:'release',name:'Release',min:.04,max:1.2,step:.01,default:.18,unit:'s'}]},
-  pad:{name:'HALO',subtitle:'ATMOSPHERIC PAD',color:'#91afcb',description:'Une nappe à deux oscillateurs désaccordés, avec attaque et relâchement longs.',controls:[
+  pad:{name:'HALO',subtitle:'ATMOSPHERIC PAD',color:'#91afcb',description:'Ensemble stéréo à trois voix, filtre animé lentement et attaque progressive.',controls:[
     {key:'attack',name:'Attack',min:.05,max:2,step:.01,default:.45,unit:'s'},
     {key:'release',name:'Release',min:.2,max:4,step:.01,default:1.6,unit:'s'},
     {key:'width',name:'Detune',min:0,max:35,step:.1,default:12,unit:'ct'}]},
-  pluck:{name:'STRING',subtitle:'PLUCK SYNTH',color:'#c194b3',description:'Un son pincé à décroissance rapide, avec corps et brillance réglables.',controls:[
+  pluck:{name:'STRING',subtitle:'PHYSICAL STRING',color:'#c194b3',description:'Corde pincée à retard fractionnaire : excitation bruitée, amortissement et résonance physique.',controls:[
     {key:'decay',name:'Decay',min:.04,max:1.5,step:.01,default:.3,unit:'s'},
     {key:'brightness',name:'Brightness',min:500,max:12000,step:10,default:5000,unit:'Hz'},
     {key:'body',name:'Body',min:.05,max:.6,step:.01,default:.18,unit:'%'}]}
