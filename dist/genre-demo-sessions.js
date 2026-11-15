@@ -70,7 +70,7 @@ function part(style,role,section){
    if(role===2)for(const [i,step] of [0,8].entries())c.forEach((pitch,j)=>add(b+step+j*.03,pitch,7,.38+i*.1));
    if(role===3)for(const [i,step] of [0,3,6,10,14].entries())add(b+step,c[(i+bar)%4]+12,1.5,.46);
    if(role===4)for(const [i,step] of [0,7,10,14].entries())add(b+step,r-12+(i===1?7:i===3?12:0),i===0?4:1.9,.61);
-   if(role===5&&(hook||section===2))for(const [i,step] of [0,4,6,9,12,15].entries())add(b+step,c[(i+2)%4]+12,1.8,.57);
+   if(role===5&&!intro)for(const [i,step] of (section===1?[0,8,12]:[0,4,6,9,12,15]).entries())add(b+step,c[(i+2)%4]+12,Math.min(1.8,16-step),section===1?.42:.57);
   }else if(style==='pop'){
    if(role===1)c.forEach((pitch,j)=>add(b+j*.02,pitch,14,.4));
    if(role===2&&!intro)for(const [i,step] of [0,3,6,8,12,14].entries())add(b+step,c[(i+2)%4]+12,1.5,.47);
@@ -79,9 +79,9 @@ function part(style,role,section){
    if(role===5)for(const step of [0,8])c.slice(0,3).forEach((pitch,i)=>add(b+step+i*.07,pitch,6.3,.37));
   }else{
    if(role===1)for(const [i,step] of [1,5,9,13].entries())c.slice(0,3).forEach((pitch,j)=>add(b+step+j*.04,pitch,1.8,.49-(j*.04)));
-   if(role===2)for(const [i,step] of [0,3,6,8,11,14].entries())add(b+step,c[(i+bar)%4]+12,1.15,hook?.66:.55);
+   if(role===2)for(const [i,step] of [0,3,6,8,11,14].entries())add(b+step,c[(i+bar)%4]+12,Math.min(1.15,16-step),hook?.66:.55);
    if(role===3)for(const [i,step] of [2,6,10,14].entries())add(b+step,c[i%4]+12,.9,.46);
-   if(role===4&&!intro)for(const [i,step] of [3,7,12,15].entries())add(b+step,c[(i+1)%4]+12,1.6,.45);
+   if(role===4&&!intro)for(const [i,step] of [3,7,12,15].entries())add(b+step,c[(i+1)%4]+12,Math.min(1.6,16-step),.45);
    if(role===5)for(const [i,step] of [0,7,10,14].entries())add(b+step,r-12+(i===1?7:i===3?12:0),2,.55);
   }
  }
