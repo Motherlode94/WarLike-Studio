@@ -160,6 +160,20 @@ try{
   await page.locator('.recording-recovery-dialog').getByRole('button',{name:'Supprimer la sauvegarde'}).click();
   await page.locator('.recording-recovery-dialog').getByRole('button',{name:'Fermer'}).click();
 
+  // A user can cancel while browser microphone permission/capture is pending.
+  // Resolve a delayed fake device after cancellation to prove resources are released.
+  await page.evaluate(()=>{
+    const native=navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    navigator.mediaDevices.getUserMedia=(constraints)=>new Promise((resolve,reject)=>{
+      setTimeout(()=>native(constraints).then(resolve,reject),350);
+    });
+  });
+  await page.locator('#recordWorkspaceSyncCheck').click();
+  await page.locator('#recordWorkspaceSyncCheck').getByText('Annuler la mesure').waitFor({state:'visible'});
+  await page.locator('#recordWorkspaceSyncCheck').click();
+  await page.locator('#recordWorkspaceSyncResult').getByText('Mesure annulée.',{exact:false}).waitFor({state:'visible',timeout:10000});
+  assert.match(await page.locator('#recordWorkspaceSyncCheck').innerText(),/Mesurer synchro/);
+
   // Nonmodal QA panel: can keep Recording toolbar available and export an honest report.
   await page.locator('#recordWorkspaceValidate').click();
   assert.equal(await page.locator('.recording-validation-dialog').getAttribute('open'),'');
