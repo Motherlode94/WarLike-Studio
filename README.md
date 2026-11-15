@@ -36,6 +36,23 @@ Chacun possède ses paramètres propres et trois presets. **WL ATLAS est actuell
 
 ---
 
+## Démos Rock, Pop et Rumba — voix, mix et mastering WarLike
+
+Les trois démos utilisent les **kits de batterie enregistrés** propres au style (Rock = kit 1, Pop = kit 2, Rumba = kit 3), des instruments WarLike arrangés et des **pistes de voix synthétiques réellement audibles** : `DEMO VOICE · LEAD`, `BACKS` et `ADLIBS`. Les voix sont produites par l'instrument original **WL VOCAL FORMANT** : oscillateurs, filtres formants, notes MIDI, vibrato et enveloppes. **Il ne s'agit pas encore de voix chantées humaines, ni de vrais couplets enregistrés.** Trois pistes audio distinctes restent vides pour que les utilisateurs puissent enregistrer leurs prises.
+
+Chaque voix passe par les vrais inserts WarLike :
+- **Lead** : VOX CLEAN → VOX LEVEL → VOX AMBIENCE
+- **Backs** : VOX CLEAN → VOX DOUBLER → VOX AMBIENCE
+- **Adlibs** : VOX CLEAN → ALTER ECHO
+
+Les paramètres des inserts sont adaptés au genre (`dist/genre-vocal-mix-master.js`). La sortie complète passe par **BALANCE → PRESS → PEAK**, avec trois profils de mastering différents. Les niveaux LUFS et les crêtes inter-échantillons ne sont pas certifiés : l'écoute et les mesures à l'export restent nécessaires.
+
+Les pistes conservent l'ordre libre et peuvent être réordonnées dans l'éditeur et le mixeur par glisser-déposer, sans recréer les clips, inserts ou paramètres. Une poignée de déplacement est visible sur les tranches du mixeur.
+
+Les échantillons de batterie sont une **dépendance externe sous licence CC BY 3.0**, non exclusive à WarLike Corps ; voir [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Les prises enregistrées doivent rester créditées. Les anciennes sessions Trap et Afro ne sont pas modifiées.
+
+---
+
 ## VOX STUDIORACKS — presets de mixage par type de piste
 
 Les **19 nouveaux presets de rack** chargent une liste ordonnée de vrais processeurs WarLike Web Audio, en plus des quatre chaînes vocales d'origine. Dans **Plugins → VOX STUDIORACKS**, les presets sont classés par usage ; sélectionner un preset affiche la **liste des plugins dans leur ordre exact**, puis le bouton d'ajout crée les inserts sur la piste choisie. Aucun n'est injecté automatiquement dans les démos existantes.
@@ -86,41 +103,48 @@ Les détecteurs de souffle avancés, le compresseur PRO dédié, l'éditeur de h
 
 ---
 
-## Bundles — identités visuelles et VOX LAB PRO (spécification 2026-11-15)
+## Catalogue de vrais plugins WarLike
 
-La galerie ci-dessous couvre **les huit familles principales et les douze bundles DIVINITÉS**. Les visuels sont des illustrations SVG originales, non des captures ; ils ne prouvent ni une simulation matérielle ni des résultats audio. Les modules déjà présents dans les chaînes restent des traitements Web Audio originaux.
+Les précédentes planches SVG présentaient des courbes identiques et des commandes décoratives, parfois avec des liens d'images cassés. Elles ont été **retirées de la page d'accueil GitHub** : le README décrit désormais les modules réellement disponibles et renvoie à leur code. Une future galerie ne pourra afficher que de **vraies captures des fenêtres en fonctionnement**, issues d'un test navigateur.
 
-### Familles principales
+### Packs de mixage et traitement
 
-| Bundle et identité visuelle | Modules disponibles | Rôle |
+| Pack | Plugins utilisables | Usage |
 | --- | --- | --- |
-| ![Identité CIRCUIT](docs/bundles/circuit.svg) **CIRCUIT** | CIRCUIT EQ · BUS · COLOR | Console, EQ, dynamique |
-| ![Identité ALTER](docs/bundles/alter.svg) **ALTER** | ALTER DOUBLE · ECHO · FILTER | Echos et mouvement |
-| ![Identité VECTOR](docs/bundles/vector.svg) **VECTOR** | VECTOR EQ · COMP · LIMIT | Précision et mastering |
-| ![Identité VOX LAB](docs/bundles/voxlab.svg) **VOX LAB** | VOX TUNE · LEVEL · CLEAN | Traitement vocal standard |
-| ![Identité VOX LAB PRO](docs/bundles/voxpro.svg) **VOX LAB PRO** | VOX CLEAN · SIBIL · TUNE · LEVEL · ALTER DOUBLE · CIRCUIT COLOR · EXO AIR | 7 effets disponibles ; 12 modules dédiés spécifiés |
-| ![Identité EXO](docs/bundles/exo.svg) **EXO** | EXO STRIP · FOCUS · AIR · SPACE | Mixage hybride |
-| ![Identité Vocal Essentials](docs/bundles/vocal.svg) **Vocal Essentials** | HUSH · SIBIL | Préparation de voix |
-| ![Identité Motion & Color](docs/bundles/motion.svg) **Motion & Color** | EMBER · ORBIT · SWAY · RELAY · TILT EQ · NOTCH · SLAP · PHASE · RING | Modulation, texture |
+| **CIRCUIT** | CIRCUIT EQ, BUS, COLOR | Tonalité console, compression et saturation |
+| **VECTOR** | VECTOR EQ, COMP, LIMIT | Égalisation et contrôle dynamique |
+| **ALTER** | ALTER DOUBLE, ECHO, FILTER | Mouvement et effets créatifs |
+| **VOX LAB** | VOX TUNE, LEVEL, CLEAN | Correction et gestion de voix |
+| **VOX LAB PRO** | VOX MIC COLOR, WARM, DOUBLER, AIR EQ, AMBIENCE + effets existants | Chaîne vocale DSP modulaire ; fonctions avancées documentées séparément |
+| **EXO** | EXO STRIP, FOCUS, AIR, SPACE | Channel strip, brillance et réverbération |
+| **Vocal Essentials** | HUSH, SIBIL | Gate et dé-esseur |
+| **Motion & Color** | PHASE, RING, EMBER, ORBIT, SWAY, TILT EQ, NOTCH, SLAP, RELAY | Modulation et effets temporels |
+| **WL HERITAGE ROOMS** | Chaînes CIRCUIT / AMBIENCE / ALTER / VECTOR | Traitement studio vintage original |
 
-### Bundles DIVINITÉS
+Les chaînes artistiques **DIVINITÉS** (OGUN, SHANGO, OSHUN, YEMOJA, OBATALA, NYAME, ASASE YAA, MAWU, LISA, ANANSI, ASET, DJEHUTY) restent présentes dans le moteur. Elles ne nécessitent pas douze illustrations de mêmes courbes dans la page principale.
 
-Les noms DIVINITÉS servent d'identité artistique aux chaînes de traitement WarLike ; ces packs ne représentent ni des produits tiers ni des rituels.
+Les véritables définitions et paramètres se trouvent dans [`dist/plugins.js`](dist/plugins.js), [`dist/studio-packs.js`](dist/studio-packs.js), [`dist/packs.js`](dist/packs.js) et [`dist/wl-instrument-packs.js`](dist/wl-instrument-packs.js). Le traitement passe par [`dist/studio-pack-audio.js`](dist/studio-pack-audio.js), [`dist/pack-audio.js`](dist/pack-audio.js) et [`dist/audio.js`](dist/audio.js).
 
-| Bundle | Image dédiée | Modules intégrés |
+### Instruments — trois familles réellement différentes
+
+| Guitares physiques simplifiées | Synthèse | Banques acoustiques |
 | --- | --- | --- |
-| **OGUN** | ![OGUN](docs/bundles/ogun.svg) | `circuiteq · circuitbus · circuitcolor` |
-| **SHANGO** | ![SHANGO](docs/bundles/shango.svg) | `voxclean · voxlevel · ember · alterecho` |
-| **OSHUN** | ![OSHUN](docs/bundles/oshun.svg) | `voxclean · vectorcomp · exoair · exospace` |
-| **YEMOJA** | ![YEMOJA](docs/bundles/yemoja.svg) | `alterdouble · orbit · exoair · exospace` |
-| **OBATALA** | ![OBATALA](docs/bundles/obatala.svg) | `voxclean · vectoreq · vectorcomp` |
-| **NYAME** | ![NYAME](docs/bundles/nyame.svg) | `vectoreq · circuitbus · vectorlimit` |
-| **ASASE YAA** | ![ASASE YAA](docs/bundles/asaseyaa.svg) | `exofocus · circuiteq · vectorcomp` |
-| **MAWU** | ![MAWU](docs/bundles/mawu.svg) | `vectoreq · vectorcomp · vectorlimit` |
-| **LISA** | ![LISA](docs/bundles/lisa.svg) | `circuiteq · circuitbus · vectorlimit` |
-| **ANANSI** | ![ANANSI](docs/bundles/anansi.svg) | `alterfilter · alterdouble · alterecho · phase` |
-| **ASET** | ![ASET](docs/bundles/aset.svg) | `sibil · voxlevel · exoair · exospace` |
-| **DJEHUTY** | ![DJEHUTY](docs/bundles/djehuty.svg) | `vectoreq · exofocus · vectorlimit` |
+| WL STEEL 6, NYLON, FOLK 12, JAZZ HOLLOW, CLEAN SINGLE, CRUNCH, MUTED FUNK | WL ATLAS (couches), WL VANGUARD (analogique virtuel), WL NEBULA (FM/harmoniques), EXO et synthés classiques | GRAND, UPRIGHT, FM KEYS, HARP, MARIMBA, VIBES, KALIMBA, STRUM, VIOLIN, CELLO, FLUTE, TRUMPET |
+
+**Aucune fausse interface de clavier ou de compresseur n'est revendiquée comme capture de plugin.** Les vrais instruments sont ouverts depuis Studio ; l'écoute et les tests de rendu restent nécessaires pour évaluer leur qualité sonore.
+
+### Six démos publiques — classiques conservées, nouvelles sessions séparées
+
+| Démo | BPM | Instrumentation principale | État vocal |
+| --- | ---: | --- | --- |
+| Trap / Nocturne | 138 | 808, EXO, GRAND, nappes | Pistes vocales libres |
+| Afro / Soleil | 108 | STRUM, MARIMBA, KALIMBA, FLUTE | Pistes vocales libres |
+| R&B / Brume | 84 | FM KEYS, GRAND, VIBES | Pistes vocales libres |
+| **Rock électrique** | **126** | WL CRUNCH, CLEAN, STEEL, VANGUARD, JAZZ | Pistes vocales libres |
+| **Pop lumière** | **116** | WL ATLAS, VANGUARD, CLEAN, NEBULA, STEEL | Pistes vocales libres |
+| **Rumba congolaise** | **104** | WL NYLON, CLEAN (sébène), MUTED, STEEL, ATLAS | Pistes vocales libres |
+
+Les trois nouvelles démos sont des arrangements de 16 mesures distincts, avec leurs batteries, notes MIDI, instruments et inserts DSP WarLike. Elles ne remplacent pas Trap/Afro/R&B et ne contiennent **pas de voix préenregistrée**. Leur code est dans [`dist/genre-demo-sessions.js`](dist/genre-demo-sessions.js). Leur écoute réelle en navigateur doit encore être validée.
 
 ### VOX LAB PRO — périmètre réel
 
@@ -136,15 +160,15 @@ Les noms DIVINITÉS servent d'identité artistique aux chaînes de traitement Wa
 
 > **Source de vérité :** les définitions du code dans `dist/plugins.js`, `dist/acoustic.js`, `dist/exo.js`, `dist/sampler.js`, `dist/packs.js`, `dist/studio-packs.js` et `dist/exo-pack.js`. Les sections numérotées plus bas documentent des versions antérieures ; leurs chiffres peuvent différer du registre actuel. Les visuels suivants sont des **illustrations originales**, pas des captures du logiciel ni une preuve de validation audio.
 
-![Illustration originale du catalogue des effets CHAYAH](docs/plugin-catalog-fx.svg)
 
-**33 effets Web Audio déclarés dans le registre** : égalisation et filtres, compression et dynamique, saturation, spatialisation et effets temporels. Les familles incluent SCULPT, PRISM, GLUE, ECHO, AURA, CIRCUIT, ALTER, VECTOR, VOX LAB et EXO. Ces traitements sont des modules natifs du Studio dans le navigateur, **pas des fichiers VST/VST3**.
 
-![Illustration originale du catalogue des instruments WarLike](docs/plugin-catalog-instruments.svg)
+**38 effets Web Audio déclarés dans le registre** : égalisation et filtres, compression et dynamique, saturation, spatialisation et effets temporels. Les familles incluent SCULPT, PRISM, GLUE, ECHO, AURA, CIRCUIT, ALTER, VECTOR, VOX LAB et EXO. Ces traitements sont des modules natifs du Studio dans le navigateur, **pas des fichiers VST/VST3**.
 
-**20 instruments déclarés** : 12 instruments acoustiques à échantillons (GRAND, UPRIGHT, FM KEYS, HARP, MARIMBA, VIBES, KALIMBA, STRUM, VIOLIN, CELLO, FLUTE, TRUMPET), six instruments de synthèse PULSE, MONO, VELVET, NOVA, HALO et STRING, plus EXO et EXO SLICE. Les banques acoustiques chargent des fichiers audio ; EXO SLICE utilise un échantillon choisi par l'utilisateur.
 
-![Illustration originale de la famille vocale CHAYAH](docs/plugin-catalog-vocals.svg)
+
+**30 instruments déclarés** : 12 instruments acoustiques à échantillons (GRAND, UPRIGHT, FM KEYS, HARP, MARIMBA, VIBES, KALIMBA, STRUM, VIOLIN, CELLO, FLUTE, TRUMPET), six instruments de synthèse PULSE, MONO, VELVET, NOVA, HALO et STRING, plus EXO et EXO SLICE. Les banques acoustiques chargent des fichiers audio ; EXO SLICE utilise un échantillon choisi par l'utilisateur.
+
+
 
 **Traitement vocal** : VOX TUNE, VOX LEVEL, VOX CLEAN et les autres modules de dynamique/tonalité du registre. Leurs fonctionnalités précises dépendent du traitement implémenté ; ne pas confondre la présence d'un module avec une validation de sa qualité sonore ou une fonction IA opérationnelle.
 
@@ -154,15 +178,9 @@ Les noms DIVINITÉS servent d'identité artistique aux chaînes de traitement Wa
 
 ---
 
-## Galerie détaillée des interfaces CHAYAH
+## Interfaces et mesures authentiques
 
-Ces trois planches illustrent désormais **18 panneaux distincts** (six effets, six instruments et six traitements vocaux), avec courbes, formes d'onde, grille spectrale, affichages de dynamique, clavier, séquenceur et commandes inspirées des paramètres présents dans le registre. Elles sont des **maquettes éditoriales SVG**, pas des captures d'écran ni des contrôles interactifs. Les courbes et valeurs visibles sont illustratives ; elles ne constituent pas une mesure du DSP.
-
-| Galerie | Modules visualisés | Source |
-| --- | --- | --- |
-| [Mixage, EQ et dynamique](docs/plugin-catalog-fx.svg) | VECTOR EQ, VECTOR COMP, ALTER ECHO, CIRCUIT EQ, EXO SPACE, VECTOR LIMIT | `dist/studio-packs.js`, `dist/exo-pack.js` |
-| [Instruments et synthétiseurs](docs/plugin-catalog-instruments.svg) | PULSE, MONO, EXO, GRAND, MARIMBA, EXO SLICE | `dist/plugins.js`, `dist/acoustic.js`, `dist/exo.js`, `dist/sampler.js` |
-| [Voix et traitement vocal](docs/plugin-catalog-vocals.svg) | VOX TUNE, VOX LEVEL, VOX CLEAN, SIBIL, HUSH, EXO STRIP | `dist/studio-packs.js`, `dist/packs.js`, `dist/exo-pack.js` |
+Les anciennes illustrations promotionnelles ne sont plus intégrées au README. Pour juger les plugins, ouvrir leurs fenêtres dans **WarLike Studio** et utiliser les tests audio réels (`OfflineAudioContext`) ; des captures vérifiables du navigateur pourront être ajoutées après une validation visuelle et acoustique, plutôt que des maquettes interchangeables.
 
 ### Catalogue complet — aucun effet oublié
 
