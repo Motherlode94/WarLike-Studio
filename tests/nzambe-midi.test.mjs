@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {shredMidi,NZAMBE_PRESETS} from '../dist/nzambe-midi.js';
+const input=[{pitch:60,start:0,duration:1,velocity:100}];
+test('presets available',()=>assert.deepEqual(Object.keys(NZAMBE_PRESETS),['trap','afro','rnb','cinematic']));
+test('deterministic and immutable',()=>{const before=structuredClone(input);assert.deepEqual(shredMidi(input,{seed:7}),shredMidi(input,{seed:7}));assert.deepEqual(input,before);});
+test('shredding stays within note bounds',()=>{const result=shredMidi(input,{slices:16,density:1,gate:.8,swing:.4,seed:2});assert.equal(result.length,16);for(const n of result){assert.ok(n.start>=0&&n.start+n.duration<=1+1e-9);assert.ok(n.velocity>=1&&n.velocity<=127);}});
+test('octave transposition clamps MIDI pitch',()=>assert.ok(shredMidi([{pitch:127,start:0,duration:1,velocity:90}],{density:1,octave:2}).every(n=>n.pitch===127)));
+test('invalid notes rejected',()=>assert.throws(()=>shredMidi([{pitch:150,start:0,duration:1,velocity:90}]),RangeError));
+test('zero density creates no notes',()=>assert.deepEqual(shredMidi(input,{density:0}),[]));
