@@ -14,6 +14,7 @@ if(host){
   function refresh(){
     const mobile=isMobile();
     document.body.classList.toggle('mobile-compact',mobile);
+    const windowMenu=document.querySelector('.reference-window-menu');if(windowMenu)windowMenu.open=mobile&&active==='windows';
     document.body.dataset.mobilePanel=mobile?(active||'none'):'desktop';
     for(const b of nav.querySelectorAll('button')){
       const expanded=mobile&&active===b.dataset.mobilePanel;
