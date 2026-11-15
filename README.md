@@ -1,5 +1,23 @@
 # Warlike Studio + CHAYAH Suite
 
+## VOX STUDIORACKS — chaînes vocales DSP intégrées
+
+**VOX STUDIORACKS est une interface fonctionnelle de gestion de chaînes d'inserts**, et non une planche SVG. Dans Studio, ouvre l'onglet des plugins, puis **VOX STUDIORACKS → Ouvrir le rack** ; un raccourci est également présent sur les pistes du mixeur.
+
+- Quatre racks de départ : **TRAP / LEAD**, **AFRO / LEAD**, **R&B / SILK** et **VOICE / CLEAN**. Les presets utilisent uniquement des effets présents dans `EFFECTS` et dont les graphes audio existent.
+- Chaque rack **ajoute les modules dans les emplacements libres A–L** sans remplacer les effets existants. S'il manque des emplacements, l'opération est refusée sans ajouter une chaîne partielle.
+- Les boutons **Éditer**, **Actif/Bypass** et **↑/↓** ouvrent le plugin réel, modifient son état et déplacent l'insert dans le graphe de traitement. Les actions sont intégrées à la sauvegarde et à l'historique d'édition standard de Studio.
+- Les presets avec **VOX TUNE** initialisent le moteur audio requis avant d'ajouter la chaîne. Les réglages de tonalité et de gamme restent modifiables séparément dans VOX TUNE.
+- L'interface du rack ne constitue pas un nouveau DSP monolithique : le traitement réel est effectué par **les plugins chaînés de Studio**, dans le même ordre en lecture et à l'export WAV.
+
+### Extensions DSP des lots B et C
+
+**VOX AIR EQ** (`voxaireq`) ajoute un coupe-bas, un EQ de présence et un shelf aigu natifs. **VOX AMBIENCE** (`voxambience`) ajoute un slapback filtré, un feedback borné et un réverbérateur à réponse impulsionnelle stéréo de courte durée, générée au chargement et libérée au démontage. Ils possèdent des paramètres et des presets, des tests Node de graphe et de cycle de vie ; **les mesures acoustiques en navigateur et les essais réels restent à valider**.
+
+Les détecteurs de souffle avancés, le compresseur PRO dédié, l'éditeur de hauteur graphique, les formants, les harmonies et la PDC ne sont pas livrés par ces modifications. Les visuels de README ne doivent pas être confondus avec les interfaces et moteurs réellement implémentés.
+
+---
+
 ## Bundles — identités visuelles et VOX LAB PRO (spécification 2026-11-15)
 
 La galerie ci-dessous couvre **les huit familles principales et les douze bundles DIVINITÉS**. Les visuels sont des illustrations SVG originales, non des captures ; ils ne prouvent ni une simulation matérielle ni des résultats audio. Les modules déjà présents dans les chaînes restent des traitements Web Audio originaux.
