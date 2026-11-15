@@ -30,12 +30,33 @@ export const VOCAL_DEMOS=Object.freeze({
     ]
   }
 });
+
+// Distinct processor orders and sound targets for each genre. Every processor
+// is a real, editable native WarLike effect (never a cosmetic preset label).
+const GENRE_VOCAL_CHAINS={
+ 'vox-trap':[
+  [{id:'voxtune',params:{speed:5,amount:1}},{id:'vectoreq',params:{g1:-3,g4:2.5,g5:1.8}},{id:'vectorcomp',params:{threshold:-26,ratio:5,attack:5,release:80}},{id:'sibil',params:{threshold:-28}},{id:'alterecho',params:{mix:.12,feedback:.32}}],
+  [{id:'voxclean',params:{highpass:105,range:6}},{id:'vectorcomp',params:{threshold:-23,ratio:4,attack:8,release:95}},{id:'alterdouble',params:{mix:.16,depth:1.7}}],
+  [{id:'vectoreq',params:{g1:-4,g4:3}},{id:'circuitcolor',params:{drive:9,mix:.38}},{id:'alterecho',params:{mix:.34,feedback:.48}},{id:'exospace',params:{mix:.08}}]
+ ],
+ 'vox-afro':[
+  [{id:'voxclean',params:{highpass:75,range:3}},{id:'vectoreq',params:{g2:-1,g4:1.3,g5:1.8}},{id:'voxlevel',params:{ratio:2.4,levelThreshold:-22,mix:.88}},{id:'sibil',params:{threshold:-23}},{id:'exospace',params:{mix:.2}}],
+  [{id:'vectoreq',params:{g1:-2,g4:.7}},{id:'voxlevel',params:{ratio:2,levelThreshold:-20}},{id:'alterdouble',params:{mix:.23,depth:2.1}},{id:'exospace',params:{mix:.24}}],
+  [{id:'voxclean',params:{highpass:120,range:5}},{id:'vectorcomp',params:{threshold:-20,ratio:2.5}},{id:'alterecho',params:{mix:.18,feedback:.22}}]
+ ],
+ 'vox-rnb':[
+  [{id:'circuiteq',params:{body:1.7,presence:.4,air:1.2}},{id:'circuitbus',params:{threshold:-18,ratio:2,attack:32,release:240}},{id:'sibil',params:{threshold:-23}},{id:'exospace',params:{mix:.28}}],
+  [{id:'circuiteq',params:{body:.5,presence:1.1,air:1.4}},{id:'voxlevel',params:{ratio:2.1,levelThreshold:-22}},{id:'alterdouble',params:{mix:.32,depth:2.6}},{id:'exospace',params:{mix:.34}}],
+  [{id:'vectoreq',params:{g1:-2,g5:2}},{id:'vectorcomp',params:{threshold:-19,ratio:2.2,attack:25,release:200}},{id:'alterecho',params:{mix:.1,feedback:.18}},{id:'exospace',params:{mix:.37}}]
+ ]
+};
+
 export function createVocalDemoSession(kind){
  const definition=VOCAL_DEMOS[kind];
  if(!definition)throw Error('Démo vocale inconnue.');
  const project=createFactorySession(definition.template);
  project.name=definition.name;
- project.demoRevision=4;
+ project.demoRevision=5;
  project.vocalDemo=true;
  project.vocalDemoKind=kind;
  const voices=project.tracks.filter(track=>track.type==='audio');
@@ -50,13 +71,14 @@ export function createVocalDemoSession(kind){
    track.recordInput=String(index===1?2:1);
    track.clips=[];
    // Inserts are native processor instances with real, editable DSP parameters.
-   applyNativeChain(track,preset.chain,{replace:true});
+   applyNativeChain(track,GENRE_VOCAL_CHAINS[kind][index],{replace:true});
  });
  project.vocalDemoInfo={
    title:definition.label,
    instructions:'Enregistre ta voix sur LEAD, puis les doubles/harmonies et les adlibs. Chaque piste possède un mix WarLike natif prêt à modifier.',
    hasRecordedVoice:false,
-   pluginMix:true
+   pluginMix:true,
+   sonicIdentity:{'vox-trap':'rap sec, syncopes serrées, correction rapide et écho court','vox-afro':'chant rebondissant, réponse mélodique et espace chaleureux','vox-rnb':'chant legato, harmonies longues et réverbération ample'}[kind]
  };
  return project;
 }
