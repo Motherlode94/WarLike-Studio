@@ -22,6 +22,40 @@
 
 ---
 
+## Galerie détaillée des interfaces CHAYAH
+
+Ces trois planches illustrent désormais **18 panneaux distincts** (six effets, six instruments et six traitements vocaux), avec courbes, formes d'onde, grille spectrale, affichages de dynamique, clavier, séquenceur et commandes inspirées des paramètres présents dans le registre. Elles sont des **maquettes éditoriales SVG**, pas des captures d'écran ni des contrôles interactifs. Les courbes et valeurs visibles sont illustratives ; elles ne constituent pas une mesure du DSP.
+
+| Galerie | Modules visualisés | Source |
+| --- | --- | --- |
+| [Mixage, EQ et dynamique](docs/plugin-catalog-fx.svg) | VECTOR EQ, VECTOR COMP, ALTER ECHO, CIRCUIT EQ, EXO SPACE, VECTOR LIMIT | `dist/studio-packs.js`, `dist/exo-pack.js` |
+| [Instruments et synthétiseurs](docs/plugin-catalog-instruments.svg) | PULSE, MONO, EXO, GRAND, MARIMBA, EXO SLICE | `dist/plugins.js`, `dist/acoustic.js`, `dist/exo.js`, `dist/sampler.js` |
+| [Voix et traitement vocal](docs/plugin-catalog-vocals.svg) | VOX TUNE, VOX LEVEL, VOX CLEAN, SIBIL, HUSH, EXO STRIP | `dist/studio-packs.js`, `dist/packs.js`, `dist/exo-pack.js` |
+
+### Catalogue complet — aucun effet oublié
+
+Les 33 effets enregistrés sont classés par famille ci-dessous. **Être listé ne signifie pas que tous les traitements ont fait l'objet de tests d'écoute réels.**
+
+| Famille | Modules déclarés | Utilité |
+| --- | --- | --- |
+| Mixeur natif (6) | COLOR, SCULPT, PRISM, GLUE, ECHO, AURA | Saturation, filtres, EQ, compression, delay, réverbération |
+| Motion & Color / Vocal Essentials (11) | PHASE, RING, HUSH, SIBIL, EMBER, ORBIT, SWAY, TILT EQ, NOTCH, SLAP, RELAY | Modulation, gate, de-esser, couleur, chorus, tremolo, delay |
+| CIRCUIT (3) | CIRCUIT EQ, CIRCUIT BUS, CIRCUIT COLOR | Égalisation console, compression de bus, coloration |
+| ALTER (3) | ALTER DOUBLE, ALTER ECHO, ALTER FILTER | Doublage, écho créatif, filtre modulé |
+| VECTOR (3) | VECTOR EQ, VECTOR COMP, VECTOR LIMIT | EQ de précision, compression, limitation de crêtes |
+| VOX LAB (3) | VOX TUNE, VOX LEVEL, VOX CLEAN | Justesse, dynamique et préparation vocale |
+| EXO (4) | EXO STRIP, EXO FOCUS, EXO AIR, EXO SPACE | Channel strip, bande dynamique, brillance, spatialisation |
+
+Les **20 instruments** du registre comprennent les six synthétiseurs PULSE, MONO, VELVET, NOVA, HALO et STRING ; les douze banques acoustiques GRAND, UPRIGHT, FM KEYS, HARP, MARIMBA, VIBES, KALIMBA, STRUM, VIOLIN, CELLO, FLUTE et TRUMPET ; ainsi que EXO et EXO SLICE. La disponibilité audible des banques dépend du chargement effectif de leurs samples.
+
+### Comment lire les planches
+
+La **courbe EQ** indique conceptuellement la forme du filtrage ; les **bargraphes de compression** montrent la dynamique ; la **forme d'onde** illustre des transitoires ou une modulation ; le **piano roll** représente une correction mélodique. Les boutons illustrés décrivent des familles de paramètres, et non une correspondance pixel par pixel avec les interfaces de la version déployée.
+
+Pour des preuves fonctionnelles, utiliser les tests Web Audio du dépôt et vérifier séparément la lecture, le bypass, la variation des paramètres, la restitution des presets, les crêtes et l'export WAV. Un rendu graphique détaillé ne démontre pas à lui seul la qualité sonore.
+
+---
+
 ## Export WAV — écriture progressive
 
 - Le dialogue d'export encode maintenant le WAV par blocs de 32 768 frames, avec progression et annulation. Les formats PCM 16/24 bits, le dither et le flottant 32 bits conservent le même encodage.
