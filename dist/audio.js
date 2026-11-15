@@ -241,7 +241,6 @@ export class AudioEngine {
   }
   drum(ctx,out,voice,t,live=false,params={},velocity=1) {
     const scope=this.voiceScope(ctx),node=scope.node;
-    if(['bass','keys','lead','pad','pluck'].includes(type))return instrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null);
     if(velocity!==1){const level=node('createGain');level.gain.value=Math.max(0,Math.min(1,velocity));level.connect(out);out=level;}
     t=Math.max(t,ctx.currentTime);
     const g=node('createGain');g.connect(out);
