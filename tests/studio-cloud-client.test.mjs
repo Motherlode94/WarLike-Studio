@@ -59,3 +59,19 @@ test('private audio download returns binary and rejects unauthorized access',asy
  const denied=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async()=>response({code:'DENIED'},403)});
  await assert.rejects(denied.downloadAsset(id,id),e=>e.status===403);
 });
+
+test('rejects malformed UUIDs that previously matched length-only checks',async()=>{
+ const client=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async()=>{throw Error('must not fetch')}});
+ for(const invalid of ['------------------------------------','aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa','aaaa-aaaa-aaaa-aaaa-aaaa-aaaa-aaaa','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaxxxx']){
+  await assert.rejects(client.getProject(invalid),TypeError);
+ }
+});
+test('rejects API URLs with credentials, port, paths, query and hash',()=>{
+ for(const url of ['https://user:pass@example.test','https://example.test:8443','https://example.test/api','https://example.test/?key=x','https://example.test/#session']){
+  assert.throws(()=>new StudioCloudClient({baseUrl:url}),TypeError,url);
+ }
+});
+test('rejects array response bodies from cloud project API',async()=>{
+ const client=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async()=>response([])});
+ await assert.rejects(client.listProjects(),e=>e.code==='INVALID_RESPONSE');
+});
