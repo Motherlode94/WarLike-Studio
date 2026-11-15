@@ -52,3 +52,30 @@ test('public studio demo toolbar exposes all three voice-mix options',()=>{
  const html=readFileSync(new URL('../dist/index.html',import.meta.url),'utf8');
  for(const key of Object.keys(VOCAL_DEMOS))assert.match(html,new RegExp('data-public-demo="'+key+'"'));
 });
+
+test('Trap, Afro and R&B produce genuinely distinct phrase timing and timbre',()=>{
+ const kinds=['vox-trap','vox-afro','vox-rnb'];
+ const signals=kinds.map(style=>synthVocalGuide({duration:5,sampleRate:22050,bpm:100,voice:0,style}).getChannelData(0));
+ const rms=x=>Math.sqrt(x.reduce((a,v)=>a+v*v,0)/x.length);
+ for(const signal of signals){
+  assert.ok(rms(signal)>.003,'voice guide too quiet');
+  assert.ok(signal.every(Number.isFinite),'non-finite synthesis');
+ }
+ const difference=(a,b)=>Math.sqrt(a.reduce((sum,v,i)=>sum+(v-b[i])**2,0)/a.length);
+ for(let i=0;i<3;i++)for(let j=i+1;j<3;j++)
+  assert.ok(difference(signals[i],signals[j])>.008,kinds[i]+' and '+kinds[j]+' sound too similar');
+ const chains=kinds.map(kind=>createVocalDemoSession(kind).tracks.filter(t=>t.type==='audio')[0].inserts.filter(Boolean));
+ for(let i=0;i<3;i++)for(let j=i+1;j<3;j++)
+  assert.notDeepEqual(chains[i],chains[j],'each genre needs a different real DSP chain');
+});
+test('vocal lead is audible in verse and chorus without duplicating media',()=>{
+ for(const kind of Object.keys(VOCAL_DEMOS)){
+  const session=createVocalDemoSession(kind),media=createVocalDemoMedia(session);
+  const voices=session.tracks.filter(t=>t.type==='audio');
+  assert.equal(media.length,3);
+  assert.ok(voices[0].clips.some(c=>c.start===4));
+  assert.ok(voices[1].clips.some(c=>c.start===8));
+  assert.ok(voices.every(t=>t.clips.some(c=>c.start===12)));
+  assert.equal(new Set(voices.flatMap(t=>t.clips.map(c=>c.audioId))).size,3);
+ }
+});
