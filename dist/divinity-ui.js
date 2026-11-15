@@ -72,6 +72,7 @@ export function createDivinityUI({getProject,getTrack,engine,checkpoint,changed,
       drawProposal();return;
     }
     busy=true;proposal=null;activeProject=null;analysisError=null;
+    button.disabled=true;button.textContent='Analyse en cours…';
     drawProposal();
     try{
       // Analyze the PRE-master mix, otherwise existing mastering skews the new recommendation.
@@ -91,6 +92,7 @@ export function createDivinityUI({getProject,getTrack,engine,checkpoint,changed,
       toast(analysisError);
     }finally{
       busy=false;
+      if(button.isConnected){button.disabled=false;button.textContent='Analyser le mix';}
       drawProposal();
     }
   }
