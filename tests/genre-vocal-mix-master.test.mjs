@@ -16,6 +16,7 @@ test('all original genre mix presets address real effect and master parameters',
 test('Rock Pop Rumba include three audible voices, editable mix insert chains and 3 human recording tracks',()=>{
  for(const style of ['rock','pop','rumba']){
   const p=createGenreDemoSession(style),synth=p.tracks.filter(t=>t.type==='wlvox');
+  assert.equal(p.tracks.find(t=>t.type==='drums').instrument.kit,{rock:1,pop:2,rumba:3}[style],'genre must actually load its recorded drum kit');
   assert.equal(synth.length,3);
   for(const t of synth){
    assert.ok(t.clips.some(c=>c.notes?.length),'Vocal synth has no score');
