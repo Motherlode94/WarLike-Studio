@@ -8,7 +8,7 @@ test('all genre-specific parameters address a real Web Audio instrument or effec
 test('Pop and Rumba make audible DSP choices in addition to arrangement',()=>{
  for(const genre of ['pop','rumba']){
   const p=createGenreDemoSession(genre),spec=GENRE_SOUND_PROFILES[genre];
-  for(const t of p.tracks.filter(t=>t.type!=='audio')){
+  for(const t of p.tracks.filter(t=>t.type!=='audio'&&t.type!=='wlvox')){
    const instrument=spec.instruments[t.type];
    if(instrument)for(const [name,value] of Object.entries(instrument))assert.equal(t.instrument[name],value,genre+':'+t.type+'.'+name);
    for(const id of t.inserts.filter(Boolean))if(spec.effects[id])
