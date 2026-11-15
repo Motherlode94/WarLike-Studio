@@ -842,7 +842,7 @@ function openVoxStudioRacks(trackId=selectedTrack){
  };
  root.querySelectorAll('[data-vr-open]').forEach(button=>button.onclick=()=>{const id=button.dataset.vrOpen;$('modal').close();openPluginWindow(id,tr.id);});
  root.querySelectorAll('[data-vr-toggle]').forEach(button=>button.onclick=()=>{checkpoint();bypassVoxStudioInsert(tr,button.dataset.vrToggle);changed(true);openVoxStudioRacks(tr.id);});
- root.querySelectorAll('[data-vr-move]').forEach(button=>button.onclick=()=>{if(!shiftVoxStudioInsert(tr,Number(button.dataset.vrMove),Number(button.dataset.vrDir)))return;checkpoint();changed(true);openVoxStudioRacks(tr.id);});
+ root.querySelectorAll('[data-vr-move]').forEach(button=>button.onclick=()=>{const slot=Number(button.dataset.vrMove),direction=Number(button.dataset.vrDir);if(!tr.inserts[slot]||slot+direction<0||slot+direction>=tr.inserts.length)return;checkpoint();shiftVoxStudioInsert(tr,slot,direction);changed(true);openVoxStudioRacks(tr.id);});
 }
 function openPluginWindow(id,trackId=selectedTrack){
   const tr=project.tracks.find(t=>t.id===trackId),def=id==='instrument'?instrumentDefinition(tr?.type):effectDefinition(id);if(!tr||!def)return;if(id==='instrument'&&tr.type==='instrument'){openInstrumentMenu(tr.id);return;}
