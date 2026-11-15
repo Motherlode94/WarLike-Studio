@@ -165,7 +165,8 @@ body.reference-studio{--track-label:270px;--detail-height:280px;display:flex;fle
    duplicate Edit/Mix/Library tabs below it must not consume workspace height. */
 .reference-studio .workspace-toolbar > .view-tabs{display:none!important}
 .reference-studio .signature-workspaces{
-  display:flex;align-items:center;min-height:36px;height:auto;flex-wrap:nowrap;
+  display:flex;align-items:center;height:32px;min-height:32px;max-height:32px;
+  box-sizing:border-box;flex:0 0 32px;flex-wrap:nowrap;padding:0 8px;
   overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;gap:8px;
 }
 .reference-studio .signature-workspaces > div:first-of-type{
