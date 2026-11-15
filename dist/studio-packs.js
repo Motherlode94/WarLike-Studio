@@ -1,4 +1,4 @@
-import {VOXPRO_PACK,VOXPRO_STARTER_MODULES} from './voxlab-pro-spec.js';
+import {VOXPRO_PACK,VOXPRO_STARTER_MODULES,VOXPRO_MODULES} from './voxlab-pro-spec.js';
 const c=(key,name,min,max,step,value,unit='dB')=>({key,name,min,max,step,default:value,unit});
 const comp=[c('threshold','Seuil',-60,0,.5,-20),c('ratio','Ratio',1,20,.1,3,':1'),c('attack','Attaque',1,100,1,20,'ms'),c('release','Release',20,1000,5,180,'ms'),c('knee','Knee',0,30,1,6),c('mix','Mix',0,1,.01,1,'%'),c('output','Sortie',-18,18,.5,0)];
 export const STUDIO_PACKS={
@@ -6,10 +6,13 @@ export const STUDIO_PACKS={
  alter:{name:'ALTER',label:'CRÉATIF / VOIX & EFFETS',color:'#d89971',description:'Approche créative inspirée de Soundtoys : doublage modulé, écho avec ducking et filtre animé.',modules:['alterdouble','alterecho','alterfilter']},
  vector:{name:'VECTOR',label:'PRÉCISION / MIX & MASTER',color:'#87c6bb',description:'Approche visuelle inspirée de FabFilter : EQ six bandes, compression parallèle et plafond de crête sur échantillons.',modules:['vectoreq','vectorcomp','vectorlimit']},
  voxlab:{name:'VOX LAB',label:'VOIX / JUSTESSE & CONTRÔLE',color:'#b89dd1',description:'Traitements vocaux originaux WarLike : correction monophonique, compression en deux étages et nettoyage de voix.',modules:['voxtune','voxlevel','voxclean']},
- voxpro:{...VOXPRO_PACK,modules:VOXPRO_STARTER_MODULES,description:'Chaîne VOX LAB PRO opérationnelle avec 7 processeurs WarLike existants. Le plan des 12 modules dédiés est documenté séparément dans voxlab-pro-spec.js ; ces modules avancés ne sont pas encore intégrés au DSP.'}
+ voxpro:{...VOXPRO_PACK,modules:[...VOXPRO_STARTER_MODULES,'voxmicmodel','voxwarm','voxdoubler'],description:'Chaîne VOX LAB PRO avec 7 processeurs existants et 3 effets DSP originaux supplémentaires. Le plan des 12 modules dédiés est documenté séparément dans voxlab-pro-spec.js ; ces modules avancés ne sont pas encore intégrés au DSP.'}
 };
 const def=(name,subtitle,pack,description,controls)=>({name,subtitle,pack,color:STUDIO_PACKS[pack].color,defaultEnabled:false,description,controls});
 export const STUDIO_EFFECTS={
+ voxmicmodel:VOXPRO_MODULES.voxmicmodel,
+ voxwarm:VOXPRO_MODULES.voxwarm,
+ voxdoubler:VOXPRO_MODULES.voxdoubler,
  circuiteq:def('CIRCUIT EQ','PROPORTIONAL-Q EQ','circuit','Quatre bandes musicales : le Q se resserre quand le gain augmente. Grave et air en shelves ; médiums en cloches.',[c('lowFreq','Grave Hz',40,400,5,100,'Hz'),c('low','Grave',-15,15,.5,0),c('bodyFreq','Bas médium Hz',150,1600,10,600,'Hz'),c('body','Bas médium',-15,15,.5,0),c('presenceFreq','Présence Hz',800,8000,10,3000,'Hz'),c('presence','Présence',-15,15,.5,0),c('airFreq','Air Hz',4000,16000,100,10000,'Hz'),c('air','Air',-15,15,.5,0),c('output','Sortie',-12,12,.5,0)]),
  circuitbus:def('CIRCUIT BUS','BUS COMPRESSOR','circuit','Compression parallèle avec knee réglable et chemin sec aligné au délai du compresseur. Pour batterie, voix et bus.',comp),
  circuitcolor:def('CIRCUIT COLOR','CONSOLE SATURATION','circuit','Saturation douce asymétrique avec suppression du continu, filtrage et suréchantillonnage 2×.',[c('drive','Drive',0,24,.5,3),c('bias','Asymétrie',0,1,.01,.12,'%'),c('tone','Aigus',1000,20000,100,16000,'Hz'),c('mix','Mix',0,1,.01,.35,'%'),c('output','Sortie',-18,6,.5,-1)]),
@@ -24,6 +27,9 @@ export const STUDIO_EFFECTS={
  voxclean:def('VOX CLEAN','VOCAL CLEANUP & AIR','voxlab','Coupe-bas, atténuation dynamique des sifflantes et shelf d’air. Le détecteur agit sur la bande aiguë, sans prétendre retirer tous les bruits.',[c('highpass','Coupe-bas',40,350,5,80,'Hz'),c('frequency','Sifflantes Hz',3000,10000,100,6500,'Hz'),c('threshold','Seuil sifflantes',-48,-6,1,-25),c('range','Réduction max',0,18,.5,6),c('air','Air',-6,9,.25,0),c('output','Sortie',-12,12,.5,0)])
 };
 const variations={
+ voxmicmodel:[['Warm close',{source:0,target:1,proximity:1,air:-1}],['Bright condenser',{source:0,target:1,air:2}],['Soft dynamic',{source:2,target:0,presence:-2}],['Neutral',{source:0,target:0,mix:0}],['Radio focus',{source:3,target:1,proximity:-2,presence:3}]],
+ voxwarm:[['Gentle tube',{drive:3,bias:.1,mix:.2,output:-1}],['Tape voice',{drive:6,bias:.25,tone:9000,mix:.35,output:-2}],['Parallel grit',{drive:12,bias:-.2,mix:.25,output:-3}],['Clean bypass',{mix:0,output:0}],['R&B silk',{drive:2,bias:.15,tone:14000,mix:.3,output:-1}]],
+ voxdoubler:[['Natural width',{voices:2,detune:6,delay:21,width:.6,mix:.22}],['Wide hook',{voices:2,detune:13,delay:30,width:1,mix:.45}],['Tight rap',{voices:2,detune:3,delay:12,width:.35,mix:.16}],['Mono-ish',{voices:1,detune:2,delay:16,width:0,mix:.2}],['Stereo cloud',{voices:4,detune:18,delay:42,width:1,mix:.48}]],
  circuiteq:[['Vocal presence',{body:-2,presence:2,air:1}],['Drum weight',{low:2,body:-1}],['Master gentle',{low:.5,air:.75}],['Dark room',{air:-3,presence:-1}],['Neutral',{}]],
  circuitbus:[['Bus gentle',{threshold:-16,ratio:1.5,attack:30}],['Drum punch',{threshold:-24,ratio:4,attack:30,release:100}],['Vocal parallel',{threshold:-28,ratio:5,mix:.45}],['Master glue',{threshold:-14,ratio:1.5,attack:45}],['Soft knee',{threshold:-25,knee:20}]],
  circuitcolor:[['Console touch',{drive:2,mix:.2}],['Warm vocal',{drive:8,bias:.3,mix:.35}],['Drum edge',{drive:14,mix:.4,output:-3}],['Dark bus',{tone:6000,drive:5}],['Clean', {drive:0,bias:0,mix:0,output:0}]],

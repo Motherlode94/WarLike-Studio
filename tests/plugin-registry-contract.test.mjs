@@ -5,7 +5,7 @@ import {FACTORY_PRESETS} from '../dist/bundle.js';
 
 test('every registered instrument and effect has a factory preset bank',()=>{
   assert.equal(Object.keys(INSTRUMENTS).length,20);
-  assert.equal(Object.keys(EFFECTS).length,33);
+  assert.equal(Object.keys(EFFECTS).length,36);
   for(const id of [...Object.keys(INSTRUMENTS),...Object.keys(EFFECTS)]){
     assert.ok(Array.isArray(FACTORY_PRESETS[id]),id+' is missing factory presets');
     assert.ok(FACTORY_PRESETS[id].length>0,id+' has an empty factory preset bank');
