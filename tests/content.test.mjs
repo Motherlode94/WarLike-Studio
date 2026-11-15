@@ -31,7 +31,7 @@ test('demo styles have different orchestration, harmony and rhythmic content, in
   const signatures=[];
   for(const template of SESSION_TEMPLATES){
     const p=createFactorySession(template.id),spec=FACTORY_STYLES[template.id];
-    assert.equal(p.keyName,spec.keyName);assert.equal(p.demoRevision,2);
+    assert.equal(p.keyName,spec.keyName);assert.equal(p.demoRevision,4);
     const drum=p.tracks[0];assert.notDeepEqual(drum.clips[0].pattern,drum.clips[3].pattern);
     assert.ok(p.tracks.slice(1,6).some(t=>t.clips.flatMap(c=>c.notes||[]).some(n=>n.velocity<.6)));
     signatures.push(JSON.stringify(p.tracks.slice(0,6).map(t=>({type:t.type,score:t.clips.map(c=>({notes:c.notes?.map(({step,midi,len,velocity})=>({step,midi,len,velocity})),pattern:c.pattern}))}))));
