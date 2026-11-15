@@ -32,9 +32,14 @@ test('original synthetic vowel clips are persisted in the demo and have valid WA
    assert.equal(wav.getUint32(24,true),22050);
    const clip=session.tracks.filter(t=>t.type==='audio')[index].clips[0];
    assert.equal(clip.audioId,audio.id);
-   assert.equal(clip.start,12);
+   assert.equal(clip.start,[4,4,3][index]);
    assert.ok(clip.length>0);
  }
+ const vocalTracks=session.tracks.filter(t=>t.type==='audio');
+ assert.deepEqual(vocalTracks[0].clips.map(c=>c.start),[4,8,12]);
+ assert.deepEqual(vocalTracks[1].clips.map(c=>c.start),[4,8,12]);
+ assert.deepEqual(vocalTracks[2].clips.map(c=>c.start),[3,7,11,15,12]);
+ assert.ok(vocalTracks.every(t=>t.clips.every(c=>c.audioId&&c.name.includes('VOCAL SYNTHÉTIQUE'))));
  assert.equal(session.vocalDemoInfo.hasSyntheticGuides,true);
  assert.equal(session.vocalDemoInfo.hasRecordedVoice,false);
 });
