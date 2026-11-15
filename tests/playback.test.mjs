@@ -46,7 +46,7 @@ test('small late events are skipped rather than played as an immediate burst',()
  const scheduled=[];e.scheduleStep=(...args)=>scheduled.push(args);e.scheduleAutomation=()=>{};
  e.scheduler();
  assert.equal(scheduled.length,1);
- assert.equal(scheduled[0][2],1,'step zero is too late and must be skipped');
+ assert.equal(scheduled[0][2],2,'both past note-on steps must be skipped');
  assert.ok(scheduled[0][3]>.124);
 });
 
