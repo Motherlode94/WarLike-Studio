@@ -158,6 +158,7 @@ try{
   // Browser download fallback must remain available in CI headless mode.
   await page.evaluate(()=>{Object.defineProperty(window,'showSaveFilePicker',{value:undefined,configurable:true});});
   await page.locator('#recordWorkspaceToggle').click();
+  await openAdvanced();
   await page.locator('#recordWorkspaceRecover').click();
   await page.getByText('Recovery QA', {exact:false}).waitFor({state:'visible'});
   const exported=page.waitForEvent('download');
