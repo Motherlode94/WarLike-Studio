@@ -25,3 +25,21 @@
  .fl-piano .pr-toolbar button{font-size:12px}
  .studio-more-panel .public-demo-links{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* Progressive disclosure for recording and the asset browser. */
+.record-advanced-menu{position:relative;flex:0 0 auto}
+.record-advanced-menu>summary,.studio-library-toggle{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 11px;cursor:pointer;background:#263831;border:1px solid #527369;color:#e0f2e9;border-radius:8px;font:600 12px system-ui,sans-serif}
+.record-advanced-menu>summary{list-style:none}
+.record-advanced-menu>summary::-webkit-details-marker{display:none}
+.record-advanced-content{position:absolute;right:0;top:calc(100% + 6px);z-index:90;width:min(460px,calc(100vw - 24px));max-height:65vh;overflow:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px;border:1px solid #527369;border-radius:12px;background:#202925;box-shadow:0 14px 32px #0009}
+.record-advanced-content>button{min-height:40px;white-space:normal}
+.record-advanced-content>output,.record-advanced-content>.record-note,.record-advanced-content>.record-clip-actions{grid-column:1/-1}
+.studio-library-toggle{margin-left:auto}
+@media(max-width:760px){
+ .warlike-workspaces{align-items:center}
+ .studio-body:not(.studio-library-visible)>.library{display:none!important}
+ .studio-body.studio-library-visible>.library{display:block!important;position:relative!important;width:100%!important;max-width:100%!important;max-height:42dvh;overflow:auto;z-index:3}
+ .studio-body.studio-library-visible{display:flex;flex-direction:column}
+ .record-advanced-content{position:fixed;top:auto;bottom:12px;right:12px;left:12px;width:auto;max-height:65dvh}
+ .record-workspace-bar{gap:6px}
+}
