@@ -101,6 +101,7 @@ export function createGenreDemoSession(style){
  const tracks=x.palette.map(([type,name,volume,effects],role)=>{
   const t=createContentTrack(type,0);
   t.name=name;t.volume=volume;t.pan=role===3?-.17:role===4?.17:0;
+  if(type==='drums')Object.assign(t.instrument,{kit:style==='rock'?1:style==='pop'?2:3,punch:style==='rock'?.72:.55,decay:style==='rock'?.35:.26,hat:style==='rock'?.72:.48});
   if(style==='rock'&&role===6){Object.assign(t.instrument,{layer:.62,wave:0,texture:1,cutoff:2300,attack:.22,release:1.8,space:.55,output:-14});t.pan=0;}
   if(style==='pop'){
    const v=role===2?{brightness:5900,body:.7,attack:.008,release:.24,drive:0,output:-9}:
