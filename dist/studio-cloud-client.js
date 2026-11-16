@@ -45,11 +45,13 @@ export class StudioCloudClient {
     }
     if (!response.ok) {
       let code;
-      try { code = (await response.json()).code; } catch {}
+      try { const errorBody = await response.json(); if (errorBody && typeof errorBody === 'object' && !Array.isArray(errorBody) && typeof errorBody.code === 'string') code = errorBody.code; } catch {}
       throw fail(response.status, code);
     }
     if (response.status === 204) return null;
-    const value = await response.json();
+    let value;
+    try { value = await response.json(); }
+    catch { throw new StudioCloudError('Réponse serveur illisible.', 502, 'INVALID_RESPONSE'); }
     if (value === null || typeof value !== 'object' || Array.isArray(value)) throw new StudioCloudError('Réponse serveur invalide.', 502, 'INVALID_RESPONSE');
     return value;
   }
@@ -93,7 +95,11 @@ export class StudioCloudClient {
       throw new StudioCloudError('Envoi audio interrompu : copie locale conservée.',0,'NETWORK');
     }
     if(!response.ok)throw fail(response.status);
-    return response.json();
+    let asset;
+    try { asset=await response.json(); }
+    catch { throw new StudioCloudError('Réponse d’envoi audio invalide.',502,'INVALID_RESPONSE'); }
+    if(!asset||typeof asset!=='object'||Array.isArray(asset)||typeof asset.id!=='string'||!asset.id)throw new StudioCloudError('Confirmation audio invalide.',502,'INVALID_RESPONSE');
+    return asset;
   }
   async downloadAsset(project,assetId,{signal}={}){
     let response;
