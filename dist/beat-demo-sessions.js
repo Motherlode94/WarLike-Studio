@@ -1,39 +1,47 @@
-// Three independently composed scores. Shared code only assembles editable clips;
+// Four arrangements with explicit musical direction. Shared code assembles clips;
 // no shared chord progression, chord-index melody or transposed genre template.
 import {createContentTrack} from './content.js';
-import {DRUM_VOICES} from './plugins.js';
+import {DRUM_VOICES,placeInsert} from './plugins.js';
 import {masteringSettings} from './mastering.js';
 const uid=()=>Math.random().toString(36).slice(2,12);
 const styles={
  drill:{label:'Drill',name:'WARLIKE · Drill nocturne',bpm:142,swing:0,keyName:'Fa mineur',key:5,scale:'minor',
-  description:'Ostinato de cordes sombre, silences, caisse claire décalée et vrais glissés de 808.',
+  description:'Départ de piano conservé, harmonies et espace enrichis, ostinato et 808 glissée.',
   palette:[
    ['drums','DRILL · SNARE DÉCALÉE',-10,{kit:0,punch:.8,decay:.13,hat:.4}],
    ['bass','808 · SLIDES',-8,{body:.88,harmonics:.4,release:.035}],
    ['violin','VIOLON · OSTINATO DRILL',-11,{attack:.012,release:.07,brightness:5200,dynamics:.85,output:0}],
-   ['piano','PIANO · TENSION',-15,{release:.24,brightness:2600}],
+   ['piano','PIANO · TENSION',-11,{release:.24,brightness:2600}],
    ['cello','CELLO · DRONE FA',-23,{attack:.08,release:.2,brightness:2100,dynamics:.7,width:.3,output:0}],
    ['drums','HI-HAT · DRILL ROLLS',-15,{kit:0,punch:.5,decay:.1,hat:.32}]
   ]},
- trap808:{label:'Trap 808',name:'WARLIKE · Trap 808 Pressure',bpm:150,swing:0,keyName:'Do♯ mineur',key:1,scale:'minor',
-  description:'Boucle de cloches FM sur deux mesures, clap half-time régulier, 808 longue et fills serrés.',
+ trap808:{label:'Trap Atlanta · sombre',name:'WARLIKE · Atlanta After Dark',bpm:140,swing:0,keyName:'Do mineur',key:0,scale:'minor',
+  description:'Piano mineur profond, texture discrète, 808 lourde et espace pour rapper.',
   palette:[
-   ['drums','TRAP · HALF-TIME CLAP',-10,{kit:0,punch:.82,decay:.14,hat:.52}],
-   ['bass','808 · LONG SUB',-8,{body:.96,harmonics:.29,release:.05}],
-   ['wlspectral','BELLS · TWO-BAR HOOK',-9,{fm:.75,harmonics:.18,motion:0,cutoff:6500,attack:.003,release:.33,width:.2,output:-2}],
-   ['pad','HALO · ACCORDS TENUS',-24,{attack:.22,release:.5,width:9}],
-   ['keys','VELVET · FIN DE PHRASE',-14,{attack:.009,release:.15,detune:0}],
-   ['drums','HI-HAT · TRAP FILLS',-16,{kit:0,punch:.5,decay:.1,hat:.37}]
+   ['drums','ATL · KICK / SNARE',-9,{kit:0,punch:.92,decay:.13,hat:.47}],
+   ['bass','808 · ATL FOUNDATION',-8,{body:.97,harmonics:.34,release:.045}],
+   ['piano','PIANO · AFTER DARK',-9,{brightness:4700,tone:-1.5,release:.7,dynamics:.85,width:.65}],
+   ['wlrompler','TEXTURE · LOW LIGHT',-27,{wave:1,texture:0,layer:.32,cutoff:1500,attack:.5,release:1.1,space:.1,output:-8}],
+   ['epiano','KEYS · DISTANT ANSWER',-20,{brightness:3100,release:.45,tone:-2,width:.75}],
+   ['drums','HI-HAT · ATL TRIPLETS',-15,{kit:0,punch:.5,decay:.1,hat:.37}]
   ]},
- funk:{label:'Funk',name:'WARLIKE · Funk Pocket',bpm:110,swing:8,keyName:'Mi · funk/blues',key:4,scale:'chromatic',
-  description:'Vamp de Mi9, riff de basse syncopé, guitare en doubles croches, ghost notes et réponses de clavier.',
+ 'trap-air':{label:'Trap Atlanta · aérienne',name:'WARLIKE · Atlanta Floating',bpm:146,swing:0,keyName:'Si mineur',key:11,scale:'minor',
+  description:'Guitare mélodique, harmonies ouvertes, réponses de flûte et 808 souple.',
   palette:[
-   ['drums','FUNK · BACKBEAT & GHOSTS',-8,{kit:1,punch:.7,decay:.18,hat:.55}],
-   ['wlvirtual','BASS · FUNK RIFF',-3,{detune:0,cutoff:850,resonance:.8,attack:.003,release:.035,pulse:.25,width:0,output:3}],
-   ['keys','VELVET · E9 STABS',-8,{attack:.006,release:.09,detune:0}],
-   ['wlmuted','GUITAR · SIXTEENTH CHANKS',-3,{brightness:7200,body:.55,pickPosition:.15,damping:.4,attack:.002,decay:.5,release:.04,drive:0,output:1}],
-   ['wlclean','GUITAR · CALL & RESPONSE',-8,{brightness:6300,body:.6,pickPosition:.19,damping:.2,attack:.004,decay:.5,release:.06,drive:0,output:0}],
-   ['pluck','CLAVI · PERCUSSIVE ANSWERS',-10,{decay:.09,brightness:5200,body:.4}]
+   ['drums','ATL · FLOATING POCKET',-10,{kit:0,punch:.86,decay:.12,hat:.42}],
+   ['bass','808 · MELODIC LOW END',-9,{body:.9,harmonics:.27,release:.04}],
+   ['wlnylon','GUITAR · FLOATING LOOP',-5,{brightness:6200,body:.78,attack:.007,decay:1.35,release:.12,drive:0,pickPosition:.25,damping:.12,output:2}],
+   ['pad','PAD · OPEN HARMONIES',-24,{attack:.45,release:.8,width:9}],
+   ['flute','FLUTE · ANSWERS',-19,{brightness:4800,attack:.02,release:.16,output:0}],
+   ['drums','HI-HAT · AIR TRIPLETS',-16,{kit:0,punch:.5,decay:.1,hat:.34}]
+  ]},
+ funk:{label:'Funk brésilien',name:'WARLIKE · Baile Tamborzão',bpm:130,swing:0,keyName:'Fa mineur',key:5,scale:'minor',
+  description:'Tamborzão à toms, congas et slaps secs, sub court et motif synthétique minimal.',
+  palette:[
+   ['drums','TAMBORZÃO · TOMS / CONGAS',-7,{kit:4,punch:.9,decay:.18,hat:.4}],
+   ['bass','SUB · BAILE',-9,{body:.88,harmonics:.24,release:.03}],
+   ['wlvirtual','STAB · BAILE HOOK',-12,{detune:0,cutoff:2500,resonance:1.5,attack:.003,release:.055,pulse:.5,width:.1,output:0}],
+   ['drums','CONGAS · BREQUES',-12,{kit:4,punch:.6,decay:.14,hat:.4}]
   ]}
 };
 export const BEAT_DEMOS=Object.freeze(Object.fromEntries(Object.entries(styles).map(([id,x])=>[id,Object.freeze({label:x.label,name:x.name,bpm:x.bpm,description:x.description})])));
@@ -59,6 +67,16 @@ function drillPart(role,section){
  if(role===3)phrase(out,0,bridge?[[0,53,7,.52],[0,60,7,.35],[32,49,6,.5],[32,60,6,.3]]:
   [[0,53,3,.46],[.04,60,2.8,.35],[23,54,1.5,.32],[32,49,3,.45],[32.04,60,2.8,.3],[55,60,1.5,.35]]);
  if(role===4)phrase(out,0,[[0,41,14,.35],[32,41,14,.35]],bridge?1.4:1);
+ if(role===3){
+  const depth=[
+   [16,56,6,.24],[16.04,63,5.8,.2],[27,68,1.3,.3],[29,67,1,.24],
+   [32.08,56,6,.25],[32.12,65,5.8,.23],[43,72,1.5,.3],[46,68,1,.25],
+   [48,55,5,.22],[48.04,58,4.8,.2],[48.08,64,4.7,.19],[59,67,1.2,.28],[61,65,1.5,.3]
+  ];
+  // Extra voicings answer the existing piano in its gaps, never replace it.
+  phrase(out,0,depth,section===3?1.2:1);
+  if(!intro)phrase(out,0,[[.08,56,6,.25],[.12,63,5.8,.22],[.16,67,5.6,.18],[12,68,1.2,.28],[14,67,1.2,.24]]);
+ }
  return out;
 }
 function drillDrums(section,rolls){
@@ -74,87 +92,117 @@ function drillDrums(section,rolls){
  return p;
 }
 
-// C#-minor FM bell hook. Its two-bar rhythm and intervals are authored directly,
-// not obtained by indexing whatever chord happens to be under a shared melody.
-const trapBells=[
- [0,85,1.8,.72],[3,80,1.1,.5],[6,88,2,.64],[10,83,1.3,.58],[14,80,1.1,.48],
- [18,85,1.3,.68],[20,83,1.2,.52],[23,80,2,.6],[28,88,1.4,.65],[30,87,1.2,.5]
+// Two original Atlanta directions. Piano and guitar each own a four-bar phrase.
+const darkPiano=[
+ [0,48,10,.55],[.04,63,7,.55],[.08,67,6.8,.49],[.12,70,6.6,.43],[.16,74,6.4,.37],
+ [8,72,2.7,.58],[11,70,2.3,.46],[14,67,1.6,.5],
+ [16,48,10,.48],[16.04,62,7,.42],[16.08,63,6.8,.5],[16.12,67,6.6,.45],
+ [24,75,2.7,.58],[28,74,1.7,.44],[30,72,1.6,.52],
+ [32,44,11,.55],[32.04,60,7,.5],[32.08,63,6.8,.48],[32.12,67,6.6,.44],
+ [40,70,3,.54],[44,67,2.2,.45],[47,63,.8,.48],
+ [48,43,10,.5],[48.04,59,7,.45],[48.08,62,6.8,.46],[48.12,65,6.6,.43],
+ [56,74,2.8,.55],[59,72,2.3,.48],[62,71,1.5,.42]
 ];
-const trapSub=[
- [[0,25,5.4,.92],[7,25,2.2,.85],[11,25,2.3,.89],[14,37,1.2,.78]],
- [[0,25,6.3,.9],[8,25,3.1,.87],[12,32,1.1,.77],[14,25,1.2,.85]],
- [[0,28,5.4,.92],[6,28,3.2,.84],[10,28,3.2,.88],[14,40,1.2,.78]],
- [[0,32,6.3,.9],[8,32,3.2,.87],[12,25,1.2,.84],[14,25,.4,.76],[15,25,.4,.7]]
+const darkBass=[
+ [[0,24,5.8,.94],[7,24,2.4,.88],[11,24,2,.87],[14,36,1.25,.78]],
+ [[0,24,6,.94],[8,24,3,.87],[12,31,1.1,.8],[14,24,1.25,.87]],
+ [[0,32,5.2,.94],[6,32,3,.85],[10,32,2.3,.88],[13,39,1,.77],[15,32,.45,.72]],
+ [[0,31,6.5,.94],[8,31,3,.86],[12,31,1,.8],[14,24,1.25,.88]]
 ];
-function trapPart(role,section){
- const out=[],bridge=section===2;
- if(role===1)for(let b=0;b<4;b++)phrase(out,b*16,bridge?trapSub[b].slice(0,1):trapSub[b],section===0?.85:1);
- if(role===2){phrase(out,0,trapBells,bridge?.65:1);phrase(out,32,trapBells,bridge?.65:1);if(section===3)phrase(out,0,[[15,92,.5,.36],[47,92,.5,.36]]);}
- if(role===3)for(const [b,chord] of [[0,[49,56,59]],[2,[52,59,63]],[3,[44,51,56]]])phrase(out,b*16,chord.map(m=>[0,m,b===0?29:13,.3]));
- if(role===4&&section!==0)phrase(out,0,[[15,73,.7,.45],[15.05,76,.65,.35],[31,71,.7,.42],[31.05,75,.65,.32],[47,76,.7,.46],[47.05,80,.65,.35],[63,68,.7,.4]]);
+const airyGuitar=[
+ [0,54,2.8,.62],[.035,59,2.7,.64],[.07,62,2.6,.58],[2,66,1.6,.6],[4,73,2.5,.72],[7,69,1.8,.58],[10,66,1.6,.63],[12,62,1.5,.55],[14,66,1.7,.6],
+ [16,55,2.8,.6],[16.035,59,2.7,.64],[16.07,62,2.6,.57],[18,66,1.6,.58],[20,71,2.4,.7],[23,69,1.6,.57],[26,66,1.8,.63],[29,62,2,.58],
+ [32,54,2.8,.6],[32.035,57,2.7,.62],[32.07,61,2.6,.57],[34,64,1.7,.6],[36,69,2.4,.7],[39,71,1.7,.62],[42,73,2.2,.68],[45,66,2.4,.57],
+ [48,57,2.8,.6],[48.035,61,2.7,.63],[48.07,64,2.6,.58],[50,71,2.3,.68],[54,67,1.8,.58],[57,64,1.6,.6],[60,66,1.5,.62],[62,69,1.7,.65]
+];
+const airyBass=[
+ [[0,35,4,.85],[6,35,2.5,.77],[10,42,1.3,.7],[12,35,2,.8],[15,35,.45,.65]],
+ [[0,31,4.8,.87],[6,31,2,.78],[9,38,1.4,.71],[12,31,2.3,.8]],
+ [[0,38,4,.85],[6,38,2.4,.77],[10,45,1.3,.7],[12,38,2,.8],[15,38,.45,.64]],
+ [[0,33,5.1,.86],[7,33,2,.78],[10,40,1.4,.7],[13,33,2.1,.8]]
+];
+function atlantaPart(airy,role,section){
+ const out=[],bridge=section===2,intro=section===0;
+ if(role===1)for(let b=0;b<4;b++)phrase(out,b*16,bridge?(airy?airyBass:darkBass)[b].slice(0,1):(airy?airyBass:darkBass)[b],intro?.8:1);
+ if(role===2)phrase(out,0,airy?airyGuitar:darkPiano,bridge?.82:1);
+ if(role===3&&(!intro||airy)){
+  const chords=airy?[[59,62,66,73],[55,59,62,69],[54,57,61,64],[57,61,64,71]]:[[48,55,58],[48,55,58],[44,51,55],[43,50,53]];
+  for(let b=0;b<4;b++)phrase(out,b*16,chords[b].map(m=>[0,m,14.8,airy?.28:.19]));
+ }
+ if(role===4&&!intro){
+  const answer=airy?[[13,74,2,.45],[29,73,2.2,.43],[45,71,2,.45],[61,69,2.2,.4]]:
+   [[15,79,.7,.32],[31,77,.7,.29],[47,75,.7,.3],[63,74,.7,.28]];
+  phrase(out,0,answer,section===3?1:.65);
+ }
  return out;
 }
-function trapDrums(section,rolls){
- const p=rows(),bridge=section===2;
+function atlantaDrums(airy,section,phase){
+ const p=rows(),bridge=section===2,intro=section===0;
  for(let b=0;b<4;b++){
-  if(rolls){hit(p,'hat',b,b%2?[[6,.22],[7,.3],[12,.27],[13,.35],[14,.28],[15,.4]]:[[14,.3],[15,.37]]);continue;}
-  hit(p,'kick',b,bridge?[[0,.86]]:b%2?[[0,.95],[7,.8],[12,.83],[15,.6]]:[[0,.95],[6,.8],[11,.84]]);
-  hit(p,'clap',b,[[8,.9]]);
-  hit(p,'hat',b,(bridge?[0,4,8,12]:[0,2,4,6,8,10,12,14,15]).map((s,i)=>[s,i%2?.24:.4]));
-  if(section!==0&&!bridge){hit(p,'open',b,[[6,.32]]);hit(p,'rim',b,[[13,.23]]);}
+  if(phase){
+   if(b%2===1||section===3)hit(p,'hat',b,(phase<.5?[13,15]:[12,14]).map((s,i)=>[s,i?.3:.38]));
+   continue;
+  }
+  hit(p,'kick',b,bridge?[[0,.86]]:airy?(b%2?[[0,.9],[6,.72],[12,.79]]:[[0,.94],[6,.72],[10,.8]]):
+   b%2?[[0,.98],[7,.8],[12,.86]]:[[0,.98],[6,.82],[11,.86]]);
+  if(!intro||b>=2)hit(p,'clap',b,[[8,airy?.78:.9]]);
+  const hats=intro?[0,4,8,12]:bridge?[2,6,10,14]:[0,2,4,6,8,10,12,14];
+  hit(p,'hat',b,hats.map((s,i)=>[s,i%2?(airy?.2:.25):(airy?.3:.4)]));
+  if(!intro&&!bridge)hit(p,'open',b,[[airy?14:6,airy?.2:.3]]);
  }
  return p;
 }
-
-// Bass-led E9 vamp with an A9 turnaround. Explicit syncopated call/answer bars,
-// blue thirds, chromatic approach notes and short, interlocking guitar voicings.
-const funkBass=[
- [[0,40,.9,.95],[1.5,43,.45,.66],[3,45,.6,.82],[4.5,40,.3,.22],[6,40,.55,.88],[7,44,.4,.65],[8,47,.8,.88],[10,50,.55,.7],[11.5,47,.4,.7],[14,52,.6,.86],[15,39,.4,.62]],
- [[0,40,.8,.95],[2,52,.6,.8],[3.5,50,.4,.67],[6,47,.7,.87],[8,45,.6,.84],[9.5,43,.4,.6],[10.5,44,.4,.65],[12,47,.65,.82],[14.5,39,.5,.65]],
- [[0,40,1,.95],[3,43,.45,.67],[4,44,.5,.76],[6,47,.6,.88],[7.5,50,.4,.65],[8.5,52,.7,.86],[10.5,50,.5,.68],[12,47,.55,.84],[13.5,45,.4,.64],[15,44,.45,.65]],
- [[0,33,.9,.95],[2.5,40,.5,.72],[4,43,.65,.82],[6,45,.55,.84],[7.5,43,.4,.6],[9,40,.65,.84],[11,42,.5,.72],[12.5,43,.45,.76],[15,39,.4,.7]]
-];
-function funkPart(role,section){
- const out=[],bridge=section===2;
- if(role===1)for(let b=0;b<4;b++)phrase(out,b*16,bridge?funkBass[b].filter((e,i)=>i%2===0):funkBass[b]);
- for(let b=0;b<4;b++){
-  const base=b*16,chord=b===3?[55,61,64,71]:[56,62,66,71];
-  if(role===2)for(const s of (bridge?[2,10]:b%2?[2,7,10,14]:[2,5,10,13]))phrase(out,base+s,chord.map((m,j)=>[j*.018,m,.75,j===3?.53:.45]));
-  if(role===3)for(const [i,s] of (bridge?[2,6,10,14]:[1,2,5,6,9,10,13,14,15]).entries())phrase(out,base+s,chord.slice(0,3).map((m,j)=>[j*.012,m,.28,i%3===1?.8:.48]));
-  if(role===4)phrase(out,base, b%2?[[3,64,.55,.62],[3.03,71,.5,.5],[11,62,.6,.55],[11.03,68,.55,.48]]:[[7,66,.5,.65],[7.03,71,.45,.52],[15,64,.5,.6]]);
-  if(role===5&&!bridge)phrase(out,base,b%2?[[4.5,76,.3,.5],[7.5,74,.3,.48],[12.5,71,.35,.57]]:[[3.5,71,.35,.55],[11.5,74,.3,.5],[14.5,76,.3,.6]]);
- }
- return out;
-}
-function funkDrums(section){
+// Tamborzao core: kick/tom -> two high slaps -> low tom -> open low conga.
+// Original variation informed by Caceres/Ferrari/Palombini (2014), figs. 5-7.
+function baileDrums(section,fills){
  const p=rows();
  for(let b=0;b<4;b++){
-  hit(p,'kick',b,b%2?[[0,.9],[3,.68],[6,.86],[10,.8],[14,.68]]:[[0,.94],[6,.8],[8,.86],[11,.67],[14,.78]]);
-  hit(p,'clap',b,[[4,.82],[7,.17],[11,.13],[12,.88],[15,.2]]);
-  hit(p,'hat',b,(section===2?[0,2,4,6,8,10,12,14]:[0,1,2,3,4,6,7,8,9,10,11,12,14,15]).map((s,i)=>[s,s%4===2?.5:i%2?.2:.34]));
-  hit(p,'open',b,[[14,.3]]);if(section===3&&b===3)hit(p,'tom',b,[[13,.4],[14,.5],[15,.63]]);
+  if(fills){if(b%2===1){hit(p,'clap',b,[[10,.4],[11,.55]]);hit(p,'perc',b,[[14,.62],[15,.45]]);}continue;}
+  hit(p,'kick',b,[[0,.95],[6,.87]]);hit(p,'tom',b,[[0,.74],[8,.86]]);
+  hit(p,'clap',b,[[3,.8],[6,.92]]);hit(p,'rim',b,[[12,.72]]);hit(p,'perc',b,[[12,.92]]);
+  if(section!==0)hit(p,'shaker',b,[[2,.22],[7,.19],[10,.23],[15,.2]]);
+  if(section===3)hit(p,'kick',b,[[10,.62]]);
+  if(section===2&&b<2){p.kick.fill(0,b*16,b*16+16);p.tom[b*16]=0;}
  }
  return p;
 }
-const composers={drill:drillPart,trap808:trapPart,funk:funkPart};
-const percussion={drill:drillDrums,trap808:trapDrums,funk:funkDrums};
+function bailePart(role,section){
+ const out=[];
+ if(role===1)for(let b=0;b<4;b++)phrase(out,b*16,[[0,29,1.4,.84],[6,29,1,.78],[8,41,.65,.64],[12,29,1.3,.82]],section===2?.65:1);
+ if(role===2)for(let b=0;b<4;b++)phrase(out,b*16,b%2?[[2,72,.6,.6],[6,68,.65,.65],[12,65,.8,.68]]:[[0,65,.7,.65],[3,68,.55,.57],[6,72,.7,.7],[12,68,.8,.6]],section===2?.65:1);
+ return out;
+}
+const composers={drill:drillPart,trap808:(r,s)=>atlantaPart(false,r,s),'trap-air':(r,s)=>atlantaPart(true,r,s),funk:bailePart};
+function demoEffects(track,style,role){
+ const melodic=style==='drill'?role===3:style==='trap808'||style==='trap-air'?role===2||role===4:false;
+ if(!melodic)return;
+ placeInsert(track,0,'sculpt');Object.assign(track.effects.sculpt,{highpass:style==='drill'?90:140,cutoff:style==='trap-air'?8500:6500});
+ placeInsert(track,1,'aura');track.effects.aura.mix=style==='drill'?.16:style==='trap-air'?.18:.22;
+ placeInsert(track,2,'echo');Object.assign(track.effects.echo,{mix:style==='drill'?.07:style==='trap-air'?.1:.08,feedback:.2});
+}
 export function createBeatDemoSession(style){
  if(!Object.hasOwn(styles,style))throw Error('Démo musicale inconnue.');
  const x=styles[style],sections=['INTRO','COUPLET','BREAK','REFRAIN'].map((name,i)=>({name,start:i*4,length:4}));
  const tracks=x.palette.map(([type,name,volume,settings],role)=>{
   const t=createContentTrack(type,0);Object.assign(t,{name,volume,pan:role===3?-.24:role===4?.24:0});Object.assign(t.instrument,settings);
+  demoEffects(t,style,role);
   for(let sec=0;sec<4;sec++){
-   const rolls=type==='drums'&&role===5,offset=rolls?1/32:0;
-   const clip={id:uid(),name:sections[sec].name+' · '+name,start:sec*4+offset,length:4-offset,patternSteps:64};
-   if(type==='drums')clip.pattern=percussion[style](sec,rolls);else clip.notes=composers[style](role,sec);
-   if(type==='drums'||clip.notes.length)t.clips.push(clip);
+   const atl=style==='trap808'||style==='trap-air',rolls=type==='drums'&&role===5;
+   const phases=rolls?(atl?[1/3,2/3]:[.5]):[0];
+   for(const phase of phases){
+    const offset=phase/16;
+    const clip={id:uid(),name:sections[sec].name+' · '+name,start:sec*4+offset,length:4-offset,patternSteps:64};
+    if(type==='drums')clip.pattern=style==='drill'?drillDrums(sec,rolls):style==='funk'?baileDrums(sec,role===3):atlantaDrums(style==='trap-air',sec,phase);
+    else clip.notes=composers[style](role,sec);
+    if(type==='drums'||clip.notes.length)t.clips.push(clip);
+   }
   }
   return t;
  });
  for(const [name,volume] of [['LEAD VOX (vide)',-5],['BACKS (vide)',-10],['ADLIBS (vide)',-13]]){
   const t=createContentTrack('keys');Object.assign(t,{name,type:'audio',volume,instrument:{},clips:[]});tracks.push(t);
  }
- return {version:1,demo:true,demoRevision:2,demoGenre:style,name:x.name,description:x.description,
+ return {version:1,demo:true,demoRevision:3,demoGenre:style,name:x.name,description:x.description,
   bpm:x.bpm,bars:16,swing:x.swing,pianoKey:x.key,pianoScale:x.scale,keyName:x.keyName,masterVolume:-9,
   mastering:masteringSettings({inserts:['peak'],bypass:false,peak:{enabled:true,drive:0,ceiling:-1.5,release:140}}),
   recording:{gainDb:0,autoLevel:true},sections,tracks};

@@ -9,7 +9,7 @@ export const ACOUSTIC_DRUM_LICENSE=Object.freeze({
  url:'https://oramics.github.io/sampled/DRUMS/pearl-master-studio/',
  licenseUrl:'https://creativecommons.org/licenses/by/3.0/'
 });
-export const DRUM_KIT_NAMES=Object.freeze(['PULSE Synth','Studio Rock','Warm Pop','Rumba Acoustic']);
+export const DRUM_KIT_NAMES=Object.freeze(['PULSE Synth','Studio Rock','Warm Pop','Rumba Acoustic','Baile · Synth Toms & Congas']);
 export const DRUM_SAMPLE_FILES=Object.freeze({
  kick:['kick-01.wav'],clap:['snare-01.wav','snare-02.wav','snare-03.wav'],
  hat:['hihat-closed.wav'],open:['hihat-open.wav'],tom:['tom-01.wav','tom-02.wav','tom-03.wav'],

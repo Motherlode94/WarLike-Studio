@@ -2,13 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createBeatDemoSession,BEAT_DEMOS} from '../dist/beat-demo-sessions.js';
 import {AudioEngine} from '../dist/audio.js';
-import {INSTRUMENTS} from '../dist/plugins.js';
+import {INSTRUMENTS,EFFECTS} from '../dist/plugins.js';
+import {readFileSync} from 'node:fs';
+import {isRecordedDrumKit} from '../dist/baile-drum-voices.js';
 import {normalizeNotes,moveNotes} from '../dist/piano-model.js';
 
 test('new scores use real instruments, valid editable events and independent local state',()=>{
  for(const style of Object.keys(BEAT_DEMOS)){
   const a=createBeatDemoSession(style),b=createBeatDemoSession(style);
-  assert.equal(a.bars,16);assert.equal(a.tracks.length,9);
+  assert.equal(a.bars,16);assert.equal(a.tracks.length,style==='funk'?7:9);
   assert.equal(a.tracks.filter(t=>t.type==='audio'&&t.clips.length===0).length,3);
   for(const t of a.tracks.filter(t=>t.type!=='audio')){
    const controls=INSTRUMENTS[t.type].controls;
@@ -30,22 +32,48 @@ test('new scores use real instruments, valid editable events and independent loc
  for(const invalid of ['unknown','toString','__proto__'])assert.throws(()=>createBeatDemoSession(invalid));
 });
 
-test('genre identity survives transposition: root movement, hook intervals and snare placement differ',()=>{
- const sessions=['drill','trap808','funk'].map(createBeatDemoSession);
- const intervals=notes=>notes.slice(1).map((n,i)=>n.midi-notes[i].midi);
- const bassContours=sessions.map(p=>intervals(p.tracks[1].clips[1].notes.filter(n=>n.step%16===0)));
- assert.equal(new Set(bassContours.map(JSON.stringify)).size,3,'the former drill and trap shared one transposed four-chord contour');
- const hooks=sessions.map((p,i)=>p.tracks[i===2?1:2].clips[1].notes.slice(0,10));
- assert.equal(new Set(hooks.map(n=>JSON.stringify(intervals(n)))).size,3,'moving the same tune to another key is not a new melody');
- assert.equal(new Set(hooks.map(n=>JSON.stringify(n.map(n=>n.step)))).size,3,'the genres need independent phrasing');
- const snares=sessions.map(p=>p.tracks[0].clips[1].pattern.clap.flatMap((v,i)=>v>.5?[i]:[]));
- assert.deepEqual(snares[0],[8,26,40,58]);
- assert.deepEqual(snares[1],[8,24,40,56]);
- assert.deepEqual(snares[2],[4,12,20,28,36,44,52,60]);
- const drill=sessions[0].tracks[1].clips[1].notes,trap=sessions[1].tracks[1].clips[1].notes,funk=sessions[2];
- assert.ok(drill.filter(n=>n.slide).length>=5);assert.ok(trap.every(n=>!n.slide));
- assert.ok(funk.tracks[1].clips[1].notes.filter(n=>n.step%1).length>=10,'funk bass must carry sixteenth syncopations');
- assert.equal(funk.tracks[1].type,'wlvirtual');assert.equal(funk.tracks[1].instrument.width,0);
+test('drill retains every original piano event and its opening bar while adding later depth',()=>{
+ const before=JSON.parse(readFileSync(new URL('./fixtures/drill-v2-piano.json',import.meta.url),'utf8'));
+ const p=createBeatDemoSession('drill'),piano=p.tracks[3];
+ const signature=({id,...note})=>JSON.stringify(note);
+ for(const [i,old] of before.entries()){
+  const notes=piano.clips[i].notes.map(signature);
+  for(const n of old.notes)assert.ok(notes.includes(JSON.stringify(n)),'original piano event changed');
+  assert.ok(notes.length>old.notes.length);
+ }
+ assert.deepEqual(piano.clips[0].notes.filter(n=>n.step<16).map(signature),before[0].notes.filter(n=>n.step<16).map(JSON.stringify));
+ for(const id of piano.inserts.filter(Boolean)){
+  assert.ok(EFFECTS[id]);assert.equal(piano.effects[id].enabled,true);
+ }
+ assert.equal(p.bpm,142);assert.equal(p.pianoKey,5);
+});
+
+test('the requested Atlanta directions have independent piano/guitar loops and breathing room',()=>{
+ const dark=createBeatDemoSession('trap808'),air=createBeatDemoSession('trap-air');
+ assert.equal(dark.bpm,140);assert.equal(air.bpm,146);
+ assert.equal(dark.tracks[2].type,'piano');assert.equal(air.tracks[2].type,'wlnylon');
+ assert.ok(dark.tracks[2].effects.aura.mix>0);assert.ok(air.tracks[2].effects.echo.mix>0);
+ assert.notDeepEqual(dark.tracks[2].clips[1].notes.map(n=>n.midi),air.tracks[2].clips[1].notes.map(n=>n.midi));
+ for(const p of [dark,air]){
+  const snare=p.tracks[0].clips[1].pattern.clap.flatMap((v,i)=>v>.5?[i]:[]);
+  assert.deepEqual(snare,[8,24,40,56]);
+  assert.ok(p.tracks[4].clips[0].notes.length<=4,'response track must leave room for a vocal');
+ }
+});
+
+test('Brazilian funk uses a dry, native tamborzao kit with interlocking membrane voices',async()=>{
+ const p=createBeatDemoSession('funk'),drums=p.tracks[0];
+ assert.equal(p.bpm,130);assert.equal(drums.instrument.kit,4);
+ assert.ok(!p.tracks.some(t=>['wljazz','wlmuted','wlclean','keys'].includes(t.type)));
+ const pattern=drums.clips[1].pattern;
+ assert.deepEqual(pattern.kick.slice(0,16).flatMap((v,i)=>v?[i]:[]),[0,6]);
+ assert.deepEqual(pattern.clap.slice(0,16).flatMap((v,i)=>v?[i]:[]),[3,6]);
+ assert.deepEqual(pattern.tom.slice(0,16).flatMap((v,i)=>v?[i]:[]),[0,8]);
+ assert.equal(pattern.perc[12],.92);assert.equal(pattern.rim[12],.72);
+ assert.equal(isRecordedDrumKit(4),false);assert.equal(isRecordedDrumKit(1),true);
+ // With only native instruments, preparation must not fetch an acoustic kit.
+ const e=new AudioEngine(()=>p,()=>new Map());await e.prepareInstruments({},p);
+ assert.equal(e.recordedDrums,undefined);
 });
 
 test('relative 808 slides survive normalization, transposition and scheduler handoff',()=>{
@@ -60,7 +88,7 @@ test('relative 808 slides survive normalization, transposition and scheduler han
 });
 
 test('808 scores leave space for release instead of stacking sub notes',()=>{
- for(const style of ['drill','trap808']){
+ for(const style of ['drill','trap808','trap-air']){
   const p=createBeatDemoSession(style),bass=p.tracks.find(t=>t.type==='bass'),releaseSteps=bass.instrument.release*p.bpm/15;
   assert.equal(bass.pan,0);
   assert.ok(bass.instrument.harmonics>.2,'harmonics make the sub readable on smaller speakers');
@@ -71,8 +99,8 @@ test('808 scores leave space for release instead of stacking sub notes',()=>{
  }
 });
 
-test('drill and trap 1/32 hats actually schedule between sixteenth events, including after JSON round-trip',()=>{
- for(const style of ['drill','trap808']){
+test('drill 1/32 and Atlanta triplet hats schedule between grid events after JSON round-trip',()=>{
+ for(const style of ['drill','trap808','trap-air']){
   const p=JSON.parse(JSON.stringify(createBeatDemoSession(style))),hits=[];
   const engine=new AudioEngine(()=>p,()=>new Map());
   engine.drum=(_ctx,out,voice,time)=>{if(voice==='hat')hits.push({out,time});};engine.synth=()=>{};
@@ -80,19 +108,21 @@ test('drill and trap 1/32 hats actually schedule between sixteenth events, inclu
   for(let step=64;step<128;step++)engine.scheduleStep({},channels,step,(step-64)*sd);
   const fills=hits.filter(h=>h.out.startsWith('HI-HAT'));
   assert.ok(fills.length>=8,'roll track must be audible');
-  assert.ok(fills.every(h=>Math.abs(h.time/sd%1-.5)<.02),'rolls lost their half-step timing');
+  const phases=fills.map(h=>h.time/sd%1);
+  if(style==='drill')assert.ok(phases.every(x=>Math.abs(x-.5)<.02));
+  else for(const phase of [1/3,2/3])assert.ok(phases.some(x=>Math.abs(x-phase)<.00001),'triplet phase lost after saving');
   const all=hits.map(h=>h.time).sort((a,b)=>a-b);
-  assert.ok(all.some((v,i)=>i&&Math.abs((v-all[i-1])/sd-.5)<.02));
+  assert.ok(all.some((v,i)=>i&&Math.abs((v-all[i-1])/sd-(style==='drill'?.5:2/3))<.02));
  }
 });
 
-test('three demos have distinct grooves, harmony, timbres and section development',()=>{
+test('four arrangements have independent scores and section development',()=>{
  const scores=Object.keys(BEAT_DEMOS).map(createBeatDemoSession);
- assert.equal(new Set(scores.map(p=>p.bpm)).size,3);
- assert.equal(new Set(scores.map(p=>JSON.stringify(p.tracks[0].clips[1].pattern))).size,3);
- assert.equal(new Set(scores.map(p=>JSON.stringify(p.tracks[1].clips[1].notes.map(({step,midi,len})=>({step,midi,len}))))).size,3);
+ assert.equal(new Set(scores.map(p=>p.bpm)).size,4);
+ assert.equal(new Set(scores.map(p=>JSON.stringify(p.tracks[0].clips[1].pattern))).size,4);
+ assert.equal(new Set(scores.map(p=>JSON.stringify(p.tracks[1].clips[1].notes.map(({step,midi,len})=>({step,midi,len}))))).size,4);
  for(const p of scores){
   assert.notDeepEqual(p.tracks[0].clips[0].pattern,p.tracks[0].clips[3].pattern);
-  assert.ok(p.tracks.some(t=>t.clips.some(c=>c.notes?.some(n=>n.step%1!==0)))||p.tracks.some(t=>t.name.startsWith('HI-HAT')));
+  assert.equal(p.demoRevision,3);
  }
 });
