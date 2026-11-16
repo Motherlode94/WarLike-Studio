@@ -1,5 +1,19 @@
 # Warlike Studio + CHAYAH Suite
 
+## Démos supplémentaires : Drill, Trap 808 et Funk
+
+Dans **Projet → Mes projets**, trois arrangements originaux s’ajoutent aux six démos existantes. Chaque ouverture crée une copie locale indépendante de 16 mesures (intro, couplet, break, refrain), avec six pistes instrumentales modifiables et trois pistes vides pour enregistrer la voix.
+
+| Démo | Tempo | Arrangement |
+| --- | --- | --- |
+| Drill nocturne | 142 BPM · Fa mineur | Half-time décalé, charleys et roulements à la triple croche, octaves de 808, motif de clavier sombre |
+| Trap 808 Pressure | 150 BPM · Sol mineur | Sub 808 soutenu et harmonique, claps half-time, cloches pincées et réponses de synthé |
+| Funk Pocket | 110 BPM · Mi mineur | Batterie acoustique, basse pincée syncopée, clavier FM, guitares étouffées et accords de neuvième |
+
+Accès direct après déploiement : [`?demo=drill`](https://warlike-studio.pages.dev/?demo=drill), [`?demo=trap808`](https://warlike-studio.pages.dev/?demo=trap808), [`?demo=funk`](https://warlike-studio.pages.dev/?demo=funk). Les deux 808 utilisent MONO, le synthétiseur natif, et restent centrées avec des silences entre les notes. Les roulements utilisent une piste de batterie décalée d’un demi-pas, conservée dans le format `.chayah`. Ces trois nouvelles démos sont instrumentales ; leurs pistes vocales sont vides.
+
+Le workflow qualité rend les trois morceaux complets dans Chromium, contrôle les quatre sections, le niveau du sub et la sortie sans saturation, puis vérifie le WAV 24 bits, la lecture, le téléchargement/import du projet et sa réouverture après rechargement. Les mesures audio et captures sont conservées dans l’artefact `studio-beat-demos`.
+
 ## Studio Cloud — sauvegarde et changement de compte
 
 Les envois et téléchargements cloud vérifient le compte attendu à partir de la session authentifiée de Server. Un remplacement du cookie dans un autre onglet interrompt les envois de l’ancien compte. Les écritures transmettent l’origine interne requise par Server et les corps sont bornés pendant leur lecture. Un premier transfert audio incomplet reste identifiable et ne peut pas être restauré comme une sauvegarde terminée.
