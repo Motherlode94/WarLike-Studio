@@ -33,7 +33,8 @@ export class StudioCloudClient {
     const url = new URL(baseUrl);
     if (url.username || url.password || url.search || url.hash || url.pathname !== '/' || url.port || url.hostname.endsWith('.')) throw new TypeError('Adresse API invalide.');
     this.#base = url.origin;
-    this.#fetch = fetchImpl;
+    // Window.fetch must not receive the StudioCloudClient instance as its receiver.
+    this.#fetch = (...args)=>fetchImpl(...args);
   }
   async #request(path, { method = 'GET', payload, signal, unscoped=false } = {}) {
     const account=this.#account;
