@@ -56,6 +56,7 @@ async function installRoutes(context){
    const request=new Request(r.url(),{method:r.method(),headers,...(['GET','HEAD'].includes(r.method())?{}:{body:r.postDataBuffer()})});
    const path=url.pathname.slice('/api/studio/'.length),ctx={request,env,params:{path:path.split('/')}};
    const response=path==='availability'?await availability(ctx):path==='session'?(r.method()==='POST'?await pair(ctx):await logout(ctx)):await proxy(ctx);
+   if(path==='session'||response.status>=500)console.log('Studio facade',r.method(),path,response.status,await response.clone().text());
    return fulfill(route,response);
   }
   const path=resolve(root,'dist','.'+decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname));
@@ -69,7 +70,10 @@ async function connect(page,user){
  await page.getByLabel('Identifiant',{exact:true}).fill('wl-qa-'+user);await page.getByLabel('Mot de passe',{exact:true}).fill(password);
  const [reply]=await Promise.all([page.waitForResponse(r=>r.url()===server+'/api/warlike-auth/login'),page.getByRole('button',{name:'Se connecter',exact:true}).click()]);assert.equal(reply.status(),200);
  await page.waitForURL(url=>url.origin===server&&url.pathname==='/connect/studio');await page.waitForLoadState('networkidle');
+ const exchanged=page.waitForResponse(response=>response.url()===studio+'/api/studio/session'&&response.request().method()==='POST');
  await page.getByRole('button',{name:'Autoriser Studio',exact:true}).click();
+ const exchange=await exchanged;if(exchange.status()!==200)throw Error('Studio session exchange '+exchange.status()+': '+await exchange.text());
+ assert.ok((await page.context().cookies(studio)).some(cookie=>cookie.name==='__Host-warlike-studio'),'HttpOnly app cookie must be accepted before identity refresh');
  await page.waitForURL(studio+'/**');await page.getByText('Compte cloud : Cloud '+(user==='alice'?'Alice':'Bob'),{exact:true}).waitFor();
  assert.equal(new URL(page.url()).hash,'');assert.equal(await page.evaluate(()=>sessionStorage.getItem('warlike-studio-pkce')),null);
  const cookies=await page.context().cookies(studio);const cookie=cookies.find(x=>x.name==='__Host-warlike-studio');assert.ok(cookie?.httpOnly&&cookie.secure);assert.equal(cookie.sameSite,'Strict');
@@ -83,7 +87,7 @@ try{
  for(let i=0;i<120;i++){try{const response=await service(server+'/api/health');if(response.ok)break;if(i===119)throw Error('Health '+response.status)}catch(error){if(i===119)throw error}if(runtime.exitCode!==null)throw Error('Worker exited '+runtime.exitCode);await new Promise(resolve=>setTimeout(resolve,500))}
  browser=await chromium.launch({headless:true,args:['--ignore-certificate-errors','--allow-insecure-localhost']});
  const a=await device();await connect(a.page,'alice');passed('Native WarLike login, Studio consent and HttpOnly session through the actual Server');
- await a.page.locator('#projectInput').setInputFiles({name:'Synthetic stereo.chayah',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(archive))});await a.page.locator('#modal').waitFor({state:'hidden'});
+ await a.page.locator('#libraryImport').click();await a.page.locator('#projectInput').setInputFiles({name:'Synthetic stereo.chayah',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(archive))});await a.page.locator('#modal').waitFor({state:'hidden'});
  await library(a.page);await a.page.locator('#studioCloudSave').click();await a.page.getByText('Projet sauvegardé dans ton cloud WarLike.',{exact:true}).waitFor();
  await a.page.locator('#studioCloudOpen').click();await a.page.locator('[data-cloud-open]').waitFor({state:'visible'});const id=await a.page.locator('[data-cloud-open]').getAttribute('data-cloud-open');await a.page.screenshot({path:join(output,'alice-cloud-projects.png'),fullPage:true});passed('Actual Studio project and stereo WAV saved to isolated D1 and R2');
  const b=await device();assert.equal(await b.page.locator('[data-project-open]').count(),0);await connect(b.page,'alice');await b.page.locator('#studioCloudOpen').click();await b.page.locator('[data-cloud-open]').click();await b.page.locator('#modal').waitFor({state:'hidden'});

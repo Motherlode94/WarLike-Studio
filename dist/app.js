@@ -219,11 +219,12 @@ async function restore(){
  const requestedDemo=new URLSearchParams(location.search).get('demo')?.toLowerCase();
  if(requestedDemo&&Object.hasOwn(PUBLIC_DEMOS,requestedDemo))await launchPublicDemo(requestedDemo);
  if(location.protocol==='https:'){
+  const pairingRequested=location.hash.includes('warlike_studio_pair');
   completeStudioPairing().then(async paired=>{
    studioCloudIdentity=await getStudioCloud().connect();updateCloudAccount();
    if(paired)cloudSessionChannel?.postMessage('changed');
    if(paired){toast('Compte WarLike associé. Choisis un projet à synchroniser.');showProjectLibrary();}
-  }).catch(error=>{if(location.hash.includes('warlike_studio_pair'))toast(error.message);});
+  }).catch(error=>{if(pairingRequested)toast(error.message);});
  }
 }
 
