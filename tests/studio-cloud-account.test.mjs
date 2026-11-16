@@ -90,3 +90,10 @@ test('a failed first audio upload cannot be restored as a complete silent cloud 
  await assert.rejects(sync.push(args),/offline/);assert.equal(remote.__cloudUploadPending,true);await assert.rejects(sync.fetchProject(id),/Transfert audio incomplet/);
  fail=false;await sync.push({...args,cloudId:id,revision:1,ownerId:'alice'});assert.equal(remote.__cloudUploadPending,undefined);assert.deepEqual(remote.unknown,{preserved:true});assert.equal((await sync.fetchProject(id)).media.length,1);
 });
+test('an identity refresh cannot change the pinned owner of an older workflow operation',async()=>{
+ const {env,writes}=environment(),state={token:tokenA};
+ const api=new StudioCloudClient({baseUrl:origin,fetchImpl:transport(state,env)}),sync=createStudioSync({api});await sync.connect();
+ // A refresh may update the transport before the workflow's continuation runs.
+ state.token=tokenB;await api.identity();assert.equal(sync.identity().userId,'alice');
+ await assert.rejects(sync.push({project:{name:'Still Alice private',tracks:[]},assets:[]}),error=>error.code==='ACCOUNT_CHANGED');assert.equal(writes.length,0);
+});

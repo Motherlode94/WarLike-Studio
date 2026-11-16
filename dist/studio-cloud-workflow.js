@@ -51,7 +51,7 @@ export function createStudioSync({baseUrl=typeof location==='undefined'?'https:/
   const plans=new Map();
   for(const asset of assets)if(asset.data.byteLength>CLOUD_AUDIO_LIMIT)plans.set(asset.id,planWavParts(asset.data));
   let id=cloudId,rev=revision||0;
-  if(!id){const {__cloudAssets,...initial}=project;const created=await checked(()=>client.createProject({...initial,__cloudUploadPending:true},{signal:controller.signal}),session);check();id=created.id;rev=created.revision;if(onCreated)await onCreated({cloudId:id,cloudRevision:rev,cloudOwner:userId,cloudAssets:{}});check();}
+  if(!id){const {__cloudAssets,...initial}=project;const created=await checked(()=>client.createProject({...initial,__cloudUploadPending:true},{signal:controller.signal,expectedAccount:userId}),session);check();id=created.id;rev=created.revision;if(onCreated)await onCreated({cloudId:id,cloudRevision:rev,cloudOwner:userId,cloudAssets:{}});check();}
   const mapping={...(cloudId?project.__cloudAssets:{}),...(knownAssets.get(id)||{})};
   for(const asset of assets){
    check();
@@ -67,7 +67,7 @@ export function createStudioSync({baseUrl=typeof location==='undefined'?'https:/
      if(!pending.parts[index]){
       onProgress({name:asset.name||'Prise audio',part:index+1,total:plan.count});
       const file=new File([data],(asset.name||'Prise')+'.part-'+(index+1)+'.wav',{type:'audio/wav'});
-      const uploaded=await checked(()=>client.uploadAsset(id,file,{signal:controller.signal}),session);check();pending.parts[index]=uploaded.id;
+      const uploaded=await checked(()=>client.uploadAsset(id,file,{signal:controller.signal,expectedAccount:userId}),session);check();pending.parts[index]=uploaded.id;
      }
      index++;
     }
@@ -79,14 +79,14 @@ export function createStudioSync({baseUrl=typeof location==='undefined'?'https:/
    const mime=extension==='mp3'?'audio/mpeg':extension==='ogg'?'audio/ogg':'audio/wav';
    const file=new File([asset.data],asset.name||('audio-'+asset.id+'.'+extension),{type:mime});
    onProgress({name:asset.name||'Audio',part:1,total:1});
-   const uploaded=await checked(()=>client.uploadAsset(id,file,{signal:controller.signal}),session);check();
+   const uploaded=await checked(()=>client.uploadAsset(id,file,{signal:controller.signal,expectedAccount:userId}),session);check();
    mapping[asset.id]=uploaded.id;
    knownAssets.set(id,{...mapping});
   }
   check();
   const {__cloudUploadPending,...complete}=project;
   const updated={...complete,__cloudAssets:mapping};
-  const saved=await checked(()=>client.saveProject(id,updated,knownRevision.get(id)||rev,{signal:controller.signal}),session);
+  const saved=await checked(()=>client.saveProject(id,updated,knownRevision.get(id)||rev,{signal:controller.signal,expectedAccount:userId}),session);
   check();
   knownRevision.set(id,saved.revision);knownAssets.set(id,mapping);
   return {cloudId:id,cloudRevision:saved.revision,cloudOwner:userId,cloudAssets:mapping};
@@ -95,11 +95,11 @@ export function createStudioSync({baseUrl=typeof location==='undefined'?'https:/
   if(!identity)throw Error('Connexion requise.');
   const session=generation,userId=identity.userId;
   const check=()=>{if(session!==generation||identity?.userId!==userId)throw Error('Compte cloud modifié. Téléchargement interrompu.');};
-  const result=await checked(()=>client.getProject(id,{signal:controller.signal}),session),project=result.project;check();
+  const result=await checked(()=>client.getProject(id,{signal:controller.signal,expectedAccount:userId}),session),project=result.project;check();
   if(project?.__cloudUploadPending)throw Error('Transfert audio incomplet. Termine la synchronisation depuis la copie locale avant de télécharger ce projet.');
   const media=[];
   for(const [assetId,remoteId] of Object.entries(project.__cloudAssets||{})){
-   const download=async remote=>{check();const data=await checked(()=>client.downloadAsset(id,remote,{signal:controller.signal}),session);check();return data;};
+   const download=async remote=>{check();const data=await checked(()=>client.downloadAsset(id,remote,{signal:controller.signal,expectedAccount:userId}),session);check();return data;};
    const data=typeof remoteId==='string'?await download(remoteId):await restoreWavParts(remoteId,download);
    media.push({id:assetId,name:typeof remoteId==='object'?remoteId.name||'Prise.wav':'Enregistrement '+assetId+'.wav',data});
   }
@@ -112,7 +112,7 @@ export function createStudioSync({baseUrl=typeof location==='undefined'?'https:/
   const task=checked(()=>client.identity({signal:controller.signal}),session).then(next=>{if(session!==generation)throw changed();if(next.userId!==userId){invalidate();throw changed()}identity=next;return identity});
   verification=task;task.finally(()=>{if(verification===task)verification=null}).catch(()=>{});return task;
  };
- return {connect,verifyIdentity,invalidate,identity:()=>identity,list:async()=>{if(!identity)throw changed();const session=generation;const rows=await checked(()=>client.listProjects({signal:controller.signal}),session);if(session!==generation)throw changed();return rows},push:args=>{
+ return {connect,verifyIdentity,invalidate,identity:()=>identity,list:async()=>{if(!identity)throw changed();const session=generation,userId=identity.userId;const rows=await checked(()=>client.listProjects({signal:controller.signal,expectedAccount:userId}),session);if(session!==generation)throw changed();return rows},push:args=>{
   const session=generation;
   return enqueue(()=>{if(session!==generation)throw Error('Compte cloud modifié. Copie locale conservée.');return push(args);});
  },fetchProject,logout:async()=>{

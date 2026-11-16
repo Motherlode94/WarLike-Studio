@@ -36,8 +36,8 @@ export class StudioCloudClient {
     // Window.fetch must not receive the StudioCloudClient instance as its receiver.
     this.#fetch = (...args)=>fetchImpl(...args);
   }
-  async #request(path, { method = 'GET', payload, signal, unscoped=false } = {}) {
-    const account=this.#account;
+  async #request(path, { method = 'GET', payload, signal, unscoped=false,expectedAccount=this.#account } = {}) {
+    const account=expectedAccount;
     const options = { method, mode:'cors', credentials:'include', cache:'no-store', headers:{Accept:'application/json',...(!unscoped&&account?{'X-Warlike-Studio-Account':account}:{})}, signal };
     if (payload !== undefined) {
       options.headers['Content-Type'] = 'application/json';
@@ -73,30 +73,30 @@ export class StudioCloudClient {
     this.#account=value.userId;
     return value;
   }
-  async listProjects({ signal } = {}) {
-    const value = await this.#request('/api/studio/projects', { signal });
+  async listProjects({ signal,expectedAccount } = {}) {
+    const value = await this.#request('/api/studio/projects', { signal,expectedAccount });
     if (!Array.isArray(value.projects)) throw new StudioCloudError('Liste des projets invalide.', 502, 'INVALID_RESPONSE');
     return value.projects;
   }
-  async createProject(project, { signal } = {}) {
-    return this.#request('/api/studio/projects', {method:'POST', payload:{project}, signal});
+  async createProject(project, { signal,expectedAccount } = {}) {
+    return this.#request('/api/studio/projects', {method:'POST', payload:{project}, signal,expectedAccount});
   }
-  async getProject(id, { signal } = {}) {
-    return this.#request('/api/studio/projects/' + projectId(id), {signal});
+  async getProject(id, { signal,expectedAccount } = {}) {
+    return this.#request('/api/studio/projects/' + projectId(id), {signal,expectedAccount});
   }
-  async saveProject(id, project, revision, { signal } = {}) {
+  async saveProject(id, project, revision, { signal,expectedAccount } = {}) {
     if (!Number.isSafeInteger(revision) || revision < 1) throw new TypeError('Révision attendue obligatoire.');
-    return this.#request('/api/studio/projects/' + projectId(id), {method:'PUT', payload:{project,expectedRevision:revision},signal});
+    return this.#request('/api/studio/projects/' + projectId(id), {method:'PUT', payload:{project,expectedRevision:revision},signal,expectedAccount});
   }
-  async deleteProject(id, revision, { signal } = {}) {
+  async deleteProject(id, revision, { signal,expectedAccount } = {}) {
     if (!Number.isSafeInteger(revision) || revision < 1) throw new TypeError('Révision attendue obligatoire.');
-    return this.#request('/api/studio/projects/' + projectId(id), {method:'DELETE',payload:{expectedRevision:revision},signal});
+    return this.#request('/api/studio/projects/' + projectId(id), {method:'DELETE',payload:{expectedRevision:revision},signal,expectedAccount});
   }
-  async uploadAsset(project, file, { signal } = {}) {
+  async uploadAsset(project, file, { signal,expectedAccount=this.#account } = {}) {
     if (!(file instanceof Blob) || !file.size || file.size > 12 * 1024 * 1024) throw new TypeError('Fichier audio limité à 12 Mo.');
     const data = new FormData();
     data.append('file',file,typeof file.name==='string'?file.name:'studio-audio.wav');
-    const account=this.#account;
+    const account=expectedAccount;
     let response;
     try {
       response=await this.#fetch(this.#base+'/api/studio/projects/'+projectId(project)+'/assets',{
@@ -113,8 +113,8 @@ export class StudioCloudClient {
     if(!asset||typeof asset!=='object'||Array.isArray(asset)||typeof asset.id!=='string'||!asset.id)throw new StudioCloudError('Confirmation audio invalide.',502,'INVALID_RESPONSE');
     return asset;
   }
-  async downloadAsset(project,assetId,{signal}={}){
-    const account=this.#account;
+  async downloadAsset(project,assetId,{signal,expectedAccount=this.#account}={}){
+    const account=expectedAccount;
     let response;
     try {
       response=await this.#fetch(this.#base+'/api/studio/projects/'+projectId(project)+'/assets/'+projectId(assetId),{
