@@ -1,0 +1,154 @@
+[
+  {
+    "start": 0,
+    "notes": [
+      {
+        "step": 0,
+        "midi": 53,
+        "len": 3,
+        "velocity": 0.46
+      },
+      {
+        "step": 0.04,
+        "midi": 60,
+        "len": 2.8,
+        "velocity": 0.35
+      },
+      {
+        "step": 23,
+        "midi": 54,
+        "len": 1.5,
+        "velocity": 0.32
+      },
+      {
+        "step": 32,
+        "midi": 49,
+        "len": 3,
+        "velocity": 0.45
+      },
+      {
+        "step": 32.04,
+        "midi": 60,
+        "len": 2.8,
+        "velocity": 0.3
+      },
+      {
+        "step": 55,
+        "midi": 60,
+        "len": 1.5,
+        "velocity": 0.35
+      }
+    ]
+  },
+  {
+    "start": 4,
+    "notes": [
+      {
+        "step": 0,
+        "midi": 53,
+        "len": 3,
+        "velocity": 0.46
+      },
+      {
+        "step": 0.04,
+        "midi": 60,
+        "len": 2.8,
+        "velocity": 0.35
+      },
+      {
+        "step": 23,
+        "midi": 54,
+        "len": 1.5,
+        "velocity": 0.32
+      },
+      {
+        "step": 32,
+        "midi": 49,
+        "len": 3,
+        "velocity": 0.45
+      },
+      {
+        "step": 32.04,
+        "midi": 60,
+        "len": 2.8,
+        "velocity": 0.3
+      },
+      {
+        "step": 55,
+        "midi": 60,
+        "len": 1.5,
+        "velocity": 0.35
+      }
+    ]
+  },
+  {
+    "start": 8,
+    "notes": [
+      {
+        "step": 0,
+        "midi": 53,
+        "len": 7,
+        "velocity": 0.52
+      },
+      {
+        "step": 0,
+        "midi": 60,
+        "len": 7,
+        "velocity": 0.35
+      },
+      {
+        "step": 32,
+        "midi": 49,
+        "len": 6,
+        "velocity": 0.5
+      },
+      {
+        "step": 32,
+        "midi": 60,
+        "len": 6,
+        "velocity": 0.3
+      }
+    ]
+  },
+  {
+    "start": 12,
+    "notes": [
+      {
+        "step": 0,
+        "midi": 53,
+        "len": 3,
+        "velocity": 0.46
+      },
+      {
+        "step": 0.04,
+        "midi": 60,
+        "len": 2.8,
+        "velocity": 0.35
+      },
+      {
+        "step": 23,
+        "midi": 54,
+        "len": 1.5,
+        "velocity": 0.32
+      },
+      {
+        "step": 32,
+        "midi": 49,
+        "len": 3,
+        "velocity": 0.45
+      },
+      {
+        "step": 32.04,
+        "midi": 60,
+        "len": 2.8,
+        "velocity": 0.3
+      },
+      {
+        "step": 55,
+        "midi": 60,
+        "len": 1.5,
+        "velocity": 0.35
+      }
+    ]
+  }
+]

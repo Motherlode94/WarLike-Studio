@@ -1,20 +1,25 @@
 # Warlike Studio + CHAYAH Suite
 
-## Démos supplémentaires : Drill, Trap 808 et Funk
+## Démos : piano Drill conservé, deux Trap Atlanta et Funk brésilien
 
-Dans **Projet → Mes projets**, trois arrangements originaux s’ajoutent aux six démos existantes. Chaque ouverture crée une copie locale indépendante de 16 mesures (intro, couplet, break, refrain), avec six pistes instrumentales modifiables et trois pistes vides pour enregistrer la voix.
+Dans **Projet → Mes projets**, ouvrir une nouvelle copie des arrangements révision 3. Chaque session a 16 mesures, des pistes modifiables et trois pistes vides pour enregistrer la voix.
 
-| Démo | Tempo | Arrangement |
+| Démo | Tempo | Direction |
 | --- | --- | --- |
-| Drill nocturne | 142 BPM · Fa mineur | Ostinato de cordes en Fa mineur, ponctuations de piano, snare décalée et glissés continus de 808 |
-| Trap 808 Pressure | 150 BPM · Do♯ mineur | Hook de cloches FM sur deux mesures, sub 808 soutenu, clap half-time régulier et fills de charley |
-| Funk Pocket | 110 BPM · Mi · funk/blues | Vamp de Mi9 avec turnaround La9, riff de basse synthétique syncopé, ghost notes et guitares étouffées |
+| Drill nocturne | 142 BPM · Fa mineur | Notes et départ du piano conservés ; voicings de soutien, réponses dans les silences, piano plus présent et espace discret |
+| Atlanta After Dark | 140 BPM · Do mineur | Piano mineur, texture sombre en retrait, 808 lourde, kick/snare espacés et fins de phrase en triolets |
+| Atlanta Floating | 146 BPM · Si mineur | Boucle de guitare, harmonies ouvertes, réponses de flûte parcimonieuses et 808 mélodique |
+| Baile Tamborzão | 130 BPM · Fa mineur | Percussions entrelacées de toms, congas et slaps, sub court et hook synthétique minimal |
 
-Accès direct après déploiement : [`?demo=drill`](https://warlike-studio.pages.dev/?demo=drill), [`?demo=trap808`](https://warlike-studio.pages.dev/?demo=trap808), [`?demo=funk`](https://warlike-studio.pages.dev/?demo=funk). Les partitions réécrites (révision 2) ont trois phrases, mouvements de basse et placements de caisse claire indépendants ; elles ne partagent plus une progression transposée. Pour les entendre, ouvrir une nouvelle copie depuis les démos publiques. Les deux 808 utilisent MONO, le synthétiseur natif, et restent centrées avec des silences entre les notes. Les roulements utilisent une piste de batterie décalée d’un demi-pas, conservée dans le format `.chayah`. Ces trois nouvelles démos sont instrumentales ; leurs pistes vocales sont vides.
+Accès direct après déploiement : [`?demo=drill`](https://warlike-studio.pages.dev/?demo=drill), [`?demo=trap808`](https://warlike-studio.pages.dev/?demo=trap808), [`?demo=trap-air`](https://warlike-studio.pages.dev/?demo=trap-air), [`?demo=funk`](https://warlike-studio.pages.dev/?demo=funk). Les références demandées pour les deux directions Atlanta sont Metro/Future et Young Thug/Gunna ; les partitions sont originales et n’utilisent pas leurs enregistrements ou leurs mélodies. Le funk demandé est brésilien. La session `funk` utilise donc maintenant une direction baile, avec quatre pistes instrumentales ciblées plutôt que l’ancienne orchestration de funk classique.
 
-Les glissés 808 sont des intervalles relatifs par note (`slide` en demi-tons), automatisés sur les oscillateurs fondamental et harmonique. Dans le Piano Roll d’une piste MONO, sélectionner les notes puis **Glissé 808** pour les modifier ou les retirer ; les flèches sur les notes indiquent leur direction. Transposition et sauvegarde `.chayah` conservent ces intervalles. Les notes des projets antérieurs gardent leur rendu sans glissé.
+La fixture `tests/fixtures/drill-v2-piano.json` conserve les notes du piano précédent. Les tests vérifient qu’elles figurent toutes dans la version enrichie et que la première mesure reste identique en MIDI. Le volume et les effets d’espace évoluent pour donner de la profondeur. Les autres partitions de la drill sont conservées.
 
-Le workflow qualité rend les trois morceaux complets dans Chromium, contrôle les quatre sections, le niveau du sub, la montée réelle de 55 à 110 Hz d’un glissé et la sortie sans saturation, puis vérifie le WAV 24 bits, la lecture, le téléchargement/import du projet et sa réouverture après rechargement. Les mesures audio et captures sont conservées dans l’artefact `studio-beat-demos`.
+Les glissés 808 sont des intervalles relatifs par note (`slide` en demi-tons). Dans le Piano Roll de MONO, sélectionner les notes puis **Glissé 808** pour les modifier ou les retirer. Les notes sans `slide` conservent leur rendu. Les triolets Atlanta utilisent deux phases de clips de percussion (un tiers et deux tiers de pas), partagées par la lecture, le fichier `.chayah` et le WAV.
+
+PULSE propose le **kit 4 Baile**, synthèse originale de membranes et de slaps. Il ne charge pas de samples de batterie acoustique et ne contient pas de ROM Roland. Les kits 1–3 conservent leurs banques enregistrées. Voir [les choix de rythme et références](docs/beat-demo-directions.md).
+
+Le workflow qualité rend les quatre sessions complètes dans Chromium, contrôle les sections, le grave et le WAV 24 bits, mesure un glissé réel de 55 à 110 Hz et les huit voix du kit Baile, puis vérifie sauvegarde/import/réouverture. Rapport et captures dans `studio-beat-demos`. Ces tests vérifient le fonctionnement audio ; l’appréciation du morceau et de sa direction reste une écoute musicale.
 
 ## Studio Cloud — sauvegarde et changement de compte
 
