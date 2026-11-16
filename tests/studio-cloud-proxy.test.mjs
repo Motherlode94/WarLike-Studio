@@ -10,8 +10,8 @@ test('Studio Pages proxy refuses missing credentials and unsafe routes',async()=
 });
 test('Pages proxy forwards bearer only to internal Worker and strips cookies',async()=>{
  let captured;
- const env={WARLIKE_APP:{fetch:async req=>{captured=req;return Response.json({projects:[]})}}};
- const request=new Request(origin+'/api/studio/projects',{headers:{Cookie:cookie}});
+ const env={WARLIKE_APP:{fetch:async req=>{captured=req;return Response.json(new URL(req.url).pathname.endsWith('/me')?{userId:'alice',studioAccess:true}:{projects:[]})}}};
+ const request=new Request(origin+'/api/studio/projects',{headers:{Cookie:cookie,'X-Warlike-Studio-Account':'alice'}});
  const result=await proxy({request,params:{path:['projects']},env});
  assert.equal(result.status,200);
  assert.equal(captured.headers.get('Authorization'),'Bearer '+token);
@@ -38,4 +38,14 @@ test('logout clears the local HttpOnly cookie and attempts backend revocation',a
  const result=await onRequestDelete({request,env});
  assert.equal(result.status,200);assert.equal(called,true);
  assert.match(result.headers.get('Set-Cookie'),/Max-Age=0/);
+});
+test('verified same-origin writes carry Server origin on the internal binding, never the browser origin',async()=>{
+ let forwarded;
+ const env={WARLIKE_APP:{fetch:async request=>{
+  if(new URL(request.url).pathname==='/api/studio/me')return Response.json({userId:'alice',studioAccess:true});
+  forwarded=request;return Response.json({id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',revision:1},{status:201});
+ }}};
+ const request=new Request(origin+'/api/studio/projects',{method:'POST',headers:{Cookie:cookie,Origin:origin,'Content-Type':'application/json','X-Warlike-Studio-Account':'alice'},body:'{"project":{"name":"Test","tracks":[]}}'});
+ assert.equal((await proxy({request,env,params:{path:['projects']}})).status,201);
+ assert.equal(forwarded.headers.get('Origin'),'https://warlike-server.pages.dev');assert.equal(forwarded.headers.get('Authorization'),'Bearer '+token);assert.equal(forwarded.headers.has('Cookie'),false);
 });

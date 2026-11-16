@@ -12,6 +12,8 @@ export class StudioCloudError extends Error {
   }
 }
 const fail = (status, code) => {
+  if(code==='ACCOUNT_CHANGED')return new StudioCloudError('Le compte WarLike a changé. Reconnecte Studio avant tout envoi.',401,code);
+  if(code==='IDENTITY_REQUIRED')return new StudioCloudError('Reconnecte Studio pour vérifier ton compte.',428,code);
   if (status === 401) return new StudioCloudError('Connexion WarLike requise.', status, code);
   if (status === 403) return new StudioCloudError('Accès au projet refusé.', status, code);
   if (status === 409) return new StudioCloudError('Conflit de révision : recharge ou conserve une copie locale avant de fusionner.', status, code);
@@ -24,6 +26,8 @@ function projectId(id) {
 export class StudioCloudClient {
   #base;
   #fetch;
+  #account=null;
+  #identityRequest=0;
   constructor({ baseUrl, fetchImpl = fetch } = {}) {
     if (typeof baseUrl !== 'string' || !/^https:\/\//.test(baseUrl)) throw new TypeError('Une API HTTPS authentifiée est requise.');
     const url = new URL(baseUrl);
@@ -31,8 +35,9 @@ export class StudioCloudClient {
     this.#base = url.origin;
     this.#fetch = fetchImpl;
   }
-  async #request(path, { method = 'GET', payload, signal } = {}) {
-    const options = { method, mode:'cors', credentials:'include', cache:'no-store', headers:{Accept:'application/json'}, signal };
+  async #request(path, { method = 'GET', payload, signal, unscoped=false } = {}) {
+    const account=this.#account;
+    const options = { method, mode:'cors', credentials:'include', cache:'no-store', headers:{Accept:'application/json',...(!unscoped&&account?{'X-Warlike-Studio-Account':account}:{})}, signal };
     if (payload !== undefined) {
       options.headers['Content-Type'] = 'application/json';
       options.body = JSON.stringify(payload);
@@ -46,6 +51,7 @@ export class StudioCloudClient {
     if (!response.ok) {
       let code;
       try { const errorBody = await response.json(); if (errorBody && typeof errorBody === 'object' && !Array.isArray(errorBody) && typeof errorBody.code === 'string') code = errorBody.code; } catch {}
+      if([401,403,428].includes(response.status)&&account===this.#account)this.clearIdentity();
       throw fail(response.status, code);
     }
     if (response.status === 204) return null;
@@ -55,11 +61,15 @@ export class StudioCloudClient {
     if (value === null || typeof value !== 'object' || Array.isArray(value)) throw new StudioCloudError('Réponse serveur invalide.', 502, 'INVALID_RESPONSE');
     return value;
   }
+  clearIdentity(){this.#account=null;this.#identityRequest++;}
   async identity({ signal } = {}) {
-    const value = await this.#request('/api/studio/me', { signal });
-    if (typeof value.userId !== 'string' || !value.userId || value.studioAccess !== true) {
+    const ticket=++this.#identityRequest;
+    const value = await this.#request('/api/studio/me', { signal,unscoped:true });
+    if(ticket!==this.#identityRequest)throw new StudioCloudError('Vérification remplacée par une demande plus récente.',0,'SUPERSEDED');
+    if (typeof value.userId !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$/.test(value.userId) || value.studioAccess !== true) {
       throw new StudioCloudError('Identité WarLike non vérifiée.', 403, 'NO_ACCESS');
     }
+    this.#account=value.userId;
     return value;
   }
   async listProjects({ signal } = {}) {
@@ -85,16 +95,17 @@ export class StudioCloudClient {
     if (!(file instanceof Blob) || !file.size || file.size > 12 * 1024 * 1024) throw new TypeError('Fichier audio limité à 12 Mo.');
     const data = new FormData();
     data.append('file',file,typeof file.name==='string'?file.name:'studio-audio.wav');
+    const account=this.#account;
     let response;
     try {
       response=await this.#fetch(this.#base+'/api/studio/projects/'+projectId(project)+'/assets',{
-        method:'POST',mode:'cors',credentials:'include',cache:'no-store',body:data,signal,headers:{Accept:'application/json'}
+        method:'POST',mode:'cors',credentials:'include',cache:'no-store',body:data,signal,headers:{Accept:'application/json',...(account?{'X-Warlike-Studio-Account':account}:{})}
       });
     } catch (cause) {
       if(signal?.aborted)throw cause;
       throw new StudioCloudError('Envoi audio interrompu : copie locale conservée.',0,'NETWORK');
     }
-    if(!response.ok)throw fail(response.status);
+    if(!response.ok){let code;try{code=(await response.json())?.code}catch{}if([401,403,428].includes(response.status)&&account===this.#account)this.clearIdentity();throw fail(response.status,code);}
     let asset;
     try { asset=await response.json(); }
     catch { throw new StudioCloudError('Réponse d’envoi audio invalide.',502,'INVALID_RESPONSE'); }
@@ -102,16 +113,17 @@ export class StudioCloudClient {
     return asset;
   }
   async downloadAsset(project,assetId,{signal}={}){
+    const account=this.#account;
     let response;
     try {
       response=await this.#fetch(this.#base+'/api/studio/projects/'+projectId(project)+'/assets/'+projectId(assetId),{
-        method:'GET',mode:'cors',credentials:'include',cache:'no-store',signal
+        method:'GET',mode:'cors',credentials:'include',cache:'no-store',signal,headers:{...(account?{'X-Warlike-Studio-Account':account}:{})}
       });
     } catch(cause) {
       if(signal?.aborted)throw cause;
       throw new StudioCloudError('Téléchargement audio interrompu.',0,'NETWORK');
     }
-    if(!response.ok)throw fail(response.status);
+    if(!response.ok){let code;try{code=(await response.json())?.code}catch{}if([401,403,428].includes(response.status)&&account===this.#account)this.clearIdentity();throw fail(response.status,code);}
     return response.arrayBuffer();
   }
 

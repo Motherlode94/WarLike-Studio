@@ -1,5 +1,12 @@
 # Warlike Studio + CHAYAH Suite
 
+## Studio Cloud — sauvegarde et changement de compte
+
+Les envois et téléchargements cloud vérifient le compte attendu à partir de la session authentifiée de Server. Un remplacement du cookie dans un autre onglet interrompt les envois de l’ancien compte. Les écritures transmettent l’origine interne requise par Server et les corps sont bornés pendant leur lecture. Un premier transfert audio incomplet reste identifiable et ne peut pas être restauré comme une sauvegarde terminée.
+
+La bibliothèque affiche le compte cloud connecté et conserve les projets locaux en cas d’erreur. Le stockage local du même profil navigateur demeure partagé et non chiffré. Voir [le contrat et les limites de validation](docs/studio-cloud-account-safety.md) et le workflow de connexion native, D1/R2 et restauration audio dans Chromium.
+
+
 ## Nouvelle collection : WL HERITAGE, sept guitares et trois synthétiseurs
 
 **Produits WarLike originaux** inspirés des usages de studio analogique, des guitares virtuelles articulées et des synthétiseurs à presets. Aucun sample, algorithme, interface ou préréglage propriétaire d'Abbey Road, Ample Sound, reFX Nexus, LennarDigital Sylenth1 ou Spectrasonics Omnisphere n'est fourni ou reproduit.

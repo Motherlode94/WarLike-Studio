@@ -48,7 +48,14 @@ let project=emptyProject(),assets=new Map(),selectedTrack=project.tracks[0].id,s
 let history=[],future=[],saveTimer,recording=null,db=null,dragState=null,toastTimer,loaded=false,tuneBusy=false,micPreview=null,recordFinalizing=false,micPending=false,pluginWindow=null,bankState={tab:'sounds',filter:'all',search:''},backupAvailable=false;
 let activeProjectId=null,projectIndex=[];
 let studioCloud=null,studioCloudIdentity=null;
-const getStudioCloud=()=>studioCloud??(studioCloud=createStudioSync());
+function updateCloudAccount(){const label=$('studioCloudAccount');if(label)label.textContent=studioCloudIdentity?'Compte cloud : '+(studioCloudIdentity.displayName||studioCloudIdentity.userId):'Cloud déconnecté · copie locale conservée';}
+function lostCloudIdentity(){studioCloudIdentity=null;if($('modalTitle').textContent==='Mes projets cloud')$('modal').close();updateCloudAccount();if(activeProjectId)$('saveStatus').textContent='Cloud déconnecté — copie locale conservée';}
+const getStudioCloud=()=>studioCloud??(studioCloud=createStudioSync({onIdentityLost:lostCloudIdentity}));
+const cloudSessionChannel=typeof BroadcastChannel==='function'?new BroadcastChannel('warlike-studio-session'):null;
+if(cloudSessionChannel)cloudSessionChannel.onmessage=()=>studioCloud?.invalidate();
+const verifyCloudAccount=()=>{if(studioCloud?.identity())studioCloud.verifyIdentity().then(value=>{studioCloudIdentity=value;updateCloudAccount()}).catch(()=>{});};
+window.addEventListener('focus',verifyCloudAccount);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')verifyCloudAccount()});
 async function rememberCloudState(id,result){
  const job=saveQueue.catch(()=>{}).then(async()=>{
   const state=await dbRead(projectKey(id));if(!state)return;
@@ -60,7 +67,7 @@ async function rememberCloudState(id,result){
 }
 async function uploadActiveProject(){
  if(!activeProjectId)throw Error('Ouvre un projet local pour le synchroniser.');
- const cloud=getStudioCloud();studioCloudIdentity=await cloud.connect();
+ const cloud=getStudioCloud();studioCloudIdentity=await cloud.connect();updateCloudAccount();
  await flushCurrent();
  const id=activeProjectId,meta=projectIndex.find(p=>p.id===id),state=await readLocalProject(db,id);
  if(!state)throw Error('Projet local introuvable.');
@@ -69,7 +76,7 @@ async function uploadActiveProject(){
  await rememberCloudState(id,result);toast('Projet sauvegardé dans ton cloud WarLike.');
 }
 async function listCloudProjects(){
- const cloud=getStudioCloud();studioCloudIdentity=await cloud.connect();
+ const cloud=getStudioCloud();studioCloudIdentity=await cloud.connect();updateCloudAccount();
  const projects=await cloud.list();
  modal('Mes projets cloud','<p class="modal-body-copy">Projets privés du compte connecté. Ouvre un morceau pour le copier localement, médias compris.</p>'+(projects.map(p=>'<div class="project-home-card"><strong>'+esc(p.name)+'</strong><button class="primary-btn" data-cloud-open="'+esc(p.id)+'">Télécharger et ouvrir</button></div>').join('')||'<p>Aucun projet cloud.</p>'),'WARLIKE / CLOUD');
  document.querySelectorAll('[data-cloud-open]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{
@@ -162,13 +169,13 @@ function showProjectLibrary(){
  const info='<div class="project-home-banner"><strong>Projets enregistrés sur cet appareil</strong><p>Mode local : pas encore de séparation sécurisée entre comptes WarLike. Sur un navigateur partagé, chacun peut accéder à ces projets.</p></div>';
  const create='<div class="project-home-section project-public-demos"><strong>Découvrir WarLike Studio · Démos publiques</strong><p>Trap, Afro et R&B conservés · nouvelles sessions Rock, Pop et Rumba congolaise avec les instruments WL. 16 mesures, 6 pistes instrumentales + 3 pistes vocales vides. Une copie indépendante à chaque ouverture.</p><div class="project-home-footer"><button type="button" class="primary-btn" data-public-demo="trap">▶ Trap · 138 BPM</button><button type="button" class="primary-btn" data-public-demo="afro">▶ Afro · 108 BPM</button><button type="button" class="primary-btn" data-public-demo="rnb">▶ R&B · 84 BPM</button><button type="button" class="primary-btn" data-public-demo="rock">▶ Rock · 126 BPM</button><button type="button" class="primary-btn" data-public-demo="pop">▶ Pop · 116 BPM</button><button type="button" class="primary-btn" data-public-demo="rumba">▶ Rumba · 104 BPM</button></div></div><form id="projectHomeCreate" class="project-home-form"><label for="libraryName">Nom du nouveau projet</label><div class="project-home-creation"><input id="libraryName" name="name" value="Nouveau morceau" maxlength="60" autocomplete="off" required aria-label="Nom du nouveau projet"><button type="submit" class="primary-btn" id="libraryNew">Créer et ouvrir</button></div></form>';
  const library='<section class="project-home-section"><h3>Mes projets locaux <span>'+projectIndex.length+'</span></h3><div class="project-home-list">'+(rows||'<p class="project-home-empty">Aucun projet local. Crée ton premier morceau pour commencer.</p>')+'</div></section>';
- modal('Mes projets','<div class="project-home">'+info+create+library+'<div class="project-home-footer"><button class="outline-btn" id="libraryRecover">Récupérer l’ancienne session</button><button class="outline-btn" id="libraryImport">Importer un fichier .chayah</button></div><section class="project-home-section"><h3>WarLike Cloud (optionnel)</h3><p class="modal-body-copy">Connexion sécurisée nécessaire. Les projets locaux ne sont jamais envoyés automatiquement sans association explicite.</p><div class="project-home-footer"><button class="outline-btn" id="studioCloudConnect">Associer mon compte</button><button class="outline-btn" id="studioCloudOpen">Mes projets cloud</button><button class="primary-btn" id="studioCloudSave">Synchroniser le projet ouvert</button><button class="outline-btn" id="studioCloudLogout">Déconnecter</button></div></section></div>','WARLIKE / PROJETS');
+ modal('Mes projets','<div class="project-home">'+info+create+library+'<div class="project-home-footer"><button class="outline-btn" id="libraryRecover">Récupérer l’ancienne session</button><button class="outline-btn" id="libraryImport">Importer un fichier .chayah</button></div><section class="project-home-section"><h3>WarLike Cloud (optionnel)</h3><p id="studioCloudAccount" role="status">'+esc(studioCloudIdentity?'Compte cloud : '+(studioCloudIdentity.displayName||studioCloudIdentity.userId):'Cloud déconnecté')+'</p><p class="modal-body-copy">Connexion sécurisée nécessaire. Les projets locaux ne sont jamais envoyés automatiquement sans association explicite.</p><div class="project-home-footer"><button class="outline-btn" id="studioCloudConnect">Associer mon compte</button><button class="outline-btn" id="studioCloudOpen">Mes projets cloud</button><button class="primary-btn" id="studioCloudSave">Synchroniser le projet ouvert</button><button class="outline-btn" id="studioCloudLogout">Déconnecter</button></div></section></div>','WARLIKE / PROJETS');
  $('projectHomeCreate').onsubmit=async e=>{e.preventDefault();const button=$('libraryNew');button.disabled=true;try{await createProjectLocal($('libraryName').value.trim()||'Nouveau morceau');}catch(error){toast(error.message);button.disabled=false;}};
  $('libraryImport').onclick=()=>{$('modal').close();$('projectInput').click();};
  $('studioCloudConnect').onclick=async()=>{try{await beginStudioPairing();}catch(e){toast(e.message);}};
  $('studioCloudOpen').onclick=async()=>{try{await listCloudProjects();}catch(e){toast(e.message);}};
  $('studioCloudSave').onclick=async()=>{const b=$('studioCloudSave');b.disabled=true;try{await uploadActiveProject();}catch(e){toast(e.message);}finally{if(b.isConnected)b.disabled=false;}};
- $('studioCloudLogout').onclick=async()=>{try{await getStudioCloud().logout();studioCloudIdentity=null;toast('Session cloud déconnectée.');showProjectLibrary();}catch(e){toast(e.message);}};
+ $('studioCloudLogout').onclick=async()=>{try{await getStudioCloud().logout();toast('Session cloud déconnectée.');}catch(e){toast(e.message);}finally{lostCloudIdentity();cloudSessionChannel?.postMessage('changed');showProjectLibrary();}};
 
  document.querySelectorAll('[data-project-open]').forEach(b=>b.onclick=async()=>{try{await chooseProject(b.dataset.projectOpen)}catch(e){toast(e.message)}});
  document.querySelectorAll('[data-project-rename]').forEach(b=>b.onclick=async()=>{try{const p=projectIndex.find(x=>x.id===b.dataset.projectRename),name=prompt('Nom du projet',p.name)?.trim();if(!name)return;p.name=name.slice(0,60);const state=await dbRead(projectKey(p.id));state.project.name=p.name;await dbWrite(projectKey(p.id),state);await dbWrite('project-index',projectIndex);if(activeProjectId===p.id){project.name=p.name;render()}showProjectLibrary()}catch(e){toast(e.message)}});
@@ -213,7 +220,8 @@ async function restore(){
  if(requestedDemo&&Object.hasOwn(PUBLIC_DEMOS,requestedDemo))await launchPublicDemo(requestedDemo);
  if(location.protocol==='https:'){
   completeStudioPairing().then(async paired=>{
-   studioCloudIdentity=await getStudioCloud().connect();
+   studioCloudIdentity=await getStudioCloud().connect();updateCloudAccount();
+   if(paired)cloudSessionChannel?.postMessage('changed');
    if(paired){toast('Compte WarLike associé. Choisis un projet à synchroniser.');showProjectLibrary();}
   }).catch(error=>{if(location.hash.includes('warlike_studio_pair'))toast(error.message);});
  }

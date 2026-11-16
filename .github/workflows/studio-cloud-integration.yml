@@ -1,0 +1,49 @@
+name: Studio cloud integration
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cloud-round-trip:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      STUDIO_QA_SERVER_COMMIT: 6bc85c1611ff28c6a9874926180197088403fe20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Motherlode94/WarLike-Server
+          ref: ${{ env.STUDIO_QA_SERVER_COMMIT }}
+          path: work/server
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.25.0'
+          run_install: false
+      - run: npm run check && npm test && npm run build
+      - name: Install and build the pinned Server runtime
+        working-directory: work/server
+        run: |
+          npm run install:ci
+          node node_modules/vite/bin/vite.js build --config vite.cloudflare.config.ts
+      - name: Install Chromium test tools
+        run: |
+          npm install --no-save playwright@1.62.1
+          npx playwright install --with-deps chromium
+      - run: node tests/studio-cloud-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: studio-cloud-evidence
+          path: artifacts/studio-cloud/
+          if-no-files-found: warn
+          retention-days: 7

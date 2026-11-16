@@ -1,6 +1,6 @@
 # WarLike Studio — Contrat d'isolation des comptes (P0)
 
-Statut : **spécification prête à implémenter, NON déployée**. La branche actuelle ne doit pas être présentée comme multi-utilisateur sécurisé. WarLike Server sur pages.dev ne fournit actuellement qu'une page de statut et un diagnostic ; il ne constitue pas un fournisseur d'identité utilisable.
+Statut : protection des opérations cloud par session Server et précondition de compte ; voir [le fonctionnement et les tests](studio-cloud-account-safety.md). La bibliothèque IndexedDB locale reste partagée et non chiffrée. La connexion native et les routes Studio existent dans WarLike Server ; leur disponibilité ne remplace pas les essais authentifiés.
 
 ## Identité fiable
 - Le navigateur ne peut jamais choisir librement son `userId`. Aucun en-tête `X-User-Id`, champ JSON `ownerId`, localStorage ou IndexedDB ne vaut preuve d'identité.

@@ -1,4 +1,4 @@
-import {getToken,forwardServer,guardOrigin,secureHeaders} from '../../_studio-session.js';
+import {ACCOUNT_HEADER,validAccount,getToken,forwardServer,guardOrigin,secureHeaders,privateJson,readLimitedBody,StudioRequestError} from '../../_studio-session.js';
 const uuid='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
 const routes=[
  {pattern:/^me$/,verbs:['GET']},
@@ -8,29 +8,36 @@ const routes=[
  {pattern:new RegExp('^projects/'+uuid+'/assets/'+uuid+'$'),verbs:['GET']}
 ];
 export async function onRequest(context){
- const {request}=context;
- const path=Array.isArray(context.params.path)?context.params.path.join('/'):String(context.params.path||'');
+ const {request}=context,path=Array.isArray(context.params.path)?context.params.path.join('/'):String(context.params.path||'');
  const route=routes.find(item=>item.pattern.test(path));
- if(!route)return Response.json({error:'Route inconnue'},{status:404});
- if(!route.verbs.includes(request.method))return Response.json({error:'Méthode interdite'},{status:405});
+ if(!route)return privateJson({error:'Route inconnue'},404);
+ if(!route.verbs.includes(request.method))return privateJson({error:'Méthode interdite'},405);
  const token=getToken(request);
- if(!token)return Response.json({error:'Connexion WarLike requise'},{status:401,headers:{'Cache-Control':'no-store'}});
- if(!['GET','HEAD'].includes(request.method)&&!guardOrigin(request))return Response.json({error:'Origine refusée'},{status:403});
- const header=new Headers({Authorization:'Bearer '+token,Accept:'application/json'});
- let body;
- if(!['GET','HEAD'].includes(request.method)){
-  const type=request.headers.get('Content-Type')||'';
-  const media=path.endsWith('/assets');
-  if(!type.startsWith(media?'multipart/form-data;':'application/json'))return Response.json({error:'Format non autorisé'},{status:415});
-  const max=media?13*1024*1024:900000;
-  if(Number(request.headers.get('Content-Length')||0)>max)return Response.json({error:'Fichier trop volumineux'},{status:413});
-  const input=await request.arrayBuffer();
-  if(input.byteLength>max)return Response.json({error:'Requête trop volumineuse'},{status:413});
-  header.set('Content-Type',type);
-  body=input;
- }
+ if(!token)return privateJson({error:'Connexion WarLike requise'},401);
+ if(!['GET','HEAD'].includes(request.method)&&!guardOrigin(request))return privateJson({error:'Origine refusée'},403);
+ const headers=new Headers({Authorization:'Bearer '+token,Accept:'application/json'});
  try{
-  const response=await forwardServer(context,'/api/studio/'+path,{method:request.method,headers:header,body});
+  if(path!=='me'){
+   const expected=request.headers.get(ACCOUNT_HEADER);
+   if(!validAccount(expected))return privateJson({error:'Vérifie le compte connecté avant cette opération.',code:'IDENTITY_REQUIRED'},428);
+   // This is a precondition, never proof of identity. Resolve the actual principal
+   // from the exact captured HttpOnly bearer that will also authorize the operation.
+   // A different tab may have replaced the cookie since the browser last read /me.
+   const proof=await forwardServer(context,'/api/studio/me',{headers});
+   if(proof.status>=300&&proof.status<400)return privateJson({error:'Réponse WarLike Server invalide'},502);
+   if(!proof.ok)return new Response(proof.body,{status:proof.status,headers:secureHeaders(proof)});
+   const identity=await proof.json();
+   if(!validAccount(identity?.userId)||identity.studioAccess!==true)return privateJson({error:'Identité WarLike non vérifiée.'},502);
+   if(identity.userId!==expected)return privateJson({error:'Le compte WarLike a changé. Reconnecte Studio.',code:'ACCOUNT_CHANGED'},401);
+  }
+  let body;
+  if(!['GET','HEAD'].includes(request.method)){
+   const type=request.headers.get('Content-Type')||'',media=path.endsWith('/assets');
+   if(media?!/^multipart\/form-data;\s*boundary=/i.test(type):type.split(';')[0].trim().toLowerCase()!=='application/json')return privateJson({error:'Format non autorisé'},415);
+   body=await readLimitedBody(request,media?13*1024*1024:900000);headers.set('Content-Type',type);
+  }
+  const response=await forwardServer(context,'/api/studio/'+path,{method:request.method,headers,body});
+  if(response.status>=300&&response.status<400)return privateJson({error:'Réponse WarLike Server invalide'},502);
   return new Response(response.body,{status:response.status,headers:secureHeaders(response)});
- }catch{return Response.json({error:'Connexion WarLike Server indisponible'},{status:503,headers:{'Cache-Control':'no-store'}});}
+ }catch(error){return privateJson({error:error instanceof StudioRequestError?error.message:'Connexion WarLike Server indisponible'},error instanceof StudioRequestError?error.status:503)}
 }

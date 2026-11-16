@@ -20,13 +20,15 @@
 - Tester consentement, session, refus 401/403, expirations, révocation, protection CSRF et dépendance aux cookies.
 - Vérifier que `warlike-server.pages.dev` renvoie bien les pages du runtime privé. Le sous-domaine direct du Worker n'est pas requis quand le service binding fonctionne.
 
-## Vérification inter-appareils (non effectuée)
+## Vérification sur deux appareils physiques (non effectuée)
 **Appareil A, compte Alice :** créer un projet avec trois pistes et un enregistrement WAV; associer Alice, synchroniser, fermer le navigateur.
 **Appareil B, compte Alice :** se connecter, ouvrir « Mes projets cloud », télécharger le projet et comparer pistes, BPM, inserts et audio par écoute.
 **Appareil B, compte Bob :** tenter la liste, la lecture et l'export de l'identifiant d'Alice ; résultat attendu : aucun accès.
 **Conflit :** modifier le même projet sur A et B hors ligne, puis synchroniser ; une écriture doit produire 409, les deux versions doivent rester récupérables localement.
 **Déconnexion :** révoquer la session Studio, rejeter le même token, vérifier qu'aucun projet d'Alice ne reste exposé côté cloud après connexion de Bob.
 **Média long :** depuis Studio 0.15.1, les WAV PCM/flottants de plus de 12 Mio sont segmentés en WAV valides, sans réencodage, jusqu’à 512 Mio par source. Chaque requête respecte le plafond serveur existant. Le téléchargement reconstitue les octets du fichier original avant décodage. Une erreur conserve la copie locale et empêche de publier la nouvelle révision du projet. La reprise réutilise les morceaux terminés pendant la même session d’onglet ; la reprise après fermeture de l’onglet reste à développer.
+
+Un test automatisé du parcours complet sur deux profils Chromium, avec le vrai runtime Server et une D1/R2 jetables, est fourni dans le workflow Studio cloud integration. Voir [les garanties précises](studio-cloud-account-safety.md).
 
 ## Limites
 - La confidentialité de la bibliothèque **locale** sur un navigateur partagé reste non garantie sans stockage local chiffré et séparation de profils.
