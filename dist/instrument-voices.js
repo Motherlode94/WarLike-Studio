@@ -19,7 +19,7 @@ export function pluckedString(sampleRate,hz,decay,brightness){
 }
 const stringCaches=new WeakMap();
 function stringBuffer(ctx,hz,p){let cache=stringCaches.get(ctx);if(!cache)stringCaches.set(ctx,cache=new Map());const key=[hz,p.decay,p.brightness].join(':');if(cache.has(key))return cache.get(key);const data=pluckedString(ctx.sampleRate,hz,p.decay,p.brightness),buffer=ctx.createBuffer(1,data.length,ctx.sampleRate);buffer.copyToChannel(data,0);if(cache.size>=32)cache.delete(cache.keys().next().value);cache.set(key,buffer);return buffer;}
-export function instrumentVoice(ctx,out,type,midi,t,duration,values,velocity,scope,remember){
+export function instrumentVoice(ctx,out,type,midi,t,duration,values,velocity,scope,remember,note={}){
  const p=voiceSettings(type,values),v=clamp(Number.isFinite(velocity)?velocity:1,0,1);if(!v)return;
  const node=scope.node,hz=440*2**((clamp(Number.isFinite(midi)?midi:60,0,127)-69)/12);t=Math.max(t,ctx.currentTime);duration=clamp(Number.isFinite(duration)?duration:.5,.01,120);
  const release=p.release??.045,end=t+duration+release+.025;
@@ -37,7 +37,13 @@ export function instrumentVoice(ctx,out,type,midi,t,duration,values,velocity,sco
  }
  if(type==='bass'){
   const env=envelope(p.body*v*.85,.006,.16,.56),sub=osc('sine');sub.frequency.setValueAtTime(hz*1.6,t);sub.frequency.exponentialRampToValueAtTime(hz,t+.035);sub.connect(env);env.connect(out);source(sub);
-  if(p.harmonics){const harmonic=osc('triangle',2),level=node('createGain');level.gain.value=p.harmonics*.6;harmonic.connect(level);level.connect(env);source(harmonic);}return;
+  // A note-local relative interval: independent of playback history, so seeking,
+  // transposing and offline WAV export reproduce the same sustained 808 slide.
+  const slide=Number.isFinite(note.slide)?clamp(note.slide,-24,24):0;
+  const target=440*2**((clamp(midi+slide,0,127)-69)/12);
+  const bend=o=>{if(slide&&duration>=.08){const ratio=o===sub?1:2;o.frequency.setValueAtTime(hz*ratio,t+duration*.55);o.frequency.exponentialRampToValueAtTime(target*ratio,t+duration*.95);}};
+  bend(sub);
+  if(p.harmonics){const harmonic=osc('triangle',2),level=node('createGain');level.gain.value=p.harmonics*.6;harmonic.connect(level);level.connect(env);bend(harmonic);source(harmonic);}return;
  }
  if(type==='lead'){
   const env=envelope(.095*v,.006,.15,.62),filter=node('createBiquadFilter');filter.type='lowpass';filter.Q.value=2.4;const cutoff=Math.min(ctx.sampleRate*.42,p.cutoff);filter.frequency.setValueAtTime(Math.min(ctx.sampleRate*.44,cutoff*(1+v)),t);filter.frequency.exponentialRampToValueAtTime(Math.max(100,cutoff*.42),t+.22);env.connect(filter);filter.connect(out);

@@ -6,13 +6,15 @@ Dans **Projet → Mes projets**, trois arrangements originaux s’ajoutent aux s
 
 | Démo | Tempo | Arrangement |
 | --- | --- | --- |
-| Drill nocturne | 142 BPM · Fa mineur | Half-time décalé, charleys et roulements à la triple croche, octaves de 808, motif de clavier sombre |
-| Trap 808 Pressure | 150 BPM · Sol mineur | Sub 808 soutenu et harmonique, claps half-time, cloches pincées et réponses de synthé |
-| Funk Pocket | 110 BPM · Mi mineur | Batterie acoustique, basse pincée syncopée, clavier FM, guitares étouffées et accords de neuvième |
+| Drill nocturne | 142 BPM · Fa mineur | Ostinato de cordes en Fa mineur, ponctuations de piano, snare décalée et glissés continus de 808 |
+| Trap 808 Pressure | 150 BPM · Do♯ mineur | Hook de cloches FM sur deux mesures, sub 808 soutenu, clap half-time régulier et fills de charley |
+| Funk Pocket | 110 BPM · Mi · funk/blues | Vamp de Mi9 avec turnaround La9, riff de basse synthétique syncopé, ghost notes et guitares étouffées |
 
-Accès direct après déploiement : [`?demo=drill`](https://warlike-studio.pages.dev/?demo=drill), [`?demo=trap808`](https://warlike-studio.pages.dev/?demo=trap808), [`?demo=funk`](https://warlike-studio.pages.dev/?demo=funk). Les deux 808 utilisent MONO, le synthétiseur natif, et restent centrées avec des silences entre les notes. Les roulements utilisent une piste de batterie décalée d’un demi-pas, conservée dans le format `.chayah`. Ces trois nouvelles démos sont instrumentales ; leurs pistes vocales sont vides.
+Accès direct après déploiement : [`?demo=drill`](https://warlike-studio.pages.dev/?demo=drill), [`?demo=trap808`](https://warlike-studio.pages.dev/?demo=trap808), [`?demo=funk`](https://warlike-studio.pages.dev/?demo=funk). Les partitions réécrites (révision 2) ont trois phrases, mouvements de basse et placements de caisse claire indépendants ; elles ne partagent plus une progression transposée. Pour les entendre, ouvrir une nouvelle copie depuis les démos publiques. Les deux 808 utilisent MONO, le synthétiseur natif, et restent centrées avec des silences entre les notes. Les roulements utilisent une piste de batterie décalée d’un demi-pas, conservée dans le format `.chayah`. Ces trois nouvelles démos sont instrumentales ; leurs pistes vocales sont vides.
 
-Le workflow qualité rend les trois morceaux complets dans Chromium, contrôle les quatre sections, le niveau du sub et la sortie sans saturation, puis vérifie le WAV 24 bits, la lecture, le téléchargement/import du projet et sa réouverture après rechargement. Les mesures audio et captures sont conservées dans l’artefact `studio-beat-demos`.
+Les glissés 808 sont des intervalles relatifs par note (`slide` en demi-tons), automatisés sur les oscillateurs fondamental et harmonique. Dans le Piano Roll d’une piste MONO, sélectionner les notes puis **Glissé 808** pour les modifier ou les retirer ; les flèches sur les notes indiquent leur direction. Transposition et sauvegarde `.chayah` conservent ces intervalles. Les notes des projets antérieurs gardent leur rendu sans glissé.
+
+Le workflow qualité rend les trois morceaux complets dans Chromium, contrôle les quatre sections, le niveau du sub, la montée réelle de 55 à 110 Hz d’un glissé et la sortie sans saturation, puis vérifie le WAV 24 bits, la lecture, le téléchargement/import du projet et sa réouverture après rechargement. Les mesures audio et captures sont conservées dans l’artefact `studio-beat-demos`.
 
 ## Studio Cloud — sauvegarde et changement de compte
 

@@ -48,9 +48,19 @@ try{
    }
    results.push({kind,...stats(buffer),sections,wav:{bytes:wav.byteLength,bits:header.getUint16(34,true),sampleRate:decoded.sampleRate,frames:decoded.length,rms:stats(decoded).rms},sub});
   }
+  // Measure a real dry slide: late fundamental must be an octave above the
+  // opening fundamental, with the harmonic oscillator following the same bend.
+  const slideContext=new OfflineAudioContext(2,44100*2,44100);
+  const slideEngine=new AudioEngine(()=>({tracks:[],masterVolume:0}),()=>new Map());
+  slideEngine.synth(slideContext,slideContext.destination,'bass',33,.01,1.5,false,{body:.8,harmonics:0,release:.2},.8,null,{slide:12});
+  const slideBuffer=await slideContext.startRendering(),data=slideBuffer.getChannelData(0);
+  const frequency=(a,b)=>{const crossings=[];for(let i=Math.ceil(a*44100);i<b*44100;i++)if(data[i-1]<0&&data[i]>=0)crossings.push(i-1-data[i-1]/(data[i]-data[i-1]));return 44100*(crossings.length-1)/(crossings.at(-1)-crossings[0]);};
+  results[0].slide={earlyHz:frequency(.2,.6),lateHz:frequency(1.44,1.55)};
   await decoder.close();return results;
  });
  await writeFile(directory+'/audio-report.json',JSON.stringify(renders,null,2)+'\n');
+ assert.ok(Math.abs(renders[0].slide.earlyHz-55)<.2);
+ assert.ok(Math.abs(renders[0].slide.lateHz-110)<1,'808 pitch ramp is missing from the actual audio');
  for(const r of renders){
   assert.ok(r.peak>.03&&r.peak<.9,r.kind+' missing signal or clipping: '+r.peak);
   assert.ok(r.rms>.006,r.kind+' mix virtually inaudible');
@@ -72,7 +82,9 @@ try{
   const download=await downloadPromise,path=directory+'/'+kind+'.chayah';await download.saveAs(path);
   const saved=JSON.parse(await readFile(path,'utf8'));
   assert.equal(saved.project.demoGenre,kind);assert.equal(saved.project.tracks.length,9);assert.equal(saved.masterVolume,-9);
-  assert.ok(saved.project.tracks.some(t=>t.type=== (kind==='funk'?'wljazz':'bass')&&t.clips.length===4));
+  assert.ok(saved.project.tracks.some(t=>t.type=== (kind==='funk'?'wlvirtual':'bass')&&t.clips.length===4));
+  assert.equal(saved.project.demoRevision,2);
+  if(kind==='drill')assert.ok(saved.project.tracks[1].clips[1].notes.some(n=>n.slide===12));
   if(kind!=='funk')assert.equal(saved.project.tracks[5].clips[1].start,4+1/32);
   await page.locator('#projectInput').setInputFiles(path);
   await page.waitForFunction(()=>document.getElementById('toast')?.textContent.includes('Projet importé et sauvegardé.'));

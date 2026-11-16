@@ -254,7 +254,7 @@ export class AudioEngine {
         let notes=clip.notes||[];if(tr.type==='exo'&&tr.instrument.arpMode){this.exoPatternCache??=new Map();const key=tr.id+':'+clip.id,signature=JSON.stringify([notes,period,tr.instrument.arpMode,tr.instrument.arpRate,tr.instrument.arpOctaves,tr.instrument.arpGate]);let cache=this.exoPatternCache.get(key);if(cache?.signature!==signature){cache={signature,notes:exoArpeggiate(notes,period,tr.instrument)};if(this.exoPatternCache.size>512)this.exoPatternCache.clear();this.exoPatternCache.set(key,cache);}notes=cache.notes;}
         for(const n of notes){if(n.muted||n.velocity===0)continue;const cycle=Math.ceil((rel+phase-n.step-1e-8)/period),local=n.step+cycle*period-phase,absolute=clip.start*16+local,eventTime=time+(absolute-step)*sd;
           if(local<0||local>=clip.length*16||absolute<step-1e-8||absolute>=step+1-1e-8||eventTime<minimumTime-1e-8)continue;
-          const swing=Math.floor(n.step)%2?p.swing/100*sd*.6:0;this.synth(ctx,input,tr.type,n.midi,eventTime+swing,Math.min(n.len,clip.length*16-local)*sd,live,tr.instrument,n.velocity??1,tr.sampler);
+          const swing=Math.floor(n.step)%2?p.swing/100*sd*.6:0;this.synth(ctx,input,tr.type,n.midi,eventTime+swing,Math.min(n.len,clip.length*16-local)*sd,live,tr.instrument,n.velocity??1,tr.sampler,n);
         }
       }
     }
@@ -287,14 +287,14 @@ export class AudioEngine {
       if(voice==='clap'){const o=node('createOscillator'),og=node('createGain');o.type='triangle';o.frequency.value=185;og.gain.setValueAtTime(.18,t);og.gain.exponentialRampToValueAtTime(.001,t+.1);o.connect(og);og.connect(out);o.start(t);o.stop(t+.11);scope.watch(o);if(live)this.remember(o);}
     }
   }
-  synth(ctx,out,type,midi,t,duration,live=false,params={},velocity=1,sampler=null) {
+  synth(ctx,out,type,midi,t,duration,live=false,params={},velocity=1,sampler=null,note={}) {
     if(type==='instrument')return;
     if(type==='sampler')return samplerVoice(ctx,out,this.getAssets().get(sampler?.assetId)?.buffer,midi,t,duration,sampler||{},params,velocity,live?o=>this.remember(o):null);
     if(ACOUSTIC_INSTRUMENTS[type]){if(velocity<=0)return;return acousticVoice(ctx,out,type,midi,t,duration,params,velocity,this.instrumentBanks?.get(type),live?o=>this.remember(o):null);}
     const scope=this.voiceScope(ctx),node=scope.node;
     if(type==='wlvox')return playWLVocal(ctx,out,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null);
     if(warlikeInstrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null))return;
-    if(['bass','keys','lead','pad','pluck'].includes(type))return instrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null);
+    if(['bass','keys','lead','pad','pluck'].includes(type))return instrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null,note);
     if(velocity!==1){const level=node('createGain');level.gain.value=Math.max(0,Math.min(1,velocity));level.connect(out);out=level;}
     t=Math.max(t,ctx.currentTime);if(type==='exo')return exoVoice(ctx,out,midi,t,duration,params,o=>{scope.watch(o);if(live)this.remember(o);});
   }
