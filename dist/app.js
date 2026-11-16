@@ -4,6 +4,7 @@ import {parseReaperRpp,matchReaperMedia,reaperBasename} from './reaper-rpp.js';
 import {NATIVE_CHAINS,nativeEffectsForNames,applyNativeChain,nativeChainCapacity} from './native-vocal-chains.js';
 import {VOCAL_DEMOS,createVocalDemoSession} from './vocal-demo-sessions.js';
 import {NEW_GENRE_DEMOS,createGenreDemoSession} from './genre-demo-sessions.js';
+import {BEAT_DEMOS,createBeatDemoSession} from './beat-demo-sessions.js';
 import {createVocalDemoMedia} from './vocal-guide-audio.js';
 import {beginStudioPairing,completeStudioPairing,createStudioSync} from './studio-cloud-workflow.js';
 import {readLocalProject,writeLocalProject} from './local-project-store.js';
@@ -125,6 +126,7 @@ const PUBLIC_DEMOS=Object.freeze({
  afro:{template:'soleil',label:'Afro',name:'WARLIKE · Afro pour tous'},
  rnb:{template:'brume',label:'R&B',name:'WARLIKE · R&B pour tous'},
  ...Object.fromEntries(Object.entries(NEW_GENRE_DEMOS).map(([id,value])=>[id,{...value,genre:true}])),
+ ...Object.fromEntries(Object.entries(BEAT_DEMOS).map(([id,value])=>[id,{...value,beat:true}])),
  ...Object.fromEntries(Object.entries(VOCAL_DEMOS).map(([key,value])=>[key,{...value,vocal:true}]))
 });
 let publicDemoOpening=false;
@@ -136,9 +138,9 @@ async function launchPublicDemo(kind){
  publicDemoOpening=true;
  document.querySelectorAll('[data-public-demo]').forEach(b=>b.disabled=true);
  try{
-   const demo=config.vocal?createVocalDemoSession(kind):config.genre?createGenreDemoSession(kind):createFactorySession(config.template);
+   const demo=config.beat?createBeatDemoSession(kind):config.vocal?createVocalDemoSession(kind):config.genre?createGenreDemoSession(kind):createFactorySession(config.template);
    demo.name=config.name;demo.publicDemo=true;
-   demo.demoRevision=config.vocal?5:config.genre?1:3;
+   demo.demoRevision=config.beat?1:config.vocal?5:config.genre?1:3;
    const demoMedia=config.vocal?createVocalDemoMedia(demo):[];
    if(db){
      await createProjectLocal(demo.name,demo,demoMedia);
@@ -167,7 +169,8 @@ function showProjectLibrary(){
  if(!db)return toast('Stockage local indisponible.');
  const rows=projectIndex.map(p=>'<article class="project-home-card"><div class="project-home-card-info"><strong>'+esc(p.name)+'</strong><small>Modifié le '+new Date(p.updatedAt).toLocaleString('fr-FR')+'</small></div><div class="project-home-card-actions"><button class="primary-btn" data-project-open="'+esc(p.id)+'">Ouvrir</button><button class="outline-btn" data-project-rename="'+esc(p.id)+'" aria-label="Renommer '+esc(p.name)+'">Renommer</button><button class="outline-btn project-home-delete" data-project-delete="'+esc(p.id)+'" aria-label="Supprimer '+esc(p.name)+'">Supprimer</button></div></article>').join('');
  const info='<div class="project-home-banner"><strong>Projets enregistrés sur cet appareil</strong><p>Mode local : pas encore de séparation sécurisée entre comptes WarLike. Sur un navigateur partagé, chacun peut accéder à ces projets.</p></div>';
- const create='<div class="project-home-section project-public-demos"><strong>Découvrir WarLike Studio · Démos publiques</strong><p>Trap, Afro et R&B conservés · nouvelles sessions Rock, Pop et Rumba congolaise avec les instruments WL. 16 mesures, 6 pistes instrumentales + 3 pistes vocales vides. Une copie indépendante à chaque ouverture.</p><div class="project-home-footer"><button type="button" class="primary-btn" data-public-demo="trap">▶ Trap · 138 BPM</button><button type="button" class="primary-btn" data-public-demo="afro">▶ Afro · 108 BPM</button><button type="button" class="primary-btn" data-public-demo="rnb">▶ R&B · 84 BPM</button><button type="button" class="primary-btn" data-public-demo="rock">▶ Rock · 126 BPM</button><button type="button" class="primary-btn" data-public-demo="pop">▶ Pop · 116 BPM</button><button type="button" class="primary-btn" data-public-demo="rumba">▶ Rumba · 104 BPM</button></div></div><form id="projectHomeCreate" class="project-home-form"><label for="libraryName">Nom du nouveau projet</label><div class="project-home-creation"><input id="libraryName" name="name" value="Nouveau morceau" maxlength="60" autocomplete="off" required aria-label="Nom du nouveau projet"><button type="submit" class="primary-btn" id="libraryNew">Créer et ouvrir</button></div></form>';
+ const demoButtons=Object.entries(PUBLIC_DEMOS).filter(([,config])=>!config.vocal).map(([id,config])=>'<button type="button" class="primary-btn" data-public-demo="'+esc(id)+'" title="'+esc(config.description||config.name)+'">▶ '+esc(config.label)+' · '+(config.bpm||({trap:138,afro:108,rnb:84})[id])+' BPM</button>').join('');
+ const create='<div class="project-home-section project-public-demos"><strong>Découvrir WarLike Studio · Démos publiques</strong><p>Drill, Trap 808 et Funk rejoignent Trap, Afro, R&B, Rock, Pop et Rumba congolaise. Arrangements de 16 mesures avec pistes et clips modifiables, plus trois pistes vides pour enregistrer ta voix. Une copie indépendante à chaque ouverture.</p><div class="project-home-footer">'+demoButtons+'</div></div><form id="projectHomeCreate" class="project-home-form"><label for="libraryName">Nom du nouveau projet</label><div class="project-home-creation"><input id="libraryName" name="name" value="Nouveau morceau" maxlength="60" autocomplete="off" required aria-label="Nom du nouveau projet"><button type="submit" class="primary-btn" id="libraryNew">Créer et ouvrir</button></div></form>';
  const library='<section class="project-home-section"><h3>Mes projets locaux <span>'+projectIndex.length+'</span></h3><div class="project-home-list">'+(rows||'<p class="project-home-empty">Aucun projet local. Crée ton premier morceau pour commencer.</p>')+'</div></section>';
  modal('Mes projets','<div class="project-home">'+info+create+library+'<div class="project-home-footer"><button class="outline-btn" id="libraryRecover">Récupérer l’ancienne session</button><button class="outline-btn" id="libraryImport">Importer un fichier .chayah</button></div><section class="project-home-section"><h3>WarLike Cloud (optionnel)</h3><p id="studioCloudAccount" role="status">'+esc(studioCloudIdentity?'Compte cloud : '+(studioCloudIdentity.displayName||studioCloudIdentity.userId):'Cloud déconnecté')+'</p><p class="modal-body-copy">Connexion sécurisée nécessaire. Les projets locaux ne sont jamais envoyés automatiquement sans association explicite.</p><div class="project-home-footer"><button class="outline-btn" id="studioCloudConnect">Associer mon compte</button><button class="outline-btn" id="studioCloudOpen">Mes projets cloud</button><button class="primary-btn" id="studioCloudSave">Synchroniser le projet ouvert</button><button class="outline-btn" id="studioCloudLogout">Déconnecter</button></div></section></div>','WARLIKE / PROJETS');
  $('projectHomeCreate').onsubmit=async e=>{e.preventDefault();const button=$('libraryNew');button.disabled=true;try{await createProjectLocal($('libraryName').value.trim()||'Nouveau morceau');}catch(error){toast(error.message);button.disabled=false;}};
@@ -185,7 +188,7 @@ function showProjectLibrary(){
 
 const engine=new AudioEngine(()=>project,()=>assets);
 const divinityUI=createDivinityUI({getProject:()=>project,getTrack:()=>currentTrack(),engine,checkpoint,changed,toast,renderMastering,renderLibrary});
-engine.onSampleStatus=({type,done,total,error})=>toast(error||((done===total?'Sons prêts : ':'Chargement des sons : ')+ACOUSTIC_INSTRUMENTS[type]?.name));
+engine.onSampleStatus=({type,done,total,error})=>toast(error||((done===total?'Sons prêts : ':'Chargement des sons : ')+(ACOUSTIC_INSTRUMENTS[type]?.name||INSTRUMENTS[type]?.name||'Instruments')));
 let piano=null,signature=null;
 const currentTrack=()=>project.tracks.find(t=>t.id===selectedTrack)||project.tracks[0];
 const currentClip=()=>currentTrack()?.clips.find(c=>c.id===selectedClip)||piano?.draft(selectedTrack);

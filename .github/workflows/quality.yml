@@ -36,6 +36,7 @@ jobs:
           node tests/instrument-dsp-browser.mjs
           node tests/recording-browser.mjs
           node tests/vocal-audio-browser.mjs
+          node tests/beat-demos-browser.mjs
           node tests/export-browser.mjs
       - name: Reference workspace screenshots
         if: always()
@@ -43,4 +44,11 @@ jobs:
         with:
           name: studio-reference-workspaces
           path: artifacts/reference-workspaces/
+          if-no-files-found: ignore
+      - name: Beat demo audio report and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: studio-beat-demos
+          path: artifacts/beat-demos/
           if-no-files-found: ignore
