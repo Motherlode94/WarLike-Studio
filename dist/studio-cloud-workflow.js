@@ -103,7 +103,7 @@ export function createStudioSync({baseUrl=typeof location==='undefined'?'https:/
    const data=typeof remoteId==='string'?await download(remoteId):await restoreWavParts(remoteId,download);
    media.push({id:assetId,name:typeof remoteId==='object'?remoteId.name||'Prise.wav':'Enregistrement '+assetId+'.wav',data});
   }
-  return {project,media,cloudId:id,cloudRevision:result.revision,cloudOwner:userId};
+  return {project,media,cloudId:id,cloudRevision:result.revision,cloudOwner:userId,cloudAssets:structuredClone(project.__cloudAssets||{})};
  }
  const verifyIdentity=()=>{
   if(!identity)return Promise.resolve(null);

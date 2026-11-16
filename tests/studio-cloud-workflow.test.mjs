@@ -48,6 +48,16 @@ test('cloud restore obtains all referenced private audio assets',async()=>{
  const restore=await sync.fetchProject(id);
  assert.equal(restore.media.length,1);
  assert.equal(restore.media[0].id,'voice');
+ assert.deepEqual(restore.cloudAssets,{voice:id});
  assert.equal(restore.cloudOwner,'alice');
  assert.equal(restore.cloudRevision,6);
+});
+test('a restored project retains its media association across a local metadata save',async()=>{
+ let uploads=0,saved;
+ const sync=createStudioSync({api:{identity:async()=>({userId:'alice',studioAccess:true}),getProject:async()=>({project:{name:'Restored',tracks:[],__cloudAssets:{voice:id}},revision:2}),downloadAsset:async()=>new ArrayBuffer(44),uploadAsset:async()=>{uploads++;return {id}},saveProject:async(_id,project,revision)=>{saved=project;return {revision:revision+1}}}});await sync.connect();
+ const restored=await sync.fetchProject(id);
+ // Same metadata assignment as rememberCloudState when opening a cloud project locally.
+ const local={...restored.project,__cloudAssets:restored.cloudAssets};
+ await sync.push({project:local,assets:restored.media,cloudId:restored.cloudId,revision:restored.cloudRevision,ownerId:restored.cloudOwner});
+ assert.equal(uploads,0);assert.deepEqual(saved.__cloudAssets,{voice:id});
 });
