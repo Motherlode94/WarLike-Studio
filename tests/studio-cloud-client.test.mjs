@@ -93,3 +93,9 @@ test('valid upload confirmation stays compatible with Server asset endpoint',asy
  const c=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async()=>response({id,name:'test.wav',type:'audio/wav',size:12},201)});
  assert.equal((await c.uploadAsset(id,new Blob(['RIFFfakeWAVE'],{type:'audio/wav'}))).id,id);
 });
+test('browser fetch is invoked without binding its receiver to the transport object',async()=>{
+ const client=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async function(){
+  assert.equal(this,undefined,'Window.fetch rejects an unrelated object receiver');return response({projects:[]});
+ }});
+ assert.deepEqual(await client.listProjects(),[]);
+});
