@@ -188,7 +188,7 @@ function showProjectLibrary(){
 
 const engine=new AudioEngine(()=>project,()=>assets);
 const divinityUI=createDivinityUI({getProject:()=>project,getTrack:()=>currentTrack(),engine,checkpoint,changed,toast,renderMastering,renderLibrary});
-engine.onSampleStatus=({type,done,total,error})=>toast(error||((done===total?'Sons prêts : ':'Chargement des sons : ')+ACOUSTIC_INSTRUMENTS[type]?.name));
+engine.onSampleStatus=({type,done,total,error})=>toast(error||((done===total?'Sons prêts : ':'Chargement des sons : ')+(ACOUSTIC_INSTRUMENTS[type]?.name||INSTRUMENTS[type]?.name||'Instruments')));
 let piano=null,signature=null;
 const currentTrack=()=>project.tracks.find(t=>t.id===selectedTrack)||project.tracks[0];
 const currentClip=()=>currentTrack()?.clips.find(c=>c.id===selectedClip)||piano?.draft(selectedTrack);

@@ -64,6 +64,7 @@ try{
   await page.locator('#modal').waitFor({state:'hidden'});
   assert.equal(await page.locator('#projectName').inputValue(),name);assert.equal(await page.locator('#bpm').inputValue(),String(bpm));
   await page.locator('#play').click();await page.waitForFunction(()=>document.getElementById('play').getAttribute('aria-label')==='Pause');
+  assert.doesNotMatch(await page.locator('#toast').textContent(),/undefined/,'sample loading status needs a real instrument name');
   await page.locator('#stop').click();
   await page.screenshot({path:directory+'/'+kind+'.png',fullPage:true});
   await page.locator('#projectMenuBtn').click();
