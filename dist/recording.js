@@ -107,3 +107,39 @@ export function validateRecordingInputChannels(settings={},assignments=[],fallba
   if(needsSecond&&count<2)throw Error('Entrée 2 indisponible : sélectionner une interface stéréo exposant 2 canaux dans le navigateur.');
   return mode;
 }
+
+/**
+ * Bounded QA probe for a recorded AudioBuffer before committing a take.
+ * This inspection is advisory on clipping and silence. An invalid buffer or
+ * sampled non-finite PCM is rejected before WAV encoding or project mutation.
+ */
+export function inspectRecordedTake(buffer,{maxScanPerChannel=120000}={}){
+  if(!buffer||!Number.isInteger(buffer.numberOfChannels)||buffer.numberOfChannels<1||buffer.numberOfChannels>2||
+    !Number.isInteger(buffer.length)||buffer.length<1||
+    !Number.isFinite(buffer.sampleRate)||buffer.sampleRate<8000||buffer.sampleRate>192000||
+    typeof buffer.getChannelData!=='function')
+    throw Error('Prise audio invalide : format, fréquence ou nombre de canaux non pris en charge.');
+  const duration=buffer.length/buffer.sampleRate;
+  if(!Number.isFinite(duration)||duration<=0||duration>21*60)
+    throw Error('Durée de prise incohérente ou supérieure à la limite de sécurité.');
+  const count=Math.max(1,Math.min(120000,Math.floor(Number(maxScanPerChannel)||120000)));
+  let peak=0,sum=0,sampled=0,clipped=0;
+  for(let channel=0;channel<buffer.numberOfChannels;channel++){
+    const data=buffer.getChannelData(channel);
+    if(!data||data.length!==buffer.length)
+      throw Error('Prise audio incomplète : canal '+(channel+1)+' incorrect.');
+    const stride=Math.max(1,Math.ceil(data.length/count));
+    for(let i=0;i<data.length;i+=stride){
+      const value=data[i];
+      if(!Number.isFinite(value))throw Error('Échantillon audio corrompu dans la prise (NaN/Inf).');
+      const abs=Math.abs(value);peak=Math.max(peak,abs);sum+=value*value;sampled++;
+      if(abs>=.999)clipped++;
+    }
+  }
+  const rms=Math.sqrt(sum/Math.max(1,sampled)),clippedFraction=clipped/Math.max(1,sampled);
+  const warnings=[];
+  if(peak<.0006)warnings.push('signal presque silencieux : vérifie le microphone et le routage');
+  if(clippedFraction>.001)warnings.push('écrêtage détecté : réduis le gain d’entrée');
+  if(peak>1.001)warnings.push('amplitude hors plage PCM normale');
+  return {valid:true,duration,channels:buffer.numberOfChannels,sampleRate:buffer.sampleRate,peak,rms,clippedFraction,examinedSamples:sampled,sampled:true,warnings};
+}

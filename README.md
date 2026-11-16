@@ -740,3 +740,11 @@ Le bouton **✎ Annoter** fige la vue courante : crayon, flèche, ellipse, cadre
 Chaque tranche propose un bouton **ENVOIS** avec le nombre d’envois. Il ouvre les réglages de sortie, de niveau, d’activation et de position pré/post-fader sans changer la piste sélectionnée. Les libellés de niveau restent synchronisés avec l’inspecteur. Une piste accepte huit envois au maximum, sans doublon de destination ni boucle audio.
 
 La suppression d’un bus renvoie ses sorties entrantes au Master et retire les envois vers lui ; Annuler restaure le projet et son routage.
+
+## Renforcement — intégrité des prises audio (novembre 2026)
+
+La finalisation d'une prise vérifie maintenant les buffers audio **avant leur encodage WAV et avant toute modification du projet**. Le contrôle rejette un format incohérent (fréquence, canaux, durée), un canal incomplet ou un échantillon non fini (NaN/Infinity) rencontré. Le scan échantillonne de manière bornée jusqu'à 120 000 valeurs par canal pour éviter de ralentir les longues prises.
+
+Une prise très silencieuse ou présentant des indices d'écrêtage déclenche un avertissement **sans être supprimée**. Ce contrôle est un indicateur et ne remplace pas un test avec les vrais microphones, ni une mesure de latence de casque ou une endurance de 30–60 minutes. La limite d'enregistrement actuelle du workflow est de 20 minutes et n'a pas été élargie par ce correctif.
+
+Tests : `node --test tests/recording-integrity.test.mjs`. CI : `recording-integrity.yml`.
