@@ -75,3 +75,21 @@ test('rejects array response bodies from cloud project API',async()=>{
  const client=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async()=>response([])});
  await assert.rejects(client.listProjects(),e=>e.code==='INVALID_RESPONSE');
 });
+
+test('malformed successful JSON returns a typed cloud error',async()=>{
+ const c=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async()=>({ok:true,status:200,json:async()=>{throw new SyntaxError('invalid JSON')}})});
+ await assert.rejects(c.listProjects(),e=>e instanceof StudioCloudError&&e.code==='INVALID_RESPONSE'&&e.status===502);
+});
+test('malformed upload confirmation is rejected rather than treated as saved audio',async()=>{
+ const file=new Blob(['RIFFfakeWAVE'],{type:'audio/wav'});
+ for(const data of [null,[],{}, {id:0}]){
+  const c=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async()=>response(data,201)});
+  await assert.rejects(c.uploadAsset(id,file),e=>e instanceof StudioCloudError&&e.code==='INVALID_RESPONSE');
+ }
+ const c=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async()=>({ok:true,status:201,json:async()=>{throw Error('malformed')}})});
+ await assert.rejects(c.uploadAsset(id,file),e=>e.code==='INVALID_RESPONSE');
+});
+test('valid upload confirmation stays compatible with Server asset endpoint',async()=>{
+ const c=new StudioCloudClient({baseUrl:'https://example.test',fetchImpl:async()=>response({id,name:'test.wav',type:'audio/wav',size:12},201)});
+ assert.equal((await c.uploadAsset(id,new Blob(['RIFFfakeWAVE'],{type:'audio/wav'}))).id,id);
+});
