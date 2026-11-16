@@ -1,0 +1,17 @@
+name: Studio recording integrity
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  recording:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check dist/recording.js
+      - run: node --check dist/studio-workflow.js
+      - run: node --test tests/recording-integrity.test.mjs tests/recording.test.mjs
