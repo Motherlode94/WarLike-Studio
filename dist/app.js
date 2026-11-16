@@ -140,7 +140,7 @@ async function launchPublicDemo(kind){
  try{
    const demo=config.beat?createBeatDemoSession(kind):config.vocal?createVocalDemoSession(kind):config.genre?createGenreDemoSession(kind):createFactorySession(config.template);
    demo.name=config.name;demo.publicDemo=true;
-   demo.demoRevision=config.beat?1:config.vocal?5:config.genre?1:3;
+   demo.demoRevision=config.beat?demo.demoRevision:config.vocal?5:config.genre?1:3;
    const demoMedia=config.vocal?createVocalDemoMedia(demo):[];
    if(db){
      await createProjectLocal(demo.name,demo,demoMedia);

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {createBeatDemoSession,BEAT_DEMOS} from '../dist/beat-demo-sessions.js';
 import {AudioEngine} from '../dist/audio.js';
 import {INSTRUMENTS} from '../dist/plugins.js';
+import {normalizeNotes,moveNotes} from '../dist/piano-model.js';
 
 test('new scores use real instruments, valid editable events and independent local state',()=>{
  for(const style of Object.keys(BEAT_DEMOS)){
@@ -27,6 +28,35 @@ test('new scores use real instruments, valid editable events and independent loc
   assert.notEqual(a.tracks[0].id,b.tracks[0].id);
  }
  for(const invalid of ['unknown','toString','__proto__'])assert.throws(()=>createBeatDemoSession(invalid));
+});
+
+test('genre identity survives transposition: root movement, hook intervals and snare placement differ',()=>{
+ const sessions=['drill','trap808','funk'].map(createBeatDemoSession);
+ const intervals=notes=>notes.slice(1).map((n,i)=>n.midi-notes[i].midi);
+ const bassContours=sessions.map(p=>intervals(p.tracks[1].clips[1].notes.filter(n=>n.step%16===0)));
+ assert.equal(new Set(bassContours.map(JSON.stringify)).size,3,'the former drill and trap shared one transposed four-chord contour');
+ const hooks=sessions.map((p,i)=>p.tracks[i===2?1:2].clips[1].notes.slice(0,10));
+ assert.equal(new Set(hooks.map(n=>JSON.stringify(intervals(n)))).size,3,'moving the same tune to another key is not a new melody');
+ assert.equal(new Set(hooks.map(n=>JSON.stringify(n.map(n=>n.step)))).size,3,'the genres need independent phrasing');
+ const snares=sessions.map(p=>p.tracks[0].clips[1].pattern.clap.flatMap((v,i)=>v>.5?[i]:[]));
+ assert.deepEqual(snares[0],[8,26,40,58]);
+ assert.deepEqual(snares[1],[8,24,40,56]);
+ assert.deepEqual(snares[2],[4,12,20,28,36,44,52,60]);
+ const drill=sessions[0].tracks[1].clips[1].notes,trap=sessions[1].tracks[1].clips[1].notes,funk=sessions[2];
+ assert.ok(drill.filter(n=>n.slide).length>=5);assert.ok(trap.every(n=>!n.slide));
+ assert.ok(funk.tracks[1].clips[1].notes.filter(n=>n.step%1).length>=10,'funk bass must carry sixteenth syncopations');
+ assert.equal(funk.tracks[1].type,'wlvirtual');assert.equal(funk.tracks[1].instrument.width,0);
+});
+
+test('relative 808 slides survive normalization, transposition and scheduler handoff',()=>{
+ const original={id:'slide-note',step:0,midi:29,len:3,velocity:.8,slide:12};
+ const [moved]=moveNotes(normalizeNotes(JSON.parse(JSON.stringify([original])),64),2,5,64);
+ assert.equal(moved.midi,34);assert.equal(moved.slide,12);
+ const p=createBeatDemoSession('drill'),t=p.tracks[1],events=[];
+ p.tracks=[t];t.clips=[{start:0,length:4,patternSteps:64,notes:[moved]}];
+ const e=new AudioEngine(()=>p,()=>new Map());e.synth=(...args)=>events.push(args.at(-1));
+ e.scheduleStep({},new Map([[t.id,{input:{}}]]),2,0);
+ assert.equal(events[0].slide,12);assert.equal(events[0].midi,34);
 });
 
 test('808 scores leave space for release instead of stacking sub notes',()=>{
