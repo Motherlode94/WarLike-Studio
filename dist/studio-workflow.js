@@ -10,7 +10,7 @@ import {emitRecordingTelemetry} from './recording-telemetry.js';
 import {createRecordingSignalDiagnostics} from './recording-signal-diagnostics.js';
 import {evaluateLoopbackLatency} from './recording-loopback-analysis.js';
 import {beginRecordingJournal} from './recording-recovery.js';
-import {createRecordingGraph,recordingSettings,measureBuffer,normalisationGain,armedRecordingTracks,captureChannelMode,extractRecordedChannel,recordingInputConstraints,validateRecordingInputChannels} from './recording.js?v=0.14.0';
+import {createRecordingGraph,recordingSettings,measureBuffer,normalisationGain,armedRecordingTracks,captureChannelMode,extractRecordedChannel,recordingInputConstraints,validateRecordingInputChannels,inspectRecordedTake} from './recording.js?v=0.14.0';
 import {encodeWav} from './wav.js?v=0.14.0';
 import {zipWavBlobs} from './wav-export.js';
 const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),clone=v=>structuredClone(v),safe=s=>String(s).replace(/[^\p{L}\p{N}_-]/gu,'_').slice(0,70),uid=()=>Math.random().toString(36).slice(2,11);
@@ -243,11 +243,12 @@ export function installStudioWorkflow(d){
         const buffer=rec.captureMode==='stereo'&&targets.length===1?fullBuffer:
           rec.captureMode==='2'&&targets.length===1?fullBuffer:
           extractRecordedChannel(engine().ctx,fullBuffer,targets.length===1?'1':channel);
+        const quality=inspectRecordedTake(buffer);
         const data=encodeWav(buffer,{bits:32}),levels=measureBuffer(buffer);
         const gain=rec.autoLevel?normalisationGain(levels):{gainDb:0};
         const name='Prise '+new Date().toLocaleTimeString('fr-FR')+' · '+track.name;
         const placement=recordingPlacement(rec.start/16,buffer.duration,p().bpm,rec.options.latencyMs);
-        return {track,id:uid(),name,data,buffer,levels,gain,placement};
+        return {track,id:uid(),name,data,buffer,levels,gain,placement,quality};
       });
       if(prepared.some(item=>item.placement.length<1/10000)){d.toast('Prise trop courte.');return;}
       d.checkpoint();
@@ -258,6 +259,7 @@ export function installStudioWorkflow(d){
         p().bars=fitSession(p().bars,c.start+c.length);
       }
       d.selectTrack(prepared[0].track.id);d.changed(true);
+      for(const item of prepared)if(item.quality.warnings.length)d.toast(item.track.name+' : '+item.quality.warnings.join(' ; ')+'. Prise conservée.');
       // A completed take must reach IndexedDB before we report it as saved.
       // The WAV buffers remain available in this session if storage fails.
       try{
