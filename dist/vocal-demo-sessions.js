@@ -1,6 +1,6 @@
-// Three original vocal recording/mixing sessions built entirely with WarLike DSP.
-// Vocal audio is intentionally absent: these are ready-to-record vocal templates,
-// not synthetic speech or a falsely claimed prerecorded performance.
+// Three editable vocal mixing sessions using native WarLike DSP.
+// This synchronous builder leaves audio clips empty. The public launcher then
+// loads the licensed human recordings via recorded-vocal-audio.js.
 import {createFactorySession} from './content.js';
 import {applyNativeChain} from './native-vocal-chains.js';
 

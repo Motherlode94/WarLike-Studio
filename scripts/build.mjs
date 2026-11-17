@@ -14,5 +14,15 @@ const config=JSON.parse(await readFile(path.join(root,'wrangler.jsonc'),'utf8'))
 if(config.name!=='warlike-studio'||config.pages_build_output_dir!=='./dist'||config.assets)throw new Error('Cloudflare Pages must deploy warlike-studio from dist/.');
 const {ACOUSTIC_BANKS}=await import('../dist/acoustic-manifest.js');
 let recordings=0;for(const bank of Object.values(ACOUSTIC_BANKS))for(const sample of bank.samples){const data=await readFile(path.join(dist,'samples',sample.file));if(data.length!==sample.bytes||data.length<2048)throw Error('Missing or incomplete recording: '+sample.file);recordings++;}
+const {createHash}=await import('node:crypto');
+const vocalManifest=JSON.parse(await readFile(path.join(dist,'samples/vocals/manifest.json'),'utf8'));
+let vocalFiles=0;
+for(const definition of Object.values(vocalManifest))for(const part of definition.parts){
+ const bytes=await readFile(path.join(dist,'samples/vocals',part.file));
+ if(bytes.length!==part.bytes||createHash('sha256').update(bytes).digest('hex')!==part.sha256)throw Error('Missing or damaged human vocal recording: '+part.file);
+ vocalFiles++;
+}
+if(vocalFiles!==9)throw Error('Expected nine human vocal excerpts.');
+console.log('Human vocal collection verified: 3 artists/sources, 9 attributed excerpts.');
 console.log(`Acoustic collection verified: ${Object.keys(ACOUSTIC_BANKS).length} banks, ${recordings} recordings.`);
 console.log(`Ready for Cloudflare Pages: warlike-studio, dist/ verified, ${files.length} JavaScript modules checked.`);
