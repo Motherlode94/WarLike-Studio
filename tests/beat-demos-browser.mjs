@@ -10,7 +10,7 @@ try{
  await page.goto('http://127.0.0.1:8765/',{waitUntil:'load'});
  await page.locator('#libraryNew').waitFor({state:'visible'});
  const demoButtons=page.locator('.project-public-demos [data-public-demo]');
- assert.equal(await demoButtons.count(),10,'six previous demos and four current directions are accessible');
+ assert.equal(await demoButtons.count(),13,'ten musical demos and three vocal mix demos are accessible');
  await page.setViewportSize({width:390,height:844});
  for(const button of await demoButtons.all()){
   const box=await button.boundingBox();assert.ok(box&&box.x>=0&&box.x+box.width<=391,'demo button exceeds mobile viewport');
