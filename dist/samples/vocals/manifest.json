@@ -1,0 +1,173 @@
+{
+  "vox-trap": {
+    "title": "This Beat (A Cappella)",
+    "artist": "Donnie Ozone",
+    "year": 2013,
+    "url": "https://ccmixter.org/files/donnieozone/41083",
+    "download": "https://ccmixter.org/content/donnieozone/donnieozone_-_This_Beat_(A_Cappella).mp3",
+    "sha256": "0750db32e4fdca548b334c732c6a09a4f361a76a2db8d2080aca52eb34df5167",
+    "sourceBpm": 93,
+    "targetBpm": 138,
+    "tempo": 0.7419354838709677,
+    "pitchSemitones": 0,
+    "sourceBars": 2,
+    "targetKey": "Fa♯ mineur (rap non mélodique)",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+    "language": "en",
+    "humanRecording": true,
+    "adaptation": "Extraits, adaptation du tempo et de la hauteur avec conservation des formants, filtrage, gain et fondus. Les doublures/réponses dans la session sont dérivées du lead, pas de nouvelles prises.",
+    "parts": [
+      {
+        "section": "verse-a",
+        "file": "trap-verse-a.mp3",
+        "seconds": 6.95652174,
+        "bars": 4,
+        "bytes": 112770,
+        "sha256": "b3890d34602946e45ea7fe091c1b6f00730910cb04f93bf1eee0e9b3b37aa63d",
+        "sourceStartSeconds": 5.16129032,
+        "sourceLengthSeconds": 5.16129032,
+        "rms": 0.110975,
+        "peak": 0.82
+      },
+      {
+        "section": "verse-b",
+        "file": "trap-verse-b.mp3",
+        "seconds": 6.95652174,
+        "bars": 4,
+        "bytes": 112770,
+        "sha256": "486899e85a87f022e535b484be278261fa4f15c6d8d2c9e4e7c0181fec29c9db",
+        "sourceStartSeconds": 10.32258065,
+        "sourceLengthSeconds": 5.16129032,
+        "rms": 0.095036,
+        "peak": 0.82
+      },
+      {
+        "section": "chorus",
+        "file": "trap-chorus.mp3",
+        "seconds": 6.95652174,
+        "bars": 4,
+        "bytes": 112769,
+        "sha256": "903420061324374a6edbb684f63ae33e5b68e01ae071032e5702626b938dc0e3",
+        "sourceStartSeconds": 25.80645161,
+        "sourceLengthSeconds": 5.16129032,
+        "rms": 0.0916,
+        "peak": 0.82
+      }
+    ]
+  },
+  "vox-afro": {
+    "title": "Put your Hands Up (Acapella)",
+    "artist": "Andres Franco feat. Miss Muffin and Jhonblack",
+    "year": 2009,
+    "url": "https://ccmixter.org/files/andrewfranco/23076",
+    "download": "https://ccmixter.org/content/andrewfranco/andrewfranco_-_Put_your_Hands_Up_(Acapella).mp3",
+    "sha256": "be636be6c997130f5bc82c8ef1a7ecd338a482c85a86f0ac2a0f2d07aea107c2",
+    "sourceBpm": 95,
+    "targetBpm": 108,
+    "tempo": 1.1368421052631579,
+    "pitchSemitones": -4,
+    "sourceBars": 4,
+    "targetKey": "Ré majeur / Si mineur",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+    "language": "en",
+    "humanRecording": true,
+    "adaptation": "Extraits, adaptation du tempo et de la hauteur avec conservation des formants, filtrage, gain et fondus. Les doublures/réponses dans la session sont dérivées du lead, pas de nouvelles prises.",
+    "parts": [
+      {
+        "section": "verse-a",
+        "file": "afro-verse-a.mp3",
+        "seconds": 8.88888889,
+        "bars": 4,
+        "bytes": 143739,
+        "sha256": "bd10e90e19a7174681bc666600fb6ea972c20f8d70e75f3803514586e9394e84",
+        "sourceStartSeconds": 20.21052632,
+        "sourceLengthSeconds": 10.10526316,
+        "rms": 0.115853,
+        "peak": 0.82
+      },
+      {
+        "section": "verse-b",
+        "file": "afro-verse-b.mp3",
+        "seconds": 8.88888889,
+        "bars": 4,
+        "bytes": 143739,
+        "sha256": "ff1f9efeaf398f102537b6e7c0503822d35e3c79f5af2e35a977758041fa765a",
+        "sourceStartSeconds": 30.31578947,
+        "sourceLengthSeconds": 10.10526316,
+        "rms": 0.10065,
+        "peak": 0.82
+      },
+      {
+        "section": "chorus",
+        "file": "afro-chorus.mp3",
+        "seconds": 8.88888889,
+        "bars": 4,
+        "bytes": 143738,
+        "sha256": "5455b306b209952ebd85864364ce0a746f99fe039c7f056c4628a03a7c50ee5f",
+        "sourceStartSeconds": 0,
+        "sourceLengthSeconds": 10.10526316,
+        "rms": 0.103675,
+        "peak": 0.82
+      }
+    ]
+  },
+  "vox-rnb": {
+    "title": "[Rhiannon] Venom Acapella — Main Vocals",
+    "artist": "Rhiannon Delpero (SizzleFly), WolfFly / Ascension",
+    "year": 2011,
+    "url": "https://ccmixter.org/files/ascension/30636",
+    "download": "https://ccmixter.org/content/ascension/ascension_-_Rhiannon_Venom_Acapella_1.mp3",
+    "sha256": "6b5d249c744276bed956c80fd0c32f1209635a88900921c00700a0cd67bc95a4",
+    "sourceBpm": 85.1,
+    "targetBpm": 84,
+    "tempo": 0.9870740305522915,
+    "pitchSemitones": 3,
+    "sourceBars": 4,
+    "targetKey": "Do mineur",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+    "language": "en",
+    "humanRecording": true,
+    "adaptation": "Extraits, adaptation du tempo et de la hauteur avec conservation des formants, filtrage, gain et fondus. Les doublures/réponses dans la session sont dérivées du lead, pas de nouvelles prises.",
+    "parts": [
+      {
+        "section": "verse-a",
+        "file": "rnb-verse-a.mp3",
+        "seconds": 11.42857143,
+        "bars": 4,
+        "bytes": 184295,
+        "sha256": "3a91911f801218d4477888f04a2b753ae8ea5b6ae50a70265956514c4f1e9b2c",
+        "sourceStartSeconds": 24.67,
+        "sourceLengthSeconds": 11.28084606,
+        "rms": 0.139948,
+        "peak": 0.676035
+      },
+      {
+        "section": "verse-b",
+        "file": "rnb-verse-b.mp3",
+        "seconds": 11.42857143,
+        "bars": 4,
+        "bytes": 184295,
+        "sha256": "3158932328e478a065433ae16ed32a275d52571bab133063e82b4f239e61253b",
+        "sourceStartSeconds": 35.95084606,
+        "sourceLengthSeconds": 11.28084606,
+        "rms": 0.139977,
+        "peak": 0.624766
+      },
+      {
+        "section": "chorus",
+        "file": "rnb-chorus.mp3",
+        "seconds": 11.42857143,
+        "bars": 4,
+        "bytes": 184294,
+        "sha256": "ff56ffe23fbc4bae8dc60c1d6c41ae229f52381e122f4c7eef27e09348886be7",
+        "sourceStartSeconds": 47.23169213,
+        "sourceLengthSeconds": 11.28084606,
+        "rms": 0.13999,
+        "peak": 0.607937
+      }
+    ]
+  }
+}

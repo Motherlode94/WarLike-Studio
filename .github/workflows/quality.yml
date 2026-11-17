@@ -52,3 +52,11 @@ jobs:
           name: studio-beat-demos
           path: artifacts/beat-demos/
           if-no-files-found: ignore
+
+      - name: Human vocal demo evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: studio-human-vocal-demos
+          path: artifacts/vocal-demos/
+          if-no-files-found: ignore

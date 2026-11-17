@@ -1,49 +1,55 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
+import {mkdir,readFile,writeFile} from 'node:fs/promises';
+const output='artifacts/vocal-demos';await mkdir(output,{recursive:true});
 const browser=await chromium.launch({headless:true});
 try{
- const page=await browser.newPage({viewport:{width:1280,height:800}});
- const errors=[];
- page.on('pageerror',error=>errors.push(error.message));
+ const page=await browser.newPage({viewport:{width:1280,height:800}}),errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8765/',{waitUntil:'load'});
  const details=await page.evaluate(async()=>{
-   const {AudioEngine}=await import('./audio.js');
-   const {createVocalDemoSession}=await import('./vocal-demo-sessions.js');
-   const {createVocalDemoMedia}=await import('./vocal-guide-audio.js');
-   const output=[];
-   const context=new AudioContext();
-   for(const kind of ['vox-trap','vox-afro','vox-rnb']){
-     const project=createVocalDemoSession(kind);
-     const sources=createVocalDemoMedia(project);
-     const assets=new Map();
-     for(const source of sources){
-       const buffer=await context.decodeAudioData(source.data.slice(0));
-       const data=buffer.getChannelData(0);
-       let peak=0,energy=0;
-       for(const x of data){peak=Math.max(peak,Math.abs(x));energy+=x*x;}
-       assets.set(source.id,{...source,buffer});
-       source.peak=peak;source.rms=Math.sqrt(energy/data.length);
-     }
-     project.tracks=project.tracks.filter(t=>t.type==='audio'&&t.name.startsWith('LEAD'));
-     project.masterVolume=0;
-     const renderer=new AudioEngine(()=>project,()=>assets);
-     const rendered=await renderer.renderRange({sampleRate:44100,startBar:4,endBar:5,tail:false});
-     const pcm=rendered.getChannelData(0);
-     let peak=0,energy=0;
-     for(const x of pcm){peak=Math.max(peak,Math.abs(x));energy+=x*x;}
-     output.push({kind,clips:project.tracks.filter(t=>t.type==='audio').map(t=>t.clips.length),
-       inputPeak:sources[0].peak,inputRms:sources[0].rms,renderPeak:peak,renderRms:Math.sqrt(energy/pcm.length),assets:assets.size});
-   }
-   await context.close();
-   return output;
+  const {AudioEngine}=await import('./audio.js');const {createVocalDemoSession}=await import('./vocal-demo-sessions.js');const {createRecordedVocalDemoMedia}=await import('./recorded-vocal-audio.js');
+  const context=new AudioContext(),result=[];
+  const stats=buffer=>{let peak=0,energy=0;for(let ch=0;ch<buffer.numberOfChannels;ch++)for(const x of buffer.getChannelData(ch)){if(!Number.isFinite(x))throw Error('Non-finite vocal audio');peak=Math.max(peak,Math.abs(x));energy+=x*x}return {peak,rms:Math.sqrt(energy/(buffer.length*buffer.numberOfChannels)),seconds:buffer.duration}};
+  for(const kind of ['vox-trap','vox-afro','vox-rnb']){
+   const project=createVocalDemoSession(kind),sources=await createRecordedVocalDemoMedia(project),assets=new Map(),input=[];
+   for(const source of sources){const buffer=await context.decodeAudioData(source.data.slice(0));assets.set(source.id,{...source,buffer});input.push(stats(buffer));}
+   const onlyVoice=structuredClone(project);onlyVoice.tracks=onlyVoice.tracks.filter(t=>t.type==='audio'&&t.name.startsWith('LEAD'));onlyVoice.masterVolume=0;
+   const renderer=new AudioEngine(()=>onlyVoice,()=>assets),verse=stats(await renderer.renderRange({sampleRate:44100,startBar:4,endBar:5,tail:false})),chorus=stats(await renderer.renderRange({sampleRate:44100,startBar:12,endBar:13,tail:false}));
+   const fullProject=structuredClone(project),full=new AudioEngine(()=>fullProject,()=>assets),mix=stats(await full.renderRange({sampleRate:44100,startBar:4,endBar:5,tail:false}));
+   const instrumental=structuredClone(project);instrumental.tracks=instrumental.tracks.filter(t=>t.type!=='audio');instrumental.masterVolume=0;
+   const backing=stats(await new AudioEngine(()=>instrumental,()=>assets).renderRange({sampleRate:44100,startBar:4,endBar:5,tail:false}));
+   result.push({kind,assets:assets.size,input,verse,chorus,mix,backing,vocalToBacking:verse.rms/backing.rms});
+  }
+  await context.close();return result;
  });
- console.log('VOX AUDIBILITY:',JSON.stringify(details));
- for(const result of details){
-   assert.ok(result.assets===3,result.kind+' has missing WAV assets');
-   assert.ok(result.clips[0]>=3,result.kind+' has no lead vocal in both verses and chorus');
-   assert.ok(result.inputRms>.01,result.kind+' synthetic vocal WAV is virtually inaudible');
-   assert.ok(result.renderRms>.006,result.kind+' lead through WarLike FX is inaudible in the rendered verse');
+ for(const r of details){
+  assert.equal(r.assets,3);assert.ok(r.input.every(s=>s.rms>.02&&s.peak<.95),r.kind+' silent/clipped recording');
+  assert.ok(r.verse.rms>.006&&r.chorus.rms>.006,r.kind+' inaudible verse/chorus through WarLike FX');
+  assert.ok(r.mix.peak<1&&r.mix.rms>.006,r.kind+' clipped/silent full mix');
+  assert.ok(r.vocalToBacking>.15,r.kind+' lead buried below instruments: '+r.vocalToBacking);
  }
- assert.deepEqual(errors,[]);
- console.log('PASS: all three vocal genres have audible verse lead WAV through native WarLike mixer');
+ await writeFile(output+'/audio-measurements.json',JSON.stringify({details},null,2));
+ // Exercise the real public buttons (including the ordinary non-VOX demos),
+ // persistence, portable export/reimport, and cold reload without source fetches.
+ await page.locator('#libraryNew').waitFor({state:'visible'});
+ for(const kind of ['trap','afro','rnb','vox-trap','vox-afro','vox-rnb']){
+  await page.locator('.project-public-demos [data-public-demo="'+kind+'"]').click();
+  await page.locator('#modal').waitFor({state:'hidden'});
+  await page.waitForFunction(()=>document.getElementById('toast')?.textContent.includes('vraies voix enregistrées'));
+  assert.match(await page.locator('#toast').textContent(),/anglais/);
+  const pending=page.waitForEvent('download');await page.locator('#projectMenuBtn').click();await page.locator('#saveProject').click();const download=await pending,file=output+'/'+kind+'.chayah';await download.saveAs(file);
+  const saved=JSON.parse(await readFile(file,'utf8'));assert.equal(saved.assets.length,3);assert.equal(saved.project.vocalDemoInfo.hasRecordedVoice,true);assert.equal(saved.project.vocalDemoInfo.credits[0].license,'CC BY 3.0');assert.deepEqual(saved.project.tracks.find(t=>t.type==='audio').clips.map(c=>c.start),[4,8,12]);
+  // Downloaded projects contain actual media, rather than hosted URL references.
+  assert.ok(saved.assets.every(a=>Buffer.from(a.data,'base64').length>4096));
+  if(kind==='vox-rnb'){
+   await page.locator('#projectInput').setInputFiles(file);await page.waitForFunction(()=>document.getElementById('toast')?.textContent.includes('Projet importé et sauvegardé.'));
+   await page.route('**/samples/vocals/**',r=>r.abort());await page.reload({waitUntil:'load'});await page.locator('[data-project-open]').first().click();await page.locator('#modal').waitFor({state:'hidden'});
+   await page.locator('#play').click();await page.waitForFunction(()=>document.getElementById('play').getAttribute('aria-label')==='Pause');await page.locator('#stop').click();await page.screenshot({path:output+'/rnb-restored.png',fullPage:true});
+   const second=page.waitForEvent('download');await page.locator('#projectMenuBtn').click();await page.locator('#saveProject').click();const finalDownload=await second;await finalDownload.saveAs(output+'/restored.chayah');const restored=JSON.parse(await readFile(output+'/restored.chayah','utf8'));assert.equal(restored.assets.length,3);assert.deepEqual(restored.project.vocalDemoInfo.credits,saved.project.vocalDemoInfo.credits);
+  }
+  if(kind!=='vox-rnb'){await page.locator('#projectMenuBtn').click();await page.locator('#myProjects').click();await page.locator('#libraryNew').waitFor({state:'visible'});}
+ }
+ assert.deepEqual(errors,[]);await writeFile(output+'/report.json',JSON.stringify({result:'PASS',details},null,2));
+ console.log('PASS: real human vocals, verse/chorus through FX, audibility versus backing, six launch buttons, portable media and cold reload',JSON.stringify(details));
 }finally{await browser.close();}
