@@ -123,21 +123,28 @@ export function inspectRecordedTake(buffer,{maxScanPerChannel=120000}={}){
   if(!Number.isFinite(duration)||duration<=0||duration>21*60)
     throw Error('Durée de prise incohérente ou supérieure à la limite de sécurité.');
   const count=Math.max(1,Math.min(120000,Math.floor(Number(maxScanPerChannel)||120000)));
-  // Short and medium takes are fully scanned: narrow spikes and corrupt samples
-  // can otherwise fall between the points of a fixed-stride QA sample.
-  // Long sessions remain bounded to keep the browser responsive.
-  const fullScan=buffer.length<=2000000;
+  // Respect the 120k-samples/channel QA budget on long takes.
+  // Inspect the first and last 1024 samples at full resolution so short
+  // glitches at capture boundaries cannot be skipped by the sparse scan.
+  const fullScan=buffer.length<=count;
   let peak=0,sum=0,sampled=0,clipped=0;
   for(let channel=0;channel<buffer.numberOfChannels;channel++){
     const data=buffer.getChannelData(channel);
     if(!data||data.length!==buffer.length)
       throw Error('Prise audio incomplète : canal '+(channel+1)+' incorrect.');
-    const stride=fullScan?1:Math.max(1,Math.ceil(data.length/count));
-    for(let i=0;i<data.length;i+=stride){
-      const value=data[i];
+    const edge=fullScan?0:Math.min(1024,Math.floor(count/8));
+    const sample=value=>{
       if(!Number.isFinite(value))throw Error('Échantillon audio corrompu dans la prise (NaN/Inf).');
       const abs=Math.abs(value);peak=Math.max(peak,abs);sum+=value*value;sampled++;
       if(abs>=.999)clipped++;
+    };
+    if(fullScan){for(let i=0;i<data.length;i++)sample(data[i]);}
+    else{
+      for(let i=0;i<edge;i++)sample(data[i]);
+      const midStart=edge,midEnd=data.length-edge,remaining=count-2*edge;
+      const stride=Math.max(1,Math.ceil((midEnd-midStart)/remaining));
+      for(let i=midStart;i<midEnd;i+=stride)sample(data[i]);
+      for(let i=midEnd;i<data.length;i++)sample(data[i]);
     }
   }
   const rms=Math.sqrt(sum/Math.max(1,sampled)),clippedFraction=clipped/Math.max(1,sampled);
