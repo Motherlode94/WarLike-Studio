@@ -150,7 +150,7 @@ export function inspectRecordedTake(buffer,{maxScanPerChannel=120000}={}){
   const rms=Math.sqrt(sum/Math.max(1,sampled)),clippedFraction=clipped/Math.max(1,sampled);
   const warnings=[];
   if(peak<.0006)warnings.push('signal presque silencieux : vérifie le microphone et le routage');
-  if(clippedFraction>.001)warnings.push('écrêtage détecté : réduis le gain d’entrée');
+  if(clippedFraction>.001||peak>=.999)warnings.push('écrêtage détecté : réduis le gain d’entrée');
   if(peak>1.001)warnings.push('amplitude hors plage PCM normale');
   if(!fullScan)warnings.push('prise longue : diagnostic effectué par échantillonnage ; de brefs pics peuvent passer inaperçus');
   return {valid:true,duration,channels:buffer.numberOfChannels,sampleRate:buffer.sampleRate,peak,rms,clippedFraction,examinedSamples:sampled,sampled:!fullScan,warnings};
