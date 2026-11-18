@@ -73,3 +73,25 @@ test('dual headphone monitor isolates each input, remains attenuated and disconn
  assert.equal(gains[2].gain.value,0);
  graph.dispose();
 });
+
+test('recording QA detects isolated clipping and corrupt PCM between old sample strides',async()=>{
+ const {inspectRecordedTake}=await import('../dist/recording.js');
+ const samples=new Float32Array(240001);samples.fill(.12);
+ samples[1]=1; // Sparse old scans (stride 3) skipped this sample.
+ const buffer={numberOfChannels:1,length:samples.length,sampleRate:48000,getChannelData:()=>samples};
+ const quality=inspectRecordedTake(buffer);
+ assert.equal(quality.sampled,false);
+ assert.equal(quality.examinedSamples,samples.length);
+ assert.equal(quality.peak,1);
+ samples[1]=NaN;
+ assert.throws(()=>inspectRecordedTake(buffer),/NaN\/Inf/);
+});
+test('long recording QA remains bounded and reports that it is only sampled',async()=>{
+ const {inspectRecordedTake}=await import('../dist/recording.js');
+ const data=new Float32Array(2000001);data.fill(.1);
+ const buffer={numberOfChannels:1,length:data.length,sampleRate:48000,getChannelData:()=>data};
+ const result=inspectRecordedTake(buffer);
+ assert.equal(result.sampled,true);
+ assert.ok(result.examinedSamples<=120000);
+ assert.match(result.warnings.join(' '),/échantillonnage/);
+});
