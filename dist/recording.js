@@ -123,12 +123,16 @@ export function inspectRecordedTake(buffer,{maxScanPerChannel=120000}={}){
   if(!Number.isFinite(duration)||duration<=0||duration>21*60)
     throw Error('Durée de prise incohérente ou supérieure à la limite de sécurité.');
   const count=Math.max(1,Math.min(120000,Math.floor(Number(maxScanPerChannel)||120000)));
+  // Short and medium takes are fully scanned: narrow spikes and corrupt samples
+  // can otherwise fall between the points of a fixed-stride QA sample.
+  // Long sessions remain bounded to keep the browser responsive.
+  const fullScan=buffer.length<=2000000;
   let peak=0,sum=0,sampled=0,clipped=0;
   for(let channel=0;channel<buffer.numberOfChannels;channel++){
     const data=buffer.getChannelData(channel);
     if(!data||data.length!==buffer.length)
       throw Error('Prise audio incomplète : canal '+(channel+1)+' incorrect.');
-    const stride=Math.max(1,Math.ceil(data.length/count));
+    const stride=fullScan?1:Math.max(1,Math.ceil(data.length/count));
     for(let i=0;i<data.length;i+=stride){
       const value=data[i];
       if(!Number.isFinite(value))throw Error('Échantillon audio corrompu dans la prise (NaN/Inf).');
@@ -141,5 +145,6 @@ export function inspectRecordedTake(buffer,{maxScanPerChannel=120000}={}){
   if(peak<.0006)warnings.push('signal presque silencieux : vérifie le microphone et le routage');
   if(clippedFraction>.001)warnings.push('écrêtage détecté : réduis le gain d’entrée');
   if(peak>1.001)warnings.push('amplitude hors plage PCM normale');
-  return {valid:true,duration,channels:buffer.numberOfChannels,sampleRate:buffer.sampleRate,peak,rms,clippedFraction,examinedSamples:sampled,sampled:true,warnings};
+  if(!fullScan)warnings.push('prise longue : diagnostic effectué par échantillonnage ; de brefs pics peuvent passer inaperçus');
+  return {valid:true,duration,channels:buffer.numberOfChannels,sampleRate:buffer.sampleRate,peak,rms,clippedFraction,examinedSamples:sampled,sampled:!fullScan,warnings};
 }
