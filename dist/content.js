@@ -1,3 +1,4 @@
+import {expandFactorySong} from './full-song.js';
 import {createFactoryArrangement,FACTORY_STYLES} from './factory-arrangements.js?v=0.14.0';
 import {INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins} from './plugins.js?v=0.14.0';
 import {FACTORY_PRESETS,applyFactoryPreset} from './bundle.js?v=0.14.0';
@@ -42,9 +43,9 @@ export function createContentClip(type,name,start=0,length=2,grooveId='trap-nigh
   if(type==='drums')clip.pattern=copy((DRUM_GROOVES.find(g=>g.id===grooveId)||DRUM_GROOVES[0]).pattern);else clip.notes=copy(PHRASES[type]||[]);
   return clip;
 }
-export function createFactorySession(templateId='nocturne'){
+export function createFactorySession(templateId='nocturne',full=false){
   const template=SESSION_TEMPLATES.find(t=>t.id===templateId);if(!template)throw new Error('Session inconnue.');
-  const project=createFactoryArrangement(template,createContentTrack);project.tracks.forEach(ensurePlugins);return project;
+  const project=createFactoryArrangement(template,createContentTrack);project.tracks.forEach(ensurePlugins);return full?expandFactorySong(project):project;
 }
 
 export {FACTORY_STYLES};
