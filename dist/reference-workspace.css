@@ -219,3 +219,11 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio[data-layout-profile=fl] .track-row:nth-child(even) .track-lane{background-color:#304149}
 .reference-studio[data-layout-profile=fl] .track-row.selected .track-lane{background-color:#42575e}
 }
+
+.reference-studio .fl-workspace-tools{display:none}
+.reference-studio[data-layout-profile=fl] .fl-workspace-tools{display:flex;align-items:center;gap:3px;min-width:0;overflow-x:auto}
+.reference-studio[data-layout-profile=fl] .fl-workspace-tools button{flex:none;background:#485860;color:#e6edf0;border:1px solid #26343b;border-radius:3px;font-size:11px;padding:4px 9px;min-height:26px}
+.reference-studio[data-layout-profile=fl] .fl-workspace-tools button:hover{background:#657b85}
+.reference-studio[data-layout-profile=fl] #workspaceActions{display:none}
+@media(min-width:761px){.reference-studio[data-layout-profile=fl] .signature-workspaces{height:auto;min-height:34px;flex-wrap:wrap}.reference-studio[data-layout-profile=fl] .ruler-row,.reference-studio[data-layout-profile=fl] .ruler{background:#35464f}.reference-studio[data-layout-profile=fl] .track-head{background:#394951}.reference-studio[data-layout-profile=fl] .track-row:nth-child(even) .track-head{background:#33434a}}
+@media(max-width:760px){.reference-studio[data-layout-profile=fl] .fl-workspace-tools{width:100%;flex:0 0 100%}.reference-studio[data-layout-profile=fl] .signature-workspaces{flex-wrap:wrap}}
