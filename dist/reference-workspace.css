@@ -372,3 +372,10 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .pt-stereo-meter i{position:relative;flex:1;background:#171d23;border:1px solid #66727e;overflow:hidden}
 .pt-stereo-meter i span{position:absolute;bottom:0;left:0;right:0;height:0;background:#53c77a}
 .pt-stereo-meter i span.clip{background:#ef5757}
+
+/* Peak markers and reset controls, PT Mix only */
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-stereo-meter{position:relative;padding-top:21px;width:30px;min-width:30px}
+.pt-stereo-meter i::after{content:"";position:absolute;left:0;right:0;bottom:var(--peak-offset,0%);height:2px;background:#e9d285;pointer-events:none}
+.pt-stereo-meter i.latched-clip{border-top:3px solid #ef5757}
+.pt-peak-reset{position:absolute;top:0;left:0;width:100%;font-size:8px;padding:2px 0;line-height:12px}
+.pt-stereo-meter:has(.latched-clip) .pt-peak-reset{background:#a92424;color:white}
