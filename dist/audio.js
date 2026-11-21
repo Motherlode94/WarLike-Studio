@@ -211,7 +211,8 @@ export class AudioEngine {
   }
   scheduler() {
     if(!this.playing)return;
-    const p=this.getPlaybackProject(),sd=this.stepDuration;
+    let p=this.getPlaybackProject();const sd=this.stepDuration;
+    if(this.midiRecordingExtend){this.midiRecordingExtend(Math.max(this.scheduledStep,(this.ctx.currentTime-this.startTime)/sd));p=this.getPlaybackProject();}
     if(this.recordingTrackId){const bars=recordingHorizon(p.bars,Math.max(this.scheduledStep,(this.ctx.currentTime-this.startTime)/sd));if(bars>p.bars){p.bars=bars;this.onRecordingExtend?.(bars);}}
     const total=p.bars*16;
     // Never fire missed note-on events immediately: a main-thread stall can
