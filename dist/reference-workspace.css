@@ -432,3 +432,13 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView.pt-hide-io>.mixer-channel:not([data-pt-channel-kind=instrument]){--pt-input:0px}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView>.mixer-channel>.channel-inserts{height:auto}
 }
+
+/* Independent rack row: never let the insert bank overlay its launcher. */
+.reference-studio #mixerView .mixer-channel>.channel-inserts.has-vox-rack,
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView>.mixer-channel>.channel-inserts.has-vox-rack{display:flex;flex-direction:column;gap:3px;min-width:0;min-height:0;overflow:hidden}
+.reference-studio #mixerView .has-vox-rack>.vox-rack-row{display:flex;flex:0 0 auto;min-width:0;position:static}
+.reference-studio #mixerView .has-vox-rack>.vox-rack-row>.vox-rack-mini{position:static;display:block;width:100%;min-width:0;height:auto;min-height:18px;line-height:1.2;margin:0;transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reference-studio #mixerView .has-vox-rack>.strip-label{flex:0 0 auto;height:auto;min-height:18px;position:static;line-height:1.2}
+.reference-studio #mixerView .has-vox-rack>.insert-slots{flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;position:static}
+.reference-studio #mixerView .has-vox-rack>.insert-slots>.insert-slot{flex-shrink:0}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView.pt-hide-a.pt-hide-b .channel-inserts.has-vox-rack{display:none}
