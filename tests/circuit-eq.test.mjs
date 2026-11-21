@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {CIRCUIT_EQ_BANDS,circuitProportionalQ} from '../dist/circuit-eq-face.js';import {eqBands} from '../dist/eq-curve.js';import {MASTER_MODULES} from '../dist/mastering.js';
+test('CIRCUIT EQ preserves all native parameters and correct filter types',()=>{assert.deepEqual(CIRCUIT_EQ_BANDS.flatMap(b=>[b.frequency,b.gain]).concat('output'),MASTER_MODULES.circuiteq.controls.map(c=>c.key));assert.deepEqual(eqBands('circuiteq').map(b=>b.type),['lowshelf','peaking','peaking','highshelf']);});
+test('proportional Q is symmetric and tightens with gain',()=>{assert.equal(circuitProportionalQ(0),.5);assert.equal(circuitProportionalQ(10),2.5);assert.equal(circuitProportionalQ(-10),2.5);});
