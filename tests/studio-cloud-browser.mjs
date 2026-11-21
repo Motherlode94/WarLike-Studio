@@ -76,7 +76,7 @@ async function connect(page,user){
  await page.getByRole('button',{name:'Autoriser Studio',exact:true}).click();
  const exchange=await exchanged;if(exchange.status()!==200)throw Error('Studio session exchange '+exchange.status()+': '+await exchange.text());
  assert.ok((await page.context().cookies(studio)).some(cookie=>cookie.name==='__Host-warlike-studio'),'HttpOnly app cookie must be accepted before identity refresh');
- await page.waitForURL(studio+'/**');await page.getByText('Compte cloud : Cloud '+(user==='alice'?'Alice':'Bob'),{exact:true}).waitFor();
+ await page.waitForURL(studio+'/**');await sessionTab(page,'cloud');await page.getByText('Compte cloud : Cloud '+(user==='alice'?'Alice':'Bob'),{exact:true}).waitFor();
  assert.equal(new URL(page.url()).hash,'');assert.equal(await page.evaluate(()=>sessionStorage.getItem('warlike-studio-pkce')),null);
  const cookies=await page.context().cookies(studio);const cookie=cookies.find(x=>x.name==='__Host-warlike-studio');assert.ok(cookie?.httpOnly&&cookie.secure);assert.equal(cookie.sameSite,'Strict');
 }
@@ -92,7 +92,7 @@ try{
  await sessionTab(a.page,'create');await a.page.locator('#libraryImport').click();await a.page.locator('#projectInput').setInputFiles({name:'Synthetic stereo.chayah',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(archive))});await a.page.getByText('Projet importé et sauvegardé.',{exact:true}).waitFor();await a.page.locator('#modal').waitFor({state:'hidden'});
  await library(a.page);await sessionTab(a.page,'cloud');await a.page.locator('#studioCloudSave').click();await a.page.getByText('Projet sauvegardé dans ton cloud WarLike.',{exact:true}).waitFor();
  await sessionTab(a.page,'cloud');await a.page.locator('#studioCloudOpen').click();await a.page.locator('[data-cloud-open]').waitFor({state:'visible'});const id=await a.page.locator('[data-cloud-open]').getAttribute('data-cloud-open');await a.page.screenshot({path:join(output,'alice-cloud-projects.png'),fullPage:true});passed('Actual Studio project and stereo WAV saved to isolated D1 and R2');
- const b=await device();assert.equal(await sessionTab(b.page,'open');await b.page.locator('[data-project-open]').count(),0);await connect(b.page,'alice');await b.page.locator('#studioCloudOpen').click();await b.page.locator('[data-cloud-open]').click();await b.page.locator('#modal').waitFor({state:'hidden'});
+ const b=await device();await sessionTab(b.page,'open');assert.equal(await b.page.locator('[data-project-open]').count(),0);await connect(b.page,'alice');await sessionTab(b.page,'cloud');await b.page.locator('#studioCloudOpen').click();await b.page.locator('[data-cloud-open]').click();await b.page.locator('#modal').waitFor({state:'hidden'});
  await b.page.locator('#projectMenuBtn').click();const [download]=await Promise.all([b.page.waitForEvent('download'),b.page.locator('#saveProject').click()]);const restored=JSON.parse(await readFile(await download.path(),'utf8'));
  assert.equal(restored.project.bpm,123);assert.equal(restored.project.tracks[0].volume,-3);assert.equal(restored.project.tracks[0].pan,.25);assert.deepEqual(restored.project.tracks[0].inserts,project.tracks[0].inserts);assert.deepEqual(restored.project.unknown,project.unknown);
  assert.equal(createHash('sha256').update(Buffer.from(restored.assets[0].data,'base64')).digest('hex'),originalHash);await b.page.screenshot({path:join(output,'alice-restored-session.png'),fullPage:true});passed('Second browser profile restores arrangement, inserts and byte-identical stereo WAV');
