@@ -4,7 +4,7 @@ const comp=[c('threshold','Seuil',-60,0,.5,-20),c('ratio','Ratio',1,20,.1,3,':1'
 export const STUDIO_PACKS={
  circuit:{name:'CIRCUIT',label:'CONSOLE / EQ & DYNAMIQUE',color:'#93b9d0',description:'Approche console inspirée des usages API : EQ à Q proportionnel, compression de bus et couleur. Modèles WarLike originaux.',modules:['circuiteq','circuitbus','circuitcolor']},
  alter:{name:'ALTER',label:'CRÉATIF / VOIX & EFFETS',color:'#d89971',description:'Approche créative inspirée de Soundtoys : doublage modulé, écho avec ducking et filtre animé.',modules:['alterdouble','alterecho','alterfilter']},
- vector:{name:'VECTOR',label:'PRÉCISION / MIX & MASTER',color:'#87c6bb',description:'Approche visuelle inspirée de FabFilter : EQ six bandes, compression parallèle et plafond de crête sur échantillons.',modules:['vectoreq','vectorcomp','vectorlimit']},
+ vector:{name:'VECTOR',label:'PRÉCISION / MIX & MASTER',color:'#87c6bb',description:'Façades analogiques vectorielles WarLike : EQ six bandes, compression parallèle et plafond de crête sur échantillons.',modules:['vectoreq','vectorcomp','vectorlimit']},
  voxlab:{name:'VOX LAB',label:'VOIX / JUSTESSE & CONTRÔLE',color:'#b89dd1',description:'Traitements vocaux originaux WarLike : correction monophonique, compression en deux étages et nettoyage de voix.',modules:['voxtune','voxlevel','voxclean']},
  voxpro:{...VOXPRO_PACK,modules:[...VOXPRO_STARTER_MODULES,'voxmicmodel','voxwarm','voxdoubler','voxaireq','voxambience'],description:'VOX LAB PRO avec 7 processeurs existants et 5 effets DSP originaux supplémentaires. Le plan des 12 modules dédiés est documenté séparément dans voxlab-pro-spec.js ; ces modules avancés ne sont pas encore intégrés au DSP.'}
 };

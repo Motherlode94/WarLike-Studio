@@ -1,0 +1,9 @@
+/* Common VECTOR hardware rails and preset controls. Individual panels retain their finishes. */
+:is(.vector-eq-hardware,.vector-comp-hardware,.vector-limit-hardware){--vector-ink:#f2e5cc;--vector-brass:#d4b47d;--vector-edge:#9c9179;container-type:inline-size}
+:is(.vector-eq-hardware,.vector-comp-hardware,.vector-limit-hardware)>header{min-height:76px;box-sizing:border-box;align-content:center;text-align:center;letter-spacing:.12em}
+:is(.vector-eq-hardware,.vector-comp-hardware,.vector-limit-hardware) :is(button,input,select):focus-visible{outline:2px solid #f0cf90;outline-offset:2px}
+.vector-master-presets{display:flex;flex-wrap:wrap;align-items:end;gap:6px;border-bottom:1px solid var(--vector-edge);padding:8px 0;color:var(--vector-ink)}
+.vector-master-presets label{flex:1 1 100px;min-width:0;display:grid;gap:4px;font-size:9px;letter-spacing:.08em;color:var(--vector-ink)}
+.vector-master-presets :is(input,select,button){min-width:0;max-width:100%;box-sizing:border-box;background:#202722;color:#f2e5cc;border:1px solid #95846a;border-radius:3px;padding:5px;font-size:11px;height:30px}
+.vector-master-presets button{cursor:pointer;color:#f2d098}
+@container(max-width:300px){.vector-master-presets label{flex-basis:100%}.vector-master-presets button{width:100%}}
