@@ -3,7 +3,7 @@ import {mountVectorEqFace} from './vector-eq-face.js';
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),ns='http://www.w3.org/2000/svg';
 export function eqBands(id){if(id==='vectoreq')return Array.from({length:6},(_,i)=>({f:'f'+i,g:'g'+i,q:'q'+i,type:'peaking'}));if(id==='circuiteq')return ['low','body','presence','air'].map((g,i)=>({f:['lowFreq','bodyFreq','presenceFreq','airFreq'][i],g,type:i===0?'lowshelf':i===3?'highshelf':'peaking',proportional:true}));if(id==='prism')return ['low','mid','high'].map((g,i)=>({f:g+'Freq',g,q:i===1?'q':null,type:i===0?'lowshelf':i===2?'highshelf':'peaking'}));return null;}
 let responseContext;
-export function mountEqCurve({root,id,state,definition,checkpoint,change,master=false}){const bands=eqBands(id);if(!bands)return;responseContext??=new OfflineAudioContext(1,128,48000);const filters=bands.map(b=>{const f=responseContext.createBiquadFilter();f.type=b.type;return f;}),section=document.createElement('section');section.className='eq-curve-editor';section.innerHTML='<div><strong>ÉGALISATION · COURBE DIRECTE</strong><span>Glisse : Hz / dB · molette : Q · double-clic : réinitialiser</span></div><svg viewBox="0 0 640 220" preserveAspectRatio="none" tabindex="0" aria-label="Courbe EQ interactive"></svg><output></output>';const target=root.querySelector(master?'.master-module-params':'.plugin-window-params');target.before(section);const svg=section.querySelector('svg'),status=section.querySelector('output'),frequencies=Float32Array.from({length:240},(_,i)=>20*1000**(i/239)),magnitudes=new Float32Array(240),phases=new Float32Array(240);let selected=0,drag=null;
+export function mountEqCurve({root,id,state,definition,checkpoint,change,master=false}){const bands=eqBands(id);if(!bands)return;responseContext??=new OfflineAudioContext(1,128,48000);const filters=bands.map(b=>{const f=responseContext.createBiquadFilter();f.type=b.type;return f;}),section=document.createElement('section');section.className='eq-curve-editor';section.innerHTML='<div><strong>ÉGALISATION · COURBE DIRECTE</strong><span>Glisse : Hz / dB · molette : Q · double-clic : réinitialiser</span></div><svg viewBox="0 0 640 220" preserveAspectRatio="none" tabindex="0" aria-label="Courbe EQ interactive"></svg><output></output>';const target=root.querySelector(master?'.master-module-params':'.plugin-window-params');target.before(section);const svg=section.querySelector('svg'),status=section.querySelector('output'),frequencies=Float32Array.from({length:240},(_,i)=>20*1000**(i/239)),magnitudes=new Float32Array(240),phases=new Float32Array(240);let selected=0,drag=null,circuitFace=null;
  const x=f=>Math.log(f/20)/Math.log(1000)*640,y=g=>110-g/24*100,element=(tag,attrs)=>{const el=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))el.setAttribute(k,v);return el;};
  // Create persistent SVG elements once. Updating attributes cannot remove focus,
  // invalidate pointer targets or interrupt repeated arrow-key editing.
@@ -16,6 +16,7 @@ export function mountEqCurve({root,id,state,definition,checkpoint,change,master=
   bands.forEach((b,i)=>{const f=filters[i];f.frequency.value=state[b.f];f.gain.value=state[b.g];f.Q.value=b.proportional?circuitProportionalQ(state[b.g]):b.q?state[b.q]:.8;f.getFrequencyResponse(frequencies,magnitudes,phases);for(let j=0;j<240;j++)total[j]+=20*Math.log10(Math.max(1e-6,magnitudes[j]));});
   response.setAttribute('points',[...frequencies].map((f,i)=>`${x(f)},${clamp(y(total[i]),1,219)}`).join(' '));
   bands.forEach((b,i)=>{const point=points[i];point.setAttribute('cx',x(state[b.f]));point.setAttribute('cy',y(state[b.g]));point.setAttribute('r',i===selected?8:6);point.setAttribute('class',i===selected?'selected':'');point.setAttribute('aria-valuetext',Math.round(state[b.f])+' Hz, '+state[b.g].toFixed(1)+' dB');});
+  if(circuitFace)updateCircuitEqFace(circuitFace,state);
   const b=bands[selected];status.textContent=`B${selected+1} · ${Math.round(state[b.f])} Hz · ${state[b.g].toFixed(2)} dB${b.q?' · Q '+state[b.q].toFixed(1):''}`;
  }
  function update(key,value){const c=definition.controls.find(c=>c.key===key);if(!c)return;state[key]=clamp(value,c.min,c.max);change(key,state[key]);}
@@ -28,8 +29,8 @@ export function mountEqCurve({root,id,state,definition,checkpoint,change,master=
    // Redraw only on change and stop when the host removes this face.
    const signature=()=>bands.map(b=>[state[b.f],state[b.g],state[b.q]].join(':')).join('|');
    let previous=signature();
-   if(id==='circuiteq'){section.querySelector('div span').textContent='Glisse : Hz / dB · double-clic : réinitialiser';updateCircuitEqFace(face,state);}
-   const watch=()=>{if(!face.isConnected)return;const next=signature();if(next!==previous){previous=next;paint();if(id==='circuiteq')updateCircuitEqFace(face,state);}requestAnimationFrame(watch);};
+   if(id==='circuiteq'){circuitFace=face;section.querySelector('div span').textContent='Glisse : Hz / dB · double-clic : réinitialiser';updateCircuitEqFace(face,state);}
+   const watch=()=>{if(!face.isConnected)return;const next=signature();if(next!==previous){previous=next;paint();}requestAnimationFrame(watch);};
    requestAnimationFrame(watch);
   }
  }
