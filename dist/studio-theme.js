@@ -1,0 +1,7 @@
+const themes=[['forest','Forest — original'],['graphite','Graphite'],['slate','Slate'],['light','Ivory — clair']];
+const key='warlike.studio.theme';
+function apply(value){if(!themes.some(([id])=>id===value))value='forest';document.documentElement.dataset.warlikeTheme=value;try{localStorage.setItem(key,value);}catch{}document.querySelectorAll('[data-studio-theme]').forEach(el=>el.value=value);}
+let initial='forest';try{initial=localStorage.getItem(key)||'forest';}catch{}apply(initial);
+function selector(){const label=document.createElement('label');label.className='studio-theme-selector';label.textContent='Thème ';const s=document.createElement('select');s.dataset.studioTheme='';s.setAttribute('aria-label','Thème de WarLike Studio');for(const [id,name] of themes)s.add(new Option(name,id));s.value=document.documentElement.dataset.warlikeTheme;s.addEventListener('change',()=>apply(s.value));label.append(s);return label;}
+function mount(){const tabs=document.querySelector('.session-dashboard-tabs');if(tabs&&!tabs.parentElement.querySelector('.studio-theme-selector')){const row=document.createElement('div');row.className='session-dashboard-header';tabs.before(row);row.append(tabs,selector());}const top=document.querySelector('.top-actions');if(top&&!top.querySelector('.studio-theme-selector'))top.prepend(selector());}
+mount();new MutationObserver(mount).observe(document.body,{childList:true,subtree:true});

@@ -196,3 +196,14 @@ html[data-warlike-app="warlike-studio"] #modal .session-dashboard .project-home-
 @media(max-height:560px),(max-width:540px){
  html[data-warlike-app="warlike-studio"] #modal:has(.session-dashboard){overflow:auto;}
 }
+
+/* Project dashboard and global appearance switch */
+:root[data-warlike-theme="graphite"]{--wl-bg:#17191d;--wl-surface:#25282e;--wl-surface-alt:#343941;--wl-text:#f0f1f4;--wl-text-muted:#c0c5ce;--wl-border:#626873;--wl-primary:#b9c8dd;--wl-primary-text:#17191d;--wl-focus:#b9c8dd;--wl-accent:#b9c8dd;--wl-accent-text:#17191d;color-scheme:dark}
+:root[data-warlike-theme="slate"]{--wl-bg:#18242e;--wl-surface:#233443;--wl-surface-alt:#354b5b;--wl-text:#edf5fa;--wl-text-muted:#bfceda;--wl-border:#637e90;--wl-primary:#a7cce0;--wl-primary-text:#18242e;--wl-focus:#a7cce0;--wl-accent:#a7cce0;--wl-accent-text:#18242e;color-scheme:dark}
+html[data-warlike-app="warlike-studio"] #modal .session-dashboard-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;width:100%}
+html[data-warlike-app="warlike-studio"] #modal .session-dashboard-tabs{flex:1 1 280px;width:auto;max-width:none}
+html[data-warlike-app="warlike-studio"] #modal .session-dashboard-tabs button{flex:1 0 auto;width:auto;min-width:64px;max-width:none;white-space:nowrap;word-break:normal;overflow-wrap:normal;padding:8px 12px}
+html[data-warlike-app="warlike-studio"] #modal .session-dashboard>.project-home-section{width:100%;max-width:none;box-sizing:border-box;align-self:stretch}
+.studio-theme-selector{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:11px;color:var(--wl-text)}
+.studio-theme-selector select{background:var(--wl-surface-alt);color:var(--wl-text);border:1px solid var(--wl-border);border-radius:5px;padding:6px;max-width:160px}
+@media(max-width:550px){html[data-warlike-app="warlike-studio"] #modal .session-dashboard-header{align-items:stretch}html[data-warlike-app="warlike-studio"] #modal .session-dashboard-tabs button{min-width:55px;padding:7px 8px}}
