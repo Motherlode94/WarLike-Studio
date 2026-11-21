@@ -1,8 +1,7 @@
 // One Edit/Mix navigation. Move existing controls, never recreate their handlers.
 export function installReferenceWorkspace({bar,onView,setDetailOpen}){
  document.body.classList.add('reference-studio');
- const tabs=document.querySelector('.arrangement .view-tabs');if(tabs)panelTabs(tabs);
- function panelTabs(tabs){tabs.hidden=true;bar.append(tabs);}
+ const tabs=document.querySelector('.arrangement .view-tabs');if(tabs)bar.prepend(tabs);
  const menu=document.createElement('details');menu.className='reference-window-menu';
  const summary=document.createElement('summary');summary.textContent='Fenêtres & outils';
  const panel=document.createElement('div');panel.className='reference-window-options';menu.append(summary,panel);
