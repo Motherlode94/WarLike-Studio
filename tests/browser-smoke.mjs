@@ -67,7 +67,7 @@ try {
  assert.equal(await page.locator('#bpm').inputValue(),'120','new projects must not inherit the tempo of project A');
  await page.locator('#projectMenuBtn').click();
  await page.locator('#myProjects').click();
- await page.locator('[data-project-open]').nth(1).click();
+ await sessionTab(page,'open');await page.locator('[data-project-open]').nth(1).click();
  await page.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await page.locator('#projectName').inputValue(),'QA Session A');
  assert.equal(await page.locator('#bpm').inputValue(),'117','project A must restore its own tempo');
@@ -75,7 +75,7 @@ try {
  await page.reload({waitUntil:'load'});
  await sessionTab(page,'create');await page.locator('#libraryNew').waitFor({state:'visible'});
  assert.ok(await page.locator('[data-project-open]').count()===2,'both projects survive page reload');
- await page.locator('[data-project-open]').nth(1).click();
+ await sessionTab(page,'open');await page.locator('[data-project-open]').nth(1).click();
  await page.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await page.locator('#projectName').inputValue(),'QA Session A');
  assert.equal(await page.locator('#bpm').inputValue(),'117','saved settings must survive a cold reload');
@@ -145,7 +145,7 @@ try {
  assert.ok(await page.locator('#mixerView').getByText('LEAD · TRAP VOX').count(),'mixed vocal lane missing from mixer');
  await page.locator('#saveStatus').getByText('Enregistré sur cet appareil').waitFor({state:'visible',timeout:15000});
  await page.reload({waitUntil:'load'});
- await page.locator('[data-project-open]').first().click();
+ await sessionTab(page,'open');await page.locator('[data-project-open]').first().click();
  await page.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await page.locator('#projectName').inputValue(),'WARLIKE · Trap VOX Mix','voice demo must persist with WAV media assets');
  assert.deepEqual(errors,[],'studio boot raised JavaScript errors');
