@@ -242,3 +242,11 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .fl-rack-window .rack-channel{background:#43525b;border-radius:3px}.fl-rack-window .rack-inline-steps button{border-radius:2px}
 
 .fl-piano-window{width:min(1100px,calc(100vw - 16px));height:min(620px,calc(100vh - 16px));z-index:81}.fl-piano-window.fl-piano-large{inset:8px!important;width:calc(100vw - 16px)!important;height:calc(100vh - 16px)!important}.fl-piano-content{display:flex;flex-direction:column;padding:0}.fl-piano-content .fl-piano{flex:1;min-height:0;display:flex;flex-direction:column}.fl-piano-content .pr-scroll{flex:1;min-height:100px;overflow:auto}.fl-piano-content .pr-toolbar,.fl-piano-content .pr-musical{flex-wrap:wrap;flex-shrink:0}.fl-piano-content .pr-velocity-scroll{flex-shrink:0;min-height:65px}
+
+/* FL mixer: one live DOM surface, master pinned on the left. */
+.reference-studio .fl-mixer-window{width:min(1160px,calc(100vw - 16px));height:min(650px,calc(100vh - 16px));z-index:82}
+.reference-studio .fl-mixer-window>.mixer-view{display:flex;flex:1;min-height:0;min-width:0;overflow:auto;align-items:stretch;background:#34434b}
+.reference-studio .fl-mixer-window>.mixer-view>.mixer-channel{flex:0 0 112px;max-width:112px;min-width:112px;background:#43525b}
+.reference-studio .fl-mixer-window>.mixer-view>.mixer-channel.selected{background:#596d76}
+.reference-studio .fl-mixer-window .mixer-master{order:-1;left:0;right:auto;border-right:2px solid #18252b;border-left:0;z-index:3}
+.reference-studio .fl-mixer-window.collapsed>.mixer-view{display:none}
