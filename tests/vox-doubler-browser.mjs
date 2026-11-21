@@ -11,7 +11,7 @@ await mkdir('artifacts/vox-doubler',{recursive:true});const browser=await chromi
  await face.locator('[data-param="voxdoubler.width"]').evaluate(el=>{el.value='1';el.dispatchEvent(new Event('input',{bubbles:true}));});await page.waitForFunction(()=>document.querySelector('#pluginFloat [data-double-width]').textContent==='WIDTH 100%');
  assert.equal(await face.locator('[data-double-left]').getAttribute('cx'),'34');assert.equal(await face.locator('[data-double-right]').getAttribute('cx'),'326');
  const metrics=await page.evaluate(async()=>{const {createStudioEffects,syncStudioEffect}=await import('/studio-pack-audio.js');const {doublerLayout}=await import('/vox-doubler-model.js');const ctx=new OfflineAudioContext(2,12000,48000),scope={oscillators:[],node:(kind,...args)=>ctx[kind](...args)};const m=createStudioEffects(ctx,scope,['voxdoubler']).voxdoubler;
- const state={enabled:true,delay:24,detune:0,voices:2,width:1,mix:1};syncStudioEffect(ctx,'voxdoubler',m,state,0,true);
+ const state={enabled:true,delay:24,detune:0,voices:2,width:1,mix:1};syncStudioEffect(ctx,'voxdoubler',m,state,120,0,true,2);
  const input=ctx.createBuffer(1,128,48000);input.getChannelData(0)[0]=1;const source=ctx.createBufferSource();source.buffer=input;source.connect(m.input);m.output.connect(ctx.destination);source.start();const out=await ctx.startRendering();
  const peakIndex=channel=>{const a=out.getChannelData(channel);let index=0;for(let i=1;i<a.length;i++)if(Math.abs(a[i])>Math.abs(a[index]))index=i;return {index,peak:Math.abs(a[index])};};
  return {left:peakIndex(0),right:peakIndex(1),expected:doublerLayout(state).voices.map(v=>v.base*48000)};
