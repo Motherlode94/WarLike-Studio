@@ -110,3 +110,35 @@ html[data-warlike-app="warlike-studio"] .track-quick-control label>span{color:va
 html[data-warlike-app="warlike-studio"] :is(.modal-actions,.floating-window-actions,.recording-validation-actions){flex-wrap:wrap}
 html[data-warlike-app="warlike-studio"] .track-quick-control{max-width:calc(100vw - 16px)}
 html[data-warlike-app="warlike-studio"] .floating-plugin{min-width:min(280px,calc(100vw - 16px))}
+
+/* R03-UI.4 — neutral parameter surfaces; preserve processor graphs and branded faces. */
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor{
+  background:var(--wl-surface)!important;color:var(--wl-text);
+}
+html[data-warlike-app="warlike-studio"] .floating-plugin :is(.suite-preset-bar,.plugin-window-meta,.plugin-mouse-guide,.plugin-window-footer){
+  border-color:var(--wl-border)!important;color:var(--wl-text-muted)!important;
+}
+html[data-warlike-app="warlike-studio"] .floating-plugin :is(.suite-preset-bar label,.plugin-window-footer>span,.plugin-window-meta>strong){
+  color:var(--wl-text)!important;
+}
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor :is(.param>label,.param-value){
+  color:var(--wl-text)!important;overflow-wrap:anywhere;
+}
+html[data-warlike-app="warlike-studio"] .floating-plugin :is(.param-entry,.suite-preset-bar select){
+  background:var(--wl-bg)!important;color:var(--wl-text)!important;
+  border:1px solid var(--wl-border)!important;border-radius:var(--wl-radius-sm)!important;
+  max-width:100%;font-variant-numeric:tabular-nums;
+}
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-preset-bar select option{
+  background:var(--wl-bg);color:var(--wl-text);
+}
+html[data-warlike-app="warlike-studio"] .floating-plugin :is(.param-entry,.suite-preset-bar select,.knob,input[type="range"]):focus-visible{
+  outline:2px solid var(--wl-focus)!important;outline-offset:2px;
+}
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor input[type="range"]{accent-color:var(--wl-focus)}
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-preset-bar{flex-wrap:wrap}
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-preset-bar label{font-size:10px;flex:1 1 140px}
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-preset-bar select{font-size:11px;min-height:28px}
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor .param{min-width:0}
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor .plugin-window-params{grid-template-columns:repeat(auto-fit,minmax(min(90px,100%),1fr))}
+html[data-warlike-app="warlike-studio"] .floating-plugin .plugin-window-footer{flex-wrap:wrap}
