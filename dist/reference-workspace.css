@@ -203,3 +203,19 @@ body.reference-studio{--track-label:270px;--detail-height:280px;display:flex;fle
 .reference-studio .signature-workspaces > .view-tabs{flex:0 0 auto}
 .reference-studio .signature-workspaces #workspaceActions{min-width:0;overflow-x:auto}
 @media(max-width:760px){.reference-studio .signature-workspaces #workspaceActions{display:none}}
+
+/* Layout profile boundary: shared controls remain functional, profile rules never change project data. */
+.reference-studio .reference-window-options label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;padding:5px 8px}
+.reference-studio #studioLayoutProfile{max-width:150px;min-height:28px}
+@media(min-width:761px){
+body.reference-studio[data-layout-profile=fl]{--track-label:160px}
+.reference-studio[data-layout-profile=fl] .studio-body>.library{width:200px;min-width:200px;max-width:200px}
+.reference-studio[data-layout-profile=fl] .track-row{height:54px;min-height:54px}
+.reference-studio[data-layout-profile=fl] .track-head{grid-template-columns:12px minmax(0,1fr);grid-template-rows:20px 18px;padding:2px 4px}
+.reference-studio[data-layout-profile=fl] .track-select{grid-column:2;grid-row:1}
+.reference-studio[data-layout-profile=fl] .track-controls{grid-column:2;grid-row:2}
+.reference-studio[data-layout-profile=fl] .track-head-inserts,.reference-studio[data-layout-profile=fl] .track-strip-meta{display:none}
+.reference-studio[data-layout-profile=fl] .timeline-inner,.reference-studio[data-layout-profile=fl] .track-lane{background-color:#34464d}
+.reference-studio[data-layout-profile=fl] .track-row:nth-child(even) .track-lane{background-color:#304149}
+.reference-studio[data-layout-profile=fl] .track-row.selected .track-lane{background-color:#42575e}
+}
