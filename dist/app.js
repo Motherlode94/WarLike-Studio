@@ -323,6 +323,14 @@ function renderMixer(){
   }
   $('mixerView').querySelectorAll('[data-vox-rack-open]').forEach(button=>button.onclick=()=>openVoxStudioRacks(button.dataset.voxRackOpen));
   workflow.renderMixer();
+  // Presentation only: keep the live insert/send controls and their listeners.
+  const mixRoot=$('mixerView');
+  if(mixRoot.parentNode!==floatingMixerPanel){
+    for(const channel of mixRoot.querySelectorAll('.mixer-channel')){
+      const track=project.tracks.find(t=>t.id===channel.dataset.mixerTrack);
+      channel.dataset.ptChannelKind=channel.classList.contains('mixer-master')?'master':track?.type==='bus'?'bus':track?.type==='audio'?'audio':'instrument';
+    }
+  }
 }
 function insertSlotsHTML(track,master=false,limit=null){
   const slots=master?masteringSettings(project.mastering).inserts:track.inserts,registry=master?MASTER_MODULES:EFFECTS,owner=master?'master':track.id,state=master?masteringSettings(project.mastering):track.effects;
