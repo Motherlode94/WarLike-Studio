@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {CIRCUIT_BUS_BANKS,busReduction} from '../dist/circuit-bus-face.js';import {MASTER_MODULES} from '../dist/mastering.js';
+test('CIRCUIT BUS exposes all seven distinct native controls',()=>{assert.deepEqual(CIRCUIT_BUS_BANKS.flatMap(([,keys])=>keys).sort(),MASTER_MODULES.circuitbus.controls.map(c=>c.key).sort());});
+test('reduction scale clamps actual compressor readout',()=>{assert.equal(busReduction(-12),12);assert.equal(busReduction(-35),24);assert.equal(busReduction(2),0);assert.equal(busReduction(NaN),0);});
