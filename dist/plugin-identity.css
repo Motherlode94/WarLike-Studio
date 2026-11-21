@@ -12,3 +12,15 @@
 .plugin-identity-banner small{font-size:11px;color:inherit}
 .plugin-window[data-plugin-layout=equalizer] .plugin-window-params{grid-template-columns:repeat(auto-fit,minmax(94px,1fr))}
 .plugin-window[data-plugin-layout=dynamics] .plugin-window-params{grid-template-columns:repeat(auto-fit,minmax(112px,1fr))}
+
+/* VECTOR EQ only: preserve host controls and their event bindings. */
+.plugin-window[data-processor=vectoreq]{--identity-accent:#dfbca0;background:linear-gradient(145deg,#536879,#293845);color:#f4ebda;border:2px solid #a4adb4;border-radius:7px;box-shadow:inset 0 1px 2px #c4cbd4,inset 0 -2px 4px #15212b}
+.plugin-window[data-processor=vectoreq] .plugin-window-params{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;padding:12px;background:#243541}
+.plugin-window[data-processor=vectoreq] .vector-band{min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:8px 4px;border:1px solid #85939b;border-radius:4px;background:linear-gradient(#43596a,#344653);box-shadow:inset 0 1px #798a96}
+.plugin-window[data-processor=vectoreq] .vector-band h4{grid-column:1/-1;margin:0 0 6px;text-align:center;color:#f4ebda;font-size:11px;letter-spacing:.14em;border-bottom:1px solid #87949e;padding-bottom:5px}
+.plugin-window[data-processor=vectoreq] .vector-band .param{min-width:0;width:auto;color:#f4ebda}
+.plugin-window[data-processor=vectoreq] .vector-band .knob{background:radial-gradient(circle at 35% 25%,#bc565c,#862e38 65%,#36151a);border:2px solid #bfc5cc;box-shadow:0 3px 4px #18232b}
+.plugin-window[data-processor=vectoreq] .vector-band .param-value{color:#fff4df;background:#17252f;border-color:#87949e;font-size:11px;max-width:100%}
+.plugin-window[data-processor=vectoreq] .vector-band label{color:#f4ebda;font-size:10px;white-space:normal}
+.plugin-window[data-processor=vectoreq] .vector-output{grid-template-columns:1fr}
+.plugin-window[data-processor=vectoreq] .plugin-identity-banner{background:#23323e;border-block:1px solid #a4adb4;color:#f4ebda}
