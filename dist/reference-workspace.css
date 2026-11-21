@@ -360,3 +360,7 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel>.fader-db{grid-row:10}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel>.channel-footer{grid-row:11}
 }
+
+/* PT I/O labels use actual session routes; no additional audio graph. */
+.pt-io-summary{display:none}
+@media(min-width:761px){.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .pt-io-summary{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;line-height:12px;color:inherit}.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-routing{min-height:0;overflow:auto}.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView>.mixer-channel{grid-template-rows:22px 26px 56px 310px 192px 54px 42px 30px minmax(205px,1fr) 27px 28px;min-height:1060px}}
