@@ -9,6 +9,14 @@ try{
  const path=face.locator('.eq-response'),before=await path.getAttribute('points');await face.locator('[data-param="vectoreq.g2"]').evaluate(el=>{el.value='6';el.dispatchEvent(new Event('input',{bubbles:true}));});
  await page.waitForFunction(p=>document.querySelector('#pluginFloat .eq-response').getAttribute('points')!==p,before);
  const point=face.locator('[data-eq-band="2"]');await point.focus();await page.keyboard.press('ArrowUp');assert.equal(await face.locator('[data-param="vectoreq.g2"]').inputValue(),'6.5');assert.equal(await point.evaluate(el=>document.activeElement===el),true);
+ const originalPoint=await point.elementHandle();
+ // Repeated edits and the asynchronous state watcher must preserve node identity.
+ await page.keyboard.press('ArrowUp');await page.keyboard.press('ArrowUp');
+ assert.equal(await face.locator('[data-param="vectoreq.g2"]').inputValue(),'7.5');
+ await page.waitForFunction(el=>el.isConnected&&document.activeElement===el,originalPoint);
+ await page.keyboard.press('ArrowDown');assert.equal(await face.locator('[data-param="vectoreq.g2"]').inputValue(),'7');
+ assert.equal(await originalPoint.evaluate(el=>el.isConnected&&document.activeElement===el),true);
+ await originalPoint.dispose();
  await page.screenshot({path:'artifacts/vector-eq/track.png'});await page.locator('#pluginFloat [data-float-close]').click();
  await page.locator('#mixerView .mixer-master [data-add-insert-track="master"]').click();await page.locator('#pluginSearch').fill('VECTOR EQ');await page.locator('[data-picker-load="vectoreq"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  const master=page.locator('#masteringView .vector-eq-hardware');await master.waitFor();assert.equal(await master.locator('[data-master-param]').count(),19);
