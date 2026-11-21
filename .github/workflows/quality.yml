@@ -83,6 +83,7 @@ jobs:
         env:
           FACTORY_SONG: ${{ matrix.song }}
         run: |
+          cp tests/factory-audio-qa.html dist/_factory-audio-qa.html
           python3 -m http.server 8765 --bind 127.0.0.1 --directory dist >/tmp/warlike-factory-http.log 2>&1 &
           server=$!
           trap 'kill "$server" 2>/dev/null || true' EXIT
