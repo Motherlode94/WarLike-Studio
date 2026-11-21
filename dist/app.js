@@ -286,6 +286,7 @@ function renderPlugins(){
 function renderEditor(){
   const tr=currentTrack(),clip=currentClip(),root=$('editorContent');
   if(tr&&clip&&instrumentDefinition(tr.type)&&tr.type!=='drums'&&piano){piano.render(tr,clip);return;}
+  piano?.closeFloatingPiano();
   root.style.setProperty('--track-color',tr.color);
   if(tr.type==='bus'){root.innerHTML='<div class="empty-editor"><strong>Bus / auxiliaire</strong><p>Choisis les sorties et les envois des pistes dans leurs propriétés. Les inserts de ce bus restent à ton choix.</p></div>';return;}
   if(!clip){root.innerHTML=`<div class="empty-editor">${icon(tr.type==='audio'?'mic':'plus')}<span>${tr.type==='audio'?'Prêt pour ta prochaine prise.':'Crée ton premier pattern.'}</span><p>${tr.type==='audio'?'Importe un son ou appuie sur R pour enregistrer.':'Double-clique sur la timeline pour ajouter un clip.'}</p><button class="outline-btn" ${tr.type==='audio'?'data-import':'data-create-clip'}>${icon(tr.type==='audio'?'upload':'plus')}${tr.type==='audio'?'Importer un audio':'Créer un clip'}</button></div>`;return;}
