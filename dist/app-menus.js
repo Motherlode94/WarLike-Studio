@@ -23,7 +23,7 @@ export function installAppMenus(d){
  const target=document.getElementById('projectMenuBtn')?.closest('.menu-anchor');
  if(!target)return;
  const anchors=[];let stack=[],active=null;
- const closeFrom=(depth)=>{while(stack.length>depth){const item=stack.pop();item.menu.remove();item.owner.setAttribute('aria-expanded','false');}};
+ const closeFrom=(depth)=>{while(stack.length>depth){const item=stack.pop();item.menu.remove();item.owner.setAttribute('aria-expanded','false');item.owner.removeAttribute('aria-controls');}};
  const close=()=>{closeFrom(0);active=null;};
  const buttons=menu=>Array.from(menu.children);
  function show(owner,items,depth){
@@ -31,6 +31,8 @@ export function installAppMenus(d){
   const menu=document.createElement('div');
   menu.className='dropdown app-menu-dropdown app-cascade-menu';
   menu.setAttribute('role','menu');
+  menu.id=owner.id?owner.id+'Popup':stack[0].menu.id+'-level-'+depth;
+  owner.setAttribute('aria-controls',menu.id);
   Object.assign(menu.style,{position:'fixed',display:'block',visibility:'hidden',zIndex:String(20000+depth),minWidth:'190px',maxWidth:'calc(100vw - 8px)',maxHeight:'calc(100vh - 8px)',overflowY:'auto',margin:'0',right:'auto',bottom:'auto',transform:'none'});
   for(const entry of items){
    const branch=Array.isArray(entry[1]);const b=document.createElement('button');
