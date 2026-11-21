@@ -12,6 +12,7 @@ import {mountVoxAir,updateVoxAirFaces} from './vox-air-face.js';
 import {mountVoxAmbience,updateVoxAmbienceFaces} from './vox-ambience-face.js';
 import {mountVoxMic} from './vox-mic-face.js';
 import {mountVoxWarm} from './vox-warm-face.js';
+import {mountVoxDoubler} from './vox-doubler-face.js';
 import {updateVoxProFaces} from './vox-pro-face.js';
 import {mountCircuitColor,updateCircuitColorFaces} from './circuit-color-face.js';
 import {mountVectorLimit,updateVectorLimitFaces} from './vector-limit-face.js';
@@ -475,6 +476,7 @@ function renderMastering(){
   if(state.inserts.includes('voxambience')){const root=$('masteringView').querySelector('[data-master-power="voxambience"]')?.closest('.master-module');if(root)mountVoxAmbience(root,{master:true,state:()=>({...project.mastering.voxambience,enabled:!project.mastering.bypass&&project.mastering.voxambience?.enabled})});}
   if(state.inserts.includes('voxmicmodel')){const root=$('masteringView').querySelector('[data-master-power="voxmicmodel"]')?.closest('.master-module');if(root)mountVoxMic(root,{master:true,state:()=>({...project.mastering.voxmicmodel,enabled:!project.mastering.bypass&&project.mastering.voxmicmodel?.enabled})});}
   if(state.inserts.includes('voxwarm')){const root=$('masteringView').querySelector('[data-master-power="voxwarm"]')?.closest('.master-module');if(root)mountVoxWarm(root,{master:true,state:()=>({...project.mastering.voxwarm,enabled:!project.mastering.bypass&&project.mastering.voxwarm?.enabled})});}
+  if(state.inserts.includes('voxdoubler')){const root=$('masteringView').querySelector('[data-master-power="voxdoubler"]')?.closest('.master-module');if(root)mountVoxDoubler(root,{master:true,state:()=>({...project.mastering.voxdoubler,enabled:!project.mastering.bypass&&project.mastering.voxdoubler?.enabled})});}
   for(const id of state.inserts.filter(isVox)){const root=$('masteringView').querySelector('[data-master-power="'+id+'"]')?.closest('.master-module');if(root)mountVoxMasterPresets(root,{id,definition:MASTER_MODULES[id],state:()=>project.mastering[id],factory:FACTORY_PRESETS,storage:localStorage,checkpoint,changed:()=>{changed();renderMastering();},toast,busy:()=>recording||recordFinalizing||micPending});}
   workflow.renderMastering();
   $('certifyAudio').onclick=async()=>{const button=$('certifyAudio'),out=$('audioCertification');button.disabled=true;out.textContent='Analyse en cours…';try{const snapshot=structuredClone(project);const issues=auditRouting(snapshot);if(issues.length)throw Error(issues.join(' ; '));const buffer=await engine.renderRange({project:snapshot,sampleRate:44100});const m=measureAudio(buffer);const loud=measureLoudness(buffer);const wav=verifyWav32(encodeCertificationWav(buffer,{bits:32}),buffer);const ceiling=snapshot.mastering?.peak;const excess=ceiling?.enabled&&!snapshot.mastering.bypass&&m.peakDb>ceiling.ceiling+.1;out.textContent=(m.invalid||m.clipped||!wav||excess||loud.truePeakDb>0||m.peakDb===-Infinity?'ÉCHEC':'Contrôles mesurés OK')+' · Peak '+m.peakDb.toFixed(2)+' dBFS · RMS '+m.rmsDb.toFixed(2)+' dBFS · WAV '+(wav?'OK':'invalide')+' · LUFS-I '+loud.integrated.toFixed(2)+' · LUFS-S max '+loud.shortTermMax.toFixed(2)+' · LUFS-M max '+loud.momentaryMax.toFixed(2)+' · dBTP estimé '+loud.truePeakDb.toFixed(2)+' (validation normative en attente)';}catch(e){out.textContent='Échec : '+e.message;}finally{button.disabled=false;}};
@@ -1132,6 +1134,7 @@ function renderFloatingPlugin(){
   local('importRack').onclick=()=>$('bundleInput').click();
   mountEqCurve({root:panel,id:effectType(id),state,definition:def,checkpoint,change:(key,value)=>{syncParameterWidgets(id+'.'+key,def.controls.find(c=>c.key===key),value,'data-param',tr.id);changed();}});
   if(effectType(id)==='circuitcolor')mountCircuitColor(panel,{state:()=>project.tracks.find(t=>t.id===trackId)?.effects[id]});
+  if(effectType(id)==='voxdoubler')mountVoxDoubler(panel,{state:()=>project.tracks.find(t=>t.id===trackId)?.effects[id]});
   if(effectType(id)==='voxwarm')mountVoxWarm(panel,{state:()=>project.tracks.find(t=>t.id===trackId)?.effects[id]});
   if(effectType(id)==='voxmicmodel')mountVoxMic(panel,{state:()=>project.tracks.find(t=>t.id===trackId)?.effects[id]});
   if(effectType(id)==='voxambience')mountVoxAmbience(panel,{state:()=>project.tracks.find(t=>t.id===trackId)?.effects[id]});
