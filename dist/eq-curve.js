@@ -1,3 +1,4 @@
+import {mountCircuitEqFace,updateCircuitEqFace,circuitProportionalQ} from './circuit-eq-face.js';
 import {mountVectorEqFace} from './vector-eq-face.js';
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),ns='http://www.w3.org/2000/svg';
 export function eqBands(id){if(id==='vectoreq')return Array.from({length:6},(_,i)=>({f:'f'+i,g:'g'+i,q:'q'+i,type:'peaking'}));if(id==='circuiteq')return ['low','body','presence','air'].map((g,i)=>({f:['lowFreq','bodyFreq','presenceFreq','airFreq'][i],g,type:i===0?'lowshelf':i===3?'highshelf':'peaking',proportional:true}));if(id==='prism')return ['low','mid','high'].map((g,i)=>({f:g+'Freq',g,q:i===1?'q':null,type:i===0?'lowshelf':i===2?'highshelf':'peaking'}));return null;}
@@ -12,7 +13,7 @@ export function mountEqCurve({root,id,state,definition,checkpoint,change,master=
  const points=bands.map((b,i)=>{const point=element('circle',{'data-eq-band':i,tabindex:0,role:'slider','aria-label':'Bande '+(i+1)+' fréquence et gain'});svg.append(point);return point;});
  function paint(){
   const total=new Float64Array(240);
-  bands.forEach((b,i)=>{const f=filters[i];f.frequency.value=state[b.f];f.gain.value=state[b.g];f.Q.value=b.proportional?.5+Math.abs(state[b.g])/5:b.q?state[b.q]:.8;f.getFrequencyResponse(frequencies,magnitudes,phases);for(let j=0;j<240;j++)total[j]+=20*Math.log10(Math.max(1e-6,magnitudes[j]));});
+  bands.forEach((b,i)=>{const f=filters[i];f.frequency.value=state[b.f];f.gain.value=state[b.g];f.Q.value=b.proportional?circuitProportionalQ(state[b.g]):b.q?state[b.q]:.8;f.getFrequencyResponse(frequencies,magnitudes,phases);for(let j=0;j<240;j++)total[j]+=20*Math.log10(Math.max(1e-6,magnitudes[j]));});
   response.setAttribute('points',[...frequencies].map((f,i)=>`${x(f)},${clamp(y(total[i]),1,219)}`).join(' '));
   bands.forEach((b,i)=>{const point=points[i];point.setAttribute('cx',x(state[b.f]));point.setAttribute('cy',y(state[b.g]));point.setAttribute('r',i===selected?8:6);point.setAttribute('class',i===selected?'selected':'');point.setAttribute('aria-valuetext',Math.round(state[b.f])+' Hz, '+state[b.g].toFixed(1)+' dB');});
   const b=bands[selected];status.textContent=`B${selected+1} · ${Math.round(state[b.f])} Hz · ${state[b.g].toFixed(2)} dB${b.q?' · Q '+state[b.q].toFixed(1):''}`;
@@ -20,14 +21,15 @@ export function mountEqCurve({root,id,state,definition,checkpoint,change,master=
  function update(key,value){const c=definition.controls.find(c=>c.key===key);if(!c)return;state[key]=clamp(value,c.min,c.max);change(key,state[key]);}
  svg.onpointerdown=e=>{const point=e.target.closest('[data-eq-band]');if(e.button!==0||!point)return;selected=Number(point.dataset.eqBand);point.focus({preventScroll:true});checkpoint();drag={x:e.clientX,y:e.clientY,f:state[bands[selected].f],g:state[bands[selected].g]};svg.setPointerCapture(e.pointerId);paint();e.preventDefault();};svg.onpointermove=e=>{if(!drag)return;const b=bands[selected],r=svg.getBoundingClientRect();update(b.f,e.shiftKey?drag.f*1000**((e.clientX-drag.x)/r.width*.1):20*1000**clamp((e.clientX-r.left)/r.width,0,1));update(b.g,e.shiftKey?drag.g-(e.clientY-drag.y)/r.height*48*.1:(.5-(e.clientY-r.top)/r.height)*48);paint();};svg.onpointerup=()=>drag=null;svg.onpointercancel=()=>drag=null;
  svg.onwheel=e=>{const point=e.target.closest('[data-eq-band]');if(!point)return;selected=Number(point.dataset.eqBand);const b=bands[selected];if(!b.q)return;e.preventDefault();checkpoint();update(b.q,state[b.q]+(e.deltaY<0?.1:-.1));paint();};svg.ondblclick=e=>{const point=e.target.closest('[data-eq-band]');if(!point)return;selected=Number(point.dataset.eqBand);checkpoint();for(const key of [bands[selected].f,bands[selected].g,bands[selected].q].filter(Boolean))update(key,definition.controls.find(c=>c.key===key).default);paint();};svg.onkeydown=e=>{const point=e.target.closest('[data-eq-band]');if(point)selected=Number(point.dataset.eqBand);if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();checkpoint();const b=bands[selected];if(e.key==='ArrowLeft'||e.key==='ArrowRight')update(b.f,state[b.f]*2**((e.key==='ArrowRight'?1:-1)/12));else update(b.g,state[b.g]+(e.key==='ArrowUp'?1:-1)*(e.shiftKey?.1:.5));paint();};paint();
- if(id==='vectoreq'){
-  const face=mountVectorEqFace(root,section,target,state);
+ if(id==='vectoreq'||id==='circuiteq'){
+  const face=id==='vectoreq'?mountVectorEqFace(root,section,target,state):mountCircuitEqFace(section,target);
   if(face){
    // Observe real state, including precise text entry and host-driven updates.
    // Redraw only on change and stop when the host removes this face.
    const signature=()=>bands.map(b=>[state[b.f],state[b.g],state[b.q]].join(':')).join('|');
    let previous=signature();
-   const watch=()=>{if(!face.isConnected)return;const next=signature();if(next!==previous){previous=next;paint();}requestAnimationFrame(watch);};
+   if(id==='circuiteq'){section.querySelector('div span').textContent='Glisse : Hz / dB · double-clic : réinitialiser';updateCircuitEqFace(face,state);}
+   const watch=()=>{if(!face.isConnected)return;const next=signature();if(next!==previous){previous=next;paint();if(id==='circuiteq')updateCircuitEqFace(face,state);}requestAnimationFrame(watch);};
    requestAnimationFrame(watch);
   }
  }
