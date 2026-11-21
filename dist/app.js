@@ -33,6 +33,8 @@ import {AudioEngine,emptyProject,uid,noteName,bufferToWav} from './audio.js?v=0.
 import {personalEffectPresets,saveEffectPreset,applyPersonalEffectPreset,nextPresetIndex,compareInsert,copyInsertComparison,INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins,formatParam,placeInsert,moveInsert,INSERT_COUNT,effectDefinition,effectType,copyInsert,changeInstrument,instrumentDefinition} from './plugins.js?v=0.14.0';
 import {recordingSettings,createRecordingGraph,measureBuffer,normalisationGain,clampClipGain} from './recording.js?v=0.14.0';
 import {installKnobControls} from './controls.js?v=0.14.0';
+import {PluginInstances} from './plugin-instances.js?v=1';
+const pluginInstances=new PluginInstances();
 import {installFloatingWindow} from './windows.js?v=0.14.1';
 import {FACTORY_PRESETS,presetsFor,matchPreset,applyFactoryPreset,exportRack,importRack} from './bundle.js?v=0.14.0';
 
@@ -974,9 +976,9 @@ function openVoxStudioRacks(trackId=selectedTrack){
 function openPluginWindow(id,trackId=selectedTrack){
   const tr=project.tracks.find(t=>t.id===trackId),def=id==='instrument'?instrumentDefinition(tr?.type):effectDefinition(id);if(!tr||!def)return;if(id==='instrument'&&tr.type==='instrument'){openInstrumentMenu(tr.id);return;}
   ensurePlugins(tr);if(id!=='instrument'&&!tr.inserts.includes(id)){openInsertMenu(tr.id,tr.inserts.indexOf(null),false,id);return;}
-  pluginWindow={id,trackId:tr.id};renderFloatingPlugin();floatingPluginController.show();$('pluginFloat').focus({preventScroll:true});
+  pluginInstances.release(pluginWindow);pluginWindow=pluginInstances.acquire(tr.id,id);renderFloatingPlugin();floatingPluginController.show();$('pluginFloat').focus({preventScroll:true});
 }
-function closePluginWindow(){pluginWindow=null;floatingPluginController.close();}
+function closePluginWindow(){pluginInstances.clear();pluginWindow=null;floatingPluginController.close();}
 function openSuite(){const tr=currentTrack();if(!instrumentDefinition(tr.type))openInsertMenu(tr.id,tr.inserts.indexOf(null));else openPluginWindow('instrument');}
 let eqVisualContext=null;
 function drawPrismResponse(track){
