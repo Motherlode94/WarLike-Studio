@@ -1,0 +1,14 @@
+/* Presentation only; host controls continue to inherit the active Studio theme. */
+.plugin-window[data-plugin-family]{--identity-accent:#8ba8a1}
+.plugin-window[data-plugin-family=precision]{--identity-accent:#55bdb0}
+.plugin-window[data-plugin-family=console]{--identity-accent:#c5a16b}
+.plugin-window[data-plugin-family=vocal]{--identity-accent:#b59ad9}
+.plugin-window[data-plugin-family=space]{--identity-accent:#79bde1}
+.plugin-window[data-plugin-family=motion]{--identity-accent:#dc956c}
+.plugin-window[data-plugin-family=restoration]{--identity-accent:#8bb5a0}
+.plugin-window[data-plugin-family=industrial]{--identity-accent:#d45b64}
+.plugin-window .plugin-identity-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 12px;border-inline-start:4px solid var(--identity-accent);border-bottom:1px solid var(--identity-accent);color:inherit}
+.plugin-identity-banner strong{letter-spacing:.13em;font-size:13px}
+.plugin-identity-banner small{font-size:11px;color:inherit}
+.plugin-window[data-plugin-layout=equalizer] .plugin-window-params{grid-template-columns:repeat(auto-fit,minmax(94px,1fr))}
+.plugin-window[data-plugin-layout=dynamics] .plugin-window-params{grid-template-columns:repeat(auto-fit,minmax(112px,1fr))}

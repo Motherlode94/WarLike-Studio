@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {pluginIdentity} from '../dist/plugin-identity.js';
+test('identity is deterministic and does not mutate definitions',()=>{const d=Object.freeze({pack:'vector'});assert.equal(pluginIdentity(d,'vectoreq').layout,'equalizer');assert.equal(pluginIdentity(d,'vectorcomp').layout,'dynamics');assert.deepEqual(d,{pack:'vector'});});
+test('family and fallback',()=>{assert.equal(pluginIdentity({pack:'circuit'},'circuitbus').family,'console');assert.equal(pluginIdentity({pack:'rebel'},'unknown').family,'industrial');assert.equal(pluginIdentity({pack:'constructor'},'constructor').layout,'controls');});
