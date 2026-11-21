@@ -13,6 +13,9 @@ export function installReferenceWorkspace({bar,onView,setDetailOpen}){
  const apply=value=>{const profile=layoutProfile(value);document.body.dataset.layoutProfile=profile;choice.value=profile;try{localStorage.setItem('warlike.layoutProfile',profile);}catch{}};
  apply(saved);choice.addEventListener('change',()=>apply(choice.value));layout.append(choice);panel.append(layout);
  const windows=document.querySelector('.warlike-workspaces');if(windows)panel.append(windows);
+ const flTools=document.createElement('div');flTools.className='fl-workspace-tools';flTools.setAttribute('role','group');flTools.setAttribute('aria-label','Outils de composition');
+ for(const [id,label,key] of [['playlist','Playlist','F5'],['rack','Channel Rack','F6'],['piano','Piano Roll','F7'],['mixer','Mixer','F9']]){const button=document.createElement('button');button.type='button';button.textContent=label;button.title=key;button.addEventListener('click',()=>windows?.querySelector(`[data-ws="${id}"]`)?.click());flTools.append(button);}
+ bar.append(flTools);
  for(const id of ['organiseTracks','openVariants','openLyrics','mixCompare','referenceCompare']){const node=document.getElementById(id);if(node)panel.append(node);}
  const library=document.createElement('button');library.type='button';library.textContent='Bibliothèque de sons';library.onclick=()=>{tabs?.querySelector('[data-view=library]')?.click();menu.open=false;};panel.append(library);
  const mastering=document.createElement('button');mastering.type='button';mastering.textContent='Mastering';mastering.onclick=()=>{document.getElementById('openMastering')?.click();menu.open=false;};panel.append(mastering);
