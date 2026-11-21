@@ -7,3 +7,13 @@ test('demo melody gains relative presence without raising master',()=>{
 });
 test('user projects are untouched',()=>{const p=make();delete p.publicDemo;const snap=structuredClone(p);balancePublicDemo(p);assert.deepEqual(p,snap)});
 test('boost does not exceed unity and invalid values untouched',()=>{const p={publicDemo:true,tracks:[{type:'keys',volume:-1,clips:[{}]},{type:'keys',volume:NaN,clips:[{}]}]};balancePublicDemo(p);assert.equal(p.tracks[0].volume,0);assert.ok(Number.isNaN(p.tracks[1].volume))});
+
+import {readFileSync} from 'node:fs';
+test('public launcher balances once, after recorded media populates vocal lanes',()=>{
+ const source=readFileSync(new URL('../dist/app.js',import.meta.url),'utf8');
+ const launch=source.slice(source.indexOf('async function launchPublicDemo('),source.indexOf('let projectHomeTab='));
+ assert.equal((launch.match(/balancePublicDemo\(demo\)/g)||[]).length,1);
+ assert.ok(launch.indexOf('await createRecordedVocalDemoMedia(demo)')>=0);
+ assert.ok(launch.indexOf('balancePublicDemo(demo)')>launch.indexOf('await createRecordedVocalDemoMedia(demo)'));
+ assert.ok(launch.indexOf('balancePublicDemo(demo)')<launch.indexOf('await createProjectLocal('));
+});
