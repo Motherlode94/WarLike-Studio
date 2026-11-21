@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {loopBounds,loopPosition} from '../dist/loop-range.js';
+test('independent range wraps to its own start',()=>{const b=loopBounds({start:8,end:16},128);assert.deepEqual(b,{start:128,end:256});assert.equal(loopPosition(256,b),128);assert.equal(loopPosition(260,b),132);assert.equal(loopPosition(384,b),128);});
+test('whole session fallback and bounds',()=>{assert.deepEqual(loopBounds(null,4),{start:0,end:64});assert.equal(loopPosition(64,loopBounds(null,4)),0);assert.deepEqual(loopBounds({start:2,end:100},4),{start:32,end:64});});
