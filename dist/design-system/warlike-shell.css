@@ -82,3 +82,31 @@ html[data-warlike-app="warlike-studio"] :is(.menu-anchor > button,.studio-menuba
 html[data-warlike-app="warlike-studio"] :is(.menu-anchor,.studio-menubar,.edit-grid-label,.bank-filters) select option{background:var(--wl-surface);color:var(--wl-text)}
 html[data-warlike-app="warlike-studio"] .warlike-workspaces :is(.ws-label,.ws-hint){color:var(--wl-text-muted)!important}
 html[data-warlike-app="warlike-studio"] .warlike-workspaces button:not(:disabled):is(:hover,.ws-active,[aria-pressed="true"]){background:var(--wl-bg)!important;border-color:var(--wl-focus)!important;color:var(--wl-text)!important}
+
+/* R03-UI.3: shared window chrome, without overriding plugin face palettes. */
+html[data-warlike-app="warlike-studio"] :is(dialog,.floating-plugin,.track-quick-control){
+  background:var(--wl-surface)!important;color:var(--wl-text)!important;
+  border-color:var(--wl-border)!important;box-shadow:var(--wl-shadow);
+  border-radius:var(--wl-radius-sm);scrollbar-color:var(--wl-border) var(--wl-surface);
+}
+html[data-warlike-app="warlike-studio"] dialog::backdrop{
+  background:color-mix(in srgb,var(--wl-bg) 72%,transparent);
+}
+html[data-warlike-app="warlike-studio"] .floating-plugin-body{background:var(--wl-surface)!important}
+html[data-warlike-app="warlike-studio"] :is(.floating-plugin-header,.modal-heading,.recording-recovery-panel,.recording-validation-body)>h2,
+html[data-warlike-app="warlike-studio"] :is(.floating-plugin-header,.modal-heading) h2{color:var(--wl-text)!important}
+html[data-warlike-app="warlike-studio"] :is(.floating-plugin-header,.modal-heading) .eyebrow{color:var(--wl-text-muted)!important}
+html[data-warlike-app="warlike-studio"] :is(.floating-window-actions .icon-btn,.modal-heading .icon-btn,.modal-heading .annotation-window-launch,.recording-recovery-panel button,.recording-validation-actions button){
+  background:var(--wl-surface-alt)!important;color:var(--wl-text)!important;
+  border-color:var(--wl-border)!important;border-radius:var(--wl-radius-sm);
+}
+html[data-warlike-app="warlike-studio"] :is(.floating-window-actions .icon-btn,.modal-heading .icon-btn,.modal-heading .annotation-window-launch,.recording-recovery-panel button,.recording-validation-actions button):not(:disabled):is(:hover,:focus-visible){
+  background:var(--wl-bg)!important;color:var(--wl-text)!important;outline:2px solid var(--wl-focus);outline-offset:1px;
+}
+html[data-warlike-app="warlike-studio"] :is(.modal-body-copy,.modal-note,.help-grid p,.recording-recovery-panel p,.recording-recovery-entry span,.recording-validation-body p,.track-quick-control>label){color:var(--wl-text-muted)!important}
+html[data-warlike-app="warlike-studio"] :is(.modal-note,.recording-recovery-entry){border-color:var(--wl-border)!important}
+html[data-warlike-app="warlike-studio"] .recording-recovery-entry{background:var(--wl-surface-alt)}
+html[data-warlike-app="warlike-studio"] .track-quick-control label>span{color:var(--wl-text)!important}
+html[data-warlike-app="warlike-studio"] :is(.modal-actions,.floating-window-actions,.recording-validation-actions){flex-wrap:wrap}
+html[data-warlike-app="warlike-studio"] .track-quick-control{max-width:calc(100vw - 16px)}
+html[data-warlike-app="warlike-studio"] .floating-plugin{min-width:min(280px,calc(100vw - 16px))}
