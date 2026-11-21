@@ -197,9 +197,9 @@ body.reference-studio{--track-label:270px;--detail-height:280px;display:flex;fle
 .reference-studio .mixer-channel .channel-top{gap:3px;min-width:0}
 .reference-studio .mixer-channel .channel-top span:last-of-type{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* R03: four primary workspaces; native view tabs retained only as command targets. */
-.reference-studio .signature-workspaces > .view-tabs[hidden]{display:none!important}
-.reference-studio .signature-workspaces [data-workspace=record],.reference-studio .signature-workspaces [data-workspace=mix],.reference-studio .signature-workspaces [data-workspace=master]{display:inline-flex!important;align-items:center}
-.reference-studio .signature-workspaces{overflow:visible;max-height:none}
-.reference-studio .signature-workspaces > div:has(> [data-workspace]){display:flex!important;flex:0 0 auto;gap:0}
-@media(max-width:760px){.reference-studio .signature-workspaces{height:auto;min-height:44px;flex:0 0 auto;flex-wrap:wrap}.reference-studio.mobile-compact .signature-workspaces > div:has(> [data-workspace]){display:flex!important;width:100%;overflow-x:auto}.reference-studio .signature-workspaces [data-workspace]{min-height:44px}.reference-studio .signature-workspaces #workspaceActions{display:none}}
+
+/* R03: preserve reference Edit/Mix navigation; composition and mastering remain contextual. */
+.reference-studio .signature-workspaces{overflow:visible}
+.reference-studio .signature-workspaces > .view-tabs{flex:0 0 auto}
+.reference-studio .signature-workspaces #workspaceActions{min-width:0;overflow-x:auto}
+@media(max-width:760px){.reference-studio .signature-workspaces #workspaceActions{display:none}}
