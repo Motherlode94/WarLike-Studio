@@ -387,3 +387,12 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .fader-scale span:nth-child(2){font-weight:bold;color:inherit;border-bottom:1px solid currentColor}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-stereo-meter{width:44px;min-width:44px}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-meter-scale{display:flex;flex-direction:column;justify-content:space-between;font-size:7px;line-height:8px;align-self:stretch}
+
+/* PT-only rotary pan; other workspaces keep native horizontal range. */
+.pt-pan-knob{display:none}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pan-control{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:5px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pan-control>input[data-pan]{display:none}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pan-control>label{display:flex;align-items:center;gap:2px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-pan-knob{display:block;position:relative;flex:0 0 24px;width:24px;height:24px;min-height:0;padding:0;border-radius:50%;border:1px solid #9aa6b1;background:linear-gradient(145deg,#79848e,#303942);box-shadow:0 1px 3px #0008;cursor:ns-resize;touch-action:none}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-pan-knob::after{content:'';position:absolute;inset:3px 10px 50%;background:#f1f5f9;transform-origin:50% 100%;transform:rotate(var(--pan-angle,0deg));pointer-events:none}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-pan-knob:focus-visible{outline:2px solid #e9d285;outline-offset:2px}
