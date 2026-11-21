@@ -23,8 +23,8 @@ export function routePublicDemoGroups(project){
  for(const [role,def] of Object.entries(groups)){
   const members=tracks.filter(t=>t.clips?.length&&!['bus','aux','master'].includes(t.type)&&(!t.output||t.output==='master')&&demoGroupRole(t)===role);
   if(!members.length)continue;
-  let id='demo-bus-'+role;
-  for(let n=2;ids.has(id);n++)id='demo-bus-'+role+'-'+n;
+  let id='demobus'+role;
+  for(let n=2;ids.has(id);n++)id='demobus'+role+n;
   ids.add(id);
   const bus={id,name:def.name,type:'bus',color:def.color,volume:0,pan:0,mute:false,solo:false,clips:[],output:'master',sends:[]};
   ensurePlugins(bus);
