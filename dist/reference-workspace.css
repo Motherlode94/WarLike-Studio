@@ -312,9 +312,18 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView:not([hidden]){flex:1;min-height:0;display:flex;align-items:stretch;overflow:auto;background:#262c33}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel{flex:0 0 152px;width:152px;min-width:152px;max-width:152px;min-height:730px;grid-template-rows:22px 26px 56px 190px 36px 42px 30px minmax(205px,1fr) 27px 28px;gap:5px;padding:5px 7px;background:#454d57;border-right:2px solid #222830}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel.selected{background:#536779;border-top-color:#a6d5fc}
-.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-master{background:#343e49;grid-template-rows:22px 26px 190px 36px 130px minmax(205px,1fr) 27px 28px;right:0;left:auto;order:1}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-master{background:#343e49;grid-template-rows:22px 26px 56px 190px 36px 42px 30px minmax(205px,1fr) 27px 28px;right:0;left:auto;order:1}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .channel-name,.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .channel-footer{background:#252d36;color:#edf2f7;border:1px solid #687789;min-height:24px}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .channel-inserts{background:#303740;padding:4px;border:1px solid #68717b}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .channel-routing{background:#303740;color:#e4ebf2;border:1px solid #68717b}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-fader{background:#363e47;border:1px solid #626c77}
+}
+
+@media(min-width:761px){
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-master>.channel-inserts{grid-row:4}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-master>.channel-routing{grid-row:5}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-master>.master-strip-caption{grid-row:6 / 8}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel>.mixer-fader{grid-row:8}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel>.fader-db{grid-row:9}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel>.channel-footer{grid-row:10}
 }
