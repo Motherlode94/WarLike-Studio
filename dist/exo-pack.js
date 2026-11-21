@@ -8,7 +8,7 @@ export const EXO_EFFECTS={
  exoair:base('EXO AIR','HARMONIC EXCITER','Ajoute en parallèle les harmoniques d’une bande aiguë filtrée. Frequency détermine le point de départ, Drive la saturation et Amount le dosage.',[
   c('frequency','Frequency',1500,10000,100,4500,'Hz'),c('drive','Drive',0,18,.5,5,'dB'),c('mix','Amount',0,1,.01,.18,'%'),c('output','Output',-18,6,.5,0,'dB')]),
  exospace:base('EXO SPACE','STEREO CONVOLUTION','Espace diffus à réponse originale calculée, avec pré-délai, durée, amortissement et largeur stéréo. Aucun fichier de réverbération commercial.',[
-  c('predelay','Pre-delay',0,150,1,25,'ms'),c('decay','Decay',.3,6,.1,1.8,'s'),c('damping','Damping',800,16000,100,6500,'Hz'),c('width','Width',0,1,.01,.85,'%'),c('mix','Mix',0,.8,.01,.2,'%'),c('output','Output',-18,6,.5,0,'dB')])
+  c('predelay','Pre-delay',0,150,1,25,'ms'),c('decay','Decay',.3,6,.1,1.8,'s'),c('damping','Damping',800,16000,100,6500,'Hz'),c('width','Width',0,1,.01,.85,'%'),c('mix','Mix',0,1,.01,.2,'%'),c('output','Output',-18,6,.5,0,'dB')])
 };
 export const EXO_EFFECT_PRESETS={
  exostrip:[['Clean Lead',{highpass:85,body:-1,presence:2,air:1.5,threshold:-22,ratio:3,attack:10,release:160,output:2}],['Soft Soul',{highpass:65,body:1.5,presence:.5,air:1,threshold:-18,ratio:2,attack:30,release:280,output:1}],['Forward Rap',{highpass:95,body:-2,presence:3,air:2,threshold:-26,ratio:4,attack:5,release:90,output:3}],['Backs Tidy',{highpass:160,body:-3,presence:-1,air:1,threshold:-24,ratio:4,attack:15,release:180,output:1}],['Parallel Lift',{highpass:70,presence:1.5,threshold:-32,ratio:6,attack:25,release:120,mix:.35,output:0}]],
