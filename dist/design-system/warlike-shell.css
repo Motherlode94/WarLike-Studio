@@ -23,3 +23,39 @@ html[data-warlike-app="warlike-studio"] .brandmark b{background:var(--wl-accent)
 html[data-warlike-app="warlike-studio"] .export-btn span{background:var(--wl-forest)!important;color:var(--wl-ivory)!important}
 
 html[data-warlike-app="warlike-studio"] :is(.edit-modes button,.edit-tools button,.sidebar-tabs button):is(.active,.selected,[aria-pressed=true]){background:var(--wl-surface-alt)!important;color:var(--wl-text)!important;border-color:var(--wl-focus)!important}
+
+/* Project workspace: one scroll owner, shared theme tokens, responsive columns. */
+html[data-warlike-app="warlike-studio"] #modal:has(.project-home){
+  width:min(1440px,calc(100vw - 48px));max-width:calc(100vw - 48px);
+  max-height:calc(100dvh - 48px);padding:24px;overflow:auto;
+  scrollbar-color:var(--wl-border) var(--wl-surface);
+}
+html[data-warlike-app="warlike-studio"] #modal:has(.project-home) #modalBody,
+html[data-warlike-app="warlike-studio"] #modal .project-home,
+html[data-warlike-app="warlike-studio"] #modal .project-home-list{
+  width:100%;max-height:none;min-width:0;overflow:visible;
+}
+html[data-warlike-app="warlike-studio"] #modal .project-home{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;gap:20px;
+}
+html[data-warlike-app="warlike-studio"] #modal .project-home > :is(.project-home-banner,.project-home-footer,.project-home-form,.modal-body-copy){grid-column:1/-1}
+html[data-warlike-app="warlike-studio"] #modal .project-home > .project-public-demos{grid-column:1}
+html[data-warlike-app="warlike-studio"] #modal .project-home > .project-home-section:not(.project-public-demos){grid-column:2}
+html[data-warlike-app="warlike-studio"] #modal .project-home > .project-home-section{padding:16px;background:var(--wl-surface-alt);border:1px solid var(--wl-border);border-radius:var(--wl-radius-sm)}
+html[data-warlike-app="warlike-studio"] #modal :is(h2,h3,strong,label,.project-home-card-info strong,.modal-heading .icon-btn){color:var(--wl-text)!important}
+html[data-warlike-app="warlike-studio"] #modal :is(p,small,.modal-note,.project-home-empty,.project-home-section h3 span){color:var(--wl-text-muted)!important}
+html[data-warlike-app="warlike-studio"] #modal :is(.project-home-footer,.project-home-empty){border-color:var(--wl-border)!important}
+html[data-warlike-app="warlike-studio"] #modal a{color:var(--wl-accent)!important}
+html[data-warlike-app="warlike-studio"] #modal :is(button,input,select,a):focus-visible{outline:2px solid var(--wl-focus);outline-offset:2px}
+html[data-warlike-app="warlike-studio"] #modal .project-home-card{flex-wrap:wrap}
+html[data-warlike-app="warlike-studio"] #modal .project-home-card-info{flex:1 1 150px}
+html[data-warlike-app="warlike-studio"] #modal .project-home-card-actions{flex-wrap:wrap;max-width:100%}
+html[data-warlike-app="warlike-studio"] #modal .project-home .project-home-delete{color:var(--wl-text)!important;background:var(--wl-surface-alt)!important;border-color:var(--wl-border)!important}
+html[data-warlike-app="warlike-studio"] #modal::-webkit-scrollbar-thumb{background:var(--wl-border)}
+html[data-warlike-app="warlike-studio"] #modal::-webkit-scrollbar-track{background:var(--wl-surface)}
+@media(max-width:800px){
+ html[data-warlike-app="warlike-studio"] #modal:has(.project-home){width:calc(100vw - 16px);max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);padding:14px}
+ html[data-warlike-app="warlike-studio"] #modal .project-home{grid-template-columns:minmax(0,1fr);gap:12px}
+ html[data-warlike-app="warlike-studio"] #modal .project-home > .project-home-section{grid-column:1/-1!important}
+ html[data-warlike-app="warlike-studio"] #modal .project-home-creation{grid-template-columns:minmax(0,1fr)}
+}
