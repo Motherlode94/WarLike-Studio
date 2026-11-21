@@ -143,9 +143,9 @@ async function launchPublicDemo(kind){
  try{
    const demo=config.beat?createBeatDemoSession(kind):config.vocal?createVocalDemoSession(kind):config.genre?createGenreDemoSession(kind):createVocalDemoSession('vox-'+kind);
    demo.name=config.name;demo.publicDemo=true;
-   balancePublicDemo(demo);
    demo.demoRevision=config.beat?demo.demoRevision:config.vocal||config.template?6:config.genre?1:3;
    const demoMedia=demo.vocalDemo?await createRecordedVocalDemoMedia(demo):[];
+   balancePublicDemo(demo);
    if(db){
      await createProjectLocal(demo.name,demo,demoMedia);
      engine.masterVolume=Number.isFinite(demo.masterVolume)?demo.masterVolume:0;
