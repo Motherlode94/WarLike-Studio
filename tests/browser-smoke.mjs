@@ -48,6 +48,10 @@ try {
  assert.equal(await page.locator('#projectName').inputValue(),'QA Session A');
  // Modify and wait for a real persisted save before changing project.
  await page.locator('#bpm').fill('117');
+ // A resize redraw must not replace an uncommitted tempo input.
+ await page.evaluate(()=>window.dispatchEvent(new Event('resize')));
+ await page.waitForTimeout(180);
+ assert.equal(await page.locator('#bpm').inputValue(),'117','redraw must preserve focused tempo edit');
  await page.locator('#bpm').press('Tab');
  await page.locator('#saveStatus').getByText('Enregistré sur cet appareil').waitFor({state:'visible'});
  // Project A persists across explicit project switches; B starts blank.

@@ -11,6 +11,8 @@ export function installReferenceWorkspace({bar,onView,setDetailOpen}){
  for(const [value,name] of [['pt','Pro Tools'],['fl','FL Studio']]){const option=document.createElement('option');option.value=value;option.textContent=name;choice.append(option);}
  let saved;try{saved=localStorage.getItem('warlike.layoutProfile');}catch{}
  const apply=value=>{const profile=layoutProfile(value);document.body.dataset.layoutProfile=profile;choice.value=profile;try{localStorage.setItem('warlike.layoutProfile',profile);}catch{}};
+ const sections=[...document.querySelectorAll('.library > .library-section')];
+ for(const section of sections){const heading=section.querySelector('.section-label');if(!heading)continue;const toggle=document.createElement('button');toggle.type='button';toggle.className='fl-folder-toggle';toggle.textContent='▾';toggle.setAttribute('aria-label','Replier ou développer '+heading.textContent.trim());toggle.setAttribute('aria-expanded','true');heading.prepend(toggle);toggle.addEventListener('click',()=>{const collapsed=section.classList.toggle('fl-folder-collapsed');toggle.textContent=collapsed?'▸':'▾';toggle.setAttribute('aria-expanded',String(!collapsed));});}
  apply(saved);choice.addEventListener('change',()=>apply(choice.value));layout.append(choice);panel.append(layout);
  const windows=document.querySelector('.warlike-workspaces');if(windows)panel.append(windows);
  const flTools=document.createElement('div');flTools.className='fl-workspace-tools';flTools.setAttribute('role','group');flTools.setAttribute('aria-label','Outils de composition');

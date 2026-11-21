@@ -200,17 +200,18 @@ function checkpoint(){history.push(clone(project));if(history.length>40)history.
 function updateUndo(){$('undo').disabled=!history.length;$('redo').disabled=!future.length;}
 function undo(redo=false){const from=redo?future:history,to=redo?history:future;if(!from.length)return;engine.pause();to.push(clone(project));project=from.pop();project.tracks.forEach(ensurePlugins);if(!project.tracks.some(t=>t.id===selectedTrack)){selectedTrack=project.tracks[0]?.id;selectedClip=null;}if(!currentTrack()?.clips.some(c=>c.id===selectedClip))selectedClip=currentTrack()?.clips[0]?.id;engine.sync();render();save();}
 function changed(full=false){project.tracks.forEach(ensurePlugins);engine.sync();save();if(full)render();}
-function save(){if(!loaded||!activeProjectId)return;$('saveStatus').innerHTML='<em></em> Enregistrement…';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{saveTimer=null;persist().catch(()=>{});},500);}
+let saveRevision=0;
+function save(){if(!loaded||!activeProjectId)return;saveRevision++;$('saveStatus').innerHTML='<em></em> Enregistrement…';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{saveTimer=null;persist().catch(()=>{});},500);}
 async function openDB(){return new Promise((resolve,reject)=>{const request=indexedDB.open('chayah-studio',1);request.onupgradeneeded=()=>request.result.createObjectStore('sessions');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}
 async function persist(){
  if(!activeProjectId||!db)return;
- const id=activeProjectId,copy=clone(project),volume=engine.masterVolume;
+ const id=activeProjectId,copy=clone(project),volume=engine.masterVolume,revision=saveRevision;
  const media=[...assets].map(([assetId,a])=>({id:assetId,name:a.name,data:a.data}));
  const job=saveQueue.catch(()=>{}).then(async()=>{
    const index=projectIndex.map(item=>item.id===id?{...item,name:copy.name,updatedAt:Date.now()}:item);
    await writeLocalProject(db,id,{project:copy,masterVolume:volume,assets:media},index);
    projectIndex=index;
-   if(activeProjectId===id){try{await workflow.snapshot();}catch(error){console.warn('Historique non sauvegardé',error);}if(activeProjectId===id)$('saveStatus').textContent='Enregistré sur cet appareil';}
+   if(activeProjectId===id){try{await workflow.snapshot();}catch(error){console.warn('Historique non sauvegardé',error);}if(activeProjectId===id&&revision===saveRevision&&saveTimer===null)$('saveStatus').textContent='Enregistré sur cet appareil';}
    scheduleAutoCloud(id,copy,media);
  });
  saveQueue=job;
@@ -235,7 +236,7 @@ function render(){
   // Expose only non-sensitive device routing to the Recording Pro input tester.
   if($('recordWorkspaceBar')){ $('recordWorkspaceBar').dataset.deviceId=project.audioSetup?.deviceId||''; $('recordWorkspaceBar').dataset.channel=project.audioSetup?.channel||'1'; }
   project.recording=recordingSettings(project.recording);project.mastering=masteringSettings(project.mastering);
-  $('sessionRoot').value=String(project.pianoKey??9);$('sessionScale').value=project.pianoScale||'minor';$('sessionKey').textContent=project.keyName||(['Do','Do♯','Ré','Mi♭','Mi','Fa','Fa♯','Sol','La♭','La','Si♭','Si'][project.pianoKey??9]+' '+(project.pianoScale==='major'?'majeur':project.pianoScale==='chromatic'?'chromatique':'mineur'));$('projectName').value=project.name;$('bpm').value=project.bpm;$('bars').value=project.bars;
+  $('sessionRoot').value=String(project.pianoKey??9);$('sessionScale').value=project.pianoScale||'minor';$('sessionKey').textContent=project.keyName||(['Do','Do♯','Ré','Mi♭','Mi','Fa','Fa♯','Sol','La♭','La','Si♭','Si'][project.pianoKey??9]+' '+(project.pianoScale==='major'?'majeur':project.pianoScale==='chromatic'?'chromatique':'mineur'));$('projectName').value=project.name;if(document.activeElement!==$('bpm'))$('bpm').value=project.bpm;$('bars').value=project.bars;
   document.documentElement.style.setProperty('--bars',project.bars);
   // Fit the session on first open; horizontal zoom remains available.
   const available=$('timelineScroll').clientWidth-parseInt(getComputedStyle(document.body).getPropertyValue('--track-label'));

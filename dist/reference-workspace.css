@@ -227,3 +227,12 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio[data-layout-profile=fl] #workspaceActions{display:none}
 @media(min-width:761px){.reference-studio[data-layout-profile=fl] .signature-workspaces{height:auto;min-height:34px;flex-wrap:wrap}.reference-studio[data-layout-profile=fl] .ruler-row,.reference-studio[data-layout-profile=fl] .ruler{background:#35464f}.reference-studio[data-layout-profile=fl] .track-head{background:#394951}.reference-studio[data-layout-profile=fl] .track-row:nth-child(even) .track-head{background:#33434a}}
 @media(max-width:760px){.reference-studio[data-layout-profile=fl] .fl-workspace-tools{width:100%;flex:0 0 100%}.reference-studio[data-layout-profile=fl] .signature-workspaces{flex-wrap:wrap}}
+
+.reference-studio .fl-folder-toggle{display:none}
+.reference-studio[data-layout-profile=fl] .fl-folder-toggle{display:inline-block;background:transparent;border:0;color:inherit;padding:2px 5px;cursor:pointer}
+.reference-studio[data-layout-profile=fl] .library-section.fl-folder-collapsed > :not(.section-label){display:none}
+.reference-studio[data-layout-profile=fl] .library-section{padding:0 4px;margin:0;border-bottom:1px solid #26343b}
+.reference-studio[data-layout-profile=fl] .library-section .section-label{background:#42525b;padding:4px;font-size:10px;letter-spacing:0}
+.reference-studio[data-layout-profile=fl] .library-item{min-height:27px;padding:3px 5px;border-radius:0;gap:5px}
+.reference-studio[data-layout-profile=fl] .library-item .preset-icon{width:22px;height:22px;min-width:22px}
+.reference-studio[data-layout-profile=fl] .library-item strong{font-size:11px}
