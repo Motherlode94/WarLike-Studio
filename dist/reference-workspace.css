@@ -294,3 +294,5 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio[data-layout-profile=pt] .track-lane .clip.selected{outline:2px solid #c7e5ff;outline-offset:-2px}
 .reference-studio[data-layout-profile=pt] .clip-name{background:#26313c;color:#f2f5fa;font-size:11px}
 }
+
+.reference-studio[data-layout-profile=pt] .clip[data-fade-preview]::after{content:attr(data-fade-preview);position:absolute;top:20px;left:10px;background:#20262c;color:#fff;padding:3px 6px;border-radius:2px;z-index:8;pointer-events:none;font-size:11px}
