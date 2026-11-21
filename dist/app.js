@@ -325,12 +325,30 @@ function renderMixer(){
   workflow.renderMixer();
   // Presentation only: keep the live insert/send controls and their listeners.
   const mixRoot=$('mixerView');
+  if(mixRoot.parentNode!==floatingMixerPanel) installPtMixSections(mixRoot);
   if(mixRoot.parentNode!==floatingMixerPanel){
     for(const channel of mixRoot.querySelectorAll('.mixer-channel')){
       const track=project.tracks.find(t=>t.id===channel.dataset.mixerTrack);
       channel.dataset.ptChannelKind=channel.classList.contains('mixer-master')?'master':track?.type==='bus'?'bus':track?.type==='audio'?'audio':'instrument';
     }
   }
+}
+// Browser-local presentation preferences, never serialized into a session.
+function installPtMixSections(root){
+  const ptMixSectionPrefs=installPtMixSections.prefs||={a:true,b:true,sends:true,io:true};
+  if(!installPtMixSections.loaded){installPtMixSections.loaded=true;try{const saved=JSON.parse(localStorage.getItem('warlike.pt.mix.sections')||'{}');for(const k of Object.keys(ptMixSectionPrefs))if(typeof saved?.[k]==='boolean')ptMixSectionPrefs[k]=saved[k];}catch{}}
+  let toolbar=root.previousElementSibling;
+  if(!toolbar?.classList.contains('pt-mix-visibility')){
+    toolbar=document.createElement('div');toolbar.className='pt-mix-visibility';toolbar.setAttribute('role','group');toolbar.setAttribute('aria-label','Sections du mixeur');
+    root.before(toolbar);
+    for(const [key,label] of [['a','Inserts A–F'],['b','Inserts G–L'],['sends','Sends'],['io','I/O']]){
+      const button=document.createElement('button');button.type='button';button.textContent=label;button.dataset.ptSection=key;
+      button.addEventListener('click',()=>{ptMixSectionPrefs[key]=!ptMixSectionPrefs[key];try{localStorage.setItem('warlike.pt.mix.sections',JSON.stringify(ptMixSectionPrefs));}catch{}apply();});
+      toolbar.append(button);
+    }
+  }
+  function apply(){for(const [key,value] of Object.entries(ptMixSectionPrefs)){root.classList.toggle('pt-hide-'+key,!value);toolbar.querySelector('[data-pt-section="'+key+'"]')?.setAttribute('aria-pressed',String(value));}}
+  apply();
 }
 function insertSlotsHTML(track,master=false,limit=null){
   const slots=master?masteringSettings(project.mastering).inserts:track.inserts,registry=master?MASTER_MODULES:EFFECTS,owner=master?'master':track.id,state=master?masteringSettings(project.mastering):track.effects;
