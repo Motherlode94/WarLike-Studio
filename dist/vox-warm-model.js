@@ -1,0 +1,2 @@
+export function voxWarmTransfer(drive,biasValue){const k=10**(drive/20),bias=biasValue*.2,offset=Math.tanh(bias*k),norm=Math.max(.001,Math.abs(Math.tanh((1+bias)*k)-offset),Math.abs(Math.tanh((-1+bias)*k)-offset));return x=>(Math.tanh((x+bias)*k)-offset)/norm;}
+export function voxWarmCurve(drive,bias){const fn=voxWarmTransfer(drive,bias);return Float32Array.from({length:4097},(_,i)=>fn(i/2048-1));}
