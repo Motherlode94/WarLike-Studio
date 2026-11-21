@@ -27,6 +27,7 @@ import {installAnnotations} from './annotations.js?v=0.14.0';
 import {fadeOverlay,installFadeHandles} from './clip-tools.js?v=0.14.0';
 import {mountEqCurve} from './eq-curve.js?v=0.14.0';
 import {installAppMenus} from './app-menus.js?v=0.14.0';
+import {openContextMenu,action as contextAction,group as contextGroup} from './context-menus.js';
 import {installSignature} from './signature-ui.js?v=0.14.0';
 import {normaliseFolders} from './signature-model.js?v=0.14.0';
 import {mountSampler,sliceSettings} from './sampler.js?v=0.14.0';
@@ -1223,9 +1224,68 @@ function openClipActions(splitPosition=null){
  for(const button of $('modal').querySelectorAll('[data-clip-command]'))button.onclick=()=>{if(recording||recordFinalizing||micPending)return toast('Termine la prise avant cette action.');$('modal').close();const command=button.dataset.clipCommand;({copy:copySelectedClip,cut:()=>{copySelectedClip();deleteClip();},duplicate:duplicateClip,paste:pasteClip,splitHere:()=>performSplit(splitPosition),splitCursor:()=>performSplit(engine.getPosition()/16),delete:deleteClip})[command]?.();};
 }
 const clipActionsButton=document.createElement('button');clipActionsButton.type='button';clipActionsButton.className='outline-btn';clipActionsButton.textContent='Actions du clip';clipActionsButton.onclick=()=>openClipActions();$('duplicateClip').before(clipActionsButton);
-document.addEventListener('contextmenu',event=>{const clip=event.target.closest('[data-clip]');if(!clip)return;event.preventDefault();selectClipElement(clip);const lane=clip.closest('[data-lane]').getBoundingClientRect();openClipActions(snapBar((event.clientX-lane.left)/lane.width*project.bars,editMode,editGrid));});
-document.addEventListener('contextmenu',e=>{const name=e.target.closest('[data-select-track],[data-track-drag]');if(name){e.preventDefault();selectTrack(name.dataset.selectTrack||name.dataset.trackDrag);trackSettings(selectedTrack);}});
-piano=installPianoRoll({getProject:()=>project,getEngine:()=>engine,currentTrack,currentClip,checkpoint,changed,save,addTrack,toast,modal,drawClips,updateTransport,openPlugin:openPluginWindow,openEditor:(id,clipId)=>{detail='editor';document.body.dataset.studioSurface='piano';signature?.select('compose',false);selectTrack(id,clipId);setDetailOpen(true);}});
+// Right-click resolves the actual object under the pointer, never the prior selection.
+document.addEventListener('contextmenu',e=>{
+ if(e.defaultPrevented||$('modal').open||e.target.closest('input,select,textarea,[contenteditable=true],.studio-context-menu'))return;
+ const busy=()=>!!(recording||recordFinalizing||micPending),A=contextAction,G=contextGroup;
+ const show=(title,items,anchor)=>openContextMenu(e,title,items,{busy,anchor});
+ const insert=e.target.closest('.insert-slot');
+ if(insert){
+  const node=insert.querySelector('[data-insert-slot]');if(!node)return;
+  const owner=node.dataset.insertTrack,index=Number(node.dataset.insertSlot),master=node.dataset.insertMaster==='true';
+  const tr=project.tracks.find(t=>t.id===owner),state=master?project.mastering:tr?.effects,slots=master?project.mastering?.inserts:tr?.inserts;
+  if(!slots)return;
+  const id=slots[index],open=()=>openInsertMenu(owner,index,master);
+  const remove=()=>{checkpoint();if(master){slots[index]=null;state[id].enabled=false;}else placeInsert(tr,index,null);changed(true);};
+  show('Insert '+String.fromCharCode(65+index),[
+   A('insert-choose',id?'Remplacer / gérer…':'Choisir un plugin…',open),
+   A('insert-open','Ouvrir le plugin',()=>master?setView('mastering'):openPluginWindow(id,owner),!id),
+   A('insert-bypass',state?.[id]?.enabled?'Bypasser':'Réactiver',()=>{checkpoint();state[id].enabled=!state[id].enabled;changed(true);},!id),
+   G('insert-organize','Organisation',[A('insert-move','Déplacer / échanger…',open,!id),A('insert-copy','Copier vers un insert…',open,!id||master)]),
+   A('insert-remove','Retirer le plugin',remove,!id)
+  ],node);return;
+ }
+ const clipNode=e.target.closest('[data-clip]');
+ if(clipNode){
+  e.preventDefault();if(busy())return toast('Termine la prise avant de modifier les clips.');
+  const lane=clipNode.closest('[data-lane]');if(!lane)return;const rect=lane.getBoundingClientRect();
+  selectClipElement(clipNode);const clip=currentClip(),tr=currentTrack();if(!clip||!tr)return;
+  const at=snapBar((e.clientX-rect.left)/rect.width*project.bars,editMode,editGrid),cursor=engine.getPosition()/16;
+  const inside=v=>v>clip.start&&v<clip.start+clip.length;
+  show(clip.name,[
+   G('clip-edit','Édition',[A('clip-copy','Copier',copySelectedClip,false,'Ctrl+C'),A('clip-cut','Couper',()=>{copySelectedClip();deleteClip();},false,'Ctrl+X'),A('clip-paste','Coller au curseur',pasteClip,!clipClipboard),A('clip-duplicate','Dupliquer',duplicateClip,false,'Ctrl+D')]),
+   G('clip-split','Découpage',[A('clip-split-here','Découper ici',()=>performSplit(at),!inside(at)),A('clip-split-cursor','Découper au curseur',()=>performSplit(cursor),!inside(cursor),'B')]),
+   A('clip-delete','Supprimer le clip',deleteClip,false,'Suppr')
+  ],clipNode);return;
+ }
+ const lane=e.target.closest('[data-lane]');
+ if(lane){
+  e.preventDefault();if(busy())return;const tr=project.tracks.find(t=>t.id===lane.dataset.lane);if(!tr)return;
+  const rect=lane.getBoundingClientRect(),at=Math.max(0,Math.min(project.bars-1/16,snapBar((e.clientX-rect.left)/rect.width*project.bars,editMode,editGrid)));
+  show(tr.name+' · Timeline',[
+   A('lane-seek','Placer le curseur ici',()=>{engine.seek(at*16);updateTransport();}),
+   A('lane-paste','Coller ici',()=>{selectTrack(tr.id,null);engine.seek(at*16);pasteClip();},!clipClipboard||(!clipClipboard.group&&clipClipboard.type!==tr.type)),
+   A('lane-import','Importer audio…',()=>{selectTrack(tr.id);$('audioInput').click();}),
+   A('lane-fit','Ajuster la timeline',fitTimeline)
+  ],lane);return;
+ }
+ const trackNode=e.target.closest('[data-select-track],[data-track-drag],.track-head,[data-mixer-track]');
+ if(trackNode){
+  const id=trackNode.dataset.selectTrack||trackNode.dataset.trackDrag||trackNode.dataset.mixerTrack||trackNode.closest('[data-track]')?.dataset.track;
+  const tr=project.tracks.find(t=>t.id===id);if(!tr)return;
+  show(tr.name,[
+   A('track-properties','Propriétés / renommer…',()=>trackSettings(id)),
+   G('track-mix','Mixage',[A('track-mute',tr.mute?'Réactiver la piste':'Mute',()=>{checkpoint();tr.mute=!tr.mute;changed(true);}),A('track-solo',tr.solo?'Désactiver Solo':'Solo',()=>{checkpoint();tr.solo=!tr.solo;changed(true);}),A('track-volume','Volume à 0 dB',()=>setTrackVolume(id,0,true),tr.volume===0),A('track-pan','Panoramique au centre',()=>{checkpoint();setTrackPan(id,0);},tr.pan===0)]),
+   A('track-instrument','Ouvrir l’instrument',()=>openPluginWindow('instrument',id),!instrumentDefinition(tr.type)),
+   A('track-delete','Supprimer la piste…',()=>deleteTrackWithConfirmation(id),project.tracks.length<=1)
+  ],trackNode);return;
+ }
+ const ruler=e.target.closest('#ruler');if(ruler){
+  const rect=ruler.getBoundingClientRect(),at=Math.max(0,Math.min(project.bars-1/16,snapBar((e.clientX-rect.left)/rect.width*project.bars,editMode,editGrid)));
+  show('Timeline',[A('timeline-seek','Placer le curseur ici',()=>{engine.seek(at*16);updateTransport();}),A('timeline-fit','Afficher toute la session',fitTimeline),A('timeline-loop','Définir la zone de boucle…',()=>$('loop').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true})))],ruler);
+ }
+});
+piano=installPianoRoll({busy:()=>recording||recordFinalizing||micPending,getProject:()=>project,getEngine:()=>engine,currentTrack,currentClip,checkpoint,changed,save,addTrack,toast,modal,drawClips,updateTransport,openPlugin:openPluginWindow,openEditor:(id,clipId)=>{detail='editor';document.body.dataset.studioSurface='piano';signature?.select('compose',false);selectTrack(id,clipId);setDetailOpen(true);}});
 $('channelRack').onclick=()=>piano.rack();
 
  function openWorkspace(kind){

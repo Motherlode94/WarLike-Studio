@@ -8,6 +8,7 @@ import {normalizeNotes,snapStep,snapPitch,quantizeNotes,moveNotes,chordNotes,res
 import {fitSession} from './studio-model.js?v=0.14.0';
 const $=id=>document.getElementById(id),uid=()=>Math.random().toString(36).slice(2,11),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const names=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'],noteName=n=>names[n%12]+(Math.floor(n/12)-1),black=n=>[1,3,6,8,10].includes(n%12);
+import {openContextMenu,action as contextAction,group as contextGroup} from './context-menus.js';
 export function installPianoRoll(d){const project=d.getProject,engine=d.getEngine;let selected=new Set(),grid=1,tool='draw',stepWidth=22,noteHeight=18,lastLength=4,scale='minor',root=9,scaleSnap=false,ghost=true,clipboard=[],drag=null,editor=null,editingClip=null,editingTrack=null,draftClip=null,draftTrack=null,midi=null,midiRecord=false,midiPreviousLoop=true,midiHeld=new Map(),scrollTop=null;
   function draft(trackId){return draftTrack===trackId?draftClip:null;}
   function current(){const t=d.currentTrack(),c=d.currentClip();return {t,c};}
@@ -90,7 +91,18 @@ export function installPianoRoll(d){const project=d.getProject,engine=d.getEngin
     $('prPlay').onclick=async()=>{if(engine().playing){engine().pause();}else{if(c.patternId)engine().patternMode=c.patternId;else{engine().patternMode=null;engine().clipPreview={trackId:t.id,clip:c};}engine().position=0;engine().loop=true;await engine().play();}d.updateTransport();};$('prMidi').onclick=connectMidi;$('prMidiRecord').onclick=async()=>{if(!midi)await connectMidi();if(!midi)return;midiRecord=!midiRecord;if(midiRecord){if(c.patternId)engine().patternMode=c.patternId;else{engine().patternMode=null;engine().clipPreview={trackId:t.id,clip:c};}engine().pause();engine().position=0;midiPreviousLoop=engine().loop;engine().loop=false;d.checkpoint();engine().midiRecordingExtend=step=>extendMidi(step);try{await engine().play();}catch(error){stopMidi();d.toast(error.message);}}else{stopMidi();}d.updateTransport();$('prMidiRecord').classList.toggle('recording',midiRecord);};
     for(const b of editor.querySelectorAll('[data-pr-key]'))b.onpointerdown=()=>engine().preview(t.type,Number(b.dataset.prKey),t.id);
     for(const b of editor.querySelectorAll('[data-pr-seek]'))b.onclick=()=>{engine().seek(Number(b.dataset.prSeek)*16);d.updateTransport();};
-    gridNode.oncontextmenu=e=>{e.preventDefault();const node=e.target.closest('[data-pr-note]');if(node){d.checkpoint();c.notes=c.notes.filter(n=>n.id!==node.dataset.prNote);selected.delete(node.dataset.prNote);commit();}else{selected.clear();renderNotes();}};
+    gridNode.oncontextmenu=e=>{
+      const node=e.target.closest('[data-pr-note]'),A=contextAction,G=contextGroup,pos=coordinate(e);
+      if(node&&!selected.has(node.dataset.prNote)){selected=new Set([node.dataset.prNote]);renderNotes();}
+      const has=selected.size>0;
+      const paste=()=>{if(!clipboard.length)return;const low=Math.min(...clipboard.map(n=>n.step)),copies=clipboard.map(n=>({...n,id:uid(),step:n.step-low+pos.step}));if(copies.some(n=>n.step+n.len>steps)){d.toast('Agrandis le pattern pour coller ici.');return;}d.checkpoint();c.notes.push(...copies);selected=new Set(copies.map(n=>n.id));commit();};
+      openContextMenu(e,node?'Notes MIDI':'Grille MIDI',[
+       G('note-edit','Édition',[A('note-copy','Copier',()=>{clipboard=chosen().map(n=>({...n}));},!has,'Ctrl+C'),A('note-paste','Coller ici',paste,!clipboard.length),A('note-duplicate','Dupliquer',duplicate,!has,'Ctrl+D')]),
+       G('note-transform','Transformer',[A('note-quantize','Quantifier',()=>$('prQuantize').click(),!has),A('note-octave-up','Octave supérieure',()=>applyNotes(n=>[{...n,midi:Math.min(127,n.midi+12)}]),!has),A('note-octave-down','Octave inférieure',()=>applyNotes(n=>[{...n,midi:Math.max(0,n.midi-12)}]),!has),A('note-mute','Basculer le mute',()=>applyNotes(n=>[{...n,muted:!n.muted}]),!has)]),
+       A('note-select-all','Tout sélectionner',()=>{selected=new Set(c.notes.map(n=>n.id));renderNotes();},!c.notes.length,'Ctrl+A'),
+       A('note-delete','Supprimer les notes sélectionnées',()=>{d.checkpoint();c.notes=c.notes.filter(n=>!selected.has(n.id));selected.clear();commit();},!has,'Suppr')
+      ],{anchor:gridNode,busy:()=>midiRecord||d.busy?.()});
+    };
     gridNode.onpointerdown=e=>{if(e.button!==0)return;rootNode.focus({preventScroll:true});const hit=e.target.closest('[data-pr-note]'),pos=coordinate(e);if(hit){const n=c.notes.find(n=>n.id===hit.dataset.prNote);if(tool==='erase'){d.checkpoint();c.notes=c.notes.filter(a=>a!==n);commit();return;}if(e.ctrlKey||e.metaKey){selected.has(n.id)?selected.delete(n.id):selected.add(n.id);renderNotes();return;}if(!selected.has(n.id)){selected.clear();selected.add(n.id);}d.checkpoint();if(e.shiftKey){const copies=chosen().map(n=>({...n,id:uid()}));c.notes.push(...copies);selected=new Set(copies.map(n=>n.id));}const resize=e.clientX>hit.getBoundingClientRect().right-8;drag={kind:resize?'resize':'move',pointer:e.pointerId,x:e.clientX,y:e.clientY,pos,notes:chosen().map(n=>({...n}))};lastLength=n.len;}
       else if(tool==='select'||e.ctrlKey||e.metaKey){selected.clear();drag={kind:'select',pointer:e.pointerId,pos};}
       else if(tool==='draw'){d.checkpoint();const note={id:uid(),step:pos.step,midi:pos.midi,len:Math.min(lastLength,steps-pos.step),velocity:.8};c.notes.push(note);selected=new Set([note.id]);drag={kind:'new',pointer:e.pointerId,pos,note};commit();}
