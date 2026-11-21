@@ -327,3 +327,18 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel>.fader-db{grid-row:9}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel>.channel-footer{grid-row:10}
 }
+
+/* R03-C5.2: PT insert banks, retaining the live A–L controls and indices. */
+@media(min-width:761px){
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView>.mixer-channel{grid-template-rows:22px 26px 56px 310px 36px 42px 30px minmax(205px,1fr) 27px 28px;min-height:850px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView>.mixer-channel>.channel-inserts{min-height:0;overflow:auto}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-inserts .strip-label{display:flex;flex-wrap:wrap;gap:3px;align-items:center;font-size:9px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-inserts .insert-slots{display:flex;flex-direction:column;gap:2px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-inserts .insert-slot{display:grid;grid-template-columns:10px minmax(0,1fr) 15px 15px;gap:2px;min-height:17px;padding:0;align-items:center}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-inserts .insert-slot>button{min-height:17px;height:17px;padding:0 2px;font-size:10px;border-radius:2px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-inserts .insert-slot>button:nth-child(2){text-align:left;background:#596878;color:#f4f7fa;border:1px solid #8393a3}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-inserts .insert-slot.empty>button:nth-child(2){grid-column:2 / 5;background:#252d35;color:#b8c5d1;border-color:#59636e}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-inserts .insert-slot.insert-bypassed>button:nth-child(2){background:#343a41;color:#c2c8ce;border-color:#747b83;font-style:italic}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-inserts .insert-slot:nth-child(5n + 1):not(:first-child){margin-top:5px;border-top:1px solid #8795a3;padding-top:3px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-inserts .insert-slot>button:focus-visible{outline:2px solid #a6d5fc;outline-offset:-2px}
+}
