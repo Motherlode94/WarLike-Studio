@@ -1,3 +1,5 @@
+
+async function sessionTab(page,tab){const button=page.locator('[data-session-tab="'+tab+'"]');await button.waitFor({state:'visible'});await button.click();}
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 
@@ -10,9 +12,9 @@ try{
   const page=await browser.newPage({viewport:{width:1440,height:900}});
   const errors=[];page.on('pageerror',error=>errors.push(error.message));
   await page.goto('http://127.0.0.1:8765/',{waitUntil:'load'});
-  await page.locator('#libraryName').waitFor({state:'visible'});
-  await page.locator('#libraryName').fill('Recording Duo QA');
-  await page.locator('#libraryNew').click();
+  await sessionTab(page,'create');await page.locator('#libraryName').waitFor({state:'visible'});
+  await sessionTab(page,'create');await page.locator('#libraryName').fill('Recording Duo QA');
+  await sessionTab(page,'create');await page.locator('#libraryNew').click();
   await page.locator('#modal').waitFor({state:'hidden'});
 
   const toggleRecording=async()=>{
