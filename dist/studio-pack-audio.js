@@ -1,3 +1,4 @@
+import {doublerVoice} from './vox-doubler-model.js';
 import {voxWarmCurve} from './vox-warm-model.js';
 import {micColorGains} from './vox-mic-model.js';
 import {voxCleanCurve} from './vox-clean-model.js';
@@ -68,7 +69,7 @@ export function syncStudioEffect(ctx,id,m,s,bpm,now,initial,inputChannels=1){con
  }
  if(id==='voxdoubler'){
    set(m.dry.gain,s.enabled===false?1:1-s.mix);set(m.wet.gain,s.enabled===false?0:s.mix);
-   for(const voice of m.voices){const base=(s.delay+(voice.sign>0?3:0))/1000,depth=Math.min(s.detune/10000,base-.001);set(voice.delay.delayTime,base);set(voice.lfo.frequency,voice.sign>0?.7:.53);set(voice.depth.gain,Math.max(0,depth));set(voice.pan.pan,s.width*voice.sign);set(voice.level.gain,Math.min(1,s.voices/2)/2);}
+   for(const voice of m.voices){const v=doublerVoice(s,voice.sign);set(voice.delay.delayTime,v.base);set(voice.lfo.frequency,v.rate);set(voice.depth.gain,v.depth);set(voice.pan.pan,v.pan);set(voice.level.gain,v.level);}
  }
  if(id==='voxclean'){set(m.hp.frequency,s.highpass);set(m.band.frequency,s.frequency);set(m.scale.gain,1/32/db(s.threshold));m.control.curve=voxCleanCurve(s.range);set(m.air.gain,s.air);set(m.level.gain,db(s.output));}
 }
