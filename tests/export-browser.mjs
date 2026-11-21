@@ -1,10 +1,12 @@
+
+async function sessionTab(page,tab){const button=page.locator('[data-session-tab="'+tab+'"]');await button.waitFor({state:'visible'});await button.click();}
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 const browser=await chromium.launch({headless:true});
 try{
   const page=await browser.newPage();
   await page.goto('http://127.0.0.1:8765/',{waitUntil:'load'});
-  await page.locator('#libraryNew').waitFor({state:'visible'});
+  await sessionTab(page,'create');await page.locator('#libraryNew').waitFor({state:'visible'});
   const result=await page.evaluate(async()=>{
     const {AudioEngine,emptyProject}=await import('/audio.js');
     const {installStudioWorkflow}=await import('/studio-workflow.js');
