@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {VOX_CLEAN_BANKS} from '../dist/vox-clean-face.js';import {voxCleanCurve,voxCleanReduction} from '../dist/vox-clean-model.js';import {MASTER_MODULES} from '../dist/mastering.js';
+test('six original controls',()=>assert.deepEqual(VOX_CLEAN_BANKS.flatMap(([,k])=>k).sort(),MASTER_MODULES.voxclean.controls.map(c=>c.key).sort()));
+test('detector law is bit-identical to original',()=>{for(const range of [0,3,6,12,18]){const expected=Float32Array.from({length:4097},(_,i)=>{const relative=Math.abs(i/2048-1)*32;return relative<=1?0:Math.max(10**(-range/20),relative**(-.75))-1;});assert.deepEqual(voxCleanCurve(range),expected);}});
+test('control voltage converts to band gain in dB',()=>{assert.equal(voxCleanReduction(0),0);assert.ok(Math.abs(voxCleanReduction(-.5)+6.0206)<.001);});

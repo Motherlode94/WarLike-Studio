@@ -1,3 +1,4 @@
+import {voxCleanCurve} from './vox-clean-model.js';
 import {circuitColorCurve} from './circuit-color-model.js';
 import {STUDIO_EFFECTS} from './studio-packs.js?v=0.14.0';
 import {createVoxBC,syncVoxBC} from './vox-bc-audio.js?v=0.14.0';
@@ -68,5 +69,5 @@ export function syncStudioEffect(ctx,id,m,s,bpm,now,initial,inputChannels=1){con
    set(m.dry.gain,s.enabled===false?1:1-s.mix);set(m.wet.gain,s.enabled===false?0:s.mix);
    for(const voice of m.voices){const base=(s.delay+(voice.sign>0?3:0))/1000,depth=Math.min(s.detune/10000,base-.001);set(voice.delay.delayTime,base);set(voice.lfo.frequency,voice.sign>0?.7:.53);set(voice.depth.gain,Math.max(0,depth));set(voice.pan.pan,s.width*voice.sign);set(voice.level.gain,Math.min(1,s.voices/2)/2);}
  }
- if(id==='voxclean'){set(m.hp.frequency,s.highpass);set(m.band.frequency,s.frequency);set(m.scale.gain,1/32/db(s.threshold));m.control.curve=curve(x=>{const relative=Math.abs(x)*32;return relative<=1?0:Math.max(db(-s.range),relative**(-.75))-1;});set(m.air.gain,s.air);set(m.level.gain,db(s.output));}
+ if(id==='voxclean'){set(m.hp.frequency,s.highpass);set(m.band.frequency,s.frequency);set(m.scale.gain,1/32/db(s.threshold));m.control.curve=voxCleanCurve(s.range);set(m.air.gain,s.air);set(m.level.gain,db(s.output));}
 }
