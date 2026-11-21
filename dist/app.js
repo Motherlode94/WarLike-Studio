@@ -765,16 +765,18 @@ $('trackRows').addEventListener('pointerdown',e=>{
   selectedTrack=tr.id;selectedClip=clip.id;detail='editor';updateSelectionMarkers();renderDetail();clipEl.focus({preventScroll:true});
   if(editingTool==='split'){const r=lane.getBoundingClientRect();performSplit(snapBar((e.clientX-r.left)/r.width*project.bars,editMode,editGrid));suppressClipClickUntil=performance.now()+220;return;}
   let edge=null;if(editingTool==='trim')edge=e.clientX<rect.left+rect.width/2?'left':'right';else if(editingTool==='select'){if(e.clientX-rect.left<9)edge='left';else if(rect.right-e.clientX<9)edge='right';}
-  dragState={pointer:e.pointerId,el:clipEl,clip,tr,startX:e.clientX,original:clone(clip),width:lane.getBoundingClientRect().width,edge,items:clip.audioId?selectedAudioClips().map(({track,clip})=>({track,clip,original:clone(clip)})):[],changed:false};e.preventDefault();
+  const fade=editingTool==='select'&&document.body.dataset.layoutProfile==='pt'&&clip.audioId&&e.clientY-rect.top<Math.min(18,rect.height/3)&&edge?(edge==='left'?'fadeIn':'fadeOut'):null;
+  dragState={fade,pointer:e.pointerId,el:clipEl,clip,tr,startX:e.clientX,original:clone(clip),width:lane.getBoundingClientRect().width,edge,items:clip.audioId?selectedAudioClips().map(({track,clip})=>({track,clip,original:clone(clip)})):[],changed:false};e.preventDefault();
 });
 document.addEventListener('pointermove',e=>{if(!dragState||e.pointerId!==dragState.pointer)return;const d=dragState,delta=(e.clientX-d.startX)/d.width*project.bars;if(Math.abs(e.clientX-d.startX)<4&&!d.changed)return;
   if(!d.changed){checkpoint();d.changed=true;try{d.el.setPointerCapture(e.pointerId);}catch{}}e.preventDefault();const mode=e.altKey?'slip':editMode;
-  if(d.edge){const position=snapBar((d.edge==='left'?d.original.start:d.original.start+d.original.length)+delta,mode,editGrid),duration=assets.get(d.clip.audioId)?.buffer.duration??Infinity;Object.assign(d.clip,trimClip(d.original,d.edge,position,project.bars,project.bpm,duration));}
+  if(d.fade){const secondsPerBar=240/project.bpm,sign=d.fade==='fadeIn'?1:-1;const other=d.fade==='fadeIn'?'fadeOut':'fadeIn';d.clip[d.fade]=Math.max(0,Math.min(60,Math.max(0,d.clip.length*secondsPerBar-(d.clip[other]||0)),(d.original[d.fade]||0)+sign*delta*secondsPerBar));d.el.dataset.fadePreview=d.clip[d.fade].toFixed(3)+' s';}
+  else if(d.edge){const position=snapBar((d.edge==='left'?d.original.start:d.original.start+d.original.length)+delta,mode,editGrid),duration=assets.get(d.clip.audioId)?.buffer.duration??Infinity;Object.assign(d.clip,trimClip(d.original,d.edge,position,project.bars,project.bpm,duration));}
   else if(d.items.length){const desired=snapBar(d.original.start+delta,mode,editGrid)-d.original.start,min=Math.min(...d.items.map(i=>i.original.start)),max=Math.max(...d.items.map(i=>i.original.start+i.original.length)),shift=Math.max(-min,Math.min(project.bars-max,desired));for(const item of d.items){item.clip.start=item.original.start+shift;const node=document.querySelector(`[data-clip="${item.clip.id}"]`);if(node)node.style.left=item.clip.start/project.bars*100+'%';}}
   else d.clip.start=Math.max(0,Math.min(project.bars-d.clip.length,snapBar(d.original.start+delta,mode,editGrid)));
   d.el.style.left=d.clip.start/project.bars*100+'%';d.el.style.width=`calc(${d.clip.length/project.bars*100}% - 4px)`;updateEditSelection();
 });
-function finishClipDrag(event){if(!dragState||(event?.pointerId!==undefined&&event.pointerId!==dragState.pointer))return;const d=dragState;dragState=null;if(d.changed){suppressClipClickUntil=performance.now()+180;changed(true);}}
+function finishClipDrag(event){if(!dragState||(event?.pointerId!==undefined&&event.pointerId!==dragState.pointer))return;const d=dragState;dragState=null;delete d.el.dataset.fadePreview;if(d.changed){suppressClipClickUntil=performance.now()+180;changed(true);}}
 document.addEventListener('pointerup',finishClipDrag);document.addEventListener('pointercancel',finishClipDrag);window.addEventListener('blur',()=>finishClipDrag());
 let dragDepth=0;const arrangement=$('arrangementSection');
 arrangement.addEventListener('dragenter',e=>{if(e.dataTransfer.types.includes('Files')){e.preventDefault();dragDepth++;arrangement.classList.add('drop-active');}});
