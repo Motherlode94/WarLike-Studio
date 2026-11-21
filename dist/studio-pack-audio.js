@@ -1,3 +1,4 @@
+import {voxWarmCurve} from './vox-warm-model.js';
 import {micColorGains} from './vox-mic-model.js';
 import {voxCleanCurve} from './vox-clean-model.js';
 import {circuitColorCurve} from './circuit-color-model.js';
@@ -62,8 +63,7 @@ export function syncStudioEffect(ctx,id,m,s,bpm,now,initial,inputChannels=1){con
    set(m.dry.gain,s.enabled===false?1:1-s.mix);set(m.wet.gain,s.enabled===false?0:s.mix);
  }
  if(id==='voxwarm'){
-   const k=db(s.drive),bias=s.bias*.2,offset=Math.tanh(bias*k),norm=Math.max(.001,Math.abs(Math.tanh((1+bias)*k)-offset),Math.abs(Math.tanh((-1+bias)*k)-offset));
-   m.shaper.curve=curve(x=>(Math.tanh((x+bias)*k)-offset)/norm);
+   m.shaper.curve=voxWarmCurve(s.drive,s.bias);
    set(m.tone.frequency,Math.min(s.tone,ctx.sampleRate*.45));set(m.dry.gain,s.enabled===false?1:1-s.mix);set(m.wet.gain,s.enabled===false?0:s.mix);set(m.level.gain,db(s.output));
  }
  if(id==='voxdoubler'){
