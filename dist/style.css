@@ -35,3 +35,6 @@
 
 /* R05.2c: track drop feedback, using theme-independent contrast. */
 .track-lane.clip-drop-target{outline:2px solid #46b98a;outline-offset:-2px;box-shadow:inset 0 0 0 2px #46b98a55}.track-lane.clip-drop-invalid{outline:2px dashed #e76c66;outline-offset:-2px}
+
+/* ORIGINS dedicated vector hardware face */
+.plugin-window.origins-hardware{background:#242925;color:#e0c69c;border:2px solid #92754d;border-radius:8px;box-shadow:inset 0 0 0 4px #151918}.origins-face{padding:18px;background:repeating-linear-gradient(135deg,#323a34 0 1px,#232a25 1px 9px);border:1px solid #a18151;display:grid;gap:8px}.origins-face>strong{font-size:26px;letter-spacing:.18em;color:#e5be7f}.origins-face small{color:#c9b28b}.origins-screen{background:#101d17;border:3px solid #82714c;padding:12px;color:#b5d8a8;font-family:monospace}.origins-screen b{display:block;font-size:19px}.origins-screen svg{width:100%;height:25px}.origins-face select{background:#161d18;color:#e5d2a9;width:100%}.origins-hardware .plugin-window-params{background:#202622;border:1px solid #7e6947}.origins-hardware .plugin-identity-banner{display:none}

@@ -1,3 +1,4 @@
+import {originsVoice} from './origins.js';
 import {recordingHorizon} from './recording-horizon.js';
 import {playBaileDrum,isRecordedDrumKit} from './baile-drum-voices.js';
 import {warlikeInstrumentVoice} from './wl-instrument-voices.js';
@@ -302,6 +303,7 @@ export class AudioEngine {
     const scope=this.voiceScope(ctx),node=scope.node;
     if(type==='wlvox')return playWLVocal(ctx,out,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null);
     if(warlikeInstrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null))return;
+    if(type==='origins')return originsVoice(ctx,out,midi,t,duration,params,velocity,live?o=>this.remember(o):null);
     if(['bass','keys','lead','pad','pluck'].includes(type))return instrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null,note);
     if(velocity!==1){const level=node('createGain');level.gain.value=Math.max(0,Math.min(1,velocity));level.connect(out);out=level;}
     t=Math.max(t,ctx.currentTime);if(type==='exo')return exoVoice(ctx,out,midi,t,duration,params,o=>{scope.watch(o);if(live)this.remember(o);});
