@@ -29,3 +29,14 @@ test('multiword plugin search is accent-insensitive and preserves favorites filt
  assert.deepEqual(filterPluginChoices(registry,{query:'brillance tune'}).map(([id])=>id),['test']);
  assert.deepEqual(filterPluginChoices(registry,{query:'frequence',favoritesOnly:true,favorites:[]}),[]);
 });
+
+import {pluginTree,pluginBundle} from '../dist/plugin-picker.js';
+test('bundle folders retain each registered plugin exactly once',()=>{
+ for(const registry of [EFFECTS,INSTRUMENTS]){
+ const items=Object.entries(registry),tree=pluginTree(items);
+ const flattened=[...tree.values()].flatMap(c=>[...c.values()].flat());
+ assert.deepEqual(flattened.map(([id])=>id).sort(),items.map(([id])=>id).sort());
+ }
+ assert.equal(pluginBundle('vectoreq',EFFECTS.vectoreq),'VECTOR');
+ assert.ok(pluginTree(Object.entries(EFFECTS)).get('VECTOR').get('EQ').some(([id])=>id==='vectoreq'));
+});
