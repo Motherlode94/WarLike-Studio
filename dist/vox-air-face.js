@@ -6,6 +6,18 @@ export function mixedResponseDb(real,imag,mix,output,enabled=true){
  const wet=mix*10**(output/20);
  return 20*Math.log10(Math.max(1e-9,Math.hypot(1-mix+wet*real,wet*imag)));
 }
+// Create independent analysis filters with immediate values. AudioParam events
+// queued by the native processor are evaluated during rendering, not here.
+export function createVoxAirAnalysisFilters(ctx){
+ const filters=['highpass','peaking','highshelf'].map(type=>{const node=ctx.createBiquadFilter();node.type=type;return node;});
+ filters[0].Q.value=Math.SQRT1_2;filters[1].Q.value=.75;return filters;
+}
+export function voxAirComplexResponse(filters,s,frequencies){
+ const [hp,presence,air]=filters;hp.frequency.value=s.highpass;presence.frequency.value=s.presenceFreq;presence.gain.value=s.presence;air.frequency.value=s.airFreq;air.gain.value=s.air;
+ const mag=new Float32Array(frequencies.length),phase=new Float32Array(frequencies.length),m=new Float64Array(frequencies.length).fill(1),p=new Float64Array(frequencies.length);
+ for(const filter of filters){filter.getFrequencyResponse(frequencies,mag,phase);for(let i=0;i<frequencies.length;i++){m[i]*=mag[i];p[i]+=phase[i];}}
+ return {m,p};
+}
 const active=new WeakMap(),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const freq=Float32Array.from({length:240},(_,i)=>20*1000**(i/239)),x=f=>25+Math.log(f/20)/Math.log(1000)*310,y=db=>90-clamp(db,-24,24)*3;
 let context;
@@ -23,16 +35,13 @@ export function mountVoxAir(root,{state,master=false}){
  params.before(face);face.querySelector('footer').before(params);params.classList.add('vox-air-controls');
  const banks=VOX_AIR_BANKS.map(([label,ks],i)=>{const bank=document.createElement('section');bank.className='vox-air-bank';bank.style.setProperty('--vox-bank',['#96b6d0','#b7a5e6','#d6b1a5','#aa8bd7'][i]);const h=document.createElement('h4');h.textContent=label;bank.append(h,...ks.map(k=>keys.get(k)));return bank;});params.replaceChildren(...banks);
  context??=new OfflineAudioContext(1,128,48000);
- const filters=['highpass','peaking','highshelf'].map(type=>{const node=context.createBiquadFilter();node.type=type;return node;});
- filters[0].Q.value=Math.SQRT1_2;filters[1].Q.value=.75;
+ const filters=createVoxAirAnalysisFilters(context);
  active.set(face,{state,filters,signature:''});paint(face);
 }
 function paint(face){
  const e=active.get(face),s=e?.state();if(!s)return;
  const signature=[s.highpass,s.presenceFreq,s.presence,s.airFreq,s.air,s.mix,s.output,s.enabled].join(':');if(signature===e.signature)return;e.signature=signature;
- const [hp,presence,air]=e.filters;hp.frequency.value=s.highpass;presence.frequency.value=s.presenceFreq;presence.gain.value=s.presence;air.frequency.value=s.airFreq;air.gain.value=s.air;
- const mag=new Float32Array(freq.length),phase=new Float32Array(freq.length),m=new Float64Array(freq.length).fill(1),p=new Float64Array(freq.length);
- for(const filter of e.filters){filter.getFrequencyResponse(freq,mag,phase);for(let i=0;i<freq.length;i++){m[i]*=mag[i];p[i]+=phase[i];}}
+ const {m,p}=voxAirComplexResponse(e.filters,s,freq);
  const path=fn=>Array.from(freq,(f,i)=>(i?'L':'M')+x(f).toFixed(2)+' '+y(fn(i)).toFixed(2)).join('');
  face.querySelector('[data-air-wet]').setAttribute('d',path(i=>20*Math.log10(Math.max(1e-9,m[i]))+s.output));
  face.querySelector('[data-air-response]').setAttribute('d',path(i=>mixedResponseDb(m[i]*Math.cos(p[i]),m[i]*Math.sin(p[i]),s.mix,s.output,s.enabled!==false)));

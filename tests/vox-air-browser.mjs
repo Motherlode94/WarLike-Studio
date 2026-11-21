@@ -19,14 +19,22 @@ try{
  await page.waitForFunction(p=>document.querySelector('#masteringView [data-air-response]').getAttribute('d')!==p,beforeMaster);
  // Compare complex response against an actual offline render of the native processor.
  const measured=await page.evaluate(async()=>{
-  const {createVoxBC,syncVoxBC}=await import('/vox-bc-audio.js');const {mixedResponseDb}=await import('/vox-air-face.js');
-  const sr=48000,ctx=new OfflineAudioContext(1,sr,sr),scope={node:(kind,...args)=>ctx[kind](...args)},m=createVoxBC(ctx,scope,'voxaireq');
-  const s={enabled:true,highpass:100,presenceFreq:3500,presence:6,airFreq:12000,air:3,mix:.5,output:2};syncVoxBC(ctx,'voxaireq',m,s,0,true);
-  const source=ctx.createOscillator();source.frequency.value=3500;source.connect(m.input);m.output.connect(ctx.destination);source.start();
-  let re=1,im=0;for(const node of [m.highpass,m.presence,m.air]){const mag=new Float32Array(1),phase=new Float32Array(1);node.getFrequencyResponse(new Float32Array([3500]),mag,phase);const r=mag[0]*Math.cos(phase[0]),i=mag[0]*Math.sin(phase[0]);[re,im]=[re*r-im*i,re*i+im*r];}
-  const expected=mixedResponseDb(re,im,s.mix,s.output),buffer=(await ctx.startRendering()).getChannelData(0);let sum=0;for(let i=24000;i<48000;i++)sum+=buffer[i]**2;const actual=20*Math.log10(Math.sqrt(2*sum/24000));return {expected,actual};
+  const {createVoxBC,syncVoxBC}=await import('/vox-bc-audio.js');const {mixedResponseDb,createVoxAirAnalysisFilters,voxAirComplexResponse}=await import('/vox-air-face.js');
+  const sr=48000,analysis=new OfflineAudioContext(1,128,sr),filters=createVoxAirAnalysisFilters(analysis),results=[];
+  const base={enabled:true,highpass:100,presenceFreq:3500,presence:6,airFreq:12000,air:3,mix:.5,output:2};
+  // The production graph retains all scheduled AudioParam events. The reference
+  // uses the same immediate-value analysis helper as the visible face.
+  for(const [frequency,mix,enabled] of [[100,.5,true],[3500,.5,true],[12000,1,true],[3500,0,true],[3500,.5,false]]){
+   const ctx=new OfflineAudioContext(1,sr,sr),scope={node:(kind,...args)=>ctx[kind](...args)},m=createVoxBC(ctx,scope,'voxaireq'),s={...base,mix,enabled};
+   syncVoxBC(ctx,'voxaireq',m,s,0,true);
+   const source=ctx.createOscillator();source.frequency.value=frequency;source.connect(m.input);m.output.connect(ctx.destination);source.start();
+   const {m:mag,p:phase}=voxAirComplexResponse(filters,s,new Float32Array([frequency]));
+   const expected=mixedResponseDb(mag[0]*Math.cos(phase[0]),mag[0]*Math.sin(phase[0]),mix,s.output,enabled);
+   const buffer=(await ctx.startRendering()).getChannelData(0);let sum=0;for(let i=24000;i<48000;i++)sum+=buffer[i]**2;
+   const actual=20*Math.log10(Math.sqrt(2*sum/24000));results.push({frequency,mix,enabled,expected,actual});
+  }return results;
  });
- assert.ok(Math.abs(measured.expected-measured.actual)<.2,JSON.stringify(measured));
+ for(const result of measured)assert.ok(Math.abs(result.expected-result.actual)<.2,JSON.stringify(result));
  await page.screenshot({path:'artifacts/vox-air/master.png'});await page.setViewportSize({width:390,height:844});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/vox-air/mobile.png'});
  assert.deepEqual(errors,[]);console.log('PASS: seven controls, native offline response, mix, master and mobile',measured);
 }finally{await browser.close();}
