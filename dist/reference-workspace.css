@@ -396,3 +396,19 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-pan-knob{display:block;position:relative;flex:0 0 24px;width:24px;height:24px;min-height:0;padding:0;border-radius:50%;border:1px solid #9aa6b1;background:linear-gradient(145deg,#79848e,#303942);box-shadow:0 1px 3px #0008;cursor:ns-resize;touch-action:none}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-pan-knob::after{content:'';position:absolute;inset:3px 10px 50%;background:#f1f5f9;transform-origin:50% 100%;transform:rotate(var(--pan-angle,0deg));pointer-events:none}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-pan-knob:focus-visible{outline:2px solid #e9d285;outline-offset:2px}
+
+/* R03-C5.6 — compact PT Mix, independent scrollable banks. */
+@media(min-width:761px){
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView>.mixer-channel{
+ grid-template-rows:22px 26px 42px minmax(65px,1fr) minmax(48px,.65fr) 48px 32px 28px minmax(150px,1.8fr) 25px 26px;
+ min-height:550px;height:100%;box-sizing:border-box;gap:3px;padding:4px 6px;
+}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-inserts,
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .pt-send-bank{overflow:auto;min-height:0;overscroll-behavior:contain;scrollbar-width:thin}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-input-slot{min-height:0;overflow:auto}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .mixer-fader{min-height:0}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView [data-pt-channel-kind=audio]>.channel-name{border-left:4px solid #75b6dd}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView [data-pt-channel-kind=instrument]>.channel-name{border-left:4px solid #b6a0df}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView [data-pt-channel-kind=bus]>.channel-name{border-left:4px solid #75c9a5}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView [data-pt-channel-kind=master]>.channel-name{border-left:4px solid #e5c17d}
+}
