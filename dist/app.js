@@ -5,6 +5,7 @@ import {NATIVE_CHAINS,nativeEffectsForNames,applyNativeChain,nativeChainCapacity
 import {VOCAL_DEMOS,createVocalDemoSession} from './vocal-demo-sessions.js';
 import {NEW_GENRE_DEMOS,createGenreDemoSession} from './genre-demo-sessions.js';
 import {BEAT_DEMOS,createBeatDemoSession} from './beat-demo-sessions.js';
+import {mixPublicDemoInstruments} from './demo-instrument-mix.js';
 import {balancePublicDemo} from './demo-gain-staging.js';
 import {createRecordedVocalDemoMedia} from './recorded-vocal-audio.js';
 import {beginStudioPairing,completeStudioPairing,createStudioSync} from './studio-cloud-workflow.js';
@@ -146,6 +147,7 @@ async function launchPublicDemo(kind){
    demo.demoRevision=config.beat?demo.demoRevision:config.vocal||config.template?6:config.genre?1:3;
    const demoMedia=demo.vocalDemo?await createRecordedVocalDemoMedia(demo):[];
    balancePublicDemo(demo);
+   mixPublicDemoInstruments(demo);
    if(db){
      await createProjectLocal(demo.name,demo,demoMedia);
      engine.masterVolume=Number.isFinite(demo.masterVolume)?demo.masterVolume:0;
