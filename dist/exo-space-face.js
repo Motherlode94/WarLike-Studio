@@ -1,0 +1,25 @@
+import {exoSpaceEnvelope,exoSpaceLayout} from './exo-space-model.js';
+import {hardwarePresetBank,applyHardwarePreset,mountHardwareMasterPresets} from './hardware-presets.js';
+export const isExoSpace=id=>id==='exospace';
+export const EXO_SPACE_BANKS=Object.freeze([['01 / TIME',['predelay','decay']],['02 / SPACE',['damping','width']],['03 / OUTPUT',['mix','output']]]);
+export function exoSpacePresetBank(id,definition,factory,storage){return isExoSpace(id)?hardwarePresetBank(id,definition,factory,storage):[];}
+export function applyExoSpacePreset(state,id,definition,preset){if(!isExoSpace(id))throw Error('Module hors EXO SPACE');return applyHardwarePreset(state,id,definition,preset);}
+export function mountExoSpacePresets(root,options){return mountHardwareMasterPresets(root,{...options,faceSelector:'.exo-space-hardware',collection:'EXO',sectionClass:'exo-space-presets',saveAttribute:'data-exo-space-save'});}
+const active=new WeakMap(),x=(t,end)=>24+t/end*312;
+function graph(){return '<svg viewBox="0 0 360 164" role="img" aria-label="Enveloppe nominale de convolution"><rect x="1" y="1" width="358" height="162" rx="3" fill="#081218" stroke="#31545e"/>'+[0,1,2,3,4].map(i=>'<path d="M'+(24+i*78)+' 18V122 M24 '+(18+i*26)+'H336" stroke="#19343d"/>').join('')+'<path d="M24 122H336" stroke="#527a85"/><path data-space-envelope fill="none" stroke="#6ef2eb" stroke-width="2.3"/><path data-space-pre stroke="#e6c38d" stroke-dasharray="3 3"/><path data-space-end stroke="#527a85" stroke-dasharray="3 3"/><text x="24" y="139" fill="#a5c7ce" font-size="9">0 ms</text><text data-space-axis x="336" y="139" text-anchor="end" fill="#a5c7ce" font-size="9"/><text x="180" y="154" text-anchor="middle" fill="#a5c7ce" font-size="9">NOMINAL IR ENVELOPE · NOT MEASURED</text></svg>';}
+export function mountExoSpace(root,{state,master=false}){
+ const params=root.querySelector(master?'.master-module-params':'.plugin-window-params');if(!params||root.querySelector('.exo-space-hardware'))return;
+ const nodes=[...params.querySelectorAll('.param')],byKey=new Map(nodes.map(n=>{const i=n.querySelector('input');return [(i?.dataset.param||i?.dataset.masterParam||'').split('.').at(-1),n];}));
+ if(nodes.length!==6||EXO_SPACE_BANKS.flatMap(([,ks])=>ks).some(k=>!byKey.has(k)))return;
+ const surface=document.createElement('section');surface.className='exo-space-hardware';surface.setAttribute('aria-label','EXO SPACE Stereo Convolution Hardware');
+ surface.innerHTML='<header class="exo-space-brand"><small>WARLIKE / EXO COLLECTION</small><strong>SPACE 01</strong><small>STEREO CONVOLUTION</small></header><div class="exo-space-display">'+graph()+'<div class="exo-space-readouts"><output data-space-time></output><output data-space-damping></output><output data-space-status></output></div><div class="exo-space-readouts"><output data-space-width></output><output data-space-mix></output></div><small>Enveloppe théorique de génération IR, avant normalisation, filtrage et mix. Durée de buffer, pas une mesure de RT60.</small></div><footer>PRE-DELAY · GENERATED STEREO IR · DAMPING · OUTPUT</footer>';
+ params.before(surface);surface.querySelector('footer').before(params);params.classList.add('exo-space-controls');
+ const groups=EXO_SPACE_BANKS.map(([label,ks],i)=>{const bank=document.createElement('section');bank.className='exo-space-bank';bank.style.setProperty('--vox-bank',['#60c9d8','#6ef2eb','#e6c38d'][i]);const h=document.createElement('h4');h.textContent=label;bank.append(h,...ks.map(k=>byKey.get(k)));return bank;});params.replaceChildren(...groups);active.set(surface,{state,signature:''});paint(surface);
+}
+function paint(face){const e=active.get(face),s=e?.state();if(!s)return;const signature=JSON.stringify(s);if(signature===e.signature)return;e.signature=signature;const v=exoSpaceLayout(s),end=Math.max(1000,v.endMs),rate=48000,n=Math.ceil(s.decay*rate);
+ const samples=[0,Math.min(n,Math.round(rate*.006)),...Array.from({length:160},(_,i)=>Math.round(n*(i+1)/160))].sort((a,b)=>a-b);
+ const d=samples.map((i,j)=>(j?'L':'M')+x(v.preMs+i/rate*1000,end).toFixed(2)+' '+(122-exoSpaceEnvelope(i,n,rate)*100).toFixed(2)).join('');
+ face.querySelector('[data-space-envelope]').setAttribute('d',d);face.querySelector('[data-space-pre]').setAttribute('d','M'+x(v.preMs,end)+' 18V122');face.querySelector('[data-space-end]').setAttribute('d','M'+x(v.endMs,end)+' 18V122');face.querySelector('[data-space-axis]').textContent=(end/1000).toFixed(2)+' s';
+ face.querySelector('[data-space-time]').textContent='PRE '+s.predelay+' ms · IR '+s.decay.toFixed(1)+' s';face.querySelector('[data-space-damping]').textContent='DAMP '+(s.damping/1000).toFixed(1)+' kHz';face.querySelector('[data-space-width]').textContent='WIDTH '+Math.round(s.width*100)+'%';face.querySelector('[data-space-mix]').textContent='DRY '+Math.round(v.dry*100)+'% / WET '+Math.round(v.wet*100)+'%';face.querySelector('[data-space-status]').textContent=s.enabled===false?'BYPASS':s.mix===0?'DRY':'ACTIVE';
+}
+export function updateExoSpaceFaces(root=document){root.querySelectorAll('.exo-space-hardware').forEach(paint);}
