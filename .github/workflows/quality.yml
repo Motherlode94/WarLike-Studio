@@ -38,6 +38,8 @@ jobs:
           node tests/vocal-audio-browser.mjs
           node tests/beat-demos-browser.mjs
           node tests/export-browser.mjs
+      - name: Full factory sessions save, reopen, playback and export
+        run: node tests/factory-session-browser.mjs
       - name: Reference workspace screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -59,4 +61,12 @@ jobs:
         with:
           name: studio-human-vocal-demos
           path: artifacts/vocal-demos/
+          if-no-files-found: ignore
+
+      - name: Full factory session evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: studio-factory-sessions
+          path: artifacts/factory-sessions/
           if-no-files-found: ignore
