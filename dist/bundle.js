@@ -1,9 +1,11 @@
+import {ORIGINS_PRESETS} from './origins.js';
 import {WL_INSTRUMENT_PRESETS} from './wl-instrument-presets.js';
 import {ACOUSTIC_PRESETS} from './acoustic.js?v=0.14.0';
 import {EXO_PRESETS} from './exo.js?v=0.14.0';
 import {packPresetBank} from './packs.js?v=0.14.0';
 import {INSTRUMENTS,EFFECTS,ensurePlugins,addEffectInsert,effectType,effectDefinition} from './plugins.js?v=0.14.0';
 export const FACTORY_PRESETS={
+  origins:ORIGINS_PRESETS,
   sampler:[{name:"Mon sample",values:{}}],
   "drums": [
     {

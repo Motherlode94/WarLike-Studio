@@ -1,10 +1,11 @@
 const groups={tilteq:'EQ',notch:'EQ',slap:'Delay',circuiteq:'EQ',vectoreq:'EQ',circuitbus:'Dynamique',vectorcomp:'Dynamique',vectorlimit:'Dynamique',voxlevel:'Voix',voxclean:'Voix',voxtune:'Voix',circuitcolor:'Saturation',alterdouble:'Modulation',alterecho:'Delay',alterfilter:'Modulation',sculpt:'EQ',prism:'EQ',balance:'EQ',glue:'Dynamique',press:'Dynamique',peak:'Dynamique',hush:'Voix',sibil:'Voix',exofocus:'Voix',color:'Saturation',ember:'Saturation',exoair:'Saturation',echo:'Delay',relay:'Delay',aura:'Réverbération',exospace:'Réverbération',orbit:'Modulation',sway:'Modulation',phase:'Modulation',ring:'Modulation',exostrip:'Channel strip'};
 const key='warlike.plugin.favorites.v1',normal=s=>String(s).toLowerCase().normalize('NFD').replace(/\p{M}/gu,'');
-export function pluginCategory(id,def){return groups[id]||({sampler:'Sampler',piano:'Pianos & claviers',upright:'Pianos & claviers',epiano:'Pianos & claviers',harp:'Cordes pincées',strum:'Cordes pincées',violin:'Cordes frottées',cello:'Cordes frottées',flute:'Vents',trumpet:'Vents',marimba:'Percussions mélodiques',vibes:'Percussions mélodiques',kalimba:'Percussions mélodiques',drums:'Batterie'})[id]||'Synthétiseurs';}
+export function pluginCategory(id,def){return groups[id]||({origins:'Vents du monde',sampler:'Sampler',piano:'Pianos & claviers',upright:'Pianos & claviers',epiano:'Pianos & claviers',harp:'Cordes pincées',strum:'Cordes pincées',violin:'Cordes frottées',cello:'Cordes frottées',flute:'Vents',trumpet:'Vents',marimba:'Percussions mélodiques',vibes:'Percussions mélodiques',kalimba:'Percussions mélodiques',drums:'Batterie'})[id]||'Synthétiseurs';}
 // Index the control labels as well as the effect title. Users can discover a
 // processor by what they need to change (threshold, feedback, formants, etc.).
 // Every query word must match, but words need not be adjacent or ordered.
 export function pluginBundle(id,def){
+ if(id==='origins')return 'ORIGINS';
  const family=/^(vector|circuit|vox|exo|alter)/.exec(id)?.[1];
  return family?({vox:'VOX LAB',vector:'VECTOR',circuit:'CIRCUIT',exo:'EXO',alter:'ALTER'})[family]:def?.pack?String(def.pack).toUpperCase():'Native Plugins';
 }

@@ -1,3 +1,4 @@
+import {ORIGINS_INSTRUMENT} from './origins.js';
 import {GUITAR_INSTRUMENTS,SYNTH_INSTRUMENTS} from './wl-instrument-packs.js';
 import {WL_VOCAL_INSTRUMENT} from './wl-vocal-voices.js';
 import {SAMPLER_INSTRUMENT} from './sampler.js?v=0.14.0';
@@ -7,6 +8,7 @@ import {PACK_EFFECTS} from './packs.js?v=0.14.0';
 // processors, not native VST binaries. Each definition owns its controls/defaults.
 import {ACOUSTIC_INSTRUMENTS} from './acoustic.js?v=0.14.0';
 export const INSTRUMENTS = {
+  origins:ORIGINS_INSTRUMENT,
   wlvox:WL_VOCAL_INSTRUMENT,
   ...GUITAR_INSTRUMENTS,
   ...SYNTH_INSTRUMENTS,
