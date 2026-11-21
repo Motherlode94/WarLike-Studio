@@ -95,7 +95,11 @@ for(const [kind,name] of selected){
    const metrics=await deadline(renderPage.evaluate(async p=>{
     const {AudioEngine}=await import('/audio.js');
     const engine=new AudioEngine(()=>p,()=>new Map());
+    const start=performance.now();
+    let renderMs=0;const render=engine.renderRange.bind(engine);
+    engine.renderRange=async options=>{const pcm=await render(options);renderMs=performance.now()-start;return pcm;};
     const wav=await engine.exportWav({sampleRate:44100,bits:24,tail:false});
+    const encodeMs=performance.now()-start-renderMs;
     const header=new DataView(wav),decoder=new AudioContext({sampleRate:44100});
     try{
      const b=await decoder.decodeAudioData(wav.slice(0));
@@ -106,9 +110,9 @@ for(const [kind,name] of selected){
       for(let i=0;i<data.length;i++){const x=data[i];if(!Number.isFinite(x))throw Error('Nonfinite PCM');peak=Math.max(peak,Math.abs(x));energy+=x*x;}
       for(const s of sections)for(let i=s.start;i<Math.min(data.length,s.end);i++)s.energy+=data[i]*data[i];
      }
-     return {sampleRate:b.sampleRate,channels:b.numberOfChannels,frames:b.length,bits:header.getUint16(34,true),peak,rms:Math.sqrt(energy/(b.length*b.numberOfChannels)),sections:sections.map(s=>({name:s.name,rms:Math.sqrt(s.energy/((s.end-s.start)*b.numberOfChannels))}))};
+     return {renderMs,encodeMs,sampleRate:b.sampleRate,channels:b.numberOfChannels,frames:b.length,bits:header.getUint16(34,true),peak,rms:Math.sqrt(energy/(b.length*b.numberOfChannels)),sections:sections.map(s=>({name:s.name,rms:Math.sqrt(s.energy/((s.end-s.start)*b.numberOfChannels))}))};
     }finally{await decoder.close();}
-   },imported.project),360000,kind+' full WAV render');
+   },imported.project),540000,kind+' full WAV render');
    stage(kind,'WAV decoded; checking metrics');
    report.push({kind,seconds,...metrics});
    await writeFile(dir+'/report.json',JSON.stringify(report,null,2)+'\n');

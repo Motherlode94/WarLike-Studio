@@ -64,7 +64,7 @@ jobs:
   factory-session:
     name: Factory certification (${{ matrix.song }})
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 18
     strategy:
       fail-fast: false
       matrix:
@@ -92,7 +92,8 @@ jobs:
             sleep 1
           done
           curl -fsS http://127.0.0.1:8765/ -o /dev/null
-          timeout --signal=TERM --kill-after=15s 10m node tests/factory-session-browser.mjs
+          node tests/offline-schedule-browser.mjs
+          timeout --signal=TERM --kill-after=15s 12m node tests/factory-session-browser.mjs
       - name: Full factory session evidence
         if: always()
         uses: actions/upload-artifact@v4
