@@ -24,3 +24,35 @@
 .plugin-window[data-processor=vectoreq] .vector-band label{color:#f4ebda;font-size:10px;white-space:normal}
 .plugin-window[data-processor=vectoreq] .vector-output{grid-template-columns:1fr}
 .plugin-window[data-processor=vectoreq] .plugin-identity-banner{background:#23323e;border-block:1px solid #a4adb4;color:#f4ebda}
+
+/* R06.2 — VECTOR EQ hardware, independent of the host theme. Vector/CSS only. */
+.vector-eq-hardware{box-sizing:border-box;width:100%;min-width:0;padding:12px;background:linear-gradient(125deg,#52606b,#303943 60%,#414b54);color:#f5e8d2;border:2px solid #a1a6a5;border-radius:6px;box-shadow:inset 0 1px #c8c7be,inset 0 -3px 5px #1d252c;position:relative}
+.vector-eq-hardware:before,.vector-eq-hardware:after{content:'+';position:absolute;top:5px;color:#252a30;background:#b3ad9d;border:1px solid #666d71;border-radius:50%;width:11px;height:11px;font:10px/10px monospace;text-align:center}
+.vector-eq-hardware:before{left:5px}.vector-eq-hardware:after{right:5px}
+.vector-eq-hardware .vector-eq-brand{display:grid;justify-items:center;gap:4px;padding:8px 0 12px;border-bottom:1px solid #a69c89;color:#f5e8d2}
+.vector-eq-brand small,.vector-eq-brand>span{font-size:9px;letter-spacing:.15em;color:#ead8bb;text-align:center}
+.vector-eq-brand strong{font-size:26px;letter-spacing:.18em;color:#fff1d9}.vector-eq-brand strong span{color:#dfb978;font-size:16px}
+.vector-eq-screen{background:#162127;border:1px solid #aaa18f;border-radius:5px;padding:7px;margin:11px 0}
+.vector-eq-hardware .eq-curve-editor{padding:0;background:transparent;border:0;min-width:0;color:#ede3d0}
+.vector-eq-hardware .eq-curve-editor>div{display:flex;flex-wrap:wrap;gap:4px;justify-content:space-between;color:#dfd2b8;font-size:10px}
+.vector-eq-hardware .eq-curve-editor svg{width:100%;height:auto;min-height:115px;max-height:245px;display:block;background:#101c23;border:1px solid #525d5b;touch-action:none}
+.vector-eq-hardware .eq-grid{stroke:#34454d}.vector-eq-hardware .eq-zero{stroke:#829493}
+.vector-eq-hardware .eq-response{fill:none;stroke:#f0cf90;stroke-width:2.2}
+.vector-eq-hardware .eq-curve-editor svg text{fill:#d4d9d6;font-size:10px}
+.vector-eq-hardware [data-eq-band]{fill:#c9a16a;stroke:#101c23;stroke-width:1.5;cursor:grab}
+.vector-eq-hardware [data-eq-band].selected,.vector-eq-hardware [data-eq-band]:focus{fill:#ffe0a0;stroke:#fff5df;stroke-width:2}
+.vector-eq-hardware .eq-curve-editor output{display:block;color:#f0cf90;font:11px monospace;margin-top:5px}
+.vector-eq-caption{display:block;color:#c3cecc;font-size:9px;margin-top:5px}
+.plugin-window[data-processor=vectoreq] .vector-eq-hardware .vector-eq-controls,.master-module .vector-eq-hardware .vector-eq-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:7px;padding:7px;min-height:0;background:#26323b;border:1px solid #899393;border-radius:4px}
+.plugin-window[data-processor=vectoreq] .vector-eq-hardware .vector-eq-bank,.master-module .vector-eq-hardware .vector-eq-bank{min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:7px 3px;background:linear-gradient(#4d5b66,#354450);border:1px solid #88949b;border-top:3px solid var(--band-accent,#d4c2a5);border-radius:3px}
+.vector-eq-hardware .vector-eq-bank h4{grid-column:1/-1;margin:0 0 5px;padding-bottom:4px;text-align:center;color:#f5e8d2;font-size:10px;letter-spacing:.08em;border-bottom:1px solid #79868b}
+.vector-eq-hardware .vector-eq-bank.vector-output{grid-template-columns:1fr!important}
+.floating-plugin .vector-eq-hardware .vector-eq-bank .param,.master-module .vector-eq-hardware .vector-eq-bank .param{min-width:0;width:auto;color:#f5e8d2}
+.floating-plugin .vector-eq-hardware .vector-eq-bank .knob,.master-module .vector-eq-hardware .vector-eq-bank .knob{width:42px;height:42px;max-width:100%;border:1.5px solid #c2b7a6;border-radius:50%;background:repeating-conic-gradient(#273039 0deg 5deg,#53616c 5deg 10deg);box-shadow:0 3px 4px #20272d;position:relative}
+.floating-plugin .vector-eq-hardware .vector-eq-bank .knob:before,.master-module .vector-eq-hardware .vector-eq-bank .knob:before{width:30px;height:30px;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 35% 25%,#b46a61,#673a39 75%);border:1px solid #cfbda6}
+.floating-plugin .vector-eq-hardware .vector-eq-bank .knob:after,.master-module .vector-eq-hardware .vector-eq-bank .knob:after{left:calc(50% - 1px);top:5px;width:2px;height:9px;background:#ffedc9;transform-origin:1px 15px;transform:rotate(var(--rotation))}
+.vector-eq-hardware .vector-eq-bank label{font-size:9px;color:#f5e8d2;text-align:center;white-space:normal}
+.vector-eq-hardware .vector-eq-bank .param-value{font:10px monospace;color:#ffdf9f;background:#18232b;border:1px solid #8a9699;padding:3px 1px;max-width:100%}
+.vector-eq-hardware .knob:focus-within{outline:2px solid #f4d49b;outline-offset:2px}
+.vector-eq-footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px;font-size:8px;letter-spacing:.1em;color:#f1dfc4;padding-top:10px}
+@media(max-width:660px){.vector-eq-hardware{padding:8px}.vector-eq-screen{padding:4px}.vector-eq-hardware .eq-curve-editor svg{min-height:100px}}
