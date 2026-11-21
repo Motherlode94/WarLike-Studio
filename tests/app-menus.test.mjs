@@ -17,3 +17,13 @@ test('menu shortcuts ignore Alt chords, repeats and composition',()=>{
  assert.equal(menuShortcut(event('n',{ctrlKey:false})),null);
  assert.equal(menuShortcut(event('o',{ctrlKey:false,metaKey:true})),'open');
 });
+
+import {menuSpecs,menuPosition} from '../dist/app-menus.js';
+test('hierarchical menus retain every existing command exactly once',()=>{
+ const actions=menuSpecs.flatMap(([, ,groups])=>groups.flatMap(([,items])=>items.map(([id])=>id)));
+ assert.deepEqual(actions.sort(),['new','open','save','import','export','undo','redo','cut','copy','paste','duplicate','delete'].sort());
+});
+test('submenu flips at right edge and clamps bottom',()=>{
+ assert.deepEqual(menuPosition({left:700,right:790,top:550,bottom:580},190,200,800,600,true),{left:510,top:396});
+ assert.deepEqual(menuPosition({left:10,right:80,top:10,bottom:30},190,200,800,600),{left:10,top:30});
+});
