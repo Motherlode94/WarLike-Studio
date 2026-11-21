@@ -257,3 +257,5 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio .fl-mixer-strips>.selected{background:#596d76}
 .fl-mixer-effects{flex:0 0 245px;max-width:42%;overflow:auto;padding:10px;background:#29373f;border-left:2px solid #18252b}
 .fl-mixer-effects h3{font-size:12px;margin:0 0 10px;color:#e6edf0}.fl-mixer-effects .insert-slot{min-height:28px}.fl-mixer-effects .insert-slots{display:flex;flex-direction:column;gap:3px}.fl-mixer-strips .mixer-master .channel-name{cursor:pointer}
+
+.fl-routing-panel{margin-top:14px;padding-top:10px;border-top:1px solid #53646c;color:#e6edf0}.fl-route-diagram{display:flex;align-items:center;gap:5px;margin:8px 0;font-size:10px}.fl-route-diagram span{max-width:44%;overflow-wrap:anywhere;background:#344a43;border:1px solid #639875;padding:4px;border-radius:3px}.fl-route-diagram i{flex:1;min-width:12px;height:2px;background:#79be88}.fl-routing-panel .workflow-routing{display:flex;flex-direction:column;gap:7px}.fl-routing-panel select,.fl-routing-panel input{max-width:100%;min-width:0}.fl-routing-panel .aux-send{padding:6px;border:1px solid #53646c}.fl-routing-panel .aux-send label{flex-wrap:wrap}
