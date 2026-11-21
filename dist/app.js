@@ -998,6 +998,23 @@ $('toggleInspector').onclick=()=>showTrackProperties($('trackInspector').hidden)
 $('zoomFit').onclick=()=>{if(view!=='arrange')setView('arrange');fitTimeline();};
 const floatingPluginController=installFloatingWindow($('pluginFloat'),$('pluginFloatHeader'),{onClose:closePluginWindow});
 installKnobControls({onStart:checkpoint});
+function applyOverlapCrossfade(){
+ if(recording||recordFinalizing)return;
+ const track=currentTrack(),clip=currentClip();
+ if(!clip?.audioId||!track){toast('Sélectionne un clip audio.');return;}
+ const pairs=track.clips.filter(c=>c!==clip&&c.audioId).map(c=>{
+ const [a,b]=[clip,c].sort((x,y)=>x.start-y.start);
+ const overlap=a.start+a.length-b.start;
+ return {a,b,overlap};
+ }).filter(({a,b,overlap})=>a.start<b.start&&a.start+a.length<b.start+b.length&&overlap>0);
+ if(pairs.length!==1){toast('Sélectionne un clip avec un seul chevauchement audio partiel.');return;}
+ const {a,b,overlap}=pairs[0],duration=overlap*240/project.bpm;
+ if(duration>60||duration+(a.fadeIn||0)>a.length*240/project.bpm||duration+(b.fadeOut||0)>b.length*240/project.bpm){toast('Transition incompatible avec les fondus existants.');return;}
+ const owner=project;
+ modal('Crossfade',`<p>Chevauchement : ${duration.toFixed(3)} s. Les deux clips restent en place.</p><label>Courbe <select id="crossfadeCurve"><option value="equalPower">Equal Power</option><option value="linear">Linear</option></select></label><div class="modal-actions"><button id="applyCrossfade" class="primary-btn">Appliquer</button></div>`);
+ $('applyCrossfade').onclick=()=>{if(project!==owner||recording||recordFinalizing||!track.clips.includes(a)||!track.clips.includes(b))return;const curve=$('crossfadeCurve').value;checkpoint();a.fadeOut=duration;b.fadeIn=duration;a.fadeCurve=b.fadeCurve=curve;changed(true);toast('Crossfade appliqué · Ctrl+Z pour annuler.');};
+}
+$('ptCrossfade').onclick=applyOverlapCrossfade;
 document.querySelectorAll('[data-edit-tool]').forEach(button=>button.onclick=()=>setEditingTool(button.dataset.editTool));
 $('zoomIn').onclick=()=>{timelineZoom=Math.min(128,Math.round(timelineZoom*1.5*100)/100);render();};
 $('zoomOut').onclick=()=>{timelineZoom=Math.max(.5,Math.round(timelineZoom/1.5*100)/100);render();};
