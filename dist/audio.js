@@ -94,11 +94,14 @@ export class AudioEngine {
     highpass.connect(filter);eqLow.connect(eqMid);eqMid.connect(eqHigh);
     compInput.connect(compressor);compressor.connect(compressWet);compressWet.connect(makeup);compInput.connect(compressDelay);compressDelay.delayTime.value=.006;compressDelay.connect(compressDry);compressDry.connect(makeup);
     pan.connect(gain);gain.connect(analyser);
+    const meterSplitter=master&&!(ctx instanceof OfflineAudioContext)?ctx.createChannelSplitter(2):null;
+    const meterLeft=meterSplitter?ctx.createAnalyser():null,meterRight=meterSplitter?ctx.createAnalyser():null;
+    if(meterSplitter){gain.connect(meterSplitter);meterLeft.fftSize=meterRight.fftSize=256;meterSplitter.connect(meterLeft,0);meterSplitter.connect(meterRight,1);}
     gain.gain.value=this.audible(tr)?dbGain(tr.volume):0; pan.pan.value=tr.pan;
     echoInput.connect(echoOutput);echoInput.connect(send);send.connect(delay);delay.connect(feedback);feedback.connect(delay);delay.connect(echoOutput);
     auraInput.connect(auraOutput);auraInput.connect(space);space.connect(reverb);reverb.connect(auraOutput);
     delay.delayTime.value=60/this.getProject().bpm*.75; send.gain.value=tr.delay||0; feedback.gain.value=.3; analyser.fftSize=128;
-    const ch={input,filter,pan,gain,analyser,send,delay,feedback,drive,highpass,space,eqLow,eqMid,eqHigh,compressor,makeup,colorDry,colorWet,colorOut,compressDry,compressWet,compressDelay,pack,packSignature:packTypes(tr).join(','),instanceChannels:new Map(),sendNodes:new Map(),routeDelay:ctx.createDelay(1),stages:{...pack.modules,color:{input:colorInput,output:colorOut},sculpt:{input:highpass,output:filter},prism:{input:eqLow,output:eqHigh},glue:{input:compInput,output:makeup},echo:{input:echoInput,output:echoOutput},aura:{input:auraInput,output:auraOutput}}};this.syncEffects(ch,tr,ctx.currentTime,true);return ch;
+    const ch={input,filter,pan,gain,analyser,meterSplitter,meterLeft,meterRight,send,delay,feedback,drive,highpass,space,eqLow,eqMid,eqHigh,compressor,makeup,colorDry,colorWet,colorOut,compressDry,compressWet,compressDelay,pack,packSignature:packTypes(tr).join(','),instanceChannels:new Map(),sendNodes:new Map(),routeDelay:ctx.createDelay(1),stages:{...pack.modules,color:{input:colorInput,output:colorOut},sculpt:{input:highpass,output:filter},prism:{input:eqLow,output:eqHigh},glue:{input:compInput,output:makeup},echo:{input:echoInput,output:echoOutput},aura:{input:auraInput,output:auraOutput}}};this.syncEffects(ch,tr,ctx.currentTime,true);return ch;
   }
   impulse(ctx) {
     if(!this.impulses)this.impulses=new WeakMap();

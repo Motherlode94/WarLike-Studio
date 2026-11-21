@@ -364,3 +364,11 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 /* PT I/O labels use actual session routes; no additional audio graph. */
 .pt-io-summary{display:none}
 @media(min-width:761px){.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .pt-io-summary{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;line-height:12px;color:inherit}.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-routing{min-height:0;overflow:auto}.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView>.mixer-channel{grid-template-rows:22px 26px 56px 310px 192px 54px 42px 30px minmax(205px,1fr) 27px 28px;min-height:1060px}}
+
+/* Independent post-fader peak meters; legacy RMS remains in other layouts. */
+.pt-stereo-meter{display:none}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-fader>.channel-meter{display:none}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-stereo-meter{display:flex;align-self:stretch;gap:3px;width:18px;min-width:18px;padding:3px 0}
+.pt-stereo-meter i{position:relative;flex:1;background:#171d23;border:1px solid #66727e;overflow:hidden}
+.pt-stereo-meter i span{position:absolute;bottom:0;left:0;right:0;height:0;background:#53c77a}
+.pt-stereo-meter i span.clip{background:#ef5757}
