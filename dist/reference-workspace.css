@@ -447,3 +447,12 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 html[data-warlike-app="warlike-studio"] #trackRows .track-lane > .clip{top:1px;bottom:1px;height:auto;min-height:0;box-sizing:border-box;}
 html[data-warlike-app="warlike-studio"] #trackRows .track-lane > .clip canvas{top:22px;bottom:3px;height:calc(100% - 25px);max-height:none;}
 html[data-warlike-app="warlike-studio"] #trackRows .track-lane > .clip :is(.clip-trim-left,.clip-resize){top:0;bottom:0;height:auto;}
+
+/* Local workspace layouts and explicit resize handle. */
+.reference-studio .workspace-layout-controls{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--wl-border,#656a73);padding:8px 0;min-width:0}
+.reference-studio .workspace-layout-controls input,.reference-studio .workspace-layout-controls select{min-width:0;max-width:145px}
+.reference-studio .workspace-layout-controls button{font:inherit;min-height:28px;cursor:pointer}
+.workspace-layout-actions{display:flex;flex-wrap:wrap;gap:4px;padding:0 8px}
+.reference-window-options{max-height:min(75vh,620px);overflow:auto}
+[data-managed-window] [data-float-resize]{cursor:nwse-resize;touch-action:none}
+@media(max-width:350px){[data-managed-window="plugin"]{min-width:0}}

@@ -33,6 +33,6 @@ export function installSignature(d){
   const use=key=>{comparison[comparison.active]=channelSnapshot(t);d.checkpoint();restoreChannelSnapshot(t,comparison[key]);comparison.active=key;d.changed(true);$('compareStatus').textContent='Version '+key+' active';};$('compareA').onclick=()=>use('A');$('compareB').onclick=()=>use('B');$('copyAToB').onclick=()=>{comparison.B=structuredClone(comparison.A);if(comparison.active==='B'){restoreChannelSnapshot(t,comparison.B);d.changed(true);}$('compareStatus').textContent='Réglages A copiés vers B';};
  }
  installInstrumentAudition(d);
- installReferenceWorkspace({bar,onView:view=>{select(view==='mixer'?'mix':view==='library'?'library':'record',false);},setDetailOpen:d.setDetailOpen});
+ installReferenceWorkspace({bar,onView:view=>{select(view==='mixer'?'mix':view==='library'?'library':'record',false);},setDetailOpen:d.setDetailOpen,setView:d.setView,showTrackProperties:d.showTrackProperties,busy:d.busy,toast:d.toast});
  select(mode,false);return {render,select,syncView:view=>select(view==='mixer'?'mix':view==='mastering'?'master':view==='library'?'library':mode==='compose'?'compose':'record',false),activate:()=>select(mode)};
 }
