@@ -33,7 +33,7 @@ import {AudioEngine,emptyProject,uid,noteName,bufferToWav} from './audio.js?v=0.
 import {personalEffectPresets,saveEffectPreset,applyPersonalEffectPreset,nextPresetIndex,compareInsert,copyInsertComparison,INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins,formatParam,placeInsert,moveInsert,INSERT_COUNT,effectDefinition,effectType,copyInsert,changeInstrument,instrumentDefinition} from './plugins.js?v=0.14.0';
 import {recordingSettings,createRecordingGraph,measureBuffer,normalisationGain,clampClipGain} from './recording.js?v=0.14.0';
 import {installKnobControls} from './controls.js?v=0.14.0';
-import {installFloatingWindow} from './windows.js?v=0.14.0';
+import {installFloatingWindow} from './windows.js?v=0.14.1';
 import {FACTORY_PRESETS,presetsFor,matchPreset,applyFactoryPreset,exportRack,importRack} from './bundle.js?v=0.14.0';
 
 import {MASTER_MODULES,MASTER_PRESETS,masteringSettings,applyMasterPreset,matchMasterPreset,exportMasterRack,importMasterRack} from './mastering.js?v=0.14.0';
