@@ -1,4 +1,5 @@
 import {originsVoice} from './origins.js';
+import {loopBounds,loopPosition} from './loop-range.js';
 import {recordingHorizon} from './recording-horizon.js';
 import {playBaileDrum,isRecordedDrumKit} from './baile-drum-voices.js';
 import {warlikeInstrumentVoice} from './wl-instrument-voices.js';
@@ -174,11 +175,13 @@ export class AudioEngine {
     if(!this.playing||!this.ctx)return this.position;
     const raw=(this.ctx.currentTime-this.startTime)/this.stepDuration;
     const total=this.getPlaybackProject().bars*16;
-    return this.loop?((raw%total)+total)%total:Math.min(raw,total);
+    return this.loop?loopPosition(raw,this.playbackLoopBounds()):Math.max(0,Math.min(raw,total));
   }
+  playbackLoopBounds(){const p=this.getPlaybackProject();return loopBounds(this.patternMode||this.clipPreview||this.takePreview?null:p.loopRange,p.bars);}
   async play() {
     this.stopReference();
     const request=this.playRequest=(this.playRequest||0)+1;await this.init(); if(request!==this.playRequest||this.playing)return;await this.prepareInstruments(this.ctx,this.getPlaybackProject());if(request!==this.playRequest)return;
+    if(this.loop&&!this.recordingTrackId){const b=this.playbackLoopBounds();if(this.position<b.start||this.position>=b.end)this.position=b.start;}
     this.startTime=this.ctx.currentTime+.06-this.position*this.stepDuration;
     this.scheduledStep=Math.ceil(this.position); this.playing=true;
     if(!this.patternMode&&!this.clipPreview)this.schedulePartialAudio(this.position);this.scheduleAutomation(this.ctx,this.graph,this.position/16,this.getProject().bars,this.ctx.currentTime+.06);
@@ -223,7 +226,7 @@ export class AudioEngine {
       if(hardRecovery)this.killVoices();
       this.scheduledStep=Math.max(0,Math.ceil(current));
       if(hardRecovery&&this.loop&&!this.patternMode&&!this.clipPreview){
-        const local=this.scheduledStep%total;
+        const local=loopPosition(this.scheduledStep,this.playbackLoopBounds());
         const resumeAt=now+.03;
         this.startTime=resumeAt-local*sd;this.scheduledStep=local;
         this.schedulePartialAudio(local);
@@ -233,10 +236,10 @@ export class AudioEngine {
     const earliest=now+.004;
     while(this.startTime+this.scheduledStep*sd<now+.14) {
       if(!this.loop&&this.scheduledStep>=total){this.pause();this.position=0;this.onEnded?.();return;}
-      const local=this.scheduledStep%total,time=this.startTime+this.scheduledStep*sd;
+      const bounds=this.playbackLoopBounds(),local=this.loop?loopPosition(this.scheduledStep,bounds):this.scheduledStep,time=this.startTime+this.scheduledStep*sd;
       // Skipped steps are never rescheduled in the past.
       if(time<earliest){this.scheduledStep++;continue;}
-      if(local===0&&this.scheduledStep>0)this.scheduleAutomation(this.ctx,this.graph,0,p.bars,time);
+      if(this.loop&&local===bounds.start&&this.scheduledStep>=bounds.end){const origin=this.startTime;this.startTime=time-local*sd;this.schedulePartialAudio(local);this.startTime=origin;this.scheduleAutomation(this.ctx,this.graph,local/16,bounds.end/16,time);}
       this.scheduleStep(this.ctx,this.channels,local,time,true,earliest);
       if(this.metronome&&local%4===0)this.click(time,local%16===0);
       this.scheduledStep++;
