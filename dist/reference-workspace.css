@@ -379,3 +379,11 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .pt-stereo-meter i.latched-clip{border-top:3px solid #ef5757}
 .pt-peak-reset{position:absolute;top:0;left:0;width:100%;font-size:8px;padding:2px 0;line-height:12px}
 .pt-stereo-meter:has(.latched-clip) .pt-peak-reset{background:#a92424;color:white}
+
+/* PT proportional gain and meter scales */
+.pt-meter-scale{display:none}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .fader-scale{position:relative;align-self:stretch;min-width:23px;margin:8px 0;font-size:8px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .fader-scale span{position:absolute;top:var(--pt-tick);right:0;transform:translateY(-50%);white-space:nowrap}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .fader-scale span:nth-child(2){font-weight:bold;color:inherit;border-bottom:1px solid currentColor}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-stereo-meter{width:44px;min-width:44px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-meter-scale{display:flex;flex-direction:column;justify-content:space-between;font-size:7px;line-height:8px;align-self:stretch}
