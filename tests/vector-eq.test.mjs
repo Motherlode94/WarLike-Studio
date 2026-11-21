@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {VECTOR_BANDS,vectorBandKeys} from '../dist/vector-eq-face.js';import {eqBands} from '../dist/eq-curve.js';
+test('VECTOR EQ panel preserves nineteen distinct DSP controls',()=>{const keys=VECTOR_BANDS.flatMap((_,i)=>vectorBandKeys(i));assert.equal(new Set([...keys,'output']).size,19);assert.deepEqual(keys,eqBands('vectoreq').flatMap(b=>[b.f,b.g,b.q]));});
