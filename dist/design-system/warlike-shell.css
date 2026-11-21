@@ -59,3 +59,26 @@ html[data-warlike-app="warlike-studio"] #modal::-webkit-scrollbar-track{backgrou
  html[data-warlike-app="warlike-studio"] #modal .project-home > .project-home-section{grid-column:1/-1!important}
  html[data-warlike-app="warlike-studio"] #modal .project-home-creation{grid-template-columns:minmax(0,1fr)}
 }
+
+/* R03-UI.2: menu chrome only; leave audio controls and semantic colors intact. */
+html[data-warlike-app="warlike-studio"] :is(.dropdown,.studio-dropdown,.app-menu-dropdown,[role="menu"]){
+  background:var(--wl-surface)!important;color:var(--wl-text)!important;
+  border-color:var(--wl-border)!important;box-shadow:var(--wl-shadow);
+  border-radius:var(--wl-radius-sm);max-width:calc(100vw - 24px);
+  max-height:70dvh;overflow-y:auto;scrollbar-color:var(--wl-border) var(--wl-surface);
+}
+html[data-warlike-app="warlike-studio"] :is(.dropdown,.studio-dropdown,.app-menu-dropdown,[role="menu"]) :is(button,a,[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"]){
+  background:transparent!important;color:var(--wl-text)!important;
+  border-color:transparent!important;border-radius:var(--wl-radius-sm);
+}
+html[data-warlike-app="warlike-studio"] :is(.dropdown,.studio-dropdown,.app-menu-dropdown,[role="menu"]) :is(button,a,[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"]):not(:disabled):not([aria-disabled="true"]):is(:hover,:focus-visible,.active,.selected,[aria-checked="true"],[aria-expanded="true"]){
+  background:var(--wl-surface-alt)!important;color:var(--wl-text)!important;
+  border-color:var(--wl-focus)!important;
+}
+html[data-warlike-app="warlike-studio"] :is(.dropdown,.studio-dropdown,.app-menu-dropdown,[role="menu"]) :is(:disabled,[aria-disabled="true"]){opacity:.5;cursor:default}
+html[data-warlike-app="warlike-studio"] :is(.dropdown,.studio-dropdown,.app-menu-dropdown,[role="menu"]) :is(kbd,small){color:var(--wl-text-muted)!important;background:transparent}
+html[data-warlike-app="warlike-studio"] :is(.dropdown,.studio-dropdown,.app-menu-dropdown,[role="menu"]) :is(hr,[role="separator"]){border-color:var(--wl-border)!important}
+html[data-warlike-app="warlike-studio"] :is(.menu-anchor > button,.studio-menubar button):not(:disabled):is(:hover,:focus-visible,[aria-expanded="true"]){background:var(--wl-surface-alt)!important;color:var(--wl-text)!important}
+html[data-warlike-app="warlike-studio"] :is(.menu-anchor,.studio-menubar,.edit-grid-label,.bank-filters) select option{background:var(--wl-surface);color:var(--wl-text)}
+html[data-warlike-app="warlike-studio"] .warlike-workspaces :is(.ws-label,.ws-hint){color:var(--wl-text-muted)!important}
+html[data-warlike-app="warlike-studio"] .warlike-workspaces button:not(:disabled):is(:hover,.ws-active,[aria-pressed="true"]){background:var(--wl-bg)!important;border-color:var(--wl-focus)!important;color:var(--wl-text)!important}
