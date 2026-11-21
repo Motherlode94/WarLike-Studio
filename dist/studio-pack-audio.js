@@ -1,3 +1,4 @@
+import {micColorGains} from './vox-mic-model.js';
 import {voxCleanCurve} from './vox-clean-model.js';
 import {circuitColorCurve} from './circuit-color-model.js';
 import {STUDIO_EFFECTS} from './studio-packs.js?v=0.14.0';
@@ -55,9 +56,9 @@ export function syncStudioEffect(ctx,id,m,s,bpm,now,initial,inputChannels=1){con
  if(id==='vectorlimit'){set(m.drive.gain,db(s.drive));set(m.comp.threshold,s.ceiling);set(m.comp.release,s.release/1000);set(m.scaleIn.gain,1/db(s.ceiling));set(m.scaleOut.gain,db(s.ceiling));}
  if(id==='voxtune')for(const key of ['key','scale','speed','amount','mix'])set(m.pitch.parameters.get(key),s[key]);
  if(id==='voxmicmodel'){
-   const profiles=[[0,0,0],[1,-.5,2],[-2,1,-1],[2,-1,-2]],from=profiles[Math.round(s.source)]||profiles[0],to=profiles[Math.round(s.target)]||profiles[0];
+   const [low,presence,air]=micColorGains(s);
    set(m.low.frequency,Math.min(180,ctx.sampleRate*.45));set(m.presence.frequency,Math.min(3200,ctx.sampleRate*.45));set(m.air.frequency,Math.min(9500,ctx.sampleRate*.45));
-   set(m.low.gain,s.proximity+to[0]-from[0]);set(m.presence.gain,s.presence+to[1]-from[1]);set(m.air.gain,s.air+to[2]-from[2]);
+   set(m.low.gain,low);set(m.presence.gain,presence);set(m.air.gain,air);
    set(m.dry.gain,s.enabled===false?1:1-s.mix);set(m.wet.gain,s.enabled===false?0:s.mix);
  }
  if(id==='voxwarm'){

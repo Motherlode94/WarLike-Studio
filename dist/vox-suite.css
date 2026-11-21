@@ -1,7 +1,7 @@
 /* VOX shared vocal hardware. No changes to other suites or native DSP. */
-:is(.vox-tune-hardware,.vox-clean-hardware,.vox-level-hardware,.vox-air-hardware,.vox-ambience-hardware){container-type:inline-size;--vox-ink:#f1ebf7;--vox-edge:#a69bb3;--vox-accent:#bba0ef}
-:is(.vox-tune-hardware,.vox-clean-hardware,.vox-level-hardware,.vox-air-hardware,.vox-ambience-hardware)>header{min-height:76px;box-sizing:border-box;align-content:center;text-align:center}
-:is(.vox-tune-hardware,.vox-clean-hardware,.vox-level-hardware,.vox-air-hardware,.vox-ambience-hardware) :is(button,input,select):focus-visible{outline:2px solid #d8bdff;outline-offset:2px}
+:is(.vox-tune-hardware,.vox-clean-hardware,.vox-level-hardware,.vox-air-hardware,.vox-ambience-hardware,.vox-pro-hardware){container-type:inline-size;--vox-ink:#f1ebf7;--vox-edge:#a69bb3;--vox-accent:#bba0ef}
+:is(.vox-tune-hardware,.vox-clean-hardware,.vox-level-hardware,.vox-air-hardware,.vox-ambience-hardware,.vox-pro-hardware)>header{min-height:76px;box-sizing:border-box;align-content:center;text-align:center}
+:is(.vox-tune-hardware,.vox-clean-hardware,.vox-level-hardware,.vox-air-hardware,.vox-ambience-hardware,.vox-pro-hardware) :is(button,input,select):focus-visible{outline:2px solid #d8bdff;outline-offset:2px}
 .vox-master-presets{display:flex;flex-wrap:wrap;align-items:end;gap:6px;border-bottom:1px solid var(--vox-edge);padding:8px 0;color:var(--vox-ink)}
 .vox-master-presets label{flex:1 1 100px;min-width:0;display:grid;gap:4px;font-size:9px;letter-spacing:.08em;color:var(--vox-ink)}
 .vox-master-presets :is(input,select,button){min-width:0;max-width:100%;box-sizing:border-box;background:#1c1726;color:#f1ebf7;border:1px solid #84748f;border-radius:3px;padding:5px;font-size:11px;height:30px}

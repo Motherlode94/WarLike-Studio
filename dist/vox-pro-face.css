@@ -1,0 +1,20 @@
+/* VOX LAB: original graphite / violet / silver vector hardware. */
+.vox-pro-hardware{box-sizing:border-box;width:100%;min-width:0;padding:12px;background:linear-gradient(145deg,#393441,#211f29 65%,#302b38);border:2px solid #a69bb3;border-radius:8px;color:#f1ebf7;box-shadow:inset 0 1px #c7bed2,inset 0 -3px 5px #15121b}
+.vox-pro-brand{display:grid;justify-items:center;gap:5px;text-align:center;padding:6px 0 12px;border-bottom:1px solid #887997}.vox-pro-brand strong{font-size:27px;letter-spacing:.18em;color:#f6efff}.vox-pro-brand strong span{color:#bba0ef;font-size:16px}.vox-pro-brand small{font-size:9px;letter-spacing:.15em;color:#dacee8}
+.vox-pro-display{margin:10px 0;padding:9px;background:#191622;border:1px solid #81738e;border-radius:5px}
+.floating-plugin .vox-pro-hardware .vox-pro-controls,.master-module .vox-pro-hardware .vox-pro-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr));gap:6px;padding:6px;min-height:0;background:#201c2a;border:1px solid #786985;margin-top:9px}
+.vox-pro-bank{min-width:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(55px,1fr));gap:5px;padding:6px 3px;border:1px solid #6e637b;border-top:3px solid var(--vox-bank);background:linear-gradient(#42394e,#2d2638);border-radius:4px}.vox-pro-bank h4{grid-column:1/-1;margin:0;padding:4px 0;text-align:center;color:#f1ebf7;border-bottom:1px solid #786985;font-size:9px;letter-spacing:.07em}
+.floating-plugin .vox-pro-bank .param,.master-module .vox-pro-bank .param{min-width:0;width:auto;color:#f1ebf7}
+.floating-plugin .vox-pro-bank .knob,.master-module .vox-pro-bank .knob{width:48px;height:48px;max-width:100%;background:repeating-conic-gradient(#34303d 0deg 5deg,#646073 5deg 10deg);border:1px solid #c2b9cc;border-radius:50%;position:relative;box-shadow:0 3px 4px #16121c}
+.floating-plugin .vox-pro-bank .knob:before,.master-module .vox-pro-bank .knob:before{width:34px;height:34px;background:radial-gradient(circle at 35% 25%,var(--vox-bank),#4a3b60);border:1px solid #d8cce7;left:50%;top:50%;transform:translate(-50%,-50%)}
+.floating-plugin .vox-pro-bank .knob:after,.master-module .vox-pro-bank .knob:after{left:calc(50% - 1px);top:5px;width:2px;height:11px;background:#fff1ff;transform-origin:1px 18px;transform:rotate(var(--rotation))}
+.vox-pro-bank label{color:#f1ebf7;font-size:9px;text-align:center;white-space:normal}.vox-pro-bank .param-value{background:#1c1726;color:#e6cdfd;border:1px solid #84748f;font:10px monospace;padding:3px 1px;max-width:100%}.vox-pro-bank .knob:focus-within{outline:2px solid #d8bdff;outline-offset:2px}
+.vox-pro-hardware>footer{font:9px/1.5 monospace;color:#d5cbe2;padding-top:9px}
+@media(max-width:660px){.vox-pro-hardware{padding:8px}.vox-pro-display{padding:5px}}
+
+.vox-pro-display svg{display:block;width:100%;height:auto;max-height:240px}.vox-pro-display>small{display:block;color:#d5cbe2;font-size:10px;line-height:1.4}
+.vox-pro-legend,.vox-pro-readouts{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;padding:6px 0;font:10px monospace;color:#e8dcf7}.vox-pro-legend span:first-child{color:#d6b1f4}.vox-pro-legend span:nth-child(2){color:#b7adc9}.vox-pro-legend output{color:#c5a9f4}
+
+
+.vox-pro-profile{display:grid;grid-template-columns:1fr 1fr;gap:6px}.vox-pro-profile>div{min-width:0;padding:9px;background:#12111a;border:1px solid #716782;border-radius:4px;color:#dacee8;font:10px monospace}.vox-pro-profile output{display:block;color:#e6cdfd;font-size:15px;margin-top:4px}
+.vox-pro-readouts{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;color:#e8dcf7;font:10px monospace;padding:7px 0}
