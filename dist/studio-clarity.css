@@ -118,3 +118,8 @@ body.studio-pro-layout{--track-label:210px;--detail-height:260px}
  .studio-pro-layout .fl-piano .pr-musical{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
  .studio-pro-layout .fl-piano .pr-musical>*{flex:0 0 auto}
 }
+
+/* Edit tools popover belongs to the browser top layer, not the scrollable edit strip. */
+.studio-pro-layout .studio-edit-options-content[popover]{position:fixed;inset:auto;margin:0;box-sizing:border-box;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow:auto;flex-wrap:wrap}
+.studio-pro-layout .studio-edit-options-content[popover]:not(:popover-open){display:none}
+.studio-pro-layout .studio-edit-options-content[popover]:popover-open{display:flex}

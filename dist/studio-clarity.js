@@ -63,6 +63,19 @@ function setup(){
    // Keep Smart tool and grid in the main edit strip. Secondary actions in disclosure.
    for(const selector of ['.nudge-controls','.edit-split']){const node=editbar.querySelector(selector);if(node)contents.append(node);}
    details.append(trigger,contents);editbar.append(details);
+   // Native top layer escapes the horizontal scrolling toolbar without changing its layout.
+   contents.setAttribute('popover','manual');
+   const place=()=>{
+     if(!details.open||!contents.matches(':popover-open'))return;
+     const rect=trigger.getBoundingClientRect(),width=contents.offsetWidth,height=contents.offsetHeight;
+     contents.style.left=Math.max(8,Math.min(rect.right-width,window.innerWidth-width-8))+'px';
+     contents.style.top=Math.max(8,rect.bottom+5+height<=window.innerHeight-8?rect.bottom+5:rect.top-height-5)+'px';
+   };
+   details.addEventListener('toggle',()=>{if(details.open){contents.showPopover();place();}else if(contents.matches(':popover-open'))contents.hidePopover();});
+   window.addEventListener('resize',place);
+   window.addEventListener('scroll',place,true);
+   document.addEventListener('pointerdown',event=>{if(details.open&&!details.contains(event.target))details.open=false;});
+   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&details.open){details.open=false;trigger.focus();}});
  }
  const arrangementToolbar=document.querySelector('.arrangement .workspace-toolbar');
  if(arrangementToolbar){
