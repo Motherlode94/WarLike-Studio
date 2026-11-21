@@ -4,7 +4,16 @@ import {chromium} from 'playwright';
 
 const dir='artifacts/factory-sessions';
 await mkdir(dir,{recursive:true});
-const browser=await chromium.launch({headless:true});
+const songs=[['nocturne','Nocturne Trap'],['soleil','Soleil Afro'],['brume','Brume R&B']];
+const selection=process.env.FACTORY_SONG;
+if(selection&&!songs.some(([kind])=>kind===selection))throw Error('Unknown FACTORY_SONG: '+selection);
+const selected=songs.filter(([kind])=>!selection||kind===selection);
+const stage=(kind,message)=>console.log('['+kind+'] '+message);
+async function deadline(promise,ms,label){
+ let timer;
+ try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(label+' exceeded '+ms/1000+' seconds')),ms);})]);}
+ finally{clearTimeout(timer);}
+}
 const report=[];
 const sessionTab=(page,tab)=>page.locator('[data-session-tab="'+tab+'"]').click();
 async function save(page,path){
@@ -20,12 +29,16 @@ const score=p=>({name:p.name,bpm:p.bpm,bars:p.bars,sections:p.sections,fullSong:
  inserts:t.inserts,clips:t.clips.map(c=>({id:c.id,name:c.name,start:c.start,length:c.length,patternSteps:c.patternSteps,
  notes:c.notes?.map(n=>[n.id,n.step,n.midi,n.len,n.velocity,!!n.muted]),
  pattern:c.pattern?Object.fromEntries(Object.entries(c.pattern).filter(([,row])=>row.some(Boolean))):undefined}))}))});
-try{
- for(const [kind,name] of [['nocturne','Nocturne Trap'],['soleil','Soleil Afro'],['brume','Brume R&B']]){
+for(const [kind,name] of selected){
+ stage(kind,'Launching isolated Chromium');
+ const browser=await chromium.launch({headless:true});
+ try{
   const context=await browser.newContext({viewport:{width:1440,height:960},acceptDownloads:true});
   try{
    const page=await context.newPage(),errors=[];
-   page.on('pageerror',e=>errors.push(e.message));
+   page.setDefaultTimeout(30000);
+   page.on('pageerror',e=>{errors.push(e.message);console.error('['+kind+'] pageerror:',e.message);});
+   page.on('crash',()=>console.error('['+kind+'] renderer crashed'));
    await page.goto('http://127.0.0.1:8765/',{waitUntil:'load'});
    await sessionTab(page,'create');
    await page.locator('#libraryNew').click();
@@ -37,6 +50,7 @@ try{
    await page.locator('#modal').waitFor({state:'hidden'});
    assert.equal(await page.locator('#projectName').inputValue(),name);
    await page.waitForFunction(()=>document.getElementById('saveStatus').textContent==='Enregistré sur cet appareil');
+   stage(kind,'Local save complete; downloading project');
    const before=await save(page,dir+'/'+kind+'.chayah');
    assert.equal(before.project.fullSong,true);
    assert.equal(before.masterVolume,-9);
@@ -44,6 +58,7 @@ try{
    const seconds=before.project.bars*240/before.project.bpm;
    assert.ok(seconds>=180&&seconds<=300);
    // Cold reload must reopen the same local session, not a default/short demo.
+   stage(kind,'Cold reload and score comparison');
    await page.reload({waitUntil:'load'});
    await sessionTab(page,'open');
    await page.locator('[data-project-open]').first().click();
@@ -52,6 +67,7 @@ try{
    assert.deepEqual(score(reopened.project),score(before.project));
    assert.equal(reopened.masterVolume,before.masterVolume);
    // Legacy R05.2f UUIDs with hyphens were rejected by the former validator.
+   stage(kind,'Legacy portable project import');
    const portable=structuredClone(before);
    portable.project.tracks[0].clips[0].id='12345678-1234-4abc-8def-123456789abc';
    const legacy=dir+'/'+kind+'-legacy.chayah';
@@ -61,6 +77,7 @@ try{
    const imported=await save(page,dir+'/'+kind+'-imported.chayah');
    assert.deepEqual(score(imported.project),score(portable.project));
    assert.equal(imported.masterVolume,-9);
+   stage(kind,'Live transport');
    await page.locator('#modeSong').click();
    await page.locator('#play').click();
    await page.waitForFunction(()=>document.getElementById('play').getAttribute('aria-label')==='Pause',null,{timeout:90000});
@@ -69,7 +86,13 @@ try{
    await page.locator('#stop').click();
    await page.screenshot({path:dir+'/'+kind+'.png'});
    // Render the complete reopened musical score using the production WAV exporter.
-   const metrics=await page.evaluate(async p=>{
+   stage(kind,'Full stereo WAV export and decode');
+   // Close the live audio/UI page before rendering: its audio graph, sample cache
+   // and DOM must not compete with the offline context for memory or CPU.
+   const renderPage=await context.newPage();
+   await renderPage.goto('http://127.0.0.1:8765/_factory-audio-qa.html',{waitUntil:'load'});
+   await page.close();
+   const metrics=await deadline(renderPage.evaluate(async p=>{
     const {AudioEngine}=await import('/audio.js');
     const engine=new AudioEngine(()=>p,()=>new Map());
     const wav=await engine.exportWav({sampleRate:44100,bits:24,tail:false});
@@ -85,7 +108,8 @@ try{
      }
      return {sampleRate:b.sampleRate,channels:b.numberOfChannels,frames:b.length,bits:header.getUint16(34,true),peak,rms:Math.sqrt(energy/(b.length*b.numberOfChannels)),sections:sections.map(s=>({name:s.name,rms:Math.sqrt(s.energy/((s.end-s.start)*b.numberOfChannels))}))};
     }finally{await decoder.close();}
-   },imported.project);
+   },imported.project),360000,kind+' full WAV render');
+   stage(kind,'WAV decoded; checking metrics');
    report.push({kind,seconds,...metrics});
    await writeFile(dir+'/report.json',JSON.stringify(report,null,2)+'\n');
    assert.equal(metrics.channels,2);assert.equal(metrics.bits,24);assert.equal(metrics.sampleRate,44100);
@@ -94,7 +118,8 @@ try{
    assert.ok(metrics.rms>.002,'silent mix');
    for(const section of metrics.sections)assert.ok(section.rms>.0005,kind+' silent '+section.name);
    assert.deepEqual(errors,[]);
-  }finally{await context.close();}
- }
- console.log('PASS: full factory arrangements, local reopen, legacy portable import, live transport and full stereo WAV',JSON.stringify(report));
-}finally{await browser.close();}
+  }finally{await deadline(context.close(),15000,kind+' context cleanup');}
+ }finally{await deadline(browser.close(),15000,kind+' browser cleanup');}
+ stage(kind,'PASS');
+}
+console.log('PASS: full factory arrangements, local reopen, legacy portable import, live transport and full stereo WAV',JSON.stringify(report));

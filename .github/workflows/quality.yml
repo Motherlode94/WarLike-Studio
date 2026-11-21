@@ -27,6 +27,7 @@ jobs:
           cp tests/storage-browser.html dist/_storage-qa.html
           cp tests/instrument-qa.html dist/_instrument-qa.html
           cd dist
+          cp tests/factory-audio-qa.html dist/_factory-audio-qa.html
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/warlike-studio-http.log 2>&1 &
           cd ..
           sleep 2
@@ -38,8 +39,6 @@ jobs:
           node tests/vocal-audio-browser.mjs
           node tests/beat-demos-browser.mjs
           node tests/export-browser.mjs
-      - name: Full factory sessions save, reopen, playback and export
-        run: node tests/factory-session-browser.mjs
       - name: Reference workspace screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -63,10 +62,41 @@ jobs:
           path: artifacts/vocal-demos/
           if-no-files-found: ignore
 
+  factory-session:
+    name: Factory certification (${{ matrix.song }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        song: [nocturne, soleil, brume]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run build
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Save, reopen, play and export full arrangement
+        env:
+          FACTORY_SONG: ${{ matrix.song }}
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory dist >/tmp/warlike-factory-http.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:8765/ -o /dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8765/ -o /dev/null
+          timeout --signal=TERM --kill-after=15s 10m node tests/factory-session-browser.mjs
       - name: Full factory session evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: studio-factory-sessions
+          name: studio-factory-sessions-${{ matrix.song }}
           path: artifacts/factory-sessions/
           if-no-files-found: ignore
