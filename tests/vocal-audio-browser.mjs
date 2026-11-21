@@ -1,3 +1,5 @@
+
+async function sessionTab(page,tab){const button=page.locator('[data-session-tab="'+tab+'"]');await button.waitFor({state:'visible'});await button.click();}
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
@@ -32,9 +34,9 @@ try{
  await writeFile(output+'/audio-measurements.json',JSON.stringify({details},null,2));
  // Exercise the real public buttons (including the ordinary non-VOX demos),
  // persistence, portable export/reimport, and cold reload without source fetches.
- await page.locator('#libraryNew').waitFor({state:'visible'});
+ await sessionTab(page,'create');await page.locator('#libraryNew').waitFor({state:'visible'});
  for(const kind of ['trap','afro','rnb','vox-trap','vox-afro','vox-rnb']){
-  await page.locator('.project-public-demos [data-public-demo="'+kind+'"]').click();
+  await sessionTab(page,'demos');await sessionTab(page,'demos');await page.locator('.project-public-demos [data-public-demo="'+kind+'"]').click();
   await page.locator('#modal').waitFor({state:'hidden'});
   await page.waitForFunction(()=>document.getElementById('toast')?.textContent.includes('vraies voix enregistrées'));
   assert.match(await page.locator('#toast').textContent(),/anglais/);
@@ -44,11 +46,11 @@ try{
   assert.ok(saved.assets.every(a=>Buffer.from(a.data,'base64').length>4096));
   if(kind==='vox-rnb'){
    await page.locator('#projectInput').setInputFiles(file);await page.waitForFunction(()=>document.getElementById('toast')?.textContent.includes('Projet importé et sauvegardé.'));
-   await page.route('**/samples/vocals/**',r=>r.abort());await page.reload({waitUntil:'load'});await page.locator('[data-project-open]').first().click();await page.locator('#modal').waitFor({state:'hidden'});
+   await page.route('**/samples/vocals/**',r=>r.abort());await page.reload({waitUntil:'load'});await sessionTab(page,'open');await page.locator('[data-project-open]').first().click();await page.locator('#modal').waitFor({state:'hidden'});
    await page.locator('#play').click();await page.waitForFunction(()=>document.getElementById('play').getAttribute('aria-label')==='Pause');await page.locator('#stop').click();await page.screenshot({path:output+'/rnb-restored.png',fullPage:true});
    const second=page.waitForEvent('download');await page.locator('#projectMenuBtn').click();await page.locator('#saveProject').click();const finalDownload=await second;await finalDownload.saveAs(output+'/restored.chayah');const restored=JSON.parse(await readFile(output+'/restored.chayah','utf8'));assert.equal(restored.assets.length,3);assert.deepEqual(restored.project.vocalDemoInfo.credits,saved.project.vocalDemoInfo.credits);
   }
-  if(kind!=='vox-rnb'){await page.locator('#projectMenuBtn').click();await page.locator('#myProjects').click();await page.locator('#libraryNew').waitFor({state:'visible'});}
+  if(kind!=='vox-rnb'){await page.locator('#projectMenuBtn').click();await page.locator('#myProjects').click();await sessionTab(page,'create');await page.locator('#libraryNew').waitFor({state:'visible'});}
  }
  assert.deepEqual(errors,[]);await writeFile(output+'/report.json',JSON.stringify({result:'PASS',details},null,2));
  console.log('PASS: real human vocals, verse/chorus through FX, audibility versus backing, six launch buttons, portable media and cold reload',JSON.stringify(details));
