@@ -412,3 +412,23 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView [data-pt-channel-kind=bus]>.channel-name{border-left:4px solid #75c9a5}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView [data-pt-channel-kind=master]>.channel-name{border-left:4px solid #e5c17d}
 }
+
+/* R03-C5.7 — global presentation-only section visibility. */
+.pt-mix-visibility{display:none}
+@media(min-width:761px){
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-mix-visibility:has(+ #mixerView){display:flex;flex-wrap:wrap;gap:4px;padding:4px;flex-shrink:0}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-mix-visibility button{font-size:10px;padding:3px 7px;min-height:22px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-mix-visibility button[aria-pressed=true]{background:#536c83;color:white}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView>.mixer-channel{--pt-inserts:minmax(65px,1fr);--pt-sends:minmax(48px,.65fr);--pt-input:42px;--pt-io:48px;grid-template-rows:22px 26px var(--pt-input) var(--pt-inserts) var(--pt-sends) var(--pt-io) 32px 28px minmax(150px,1.8fr) 25px 26px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView.pt-hide-a .insert-slots>.insert-slot:nth-child(-n+6),
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView.pt-hide-b .insert-slots>.insert-slot:nth-child(n+7),
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView.pt-hide-a.pt-hide-b .channel-inserts,
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView.pt-hide-sends .pt-send-bank,
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView.pt-hide-io .channel-routing,
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView.pt-hide-io .channel-input-slot{display:none}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView.pt-hide-a.pt-hide-b>.mixer-channel{--pt-inserts:0px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView.pt-hide-sends>.mixer-channel{--pt-sends:0px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView.pt-hide-io>.mixer-channel{--pt-io:0px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView.pt-hide-io>.mixer-channel:not([data-pt-channel-kind=instrument]){--pt-input:0px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView>.mixer-channel>.channel-inserts{height:auto}
+}
