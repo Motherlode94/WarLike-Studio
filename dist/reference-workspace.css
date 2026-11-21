@@ -442,3 +442,8 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio #mixerView .has-vox-rack>.insert-slots{flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;position:static}
 .reference-studio #mixerView .has-vox-rack>.insert-slots>.insert-slot{flex-shrink:0}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView.pt-hide-a.pt-hide-b .channel-inserts.has-vox-rack{display:none}
+
+/* Fill the actual lane height at every track size, without changing clip timing. */
+html[data-warlike-app="warlike-studio"] #trackRows .track-lane > .clip{top:1px;bottom:1px;height:auto;min-height:0;box-sizing:border-box;}
+html[data-warlike-app="warlike-studio"] #trackRows .track-lane > .clip canvas{top:22px;bottom:3px;height:calc(100% - 25px);max-height:none;}
+html[data-warlike-app="warlike-studio"] #trackRows .track-lane > .clip :is(.clip-trim-left,.clip-resize){top:0;bottom:0;height:auto;}
