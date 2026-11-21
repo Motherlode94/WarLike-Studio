@@ -177,3 +177,22 @@ html[data-warlike-app="warlike-studio"] .reference-studio :is(.fl-workspace-tool
 }
 html[data-warlike-app="warlike-studio"] .reference-studio .signature-workspaces :is([data-workspace],.view-tab){color:var(--wl-text)!important}
 html[data-warlike-app="warlike-studio"] .reference-studio .signature-workspaces :is([aria-pressed=true],.view-tab.selected){background:var(--wl-surface-alt)!important;box-shadow:inset 0 -2px var(--wl-focus)}
+
+/* Session chooser: one task per view instead of a scrolling landing page. */
+html[data-warlike-app="warlike-studio"] #modal:has(.session-dashboard){width:min(760px,calc(100vw - 24px));max-width:calc(100vw - 24px);overflow:hidden;}
+html[data-warlike-app="warlike-studio"] #modal:has(.session-dashboard) #modalBody{overflow:hidden;max-height:none;}
+html[data-warlike-app="warlike-studio"] #modal .project-home.session-dashboard{display:flex;flex-direction:column;width:100%;max-height:none;overflow:hidden;gap:12px;padding:0;}
+html[data-warlike-app="warlike-studio"] #modal .session-dashboard [hidden]{display:none!important;}
+html[data-warlike-app="warlike-studio"] #modal .session-dashboard .project-home-list{max-height:none;overflow:visible;gap:5px;}
+html[data-warlike-app="warlike-studio"] #modal .session-dashboard .project-home-card{padding:6px 8px;}
+html[data-warlike-app="warlike-studio"] #modal .session-dashboard > .project-home-section{padding:10px;gap:8px;}
+.session-dashboard-tabs,.session-dashboard-pager{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.session-dashboard-tabs button{flex:1;}
+html[data-warlike-app="warlike-studio"] #modal .session-dashboard-tabs button[aria-pressed="true"]{background:var(--wl-primary)!important;color:var(--wl-primary-text)!important;}
+.session-dashboard-pager{justify-content:space-between;}
+html[data-warlike-app="warlike-studio"] #modal .session-dashboard .project-public-demos p{font-size:11px;line-height:1.3;margin:0;}
+html[data-warlike-app="warlike-studio"] #modal .session-dashboard .project-home-footer{padding-top:8px;gap:6px;}
+/* On constrained screens allow access rather than clipping required controls. */
+@media(max-height:560px),(max-width:540px){
+ html[data-warlike-app="warlike-studio"] #modal:has(.session-dashboard){overflow:auto;}
+}

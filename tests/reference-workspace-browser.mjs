@@ -1,10 +1,12 @@
+
+async function sessionTab(page,tab){const button=page.locator('[data-session-tab="'+tab+'"]');await button.waitFor({state:'visible'});await button.click();}
 import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {chromium} from 'playwright';
 const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8765/');await page.locator('#modal [data-public-demo="trap"]').click();await page.locator('#modal').waitFor({state:'hidden'});
+ await page.goto('http://127.0.0.1:8765/');await sessionTab(page,'demos');await page.locator('#modal [data-public-demo="trap"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  await page.locator('[data-view="arrange"]').click();
  const edit=await page.evaluate(()=>{const rect=s=>{const r=document.querySelector(s).getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom};};return {timeline:rect('#timelineView'),nav:rect('.signature-workspaces'),bottom:rect('.detail-panel'),track:rect('.track-select'),body:document.body.scrollWidth,vh:innerHeight,vw:innerWidth};});
  assert.ok(edit.timeline.height>edit.vh*.65,'Edit must give the timeline most of the window: '+JSON.stringify(edit));assert.equal(edit.bottom.height,0);assert.ok(edit.nav.height<=35);assert.ok(edit.body<=edit.vw+1);assert.ok(edit.track.width>180,'track names must remain readable');

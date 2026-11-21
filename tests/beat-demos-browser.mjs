@@ -1,3 +1,5 @@
+
+async function sessionTab(page,tab){const button=page.locator('[data-session-tab="'+tab+'"]');await button.waitFor({state:'visible'});await button.click();}
 import assert from 'node:assert/strict';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
@@ -8,7 +10,8 @@ try{
  page.on('request',r=>{if(r.url().includes('oramics.github.io'))externalKits.push(r.url());});
  page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8765/',{waitUntil:'load'});
- await page.locator('#libraryNew').waitFor({state:'visible'});
+ await sessionTab(page,'create');await page.locator('#libraryNew').waitFor({state:'visible'});
+ await sessionTab(page,'demos');
  const demoButtons=page.locator('.project-public-demos [data-public-demo]');
  assert.equal(await demoButtons.count(),13,'ten musical demos and three vocal mix demos are accessible');
  await page.setViewportSize({width:390,height:844});
@@ -74,7 +77,7 @@ try{
  }
  // Actual project launch, transport, portable download/import and cold reload.
  for(const [kind,bpm,name] of [['drill',142,'WARLIKE · Drill nocturne'],['trap808',140,'WARLIKE · Atlanta After Dark'],['trap-air',146,'WARLIKE · Atlanta Floating'],['funk',130,'WARLIKE · Baile Tamborzão']]){
-  await page.locator('.project-public-demos [data-public-demo="'+kind+'"]').click();
+  await sessionTab(page,'demos');await sessionTab(page,'demos');await page.locator('.project-public-demos [data-public-demo="'+kind+'"]').click();
   await page.locator('#modal').waitFor({state:'hidden'});
   assert.equal(await page.locator('#projectName').inputValue(),name);assert.equal(await page.locator('#bpm').inputValue(),String(bpm));
   await page.locator('#play').click();await page.waitForFunction(()=>document.getElementById('play').getAttribute('aria-label')==='Pause');
@@ -95,9 +98,9 @@ try{
   await page.waitForFunction(()=>document.getElementById('toast')?.textContent.includes('Projet importé et sauvegardé.'));
   await page.reload({waitUntil:'load'});await page.locator('[data-project-open]').first().waitFor({state:'visible'});
   assert.ok((await page.locator('[data-project-open]').count())>=2);
-  await page.locator('[data-project-open]').first().click();await page.locator('#modal').waitFor({state:'hidden'});
+  await sessionTab(page,'open');await page.locator('[data-project-open]').first().click();await page.locator('#modal').waitFor({state:'hidden'});
   assert.equal(await page.locator('#projectName').inputValue(),name);assert.equal(await page.locator('#bpm').inputValue(),String(bpm));
-  await page.locator('#projectMenuBtn').click();await page.locator('#myProjects').click();await page.locator('#libraryNew').waitFor({state:'visible'});
+  await page.locator('#projectMenuBtn').click();await page.locator('#myProjects').click();await sessionTab(page,'create');await page.locator('#libraryNew').waitFor({state:'visible'});
  }
  assert.deepEqual(errors,[]);assert.deepEqual(externalKits,[],'baile kit must work without acoustic sample downloads');
  console.log('PASS: piano-preserving drill, two Atlanta directions and baile funk complete audio, 808 sub energy, 24-bit WAV, mobile library, transport and project round-trip',JSON.stringify(renders));

@@ -1,3 +1,5 @@
+
+async function sessionTab(page,tab){const button=page.locator('[data-session-tab="'+tab+'"]');await button.waitFor({state:'visible'});await button.click();}
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 const browser=await chromium.launch({headless:true});
@@ -9,11 +11,12 @@ try {
   assert.ok(await page.locator('#'+id).count(),id+' must exist');
  }
  // First launch must show a deliberate project choice instead of restoring 'current'.
- await page.locator('#libraryNew').waitFor({state:'visible'});
+ await sessionTab(page,'create');await page.locator('#libraryNew').waitFor({state:'visible'});
  assert.ok(await page.locator('#projectHomeCreate').count(),'project creation form is available');
  assert.ok(await page.locator('#libraryImport').isVisible(),'portable project import is available');
- assert.ok(await page.locator('.project-home-banner').isVisible(),'local storage warning is shown');
+ await sessionTab(page,'open');assert.ok(await page.locator('.project-home-banner').isVisible(),'local storage warning is shown');
  assert.ok(await page.locator('#modal').isVisible(),'project library should open on first launch');
+ await sessionTab(page,'create');
  const activeProjectStyle=await page.evaluate(()=>({
    cssHref:[...document.querySelectorAll('link[rel="stylesheet"]')].map(el=>el.href).find(h=>h.includes('studio.css')),
    contentWidth:document.querySelector('.project-home')?.getBoundingClientRect().width,
@@ -33,7 +36,7 @@ try {
      const input=document.querySelector('#libraryName'),button=document.querySelector('#libraryNew');
      const cloud=document.querySelector('#studioCloudSave');
      const d=dialog.getBoundingClientRect(),b=body.getBoundingClientRect();
-     const a=[input,button,cloud].map(el=>el.getBoundingClientRect());
+     const a=[input,button,cloud].filter(el=>el.getClientRects().length).map(el=>el.getBoundingClientRect());
      return {vw:innerWidth,dialog:[d.left,d.right],body:[b.left,b.right],elements:a.map(x=>[x.left,x.right]),scroll:body.scrollWidth,client:body.clientWidth};
    });
    assert.ok(bounds.dialog[0]>=-1&&bounds.dialog[1]<=width+1,'dialog exceeds viewport '+width+': '+JSON.stringify(bounds));
@@ -42,8 +45,8 @@ try {
    for(const [left,right] of bounds.elements)assert.ok(left>=bounds.dialog[0]-1&&right<=bounds.dialog[1]+1,'project action clipped '+width);
  }
  await page.setViewportSize({width:1440,height:900});
- await page.locator('#libraryName').fill('QA Session A');
- await page.locator('#libraryNew').click();
+ await sessionTab(page,'create');await page.locator('#libraryName').fill('QA Session A');
+ await sessionTab(page,'create');await page.locator('#libraryNew').click();
  await page.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await page.locator('#projectName').inputValue(),'QA Session A');
  // Modify and wait for a real persisted save before changing project.
@@ -57,22 +60,22 @@ try {
  // Project A persists across explicit project switches; B starts blank.
  await page.locator('#projectMenuBtn').click();
  await page.locator('#myProjects').click();
- await page.locator('#libraryName').fill('QA Session B');
- await page.locator('#libraryNew').click();
+ await sessionTab(page,'create');await page.locator('#libraryName').fill('QA Session B');
+ await sessionTab(page,'create');await page.locator('#libraryNew').click();
  await page.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await page.locator('#projectName').inputValue(),'QA Session B');
  assert.equal(await page.locator('#bpm').inputValue(),'120','new projects must not inherit the tempo of project A');
  await page.locator('#projectMenuBtn').click();
  await page.locator('#myProjects').click();
- await page.locator('[data-project-open]').nth(1).click();
+ await sessionTab(page,'open');await page.locator('[data-project-open]').nth(1).click();
  await page.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await page.locator('#projectName').inputValue(),'QA Session A');
  assert.equal(await page.locator('#bpm').inputValue(),'117','project A must restore its own tempo');
  // Cold boot: projects must be listed, not silently restored from a shared current key.
  await page.reload({waitUntil:'load'});
- await page.locator('#libraryNew').waitFor({state:'visible'});
+ await sessionTab(page,'create');await page.locator('#libraryNew').waitFor({state:'visible'});
  assert.ok(await page.locator('[data-project-open]').count()===2,'both projects survive page reload');
- await page.locator('[data-project-open]').nth(1).click();
+ await sessionTab(page,'open');await page.locator('[data-project-open]').nth(1).click();
  await page.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await page.locator('#projectName').inputValue(),'QA Session A');
  assert.equal(await page.locator('#bpm').inputValue(),'117','saved settings must survive a cold reload');
@@ -142,7 +145,7 @@ try {
  assert.ok(await page.locator('#mixerView').getByText('LEAD · TRAP VOX').count(),'mixed vocal lane missing from mixer');
  await page.locator('#saveStatus').getByText('Enregistré sur cet appareil').waitFor({state:'visible',timeout:15000});
  await page.reload({waitUntil:'load'});
- await page.locator('[data-project-open]').first().click();
+ await sessionTab(page,'open');await page.locator('[data-project-open]').first().click();
  await page.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await page.locator('#projectName').inputValue(),'WARLIKE · Trap VOX Mix','voice demo must persist with WAV media assets');
  assert.deepEqual(errors,[],'studio boot raised JavaScript errors');
@@ -153,8 +156,8 @@ try {
   assert.ok(await el.count(),'missing mobile control '+id);
   const rect=await el.boundingBox();assert.ok(rect&&rect.width>0&&rect.height>0,'hidden mobile control '+id);
  }
- await mobile.locator('#libraryNew').waitFor({state:'visible'});
- await mobile.locator('#libraryNew').click();
+ await sessionTab(mobile,'create');await mobile.locator('#libraryNew').waitFor({state:'visible'});
+ await sessionTab(mobile,'create');await mobile.locator('#libraryNew').click();
  await mobile.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await mobile.locator('body').evaluate(el=>el.classList.contains('mobile-compact')),true,'mobile compact mode must activate at 390px');
  const switches=mobile.locator('.mobile-compact-switches [data-mobile-panel]');

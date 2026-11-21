@@ -169,14 +169,34 @@ async function launchPublicDemo(kind){
  finally{publicDemoOpening=false;document.querySelectorAll('[data-public-demo]').forEach(b=>b.disabled=false);}
 }
 
+let projectHomeTab='open',projectHomePage=0;
 function showProjectLibrary(){
  if(!db)return toast('Stockage local indisponible.');
- const rows=projectIndex.map(p=>'<article class="project-home-card"><div class="project-home-card-info"><strong>'+esc(p.name)+'</strong><small>Modifié le '+new Date(p.updatedAt).toLocaleString('fr-FR')+'</small></div><div class="project-home-card-actions"><button class="primary-btn" data-project-open="'+esc(p.id)+'">Ouvrir</button><button class="outline-btn" data-project-rename="'+esc(p.id)+'" aria-label="Renommer '+esc(p.name)+'">Renommer</button><button class="outline-btn project-home-delete" data-project-delete="'+esc(p.id)+'" aria-label="Supprimer '+esc(p.name)+'">Supprimer</button></div></article>').join('');
+ const pageSize=3;const pages=Math.max(1,Math.ceil(projectIndex.length/pageSize));projectHomePage=Math.min(projectHomePage,pages-1);
+ const rows=projectIndex.slice(projectHomePage*pageSize,(projectHomePage+1)*pageSize).map(p=>'<article class="project-home-card"><div class="project-home-card-info"><strong>'+esc(p.name)+'</strong><small>Modifié le '+new Date(p.updatedAt).toLocaleString('fr-FR')+'</small></div><div class="project-home-card-actions"><button class="primary-btn" data-project-open="'+esc(p.id)+'">Ouvrir</button><button class="outline-btn" data-project-rename="'+esc(p.id)+'" aria-label="Renommer '+esc(p.name)+'">Renommer</button><button class="outline-btn project-home-delete" data-project-delete="'+esc(p.id)+'" aria-label="Supprimer '+esc(p.name)+'">Supprimer</button></div></article>').join('');
  const info='<div class="project-home-banner"><strong>Projets enregistrés sur cet appareil</strong><p>Mode local : pas encore de séparation sécurisée entre comptes WarLike. Sur un navigateur partagé, chacun peut accéder à ces projets.</p></div>';
  const demoButtons=Object.entries(PUBLIC_DEMOS).map(([id,config])=>'<button type="button" class="primary-btn" data-public-demo="'+esc(id)+'" title="'+esc(config.description||config.name)+'">▶ '+esc(config.label)+' · '+(config.bpm||({trap:138,afro:108,rnb:84,'vox-trap':138,'vox-afro':108,'vox-rnb':84})[id])+' BPM</button>').join('');
  const create='<div class="project-home-section project-public-demos"><strong>Découvrir WarLike Studio · Démos publiques</strong><p>Drill enrichie, deux Trap Atlanta (sombre et aérienne) et Funk brésilien, avec Trap, Afro, R&B, Rock, Pop et Rumba congolaise. Arrangements de 16 mesures avec pistes et clips modifiables. Trap, Afro et R&B incluent des voix humaines enregistrées en anglais, avec couplets et refrain ; les autres démos restent instrumentales. Une copie indépendante à chaque ouverture. <a href="./vocal-credits.html" target="_blank" rel="noopener">Crédits des voix et licences</a>.</p><div class="project-home-footer">'+demoButtons+'</div></div><form id="projectHomeCreate" class="project-home-form"><label for="libraryName">Nom du nouveau projet</label><div class="project-home-creation"><input id="libraryName" name="name" value="Nouveau morceau" maxlength="60" autocomplete="off" required aria-label="Nom du nouveau projet"><button type="submit" class="primary-btn" id="libraryNew">Créer et ouvrir</button></div></form>';
  const library='<section class="project-home-section"><h3>Mes projets locaux <span>'+projectIndex.length+'</span></h3><div class="project-home-list">'+(rows||'<p class="project-home-empty">Aucun projet local. Crée ton premier morceau pour commencer.</p>')+'</div></section>';
  modal('Mes projets','<div class="project-home">'+info+create+library+'<div class="project-home-footer"><button class="outline-btn" id="libraryRecover">Récupérer l’ancienne session</button><button class="outline-btn" id="libraryImport">Importer un fichier .chayah</button></div><section class="project-home-section"><h3>WarLike Cloud (optionnel)</h3><p id="studioCloudAccount" role="status">'+esc(studioCloudIdentity?'Compte cloud : '+(studioCloudIdentity.displayName||studioCloudIdentity.userId):'Cloud déconnecté')+'</p><p class="modal-body-copy">Connexion sécurisée nécessaire. Les projets locaux ne sont jamais envoyés automatiquement sans association explicite.</p><div class="project-home-footer"><button class="outline-btn" id="studioCloudConnect">Associer mon compte</button><button class="outline-btn" id="studioCloudOpen">Mes projets cloud</button><button class="primary-btn" id="studioCloudSave">Synchroniser le projet ouvert</button><button class="outline-btn" id="studioCloudLogout">Déconnecter</button></div></section></div>','WARLIKE / PROJETS');
+ const home=document.querySelector('.project-home');
+ const [banner,demos,form,libraryPanel,footer,cloud]=Array.from(home.children);
+ const tabs=document.createElement('nav');tabs.className='session-dashboard-tabs';tabs.setAttribute('aria-label','Sessions');
+ const panels={create:[form,footer],open:[libraryPanel,banner],demos:[demos],cloud:[cloud]};
+ const pager=document.createElement('div');pager.className='session-dashboard-pager';
+ pager.innerHTML='<button class="outline-btn" type="button" data-page="-1">Précédent</button><span>Page '+(projectHomePage+1)+' / '+pages+'</span><button class="outline-btn" type="button" data-page="1">Suivant</button>';
+ libraryPanel.append(pager);
+ pager.querySelector('[data-page="-1"]').disabled=projectHomePage===0;
+ pager.querySelector('[data-page="1"]').disabled=projectHomePage>=pages-1;
+ pager.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{projectHomePage+=Number(b.dataset.page);showProjectLibrary();});
+ for(const [key,label] of Object.entries({create:'Créer',open:'Ouvrir',demos:'Démos',cloud:'Cloud'})){
+  const b=document.createElement('button');b.type='button';b.className='outline-btn';b.textContent=label;b.dataset.sessionTab=key;tabs.append(b);
+  b.onclick=()=>{projectHomeTab=key;applyTab();};
+ }
+ function applyTab(){for(const [key,nodes] of Object.entries(panels))for(const node of nodes)node.hidden=key!==projectHomeTab;
+  tabs.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.sessionTab===projectHomeTab)));
+ }
+ home.prepend(tabs);home.classList.add('session-dashboard');applyTab();
  $('projectHomeCreate').onsubmit=async e=>{e.preventDefault();const button=$('libraryNew');button.disabled=true;try{await createProjectLocal($('libraryName').value.trim()||'Nouveau morceau');}catch(error){toast(error.message);button.disabled=false;}};
  $('libraryImport').onclick=()=>{$('modal').close();$('projectInput').click();};
  $('studioCloudConnect').onclick=async()=>{try{await beginStudioPairing();}catch(e){toast(e.message);}};
