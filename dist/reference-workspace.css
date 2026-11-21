@@ -250,3 +250,10 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio .fl-mixer-window>.mixer-view>.mixer-channel.selected{background:#596d76}
 .reference-studio .fl-mixer-window .mixer-master{order:-1;left:0;right:auto;border-right:2px solid #18252b;border-left:0;z-index:3}
 .reference-studio .fl-mixer-window.collapsed>.mixer-view{display:none}
+
+.reference-studio .fl-mixer-window>.mixer-view{overflow:hidden;gap:0}
+.fl-mixer-strips{display:flex;flex:1;min-width:0;overflow:auto;align-items:stretch}
+.reference-studio .fl-mixer-strips>.mixer-channel{flex:0 0 112px;min-width:112px;max-width:112px;background:#43525b}
+.reference-studio .fl-mixer-strips>.selected{background:#596d76}
+.fl-mixer-effects{flex:0 0 245px;max-width:42%;overflow:auto;padding:10px;background:#29373f;border-left:2px solid #18252b}
+.fl-mixer-effects h3{font-size:12px;margin:0 0 10px;color:#e6edf0}.fl-mixer-effects .insert-slot{min-height:28px}.fl-mixer-effects .insert-slots{display:flex;flex-direction:column;gap:3px}.fl-mixer-strips .mixer-master .channel-name{cursor:pointer}
