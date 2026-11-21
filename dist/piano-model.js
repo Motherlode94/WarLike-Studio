@@ -9,3 +9,27 @@ export function chordNotes(root,kind,start,length=4){const intervals=({major:[0,
 export function resolvePatternClip(project,track,clip){const pattern=project.patterns?.find(p=>p.id===clip.patternId),channel=pattern?.channels?.[track.id];return channel?{...clip,...channel,patternSteps:pattern.bars*16}:clip;}
 export function patternPlaybackProject(project,patternId){const pattern=project.patterns?.find(p=>p.id===patternId);if(!pattern)return project;return {...project,bars:pattern.bars,tracks:project.tracks.map(t=>({...t,clips:pattern.channels[t.id]?[{id:'preview'+t.id,start:0,length:pattern.bars,...pattern.channels[t.id],patternSteps:pattern.bars*16}]:[]}))};}
 export function writePatternChannel(project,track,clip){const pattern=project.patterns?.find(p=>p.id===clip.patternId);if(!pattern)return;const data=track.type==='drums'?{pattern:structuredClone(clip.pattern||{})}:{notes:structuredClone(clip.notes||[])};pattern.channels[track.id]=data;for(const c of track.clips)if(c.patternId===pattern.id)Object.assign(c,structuredClone(data),{patternSteps:pattern.bars*16});}
+
+export const MAX_PATTERN_BARS=128;
+export const MAX_PATTERN_STEPS=MAX_PATTERN_BARS*16;
+export const patternBarOptions=Array.from({length:MAX_PATTERN_BARS},(_,i)=>i+1);
+export function resizePatternData(data,bars){
+ const steps=bars*16;
+ if(data.notes)data.notes=normalizeNotes(data.notes.filter(n=>n.step<steps),steps);
+ if(data.pattern)for(const key of Object.keys(data.pattern))data.pattern[key]=Array.from({length:steps},(_,i)=>data.pattern[key][i]||0);
+ return data;
+}
+export function resizePattern(project,clip,bars){
+ bars=Math.max(1,Math.min(MAX_PATTERN_BARS,Math.round(Number(bars)||1)));
+ const pattern=project.patterns?.find(p=>p.id===clip.patternId);
+ if(pattern){
+ pattern.bars=bars;
+ for(const data of Object.values(pattern.channels))resizePatternData(data,bars);
+ for(const track of project.tracks)for(const c of track.clips)if(c.patternId===pattern.id){
+ const channel=pattern.channels[track.id];if(channel)Object.assign(c,structuredClone(channel));else resizePatternData(c,bars);
+ c.patternSteps=bars*16;
+ }
+ }
+ resizePatternData(clip,bars);clip.patternSteps=bars*16;
+ return bars;
+}
