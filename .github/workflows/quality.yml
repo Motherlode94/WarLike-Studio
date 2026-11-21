@@ -27,7 +27,6 @@ jobs:
           cp tests/storage-browser.html dist/_storage-qa.html
           cp tests/instrument-qa.html dist/_instrument-qa.html
           cd dist
-          cp tests/factory-audio-qa.html dist/_factory-audio-qa.html
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/warlike-studio-http.log 2>&1 &
           cd ..
           sleep 2
