@@ -82,10 +82,17 @@ try {
  
  await page.locator('#fileMenuBtn').click();
  assert.equal(await page.locator('#fileMenuBtn').getAttribute('aria-expanded'),'true');
- assert.ok(await page.locator('#fileMenuBtn').locator('..').locator('[role="menu"]').isVisible());
+ await page.locator('#fileMenuBtnPopup').waitFor({state:'visible'});
+ assert.equal(await page.locator('#fileMenuBtn').getAttribute('aria-controls'),'fileMenuBtnPopup');
+ await page.keyboard.press('ArrowRight');
+ await page.locator('#fileMenuBtnPopup-level-1').waitFor({state:'visible'});
+ assert.ok(await page.locator('#fileMenuBtnPopup-level-1').getByRole('menuitem',{name:/Nouvelle session/}).isVisible());
+ await page.keyboard.press('ArrowLeft');
+ await page.locator('#fileMenuBtnPopup-level-1').waitFor({state:'hidden'});
  await page.keyboard.press('Escape');
  assert.equal(await page.locator('#fileMenuBtn').getAttribute('aria-expanded'),'false');
- assert.ok(await page.locator('#fileMenuBtn').locator('..').locator('[role="menu"]').isHidden());
+ assert.ok(await page.locator('#fileMenuBtnPopup').isHidden());
+ assert.equal(await page.locator('.app-cascade-menu').count(),0);
  await page.locator('#editMenuBtn').click();
  assert.equal(await page.locator('#editMenuBtn').getAttribute('aria-expanded'),'true');
  await page.locator('#fileMenuBtn').click();
