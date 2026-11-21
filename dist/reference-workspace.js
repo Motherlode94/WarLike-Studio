@@ -1,6 +1,8 @@
+import {captureWindowGeometry,applyWindowGeometry,focusManagedWindow,openManagedWindows,closeManagedWindows} from './windows.js';
+import {readLayouts,saveLayout,deleteLayout} from './workspace-layout-model.js';
 // One Edit/Mix navigation. Move existing controls, never recreate their handlers.
 export const layoutProfile=value=>value==='fl'?'fl':'pt';
-export function installReferenceWorkspace({bar,onView,setDetailOpen}){
+export function installReferenceWorkspace({bar,onView,setDetailOpen,setView,showTrackProperties,busy=()=>false,toast=()=>{}}){
  document.body.classList.add('reference-studio');
  const tabs=document.querySelector('.arrangement .view-tabs');if(tabs)bar.prepend(tabs);
  const menu=document.createElement('details');menu.className='reference-window-menu';
@@ -33,7 +35,20 @@ export function installReferenceWorkspace({bar,onView,setDetailOpen}){
   if(event.target.closest('button[data-workspace]'))document.body.dataset.studioSurface='playlist';
   if(view){document.body.dataset.studioSurface='playlist';onView(view);if(view!=='library')setDetailOpen(false);}
  });
- panel.addEventListener('click',event=>{if(event.target.closest('button'))menu.open=false;});
+ const layouts=document.createElement('section');layouts.className='workspace-layout-controls';
+ layouts.innerHTML='<label>Disposition enregistrée<select id="savedWorkspaceLayout" aria-label="Disposition enregistrée"><option value="">Choisir…</option></select></label><label>Nom<input id="workspaceLayoutName" maxlength="60" placeholder="Ex. Composition"></label><div class="workspace-layout-actions"><button type="button" id="saveWorkspaceLayout">Enregistrer</button><button type="button" id="loadWorkspaceLayout">Appliquer</button><button type="button" id="deleteWorkspaceLayout">Supprimer</button></div><label>Fenêtre ouverte<select id="focusWorkspaceWindow" aria-label="Fenêtre ouverte"><option value="">Choisir…</option></select></label><button type="button" id="closeAllWorkspaceWindows">Fermer les fenêtres flottantes</button><button type="button" id="resetWorkspaceWindows">Réinitialiser les positions</button><small>Les dispositions sont locales à ce navigateur. Aucun contenu musical n’est modifié.</small>';
+ panel.append(layouts);
+ const find=id=>layouts.querySelector('#'+id),list=find('savedWorkspaceLayout'),windowList=find('focusWorkspaceWindow');
+ const refresh=()=>{const selected=list.value;list.replaceChildren(new Option('Choisir…',''),...readLayouts(localStorage).map(x=>new Option(x.name,x.name)));list.value=selected;windowList.replaceChildren(new Option('Choisir…',''),...openManagedWindows().map(id=>new Option(({plugin:'Plugin',rack:'Channel Rack',piano:'Piano Roll',mixer:'Mixer'})[id],id)));};
+ const guard=fn=>{try{if(busy())return toast('Termine la prise avant de changer de disposition.');fn();}catch(error){toast(error.message);}};
+ find('saveWorkspaceLayout').onclick=()=>guard(()=>{const name=find('workspaceLayoutName').value.trim();if(readLayouts(localStorage).some(x=>x.name===name)&&!confirm('Remplacer la disposition '+name+' ?'))return;const detailHeight=parseFloat(document.body.style.getPropertyValue('--detail-height'));const item=saveLayout(localStorage,{name,profile:choice.value,view:document.body.dataset.studioView,detailOpen:!document.body.classList.contains('detail-collapsed'),inspectorOpen:!document.getElementById('trackInspector').hidden,detailHeight,windows:captureWindowGeometry()});refresh();list.value=item.name;toast('Disposition enregistrée.');});
+ find('loadWorkspaceLayout').onclick=()=>guard(()=>{const item=readLayouts(localStorage).find(x=>x.name===list.value);if(!item)return toast('Choisis une disposition.');closeManagedWindows();apply(item.profile);applyWindowGeometry(item.windows);setView(item.view);if(item.detailHeight!==null)document.body.style.setProperty('--detail-height',Math.min(item.detailHeight,Math.max(180,innerHeight*.6))+'px');else document.body.style.removeProperty('--detail-height');setDetailOpen(item.detailOpen);showTrackProperties(item.inspectorOpen);toast('Disposition '+item.name+' appliquée.');});
+ find('deleteWorkspaceLayout').onclick=()=>guard(()=>{if(!list.value)return;if(!confirm('Supprimer la disposition '+list.value+' ?'))return;deleteLayout(localStorage,list.value);refresh();toast('Disposition supprimée.');});
+ find('closeAllWorkspaceWindows').onclick=()=>guard(()=>{closeManagedWindows();menu.open=false;});
+ find('resetWorkspaceWindows').onclick=()=>guard(()=>{applyWindowGeometry({});toast('Positions réinitialisées pour cette disposition.');});
+ windowList.onchange=()=>{if(focusManagedWindow(windowList.value))menu.open=false;};
+ menu.addEventListener('toggle',()=>{if(menu.open)refresh();});refresh();
+ panel.addEventListener('click',event=>{if(event.target.closest('button')&&!layouts.contains(event.target))menu.open=false;});
  document.addEventListener('pointerdown',event=>{if(!menu.contains(event.target))menu.open=false;});
  document.addEventListener('keydown',event=>{if(event.key==='Escape')menu.open=false;});
 }
