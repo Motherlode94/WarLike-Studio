@@ -5,6 +5,7 @@ import {NATIVE_CHAINS,nativeEffectsForNames,applyNativeChain,nativeChainCapacity
 import {VOCAL_DEMOS,createVocalDemoSession} from './vocal-demo-sessions.js';
 import {NEW_GENRE_DEMOS,createGenreDemoSession} from './genre-demo-sessions.js';
 import {BEAT_DEMOS,createBeatDemoSession} from './beat-demo-sessions.js';
+import {masterPublicDemo} from './demo-mastering.js';
 import {routeVocalFX} from './demo-vocal-fx.js';
 import {routeVocalSubgroups} from './demo-vocal-buses.js';
 import {routePublicDemoGroups} from './demo-group-buses.js';
@@ -154,6 +155,7 @@ async function launchPublicDemo(kind){
    routePublicDemoGroups(demo);
    routeVocalSubgroups(demo);
    routeVocalFX(demo);
+   masterPublicDemo(demo,kind);
    if(db){
      await createProjectLocal(demo.name,demo,demoMedia);
      engine.masterVolume=Number.isFinite(demo.masterVolume)?demo.masterVolume:0;
