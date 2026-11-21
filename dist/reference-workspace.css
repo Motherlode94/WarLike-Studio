@@ -282,3 +282,15 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio[data-layout-profile=pt] #sessionTrackList button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .reference-studio[data-layout-profile=pt] #sessionTrackList button.selected{background:#365b79;color:white}
 }
+
+.pt-ruler-overlay{display:none}
+@media(min-width:761px){
+.reference-studio[data-layout-profile=pt] #ruler{position:relative;overflow:hidden}
+.reference-studio[data-layout-profile=pt] #ruler>.ruler-bar{visibility:hidden}
+.reference-studio[data-layout-profile=pt] .pt-ruler-overlay{display:block;position:absolute;inset:0;pointer-events:none;overflow:hidden;background:#303840}
+.pt-ruler-tick{position:absolute;top:0;bottom:0;border-left:1px solid #8995a0;padding-left:4px;display:flex;flex-direction:column;justify-content:center;line-height:1.1;color:#e5eaf0;font-size:10px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pt-ruler-tick small{font-size:9px;color:#b6c9dc}
+.reference-studio[data-layout-profile=pt] .track-lane .clip{border:1px solid #242c35;border-radius:1px;background-color:var(--track-color)}
+.reference-studio[data-layout-profile=pt] .track-lane .clip.selected{outline:2px solid #c7e5ff;outline-offset:-2px}
+.reference-studio[data-layout-profile=pt] .clip-name{background:#26313c;color:#f2f5fa;font-size:11px}
+}
