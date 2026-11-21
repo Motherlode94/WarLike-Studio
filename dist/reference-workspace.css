@@ -342,3 +342,21 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-inserts .insert-slot:nth-child(5n + 1):not(:first-child){margin-top:5px;border-top:1px solid #8795a3;padding-top:3px}
 .reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .channel-inserts .insert-slot>button:focus-visible{outline:2px solid #a6d5fc;outline-offset:-2px}
 }
+
+/* R03-C5.3: existing routing dialog accessible from every PT send row. */
+.pt-send-bank{display:none}
+@media(min-width:761px){
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView>.mixer-channel{grid-template-rows:22px 26px 56px 310px 192px 36px 42px 30px minmax(205px,1fr) 27px 28px;min-height:1042px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] #mixerView .pt-send-bank{display:flex;flex-direction:column;gap:2px;grid-row:5;min-height:0;overflow:auto;background:#303740;padding:3px;font-size:9px;color:#e5edf5}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-send-slot{display:flex;justify-content:space-between;gap:3px;min-height:18px;padding:1px 3px;background:#48596b;color:#fff;border:1px solid #758595;border-radius:2px;font-size:9px}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-send-slot span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-send-slot small{white-space:nowrap}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .pt-send-slot.send-off{opacity:.65}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel>.channel-routing{grid-row:6}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel>.pan-control{grid-row:7}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel>.mixer-buttons{grid-row:8}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-master>.master-strip-caption{grid-row:7 / 9}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel>.mixer-fader{grid-row:9}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel>.fader-db{grid-row:10}
+.reference-studio[data-layout-profile=pt][data-studio-view=mixer] .mixer-channel>.channel-footer{grid-row:11}
+}
