@@ -1,3 +1,4 @@
+import {VOX_ROOM_SECONDS} from './vox-ambience-model.js';
 // VOX LAB PRO — native Web Audio DSP; no placeholder signal paths.
 // Every returned node is owned by the caller's scope and disposed with the rack.
 const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,Number.isFinite(n)?n:lo));
@@ -25,7 +26,7 @@ export function createVoxBC(ctx,scope,id){
   m.lowpass.connect(m.feedback);m.feedback.connect(m.delay);
   m.convolver=node('createConvolver');m.convolver.normalize=false;
   // Short deterministic stereo room: generated once at construction, not in render callback.
-  const samples=Math.max(1,Math.round(ctx.sampleRate*.115));
+  const samples=Math.max(1,Math.round(ctx.sampleRate*VOX_ROOM_SECONDS));
   const impulse=ctx.createBuffer(2,samples,ctx.sampleRate);
   for(let ch=0;ch<2;ch++){
    const a=impulse.getChannelData(ch);let seed=(0x9e3779b9+ch*65537)>>>0;
