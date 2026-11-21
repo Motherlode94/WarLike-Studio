@@ -142,3 +142,38 @@ html[data-warlike-app="warlike-studio"] .floating-plugin .suite-preset-bar selec
 html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor .param{min-width:0}
 html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor .plugin-window-params{grid-template-columns:repeat(auto-fit,minmax(min(90px,100%),1fr))}
 html[data-warlike-app="warlike-studio"] .floating-plugin .plugin-window-footer{flex-wrap:wrap}
+
+/* R03-UI.5 — shared workspace chrome; preserve clip, note, meter and track-kind colors. */
+html[data-warlike-app="warlike-studio"] body.reference-studio{
+ background:var(--wl-bg);color:var(--wl-text);
+}
+html[data-warlike-app="warlike-studio"] .reference-studio :is(.signature-workspaces,.reference-window-options,.edit-selection-bar,.ruler,.pr-toolbar,.pr-musical,.pr-velocity-heading,.fl-rack-header,.fl-mixer-effects,.channel-rack,.pt-mix-visibility,#trackInspector){
+ background:var(--wl-surface)!important;color:var(--wl-text)!important;border-color:var(--wl-border)!important;
+}
+html[data-warlike-app="warlike-studio"] .reference-studio :is(.timeline-inner,.fl-piano,.pr-grid,.pr-velocity-scroll,.mixer-view,#mixerView,.fl-rack-window){
+ background-color:var(--wl-bg)!important;color:var(--wl-text)!important;border-color:var(--wl-border)!important;
+}
+html[data-warlike-app="warlike-studio"] .reference-studio :is(.track-lane,.mixer-channel,.rack-channel,.library-section .section-label,.fl-rack-content){
+ background-color:var(--wl-surface)!important;color:var(--wl-text)!important;
+}
+html[data-warlike-app="warlike-studio"] .reference-studio :is(.mixer-channel,.rack-channel){border-right-color:var(--wl-border)!important;border-bottom-color:var(--wl-border)!important}
+html[data-warlike-app="warlike-studio"] .reference-studio .track-row:nth-child(even) .track-lane{background-color:var(--wl-surface-alt)!important}
+html[data-warlike-app="warlike-studio"] .reference-studio :is(.track-row.selected .track-lane,.mixer-channel.selected){
+ background-color:var(--wl-surface-alt)!important;box-shadow:inset 0 0 0 1px var(--wl-focus);
+}
+html[data-warlike-app="warlike-studio"] .reference-studio :is(.channel-inserts,.channel-routing,.channel-name,.channel-footer,.mixer-fader,.pt-send-bank,.fl-routing-panel,.pr-more-tools>div){
+ background-color:var(--wl-surface-alt)!important;color:var(--wl-text)!important;border-color:var(--wl-border)!important;
+}
+html[data-warlike-app="warlike-studio"] .reference-studio [data-pt-channel-kind]>.channel-name{border-left-color:var(--track-color,var(--wl-accent))!important}
+html[data-warlike-app="warlike-studio"] .reference-studio :is(.track-subtitle,.channel-input-slot small,.strip-label,.fader-scale,.pt-meter-scale,.fl-routing-panel label){color:var(--wl-text-muted)!important}
+html[data-warlike-app="warlike-studio"] .reference-studio :is(.fl-workspace-tools,.pt-mix-visibility,.reference-window-options) button:not(:disabled){
+ background:var(--wl-surface-alt)!important;color:var(--wl-text)!important;border-color:var(--wl-border)!important;
+}
+html[data-warlike-app="warlike-studio"] .reference-studio :is(.fl-workspace-tools,.pt-mix-visibility,.reference-window-options) button:not(:disabled):is(:hover,[aria-pressed=true],.active,.selected){
+ background:var(--wl-primary)!important;color:var(--wl-primary-text)!important;border-color:var(--wl-focus)!important;
+}
+html[data-warlike-app="warlike-studio"] .reference-studio :is(.fl-workspace-tools,.pt-mix-visibility,.reference-window-options,.pr-toolbar,.rack-toolbar,.mixer-channel) :is(button,select,input):focus-visible{
+ outline:2px solid var(--wl-focus)!important;outline-offset:-2px;
+}
+html[data-warlike-app="warlike-studio"] .reference-studio .signature-workspaces :is([data-workspace],.view-tab){color:var(--wl-text)!important}
+html[data-warlike-app="warlike-studio"] .reference-studio .signature-workspaces :is([aria-pressed=true],.view-tab.selected){background:var(--wl-surface-alt)!important;box-shadow:inset 0 -2px var(--wl-focus)}
