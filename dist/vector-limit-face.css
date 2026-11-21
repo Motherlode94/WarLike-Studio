@@ -1,0 +1,16 @@
+/* VECTOR LIMIT: vector hardware with isolated local colors. */
+.vector-limit-hardware{box-sizing:border-box;min-width:0;width:100%;padding:14px;background:linear-gradient(120deg,#3b3c35,#202620 65%,#363a31);border:2px solid #a3977d;border-radius:7px;color:#f1e4cc;box-shadow:inset 0 1px #c0b398,inset 0 -2px 4px #131812}
+.vector-limit-brand{display:grid;justify-items:center;gap:5px;padding:6px 0 12px;border-bottom:1px solid #8a806b;text-align:center}
+.vector-limit-brand small,.vector-limit-brand>span{font-size:9px;letter-spacing:.15em;color:#dfcda9}.vector-limit-brand strong{font-size:26px;letter-spacing:.15em;color:#fff0d4}.vector-limit-brand strong span{color:#e1b56f;font-size:16px}
+.vector-limit-display{padding:9px;margin:10px 0;background:#151c17;border:1px solid #82755e;border-radius:5px}
+.vector-limit-meters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.vector-limit-meter{display:grid;justify-items:center;gap:5px;min-width:0}
+.vector-limit-meter>span{color:#ead6af;font-size:9px;letter-spacing:.08em;text-align:center}.vector-limit-meter svg{display:block;width:100%;max-width:115px;height:auto}.vector-limit-meter output{font:11px monospace;color:#f0d19a;text-align:center}
+.vector-limit-status{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding-top:8px;color:#dfcda9;font:10px monospace}.vector-limit-status output{color:#f2d19a}.vector-limit-status strong{color:#9aca9f}.vector-limit-status strong[data-limiting=true]{color:#f0b876}.vector-limit-status button{color:#f1dfba;border:1px solid #81765e;background:#30372d}
+.floating-plugin .vector-limit-hardware .vector-limit-controls,.master-module .vector-limit-hardware .vector-limit-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:10px 4px;min-height:0;border:1px solid #8a806b;border-radius:4px;background:#31382e}
+.floating-plugin .vector-limit-controls .param,.master-module .vector-limit-controls .param{min-width:0;width:auto;color:#f1e4cc}
+.floating-plugin .vector-limit-controls .knob,.master-module .vector-limit-controls .knob{width:57px;height:57px;max-width:100%;border:2px solid #b9ab8d;background:repeating-conic-gradient(#34382e 0deg 5deg,#595b4e 5deg 10deg);border-radius:50%;position:relative;box-shadow:0 3px 4px #141a13}
+.floating-plugin .vector-limit-controls .knob:before,.master-module .vector-limit-controls .knob:before{width:42px;height:42px;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 33% 25%,#ab8257,#634932);border:1px solid #bfb08f}
+.floating-plugin .vector-limit-controls .knob:after,.master-module .vector-limit-controls .knob:after{left:calc(50% - 1px);top:6px;height:13px;width:2px;background:#ffebbe;transform-origin:1px 21px;transform:rotate(var(--rotation))}
+.vector-limit-controls label{font-size:10px;color:#f1e4cc;text-align:center;white-space:normal}.vector-limit-controls .param-value{font:11px monospace;color:#ffdda3;background:#192117;border:1px solid #8b7c5c;max-width:100%;padding:3px}
+.vector-limit-controls .knob:focus-within{outline:2px solid #f0c77c;outline-offset:2px}.vector-limit-footer{padding-top:9px;font-size:9px;color:#d9c8a9;line-height:1.4}
+@media(max-width:660px){.vector-limit-hardware{padding:8px}.vector-limit-meter svg{max-width:85px}.vector-limit-meter output{font-size:9px}}

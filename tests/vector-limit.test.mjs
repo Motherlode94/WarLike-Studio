@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {peakDb,levelPosition,reductionPosition} from '../dist/vector-limit-face.js';
+test('sample peak dBFS conversion and meter scaling',()=>{assert.equal(peakDb(0),-Infinity);assert.ok(Math.abs(peakDb(.5)+6.0206)<.0001);assert.equal(levelPosition(-60),0);assert.equal(levelPosition(0),1);assert.equal(levelPosition(-Infinity),0);assert.equal(reductionPosition(-12),.5);assert.equal(reductionPosition(-50),1);});
