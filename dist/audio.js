@@ -1,3 +1,4 @@
+import {recordingHorizon} from './recording-horizon.js';
 import {playBaileDrum,isRecordedDrumKit} from './baile-drum-voices.js';
 import {warlikeInstrumentVoice} from './wl-instrument-voices.js';
 import {playWLVocal} from './wl-vocal-voices.js';
@@ -206,7 +207,9 @@ export class AudioEngine {
   }
   scheduler() {
     if(!this.playing)return;
-    const p=this.getPlaybackProject(), total=p.bars*16,sd=this.stepDuration;
+    const p=this.getPlaybackProject(),sd=this.stepDuration;
+    if(this.recordingTrackId){const bars=recordingHorizon(p.bars,Math.max(this.scheduledStep,(this.ctx.currentTime-this.startTime)/sd));if(bars>p.bars){p.bars=bars;this.onRecordingExtend?.(bars);}}
+    const total=p.bars*16;
     // Never fire missed note-on events immediately: a main-thread stall can
     // otherwise pile up drums and synth transients into one audible crackle.
     const now=this.ctx.currentTime,current=(now-this.startTime)/sd;

@@ -172,7 +172,7 @@ export function installStudioWorkflow(d){
   async function record(){
     if(d.getRecordState().recording){await stopRecording();return;}
     if(d.getRecordState().recordFinalizing||d.getRecordState().micPending)return;
-    let stream,graph,capture,journal,activeRec=null;
+    let stream,graph,capture,journal,activeRec=null,previousLoop;
     d.setFlags({micPending:true});d.updateTransport();
     try{
       stopTest();await engine().init();
@@ -184,7 +184,7 @@ export function installStudioWorkflow(d){
       const targets=assignments.length?assignments:[{track:t,channel:a.channel==='2'?'2':'1'}];
       const mode=assignments.length?captureChannelMode(assignments):a.channel;
       engine().pause();engine().patternMode=null;engine().clipPreview=null;
-      const start=engine().position,previousLoop=engine().loop;engine().loop=false;
+      const start=engine().position;previousLoop=engine().loop;engine().loop=false;
       graph=createRecordingGraph(engine().ctx,stream,recordingSettings(p().recording).gainDb);
       try{
         journal=await beginRecordingJournal({sampleRate:engine().ctx.sampleRate,channels:mode==='stereo'?2:1,projectName:p().name||'Session',onError:error=>{if(activeRec&&d.getRecordState().recording===activeRec){d.toast('Stockage de secours interrompu : '+error.message+'. Finalisation de la prise.');void stopRecording();}}});
@@ -215,7 +215,7 @@ export function installStudioWorkflow(d){
       await engine().play();capture.start(engine().startTime+start*engine().stepDuration);
       emitRecordingTelemetry('start',{takeId:telemetryId,frames:0,sampleRate:engine().ctx.sampleRate,channels:mode==='stereo'?2:1});
       rec.timer=setInterval(()=>{
-        if(engine().getPosition()>p().bars*16-32&&p().bars<MAX_BARS){p().bars=fitSession(p().bars,p().bars+16);d.changed(true);}
+
         if(capture.frames===rec.previousFrames&&engine().playing){
           rec.stalledTicks=(rec.stalledTicks||0)+1;
           if(rec.stalledTicks>=12){
@@ -233,7 +233,7 @@ export function installStudioWorkflow(d){
       d.updateTransport();d.toast(targets.length>1?'Capture PCM synchronisée sur deux entrées.':'Capture PCM active. Stop termine la prise.');
     }catch(error){
       capture?.dispose();journal?.close();graph?.dispose();stream?.getTracks().forEach(t=>t.stop());
-      engine().recordingTrackId=null;d.setRecording(null);d.setFlags({micPending:false,recordFinalizing:false});
+      engine().recordingTrackId=null;if(previousLoop!==undefined)engine().loop=previousLoop;d.setRecording(null);d.setFlags({micPending:false,recordFinalizing:false});
       d.toast('Enregistrement impossible : '+error.message);d.updateTransport();
     }
   }
