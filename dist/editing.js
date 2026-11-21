@@ -2,13 +2,16 @@
 export const MIN_CLIP_LENGTH = 1 / 64;
 export const barSeconds = bpm => 240 / bpm;
 export function snapBar(value, mode = 'grid', grid = 1 / 16) {
-  return mode === 'slip' ? value : Math.round(value / grid) * grid;
+  if (!Number.isFinite(value)) return 0;
+  const step = Number.isFinite(grid) && grid > 0 ? grid : 1 / 16;
+  return mode === 'slip' ? value : Math.round(value / step) * step;
 }
 export function musicalPosition(bar) {
   const ticks = Math.max(0, Math.round(bar * 3840));
   return `${String(Math.floor(ticks / 3840) + 1).padStart(3, '0')} | ${Math.floor(ticks % 3840 / 960) + 1} | ${String(ticks % 960).padStart(3, '0')}`;
 }
 export function splitClip(clip, position, bpm, newId) {
+  if (![position, clip.start, clip.length, bpm].every(Number.isFinite) || bpm <= 0) return null;
   const delta = position - clip.start;
   if (delta < MIN_CLIP_LENGTH || clip.length - delta < MIN_CLIP_LENGTH) return null;
   const right = structuredClone(clip);
@@ -20,6 +23,7 @@ export function splitClip(clip, position, bpm, newId) {
   const left={...structuredClone(clip),length:delta};if(clip.audioId){left.fadeOut=.005;right.fadeIn=.005;}return [left,right];
 }
 export function trimClip(clip, edge, position, total, bpm, sourceDuration = Infinity) {
+  if (!['left','right'].includes(edge) || ![position,total,bpm,clip.start,clip.length].every(Number.isFinite) || bpm <= 0) return {...clip};
   const next = { ...clip }, end = clip.start + clip.length;
   if (edge === 'left') {
     const available = clip.audioId ? (clip.sourceOffset || 0) / barSeconds(bpm) : (clip.patternOffset || 0) / 16;
