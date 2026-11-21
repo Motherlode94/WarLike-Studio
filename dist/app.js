@@ -180,12 +180,12 @@ function showProjectLibrary(){
  const library='<section class="project-home-section"><h3>Mes projets locaux <span>'+projectIndex.length+'</span></h3><div class="project-home-list">'+(rows||'<p class="project-home-empty">Aucun projet local. Crée ton premier morceau pour commencer.</p>')+'</div></section>';
  modal('Mes projets','<div class="project-home">'+info+create+library+'<div class="project-home-footer"><button class="outline-btn" id="libraryRecover">Récupérer l’ancienne session</button><button class="outline-btn" id="libraryImport">Importer un fichier .chayah</button></div><section class="project-home-section"><h3>WarLike Cloud (optionnel)</h3><p id="studioCloudAccount" role="status">'+esc(studioCloudIdentity?'Compte cloud : '+(studioCloudIdentity.displayName||studioCloudIdentity.userId):'Cloud déconnecté')+'</p><p class="modal-body-copy">Connexion sécurisée nécessaire. Les projets locaux ne sont jamais envoyés automatiquement sans association explicite.</p><div class="project-home-footer"><button class="outline-btn" id="studioCloudConnect">Associer mon compte</button><button class="outline-btn" id="studioCloudOpen">Mes projets cloud</button><button class="primary-btn" id="studioCloudSave">Synchroniser le projet ouvert</button><button class="outline-btn" id="studioCloudLogout">Déconnecter</button></div></section></div>','WARLIKE / PROJETS');
  const home=document.querySelector('.project-home');
- const [banner,demos,form,library,footer,cloud]=Array.from(home.children);
+ const [banner,demos,form,libraryPanel,footer,cloud]=Array.from(home.children);
  const tabs=document.createElement('nav');tabs.className='session-dashboard-tabs';tabs.setAttribute('aria-label','Sessions');
- const panels={create:[form,footer],open:[library,banner],demos:[demos],cloud:[cloud]};
+ const panels={create:[form,footer],open:[libraryPanel,banner],demos:[demos],cloud:[cloud]};
  const pager=document.createElement('div');pager.className='session-dashboard-pager';
  pager.innerHTML='<button class="outline-btn" type="button" data-page="-1">Précédent</button><span>Page '+(projectHomePage+1)+' / '+pages+'</span><button class="outline-btn" type="button" data-page="1">Suivant</button>';
- library.append(pager);
+ libraryPanel.append(pager);
  pager.querySelector('[data-page="-1"]').disabled=projectHomePage===0;
  pager.querySelector('[data-page="1"]').disabled=projectHomePage>=pages-1;
  pager.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{projectHomePage+=Number(b.dataset.page);showProjectLibrary();});
