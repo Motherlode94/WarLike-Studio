@@ -1,10 +1,14 @@
 export function constrainWindow(x,y,width,height,viewportWidth,viewportHeight) {
   const margin=8;
-  return {x:Math.max(margin,Math.min(x,Math.max(margin,viewportWidth-width-margin))),y:Math.max(margin,Math.min(y,Math.max(margin,viewportHeight-height-margin)))};
+  return {x:Math.max(margin,Math.min(x,Math.max(margin,viewportWidth-width-margin))),y:Math.max(margin,Math.min(y,Math.max(margin,viewportHeight-Math.min(height,60)-margin)))};
+}
+export function constrainFullWindow(x,y,width,height,viewportWidth,viewportHeight) {
+  const p=constrainWindow(x,y,width,height,viewportWidth,viewportHeight);
+  return {...p,y:Math.max(8,Math.min(y,Math.max(8,viewportHeight-height-8)))};
 }
 export function installFloatingWindow(panel,header,{onClose=()=>{}}={}) {
   let drag=null,placed=false;
-  const reposition=(x,y)=>{panel.style.maxWidth=Math.max(0,innerWidth-16)+'px';panel.style.maxHeight=Math.max(0,innerHeight-16)+'px';const r=panel.getBoundingClientRect(),p=constrainWindow(x,y,r.width,r.height,innerWidth,innerHeight);panel.style.left=p.x+'px';panel.style.top=p.y+'px';};
+  const reposition=(x,y)=>{panel.style.maxWidth=Math.max(0,innerWidth-16)+'px';panel.style.maxHeight=Math.max(0,innerHeight-16)+'px';const r=panel.getBoundingClientRect(),p=constrainFullWindow(x,y,r.width,r.height,innerWidth,innerHeight);panel.style.left=p.x+'px';panel.style.top=p.y+'px';};
   const place=()=>{if(!placed){const r=panel.getBoundingClientRect();reposition(innerWidth-r.width-24,Math.max(8,innerHeight-r.height-45));placed=true;}else{const r=panel.getBoundingClientRect();reposition(r.left,Math.min(r.top,Math.max(8,innerHeight-r.height-12)));}};
   header.addEventListener('pointerdown',event=>{
     if(event.button!==0||event.target.closest('button,input,a,select,textarea,[contenteditable]'))return;
