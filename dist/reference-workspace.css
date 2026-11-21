@@ -196,3 +196,10 @@ body.reference-studio{--track-label:270px;--detail-height:280px;display:flex;fle
 .reference-studio .mixer-channel .mixer-track-grip:active{cursor:grabbing}
 .reference-studio .mixer-channel .channel-top{gap:3px;min-width:0}
 .reference-studio .mixer-channel .channel-top span:last-of-type{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+
+/* R03: preserve reference Edit/Mix navigation; composition and mastering remain contextual. */
+.reference-studio .signature-workspaces{overflow:visible}
+.reference-studio .signature-workspaces > .view-tabs{flex:0 0 auto}
+.reference-studio .signature-workspaces #workspaceActions{min-width:0;overflow-x:auto}
+@media(max-width:760px){.reference-studio .signature-workspaces #workspaceActions{display:none}}
