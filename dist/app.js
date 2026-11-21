@@ -780,7 +780,18 @@ document.addEventListener('pointermove',e=>{if(rangeDrag&&e.pointerId===rangeDra
   else d.clip.start=Math.max(0,Math.min(project.bars-d.clip.length,snapBar(d.original.start+delta,mode,editGrid)));
   d.el.style.left=d.clip.start/project.bars*100+'%';d.el.style.width=`calc(${d.clip.length/project.bars*100}% - 4px)`;updateEditSelection();
 });
-function finishClipDrag(event){if(!dragState||(event?.pointerId!==undefined&&event.pointerId!==dragState.pointer))return;const d=dragState;dragState=null;delete d.el.dataset.fadePreview;if(d.changed){suppressClipClickUntil=performance.now()+180;changed(true);}}
+// Compute a shuffle edit from the pre-drag layout, preserving existing gaps.
+function shuffleDragLayout(d){
+ const entries=d.tr.clips.map(c=>({c,start:c===d.clip?d.original.start:c.start,length:c===d.clip?d.original.length:c.length})).sort((a,b)=>a.start-b.start);
+ if(d.tr.type!=='audio'||d.items.length!==1||entries.some(e=>e.c.groupId)||Object.keys(d.tr.automation?.curves||{}).length||entries.some((e,i)=>i&&entries[i-1].start+entries[i-1].length>e.start+1e-8))return null;
+ const index=entries.findIndex(e=>e.c===d.clip);if(index<0)return null;
+ if(d.edge){const shift=d.clip.length-d.original.length;return entries.map((e,i)=>({c:e.c,start:i===index?d.original.start:e.start+(i>index?shift:0),length:i===index?d.clip.length:e.length}));}
+ const others=entries.filter(e=>e.c!==d.clip),target=d.clip.start+d.clip.length/2;
+ let insert=others.findIndex(e=>target<e.start+e.length/2);if(insert<0)insert=others.length;
+ const reordered=[...others];reordered.splice(insert,0,entries[index]);let cursor=entries[0].start;
+ return reordered.map((e,i)=>{if(i)cursor+=Math.max(0,entries[i].start-entries[i-1].start-entries[i-1].length);const start=cursor;cursor+=e.length;return {c:e.c,start,length:e.length};});
+}
+function finishClipDrag(event){if(!dragState||(event?.pointerId!==undefined&&event.pointerId!==dragState.pointer))return;const d=dragState;dragState=null;delete d.el.dataset.fadePreview;if(d.changed){if(editMode==='shuffle'&&!d.fade&&d.tr.type==='audio'){const layout=shuffleDragLayout(d);if(layout&&layout.every(e=>e.start>=0&&e.start+e.length<=project.bars+1e-8)){for(const e of layout)e.c.start=e.start;}else{Object.assign(d.clip,d.original);for(const item of d.items)Object.assign(item.clip,item.original);toast('Shuffle indisponible : groupe, automation, chevauchement ou limite de session.');}}suppressClipClickUntil=performance.now()+180;changed(true);}}
 function finishRange(e){if(!rangeDrag||(e?.pointerId!==undefined&&e.pointerId!==rangeDrag.pointer))return;rangeDrag=null;suppressClipClickUntil=performance.now()+180;}
 document.addEventListener('pointerup',finishRange);document.addEventListener('pointercancel',finishRange);window.addEventListener('blur',()=>finishRange());
 document.addEventListener('pointerup',finishClipDrag);document.addEventListener('pointercancel',finishClipDrag);window.addEventListener('blur',()=>finishClipDrag());
