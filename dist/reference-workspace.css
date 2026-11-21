@@ -259,3 +259,13 @@ body.reference-studio[data-layout-profile=fl]{--track-label:160px}
 .fl-mixer-effects h3{font-size:12px;margin:0 0 10px;color:#e6edf0}.fl-mixer-effects .insert-slot{min-height:28px}.fl-mixer-effects .insert-slots{display:flex;flex-direction:column;gap:3px}.fl-mixer-strips .mixer-master .channel-name{cursor:pointer}
 
 .fl-routing-panel{margin-top:14px;padding-top:10px;border-top:1px solid #53646c;color:#e6edf0}.fl-route-diagram{display:flex;align-items:center;gap:5px;margin:8px 0;font-size:10px}.fl-route-diagram span{max-width:44%;overflow-wrap:anywhere;background:#344a43;border:1px solid #639875;padding:4px;border-radius:3px}.fl-route-diagram i{flex:1;min-width:12px;height:2px;background:#79be88}.fl-routing-panel .workflow-routing{display:flex;flex-direction:column;gap:7px}.fl-routing-panel select,.fl-routing-panel input{max-width:100%;min-width:0}.fl-routing-panel .aux-send{padding:6px;border:1px solid #53646c}.fl-routing-panel .aux-send label{flex-wrap:wrap}
+
+/* Pro Tools Edit: independent tool groups, preserving native controls. */
+.reference-studio[data-layout-profile=pt] .studio-editbar{height:auto;min-height:46px;gap:10px;align-items:center;overflow-x:auto;background:#45494f;padding:5px 8px}
+.reference-studio[data-layout-profile=pt] .edit-modes{display:grid;grid-template-columns:repeat(2,minmax(48px,1fr));gap:2px;flex:none;align-items:center}
+.reference-studio[data-layout-profile=pt] .edit-tools{display:flex;gap:2px;flex:none;border-left:1px solid #24272b;padding-left:8px}
+.reference-studio[data-layout-profile=pt] .studio-editbar button{height:30px;min-height:30px;background:#30343a;border:1px solid #646b74;color:#e5e9ef;font-size:11px;padding:3px 8px}
+.reference-studio[data-layout-profile=pt] .studio-editbar button[aria-pressed=true]{background:#366a91;border-color:#8dc3ee;color:white}
+.reference-studio[data-layout-profile=pt] .edit-grid-label,.reference-studio[data-layout-profile=pt] .nudge-controls{flex:none;border-left:1px solid #24272b;padding-left:8px}
+.reference-studio[data-layout-profile=pt] .edit-selection-bar{min-height:28px;overflow-x:auto;white-space:nowrap;gap:12px}
+.reference-studio[data-layout-profile=pt] .edit-selection-bar output{display:inline-block;min-width:56px;padding:3px 5px;background:#20252a;color:#e0e9de;font-variant-numeric:tabular-nums}
