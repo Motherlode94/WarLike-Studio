@@ -1,0 +1,9 @@
+/* CIRCUIT shared console family. No changes to VECTOR or native DSP. */
+:is(.circuit-eq-hardware,.circuit-bus-hardware,.circuit-color-hardware){container-type:inline-size;--circuit-ink:#edf0ea;--circuit-edge:#8998a5;--circuit-accent:#e1b369}
+:is(.circuit-eq-hardware,.circuit-bus-hardware,.circuit-color-hardware)>header{min-height:76px;box-sizing:border-box;align-content:center;text-align:center}
+:is(.circuit-eq-hardware,.circuit-bus-hardware,.circuit-color-hardware) :is(button,input,select):focus-visible{outline:2px solid #f3cf90;outline-offset:2px}
+.circuit-master-presets{display:flex;flex-wrap:wrap;align-items:end;gap:6px;border-bottom:1px solid var(--circuit-edge);padding:8px 0;color:var(--circuit-ink)}
+.circuit-master-presets label{flex:1 1 100px;min-width:0;display:grid;gap:4px;font-size:9px;letter-spacing:.08em;color:var(--circuit-ink)}
+.circuit-master-presets :is(input,select,button){min-width:0;max-width:100%;box-sizing:border-box;background:#112331;color:#edf0ea;border:1px solid #8193a0;border-radius:3px;padding:5px;font-size:11px;height:30px}
+.circuit-master-presets button{cursor:pointer;color:#ffe2a8}
+@container(max-width:300px){.circuit-master-presets label{flex-basis:100%}.circuit-master-presets button{width:100%}}

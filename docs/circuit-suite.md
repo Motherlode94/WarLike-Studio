@@ -1,0 +1,3 @@
+# R07.1d — CIRCUIT Suite
+CIRCUIT EQ (9), BUS (7), COLOR (5) preserve native parameters and DSP. Fifteen factory presets plus the existing local personal bank are available on both tracks and Master. Master module presets affect only that module; they are not full chain presets. VECTOR and CIRCUIT share preset infrastructure but remain separate collections.
+The new CI checks all three master modules together, picker isolation, factory and personal presets, portable project save, insert order and four themes/mobile. Existing individual DSP and browser gates remain in force. Physical audio and manual listening are not certified by these tests.
