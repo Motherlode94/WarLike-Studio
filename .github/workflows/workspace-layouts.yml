@@ -34,10 +34,19 @@ jobs:
           node tests/workspace-layout-browser.mjs
           node tests/plugin-windows-browser.mjs
           node tests/sampler-history-browser.mjs
+          node tests/instru-bank-browser.mjs
       - name: Common plugin commands evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: plugin-command-bar
           path: artifacts/plugin-command-bar/
+          if-no-files-found: warn
+
+      - name: Instru sound bank audio and browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instru-sound-bank
+          path: artifacts/instru-bank/
           if-no-files-found: warn

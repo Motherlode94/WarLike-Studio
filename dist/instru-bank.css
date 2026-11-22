@@ -1,0 +1,18 @@
+.instru-bank-grid{grid-template-columns:repeat(auto-fill,minmax(245px,1fr));grid-auto-rows:max-content}
+.instru-bank-grid .instru-bank-intro,.instru-bank-grid .instru-bank-pager{grid-column:1/-1;min-width:0;padding:16px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:8px}
+.instru-bank-grid .instru-bank-intro h3{margin:0 0 8px;font-size:18px;color:var(--text)}
+.instru-bank-grid .instru-bank-intro p{font-size:13px;line-height:1.6;color:var(--muted);max-width:86ch}
+.instru-bank-grid .instru-bank-status{display:block;margin:10px 0;font-size:12px;overflow-wrap:anywhere}
+.instru-bank-grid .instru-sound-card{min-width:0;min-height:260px;height:auto;overflow:visible;display:flex;flex-direction:column;background:var(--panel);border-color:var(--line);border-top:3px solid var(--card-color);color:var(--text)}
+.instru-bank-grid .instru-sound-card h3{color:var(--text);font-size:18px;overflow-wrap:anywhere}
+.instru-bank-grid .instru-sound-card p{font-size:13px;color:var(--text);line-height:1.5}
+.instru-bank-grid .content-card-type,.instru-bank-grid .instru-sound-tags{font-size:11px;color:var(--muted);line-height:1.5}
+.instru-bank-grid .content-card-actions{margin-top:auto;padding-top:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.instru-bank-grid button{min-height:40px;font-size:12px}
+.instru-bank-grid button:disabled{opacity:.48;cursor:default}
+.instru-bank-grid .instru-bank-pager{display:flex;align-items:center;justify-content:center;gap:14px;font-size:12px}
+@media(max-width:600px){.instru-bank-grid{grid-template-columns:minmax(0,1fr)!important;padding:12px!important}.instru-bank-grid button{min-height:44px}.instru-bank-grid .instru-bank-intro{padding:12px}.instru-bank-grid .instru-bank-pager{gap:8px;padding:10px}}
+
+.instru-bank-grid .instru-sound-card>*{flex-shrink:0}
+.instru-bank-grid .content-card-actions [data-instru-apply]{grid-column:1/-1}
+.instru-bank-grid .content-card-actions button{min-width:0;white-space:normal;justify-content:center}
