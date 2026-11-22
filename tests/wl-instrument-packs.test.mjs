@@ -24,7 +24,7 @@ test('seven modeled guitars and three independent synth instruments are register
  assert.equal(new Set(Object.values(GUITAR_INSTRUMENTS).map(x=>x.style)).size,7);
  for(const [id,def] of Object.entries({...GUITAR_INSTRUMENTS,...SYNTH_INSTRUMENTS})){
   assert.equal(INSTRUMENTS[id].name,def.name);
-  assert.equal(FACTORY_PRESETS[id].length,({wlclean:4,wlcrunch:5,wlmuted:4,wlfolk12:4,wlsteel:4})[id]||3);
+  assert.equal(FACTORY_PRESETS[id].length,({wlclean:4,wlcrunch:5,wlmuted:4,wlfolk12:4,wlsteel:4,wlrompler:5,wlvirtual:5,wlspectral:5})[id]||3);
   for(const preset of FACTORY_PRESETS[id])for(const [key,value] of Object.entries(preset.values)){
    const c=def.controls.find(x=>x.key===key);
    assert.ok(c,id+'.'+key);assert.ok(value>=c.min&&value<=c.max,id+'.'+key);
