@@ -37,9 +37,21 @@ try{
  for(const card of await page.locator('.instru-sound-card').all())assert.ok(await card.evaluate(n=>n.scrollHeight<=n.clientHeight+2),'card must show every action without internal clipping');
  await page.screenshot({path:folder+'/vanguard-desktop.png',fullPage:true});
  await page.setViewportSize({width:390,height:844});await page.locator('#bankSearch').fill('harpe');
- for(const card of await page.locator('.instru-sound-card').all()){const b=await card.boundingBox();assert.ok(b&&b.x>=0&&b.x+b.width<=391,'mobile card overflow');}
- await page.locator('.instru-sound-card').first().scrollIntoViewIfNeeded();
- for(const card of await page.locator('.instru-sound-card').all())assert.ok(await card.evaluate(n=>n.scrollHeight<=n.clientHeight+2),'mobile card clips its actions');
+ // The responsive bank rerenders cards on resize and search. Read a live DOM
+ // snapshot instead of retaining Playwright handles that may detach.
+ await page.waitForFunction(()=>{
+  const cards=[...document.querySelectorAll('.instru-sound-card')];
+  return innerWidth===390&&cards.length===8&&cards.every(n=>n.isConnected&&n.getBoundingClientRect().width>0);
+ });
+ const mobileCards=await page.locator('.instru-sound-card').evaluateAll(cards=>cards.map(n=>{
+  const b=n.getBoundingClientRect();
+  return {x:b.x,right:b.right,width:b.width,clipped:n.scrollHeight>n.clientHeight+2};
+ }));
+ assert.equal(mobileCards.length,8,'all harp presets remain visible on mobile');
+ for(const card of mobileCards){
+  assert.ok(card.x>=-1&&card.right<=391&&card.width>0,'mobile card overflow');
+  assert.equal(card.clipped,false,'mobile card clips its actions');
+ }
  await page.screenshot({path:folder+'/harp-mobile.png',fullPage:true});
  // Render every new sound through the real engines and decode representative WAVs.
  const report=await page.evaluate(async()=>{
