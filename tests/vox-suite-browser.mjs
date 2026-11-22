@@ -34,7 +34,7 @@ try{
  assert.equal(await ambience.locator('[data-master-param="voxambience.slap"]').inputValue(),'118');
  await page.screenshot({path:'artifacts/vox-suite/mobile.png'});
  await page.setViewportSize({width:1440,height:960});
- await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('[data-add-insert-track]').click();
+ await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('.insert-slot.empty [data-insert-slot]').first().click();
  await page.locator('#pickerBundle').selectOption('VOX LAB');await page.locator('#pickerMode').selectOption('presets');await page.locator('#pluginSearch').fill('Suite QA');
  await page.locator('[data-picker-preset="voxambience"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  const track=page.locator('#pluginFloat .vox-ambience-hardware');await track.waitFor();assert.equal(await track.locator('[data-param="voxambience.slap"]').inputValue(),'118');

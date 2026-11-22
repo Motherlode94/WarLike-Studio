@@ -3,13 +3,13 @@ const browser=await chromium.launch({headless:true});await mkdir('artifacts/circ
 try{
  const page=await browser.newPage({viewport:{width:1440,height:960}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8765/');await page.locator('[data-session-tab="create"]').click();await page.locator('#libraryNew').click();await page.locator('#modal').waitFor({state:'hidden'});
- await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('[data-add-insert-track]').click();
+ await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('.insert-slot.empty [data-insert-slot]').first().click();
  await page.locator('#pluginSearch').fill('CIRCUIT BUS');await page.locator('[data-picker-load="circuitbus"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  const face=page.locator('#pluginFloat .circuit-bus-hardware');await face.waitFor();assert.equal(await face.locator('[data-param]').count(),7);
  await face.locator('[data-param="circuitbus.mix"]').evaluate(el=>{el.value='.35';el.dispatchEvent(new Event('input',{bubbles:true}));});
  await page.waitForFunction(()=>document.querySelector('#pluginFloat [data-bus-mix]').textContent==='65% DRY / 35% WET');
  await page.screenshot({path:'artifacts/circuit-bus/track.png'});await page.locator('#pluginFloat [data-float-close]').click();
- await page.locator('#mixerView .mixer-master [data-add-insert-track="master"]').click();await page.locator('#pluginSearch').fill('CIRCUIT BUS');await page.locator('[data-picker-load="circuitbus"]').click();await page.locator('#modal').waitFor({state:'hidden'});
+ await page.locator('#mixerView .mixer-master .insert-slot.empty [data-insert-slot]').first().click();await page.locator('#pluginSearch').fill('CIRCUIT BUS');await page.locator('[data-picker-load="circuitbus"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  const master=page.locator('#masteringView .circuit-bus-hardware');await master.waitFor();assert.equal(await master.locator('[data-master-param]').count(),7);
  await page.screenshot({path:'artifacts/circuit-bus/master.png'});
  const measured=await page.evaluate(async()=>{
