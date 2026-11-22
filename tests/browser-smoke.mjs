@@ -109,8 +109,8 @@ try {
  assert.equal(await page.locator('#bpm').inputValue(),'120');
  await page.locator('[data-view="mixer"]').click();
  await page.locator('#mixerView').waitFor({state:'visible'});
- assert.ok(await page.locator('#mixerView .mixer-channel:not(.mixer-master) [data-add-insert-track]').count()>0,'Each mixer track needs a plugin picker');
- await page.locator('#mixerView .mixer-master [data-add-insert-track="master"]').click();
+ assert.equal(await page.locator('#mixerView [data-add-insert-track]').count(),0,'Mixer must not duplicate direct insert controls');assert.ok(await page.locator('#mixerView .mixer-channel:not(.mixer-master) .insert-slot.empty [data-insert-slot]').count()>0,'Each mixer track needs direct insert access');
+ await page.locator('#mixerView .mixer-master .insert-slot.empty [data-insert-slot]').first().click();
  await page.locator('#modal').waitFor({state:'visible'});
  assert.ok(await page.locator('#pluginPickerResults [data-picker-load]').count()>=20,'Master must expose existing effects');
  await page.locator('#pluginSearch').fill('NOTCH');
@@ -119,7 +119,7 @@ try {
  await page.locator('[data-master-power="notch"]').waitFor({state:'visible'});
  await page.locator('[data-view="mixer"]').click();
  await page.locator('#mixerView .mixer-master [data-insert-open="notch"]').waitFor({state:'visible'});
- await page.locator('#mixerView .mixer-master [data-add-insert-track="master"]').click();
+ await page.locator('#mixerView .mixer-master .insert-slot.empty [data-insert-slot]').first().click();
  assert.ok(await page.locator('[data-picker-load="notch"]').isDisabled(),'Master should block duplicate inserts');
  await page.locator('#closeModal').click();
  await page.locator('#openMastering').click();
