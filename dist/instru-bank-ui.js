@@ -13,7 +13,7 @@ export function renderInstruBank({root,results,search,category,track,onPreview,o
  const button=(text,action,kind='outline-btn')=>{const b=node('button',text,kind);b.type='button';b.onclick=()=>Promise.resolve().then(action).catch(error=>{status.textContent=error.message;});return b;};
  root.replaceChildren();root.classList.remove('pack-grid');root.classList.add('instru-bank-grid');let audition=0;
  results.textContent=matches.length+' / '+INSTRU_PRESETS.length+' sons';
- const intro=node('section',null,'instru-bank-intro');intro.append(node('h3','Banque Instru · sons WarLike'),node('p',INSTRU_PRESETS.length+' presets · 41 instruments · 8 harpes, 8 flûtes, 12 sons analogiques WL VANGUARD et 42 guitares. Écoute le son, ajoute une piste avec une phrase de 2 mesures ou applique-le à une piste du même instrument.'));
+ const intro=node('section',null,'instru-bank-intro');intro.append(node('h3','Banque Instru · sons WarLike'),node('p',INSTRU_PRESETS.length+' presets · 41 instruments · 8 harpes, 8 flûtes, 12 sons analogiques WL VANGUARD et 42 presets de guitares. Écoute le son, ajoute une piste avec une phrase de 2 mesures ou applique-le à une piste du même instrument.'));
  const status=node('output','Prêt à écouter · piste sélectionnée : '+(track?.name||'aucune'),'instru-bank-status');status.setAttribute('role','status');
  intro.append(status,button('■ Arrêter l’écoute',()=>{audition++;onStop();status.textContent='Écoute arrêtée.';}));root.append(intro);
  for(const patch of matches.slice(state.page*12,state.page*12+12)){

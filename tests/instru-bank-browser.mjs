@@ -33,9 +33,13 @@ try{
  await page.locator('#projectInput').setInputFiles({name:'sounds.chayah',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(saved))});await page.waitForFunction(()=>document.querySelector('#toast').textContent==='Projet importé et sauvegardé.');
  await page.reload();await page.locator('[data-session-tab="open"]').click();await page.locator('[data-project-open]').first().click();await page.locator('#modal').waitFor({state:'hidden'});
  const reopened=await save();assert.deepEqual(reopened.project.tracks.map(t=>t.instrument),saved.project.tracks.map(t=>t.instrument));
- await open();await page.locator('#bankSearch').fill('wl vanguard');await page.screenshot({path:folder+'/vanguard-desktop.png',fullPage:true});
+ await open();await page.locator('#bankSearch').fill('wl vanguard');
+ for(const card of await page.locator('.instru-sound-card').all())assert.ok(await card.evaluate(n=>n.scrollHeight<=n.clientHeight+2),'card must show every action without internal clipping');
+ await page.screenshot({path:folder+'/vanguard-desktop.png',fullPage:true});
  await page.setViewportSize({width:390,height:844});await page.locator('#bankSearch').fill('harpe');
  for(const card of await page.locator('.instru-sound-card').all()){const b=await card.boundingBox();assert.ok(b&&b.x>=0&&b.x+b.width<=391,'mobile card overflow');}
+ await page.locator('.instru-sound-card').first().scrollIntoViewIfNeeded();
+ for(const card of await page.locator('.instru-sound-card').all())assert.ok(await card.evaluate(n=>n.scrollHeight<=n.clientHeight+2),'mobile card clips its actions');
  await page.screenshot({path:folder+'/harp-mobile.png',fullPage:true});
  // Render every new sound through the real engines and decode representative WAVs.
  const report=await page.evaluate(async()=>{
