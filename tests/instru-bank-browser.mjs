@@ -40,14 +40,20 @@ try{
  // The responsive bank rerenders cards on resize and search. Read a live DOM
  // snapshot instead of retaining Playwright handles that may detach.
  await page.waitForFunction(()=>{
+  const search=document.querySelector('#bankSearch');
+  const result=document.querySelector('#bankResults');
   const cards=[...document.querySelectorAll('.instru-sound-card')];
-  return innerWidth===390&&cards.length===8&&cards.every(n=>n.isConnected&&n.getBoundingClientRect().width>0);
+  const total=Number(result?.textContent?.split('/')[0]?.trim());
+  // Search matches names, tags and descriptions: 'harpe' need not mean exactly 8 cards.
+  return innerWidth===390&&search?.value==='harpe'&&Number.isInteger(total)&&total>=8&&
+   cards.length===Math.min(12,total)&&cards.every(n=>n.isConnected&&n.getBoundingClientRect().width>0);
  });
  const mobileCards=await page.locator('.instru-sound-card').evaluateAll(cards=>cards.map(n=>{
   const b=n.getBoundingClientRect();
   return {x:b.x,right:b.right,width:b.width,clipped:n.scrollHeight>n.clientHeight+2};
  }));
- assert.equal(mobileCards.length,8,'all harp presets remain visible on mobile');
+ const visibleCount=Math.min(12,Number((await page.locator('#bankResults').textContent()).split('/')[0].trim()));
+ assert.equal(mobileCards.length,visibleCount,'all visible search results remain rendered on mobile');
  for(const card of mobileCards){
   assert.ok(card.x>=-1&&card.right<=391&&card.width>0,'mobile card overflow');
   assert.equal(card.clipped,false,'mobile card clips its actions');
