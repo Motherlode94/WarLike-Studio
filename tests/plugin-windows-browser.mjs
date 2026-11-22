@@ -25,6 +25,11 @@ try{
  const set=async(root,value)=>root.locator('[data-param="glue.threshold"]').evaluate((el,value)=>{el.value=String(value);el.dispatchEvent(new Event('input',{bubbles:true}));},value);
  const value=root=>root.locator('[data-param="glue.threshold"]').inputValue();
  await set(a,-12);await set(b,-28);assert.equal(await value(a),'-12');assert.equal(await value(b),'-28');
+ // Track selection opens another view while the source continues to identify its own owner.
+ await a.locator('[data-plugin-control="suiteTrack"]').selectOption('window-track-1');
+ assert.equal(await a.locator('[data-plugin-control="suiteTrack"]').inputValue(),'window-track-0');
+ assert.equal(await b.locator('[data-plugin-control="suiteTrack"]').inputValue(),'window-track-1');
+ assert.equal(await windows.count(),3);assert.equal(await value(a),'-12');assert.equal(await value(b),'-28');
  // Reopening focuses the same view, retains state, and expands only that view.
  await b.locator('[data-float-minimize]').click();assert.equal(await b.locator('[data-float-minimize]').getAttribute('aria-expanded'),'false');
  await open('window-track-0','glue');assert.equal(await windows.count(),3);assert.equal(await a.getAttribute('data-active'),'true');
@@ -40,6 +45,15 @@ try{
  await open('window-track-0','glue');assert.equal(await windows.count(),3);assert.equal(await value(a),'-12');
  const reopened=await a.boundingBox();assert.ok(Math.abs(reopened.width-sized.width)<2,'each plugin retains its geometry');
  assert.equal(await value(b),'-28','closing a view keeps the other track untouched');
+ // Automatic fitting on a smaller desktop viewport must not replace the user's saved geometry.
+ const geometry=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('warlike.window.geometry.v1')).pt['plugin:'+JSON.stringify(['window-track-0','glue'])]);
+ const saved=await geometry();
+ await page.setViewportSize({width:800,height:960});
+ await page.waitForFunction(()=>document.querySelector('#pluginFloat').getBoundingClientRect().width<=784);
+ await a.locator('[data-float-minimize]').click();await a.locator('[data-float-minimize]').click();
+ await a.locator('[data-float-close]').click();assert.deepEqual(await geometry(),saved);
+ await page.setViewportSize({width:1440,height:960});await open('window-track-0','glue');
+ assert.ok(Math.abs((await a.boundingBox()).width-sized.width)<2,'desktop dimensions survive an automatic fit, minimize and close');
  // Namespaced controls and accessible title references remain unique during focus changes.
  assert.deepEqual(await page.evaluate(()=>{const seen=new Set();return [...document.querySelectorAll('[id]')].map(e=>e.id).filter(id=>seen.has(id)||!seen.add(id));}),[]);
  await page.keyboard.press('Escape');assert.equal(await windows.count(),2,'Escape closes only the active plugin');

@@ -1181,7 +1181,7 @@ function renderPluginView(instance){
   local('userPluginExport').onclick=()=>guard(()=>{const preset=pick.value!==''?bank[Number(pick.value)]:capturePreset(type,def,state,local('userPluginName').value.trim()||def.name);download(JSON.stringify(preset,null,2),preset.name.replace(/[^a-z0-9_-]/gi,'_')+'.wlpreset','application/json');});
   local('userPluginImport').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>65536)throw Error('Fichier preset trop volumineux.');const preset=JSON.parse(await file.text());guard(()=>{if(bank.some(p=>p.name===preset.name)&&!confirm('Remplacer le preset '+preset.name+' ?'))return;storePreset(localStorage,preset,type,def);renderFloatingPlugin();toast('Preset importé.');});}catch(error){toast(error.message);}};
   panel.insertAdjacentHTML('beforeend','<div class="suite-rack-actions"><span>RACK DE LA PISTE</span><button id="importRack" class="text-btn">Charger un rack</button><button id="exportRack" class="outline-btn">Exporter le rack</button></div>');
-  local('suiteTrack').onchange=e=>openPluginWindow(id,e.target.value);
+  local('suiteTrack').onchange=e=>{const destination=e.target.value;e.target.value=trackId;openPluginWindow(id,destination);};
   local('suitePreset').onchange=e=>{const index=Number(e.target.value);if(index<0)return;checkpoint();const name=applyFactoryPreset(tr,id,index);changed(true);toast('Preset '+name+' appliqué à '+tr.name+'.');};
   local('exportRack').onclick=()=>{download(JSON.stringify(exportRack(tr),null,2),tr.name.replace(/[^a-z0-9_-]/gi,'_')+'.chayahfx','application/json');toast('Rack CHAYAH Suite téléchargé.');};
   local('importRack').onclick=()=>{bundleOwner=instance;$('bundleInput').click();};
