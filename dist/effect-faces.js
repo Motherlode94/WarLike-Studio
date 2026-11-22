@@ -18,13 +18,17 @@ function emblem(kind){
 export function mountEffectFace(panel,{id,definition,state,formatValue}){
  const spec=effectFace(id,definition),params=panel.querySelector('.plugin-window-params');
  if(!spec||!params||panel.dataset.effectFace)return false;
- const controls=[...params.querySelectorAll(':scope > .param')],byKey=new Map(controls.map(node=>[node.querySelector('[data-param]')?.dataset.param?.split('.').at(-1),node]));
+ const controls=[...params.querySelectorAll('.param')],byKey=new Map(controls.map(node=>[node.querySelector('[data-param]')?.dataset.param?.split('.').at(-1),node]));
  if(byKey.size!==definition.controls.length||spec.groups.some(g=>g.keys.some(k=>!byKey.has(k))))return false;
- params.replaceChildren(...spec.groups.map(group=>{
-  const section=el('section',null,'effect-control-group');section.dataset.effectGroup=group.name;
-  section.append(el('h3',group.name));for(const key of group.keys){const node=byKey.get(key);node.dataset.effectControl=key;section.append(node);}
-  return section;
- }));
+ // Specialized hardware (e.g. VECTOR EQ frequency bands) already groups its
+ // controls; never discard its native grouping, graphs or event listeners.
+ if(controls.every(node=>node.parentElement===params)){
+  params.replaceChildren(...spec.groups.map(group=>{
+   const section=el('section',null,'effect-control-group');section.dataset.effectGroup=group.name;
+   section.append(el('h3',group.name));for(const key of group.keys){const node=byKey.get(key);node.dataset.effectControl=key;section.append(node);}
+   return section;
+  }));
+ }else for(const [key,node] of byKey)node.dataset.effectControl=key;
  panel.dataset.effectFace=id;panel.dataset.effectKind=spec.kind;panel.style.setProperty('--fx-accent',definition.color||'#a9d3cd');
  const head=el('header',null,'effect-face-heading'),identity=el('div',null,'effect-face-identity'),readouts=el('div',null,'effect-face-readouts');
  identity.append(el('small',spec.label),el('h2',definition.name),el('p',definition.subtitle));
