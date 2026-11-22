@@ -1,3 +1,4 @@
+import {expressionDuration,scheduleNotePitch} from './note-expression.js';
 import {EXPANSION_INSTRUMENTS} from './wl-expansion.js';
 import {createInstrumentBufferCache} from './instrument-buffer-cache.js';
 import {pluckedString} from './instrument-voices.js';
@@ -21,14 +22,14 @@ export function expansionPCM(ctx,type,hz,p){
  else return null;
  return pcmCache.get(ctx,JSON.stringify(key),generate);
 }
-export function expansionVoice(ctx,out,type,midi,time,length,values={},velocity=1,scope,remember){
+export function expansionVoice(ctx,out,type,midi,time,length,values={},velocity=1,scope,remember,note={}){
  const p=expansionSettings(type,values);if(!p)return false;const vel=clamp(velocity,0,1);if(!vel)return true;
- const t=Math.max(ctx.currentTime,time),duration=clamp(length,.025,30),end=t+duration+p.release+.025,hz=440*2**((clamp(midi,0,127)-69)/12),ny=ctx.sampleRate*.45,node=scope.node;
+ const t=Math.max(ctx.currentTime,time),duration=clamp(expressionDuration(length,note),.025,30),end=t+duration+p.release+.025,hz=440*2**((clamp(midi,0,127)-69)/12),ny=ctx.sampleRate*.45,node=scope.node;
  const env=node('createGain'),peak=db(p.output)*vel*.55,a=Math.min(duration*.8,p.attack);
  env.gain.setValueAtTime(0,t);env.gain.linearRampToValueAtTime(peak,t+a);env.gain.setValueAtTime(peak,t+duration);env.gain.exponentialRampToValueAtTime(.00001,end);env.connect(out);
  const play=(src,stop=end)=>{scope.watch(src);remember?.(src);src.start(t);src.stop(stop);};
- function osc(freq,amp,wave='sine',pan=0,decay=0,dest=env,cents=0){if(freq>=ny||amp<=0)return null;const o=node('createOscillator'),g=node('createGain'),st=node('createStereoPanner');o.type=wave;o.frequency.value=Math.max(8,freq);o.detune.value=cents;g.gain.setValueAtTime(amp,t);if(decay>0)g.gain.exponentialRampToValueAtTime(.00001,Math.min(end,t+decay));st.pan.value=pan;o.connect(g);g.connect(st);st.connect(dest);play(o);return o;}
- function buffer(b,dest=env,loop=false){const src=node('createBufferSource');src.buffer=b;src.loop=loop;src.connect(dest);play(src,loop?end:Math.min(end,t+b.duration));}
+ function osc(freq,amp,wave='sine',pan=0,decay=0,dest=env,cents=0){if(freq>=ny||amp<=0)return null;const o=node('createOscillator'),g=node('createGain'),st=node('createStereoPanner');o.type=wave;o.frequency.value=Math.max(8,freq);o.detune.value=cents;scheduleNotePitch(o.detune,cents,t,duration,note);g.gain.setValueAtTime(amp,t);if(decay>0)g.gain.exponentialRampToValueAtTime(.00001,Math.min(end,t+decay));st.pan.value=pan;o.connect(g);g.connect(st);st.connect(dest);play(o);return o;}
+ function buffer(b,dest=env,loop=false){const src=node('createBufferSource');src.buffer=b;src.loop=loop;if(type!=='wlngoma')scheduleNotePitch(src.detune,0,t,duration,note);src.connect(dest);play(src,loop?end:Math.min(end,t+b.duration));}
  function lowpass(freq,dest=env){const f=node('createBiquadFilter');f.type='lowpass';f.frequency.value=clamp(freq,40,ny);f.Q.value=.6;f.connect(dest);return f;}
  if(type==='wltitan'){
   buffer(expansionPCM(ctx,type,hz,p),lowpass(p.brightness));
@@ -56,7 +57,7 @@ export function expansionVoice(ctx,out,type,midi,time,length,values={},velocity=
  }else if(type==='wldrift'){
   buffer(expansionPCM(ctx,type,hz,p),env,true);
  }else if(type==='wlmatrix'){
-  const carrier=osc(hz,.75);if(carrier){for(const [ratio,index] of [[p.ratioA,p.indexA],[p.ratioB,p.indexB]]){if(hz*ratio>=ny||index===0)continue;const mod=node('createOscillator'),g=node('createGain');mod.frequency.value=hz*ratio;g.gain.setValueAtTime(hz*index,t);g.gain.exponentialRampToValueAtTime(.001,t+Math.min(duration,p.decay));mod.connect(g);g.connect(carrier.frequency);play(mod);}}
+  const carrier=osc(hz,.75);if(carrier){for(const [ratio,index] of [[p.ratioA,p.indexA],[p.ratioB,p.indexB]]){if(hz*ratio>=ny||index===0)continue;const mod=node('createOscillator'),g=node('createGain');mod.frequency.value=hz*ratio;scheduleNotePitch(mod.detune,0,t,duration,note);g.gain.setValueAtTime(hz*index,t);g.gain.exponentialRampToValueAtTime(.001,t+Math.min(duration,p.decay));mod.connect(g);g.connect(carrier.frequency);play(mod);}}
  }
  return true;
 }
