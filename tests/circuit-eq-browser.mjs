@@ -3,7 +3,7 @@ const browser=await chromium.launch({headless:true});await mkdir('artifacts/circ
 try{
  const page=await browser.newPage({viewport:{width:1440,height:960}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8765/');await page.locator('[data-session-tab="create"]').click();await page.locator('#libraryNew').click();await page.locator('#modal').waitFor({state:'hidden'});
- await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('[data-add-insert-track]').click();
+ await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('.insert-slot.empty [data-insert-slot]').first().click();
  await page.locator('#pluginSearch').fill('CIRCUIT EQ');await page.locator('[data-picker-load="circuiteq"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  const face=page.locator('#pluginFloat .circuit-eq-hardware');await face.waitFor();assert.equal(await face.locator('[data-param]').count(),9);assert.equal(await face.locator('[data-circuit-band]').count(),4);
  const path=face.locator('.eq-response'),before=await path.getAttribute('points');await face.locator('[data-param="circuiteq.presence"]').evaluate(el=>{el.value='6';el.dispatchEvent(new Event('input',{bubbles:true}));});
@@ -19,7 +19,7 @@ try{
  await originalPoint.dispose();
  assert.equal(await face.locator('[data-circuit-q="2"]').textContent(),'AUTO Q 1.90');
  await page.screenshot({path:'artifacts/circuit-eq/track.png'});await page.locator('#pluginFloat [data-float-close]').click();
- await page.locator('#mixerView .mixer-master [data-add-insert-track="master"]').click();await page.locator('#pluginSearch').fill('CIRCUIT EQ');await page.locator('[data-picker-load="circuiteq"]').click();await page.locator('#modal').waitFor({state:'hidden'});
+ await page.locator('#mixerView .mixer-master .insert-slot.empty [data-insert-slot]').first().click();await page.locator('#pluginSearch').fill('CIRCUIT EQ');await page.locator('[data-picker-load="circuiteq"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  const master=page.locator('#masteringView .circuit-eq-hardware');await master.waitFor();assert.equal(await master.locator('[data-master-param]').count(),9);
  const masterBefore=await master.locator('.eq-response').getAttribute('points');await master.locator('[data-master-param="circuiteq.low"]').evaluate(el=>{el.value='-4';el.dispatchEvent(new Event('input',{bubbles:true}));});
  await page.waitForFunction(p=>document.querySelector('#masteringView .eq-response').getAttribute('points')!==p,masterBefore);
