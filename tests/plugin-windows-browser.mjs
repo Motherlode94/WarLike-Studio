@@ -31,6 +31,9 @@ try{
  const win=(id,plugin)=>page.locator('.floating-plugin').filter({has:page.locator('[data-plugin-control="suiteTrack"] option[value="'+id+'"][selected]')}).filter({has:page.locator(plugin==='instrument'?'[data-param^="instrument."]':'[data-param^="'+plugin+'."]')});
  await open('windowtrack0','instrument');await open('windowtrack0','glue');await open('windowtrack1','glue');
  const windows=page.locator('.floating-plugin');assert.equal(await windows.count(),3);
+ assert.equal(await page.locator('.plugin-rack-drawer').count(),3);
+ assert.equal(await page.locator('.plugin-rack-drawer[open]').count(),0,'Racks must start collapsed in individual plugin windows');
+ assert.equal(await page.locator('.floating-plugin .track-rack-catalog:visible').count(),0,'No permanent rack behind plugin controls');
  const a=win('windowtrack0','glue'),b=win('windowtrack1','glue'),instrument=win('windowtrack0','instrument');
  await a.waitFor();await b.waitFor();await instrument.waitFor();
  const set=async(root,value)=>root.locator('[data-param="glue.threshold"]').evaluate((el,value)=>{el.value=String(value);el.dispatchEvent(new Event('input',{bubbles:true}));},value);
@@ -69,7 +72,9 @@ try{
  assert.deepEqual(await page.evaluate(()=>{const seen=new Set();return [...document.querySelectorAll('[id]')].map(e=>e.id).filter(id=>seen.has(id)||!seen.add(id));}),[]);
  await page.keyboard.press('Escape');assert.equal(await windows.count(),2,'Escape closes only the active plugin');
  // Removing an insert closes that view, while unrelated instrument windows survive.
- await b.locator('[data-insert-slot="0"]').click({force:true});await page.locator('#removeCurrentInsert').click();
+ await b.locator('.plugin-rack-drawer > summary').click();
+ assert.equal(await b.locator('.plugin-rack-drawer').getAttribute('open'),'');
+ await b.locator('[data-insert-slot="0"]').click();await page.locator('#removeCurrentInsert').click();
  assert.equal(await windows.count(),1);assert.equal(await instrument.count(),1);
  // Importing a project disposes every old view and managed-window registration.
  await upload();await page.waitForFunction(()=>!document.querySelector('.floating-plugin'));
