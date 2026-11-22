@@ -1,3 +1,4 @@
+import {TRAP_DRILL_PRESETS} from './trap-drill-presets.js';
 // Original synthesis algorithms. Not named-brand emulations or acoustic recordings.
 const entries=[
  {
@@ -962,5 +963,5 @@ const entries=[
  }
 ];
 export const EXPANSION_INSTRUMENTS=Object.fromEntries(entries.map(({id,presets,...definition})=>[id,{...definition,pack:'wlexpansion'}]));
-export const EXPANSION_PRESETS=Object.fromEntries(entries.map(({id,presets})=>[id,presets]));
+export const EXPANSION_PRESETS=Object.fromEntries(entries.map(({id,presets})=>[id,[...presets,...(TRAP_DRILL_PRESETS[id]||[])]]));
 export const EXPANSION_PACK={name:'WL EXPANSION',label:'TEN ORIGINAL INSTRUMENTS',color:'#bda587',description:'Basses, organ, modal percussion, plucked strings, ensemble, granular and FM instruments; internally generated audio.',instruments:Object.keys(EXPANSION_INSTRUMENTS),modules:[]};
