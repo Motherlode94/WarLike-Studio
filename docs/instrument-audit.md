@@ -1,0 +1,5 @@
+# R08.1a — Instrument inventory and DSP audit
+
+Inventory reads the real instrument registry and factory preset bank, not a second editable catalog. Distinguishes sampled instruments, modeled guitars and winds, synthetic formants, hybrid drums, and user-loaded sampler. Local files are checked against manifest sizes. PULSE kits 1–3 depend on external CC BY samples and are explicitly excluded from offline render certification; kits 0 and 4 are tested. No proprietary emulation claims.
+
+The browser gate produces a JSON report with default renders for all registered instruments, 40 ORIGINS timbres, 32 EXO patches, all modeled guitar and WL synth presets, an original sampler fixture in both modes and Baile percussion. The report measures actual finite samples, peak, RMS and DC; it does not certify musical quality or every preset/parameter combination. Existing audio regression tests are unchanged. Library → Inventaire des instruments exposes definitions and dependencies. CI must pass before merge.
