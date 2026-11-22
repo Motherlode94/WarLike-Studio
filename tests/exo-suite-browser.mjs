@@ -25,7 +25,7 @@ try{
  assert.deepEqual(saved.project.mastering.inserts.filter(Boolean),ids);assert.equal(saved.project.mastering.exospace.predelay,45);
  await page.setViewportSize({width:390,height:844});await ambience.scrollIntoViewIfNeeded();assert.ok((await ambience.boundingBox()).width<=390);await page.screenshot({path:'artifacts/exo-suite/mobile.png'});
  await page.setViewportSize({width:1440,height:960});
- await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('[data-add-insert-track]').click();
+ await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('.insert-slot.empty [data-insert-slot]').first().click();
  await page.locator('#pickerBundle').selectOption('EXO');await page.locator('#pickerMode').selectOption('presets');await page.locator('#pluginSearch').fill('Suite QA');
  await page.locator('[data-picker-preset="exospace"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  const track=page.locator('#pluginFloat .exo-space-hardware');await track.waitFor();assert.equal(await track.locator('[data-param="exospace.predelay"]').inputValue(),'45');
