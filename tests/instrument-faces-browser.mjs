@@ -18,7 +18,11 @@ try{
  await page.locator('#projectInput').setInputFiles({name:'faces.chayah',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({format:'chayah-studio',project,masterVolume:-12,assets:[{id:'facesample',name:'source.wav',data:wav.toString('base64')}]}))});
  await page.waitForFunction(()=>document.querySelector('#projectName').value==='Individual instrument faces QA'||document.querySelector('#toast').textContent.startsWith('Ouverture impossible :'));
  assert.equal(await page.locator('#toast').textContent(),'Projet importé et sauvegardé.');await page.locator('#modal').waitFor({state:'hidden'});await page.locator('[data-view="mixer"]').click();
- const open=(track,id='instrument')=>page.locator('#mixerView [data-mixer-track="'+track+'"] [data-plugin-open="'+id+'"],#mixerView [data-mixer-track="'+track+'"] [data-insert-open="'+id+'"]').first().click({force:true});
+ const open=async(track,id='instrument')=>{
+  const button=page.locator('#mixerView [data-mixer-track="'+track+'"] [data-plugin-open="'+id+'"],#mixerView [data-mixer-track="'+track+'"] [data-insert-open="'+id+'"]').first();
+  await button.evaluate(n=>{const mixer=document.querySelector('#mixerView');mixer.scrollLeft+=n.getBoundingClientRect().left-mixer.getBoundingClientRect().left-mixer.clientWidth/2;});
+  await button.click();
+ };
  const win=track=>page.locator('.floating-plugin[data-plugin-track="'+track+'"]').filter({has:page.locator('[data-instrument-face]')});
  for(const [i,[id,def]]of defs.entries()){
   current=id;const track='face'+i,spec=INSTRUMENT_FACES[id];await open(track);const root=win(track);await root.locator('[data-instrument-face="'+id+'"]').waitFor();
@@ -26,6 +30,7 @@ try{
   const keys=await root.locator('[data-param^="instrument."],[data-exo-control]').evaluateAll(nodes=>nodes.map(n=>n.dataset.exoControl||n.dataset.param.replace('instrument.','')));
   assert.deepEqual(keys.sort(),def.controls.map(c=>c.key).sort(),id+' lost or duplicate native controls');
   assert.equal(await root.locator('.plugin-command-bar').count(),1);
+  for(const bank of await root.locator('.instrument-control-bank').all())assert.ok(await bank.evaluate(n=>n.scrollWidth<=n.clientWidth+2),id+' bank overlaps its controls');
   assert.equal(await root.locator('.instrument-face-heading svg').count(),1);
   const ids=await root.locator('[id]').evaluateAll(nodes=>nodes.map(n=>n.id));assert.equal(ids.length,new Set(ids).size,id+' duplicate IDs');
   if(def.sampled){assert.equal(await root.locator('[data-acoustic-key]').count(),25);assert.equal(await root.locator('.acoustic-player progress').count(),1);}
