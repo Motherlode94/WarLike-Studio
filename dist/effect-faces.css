@@ -1,0 +1,84 @@
+/* Dedicated effect panels; existing per-pack hardware graphs and controls remain authoritative. */
+html[data-warlike-app=warlike-studio] .floating-plugin .suite-processor[data-effect-face]{
+ --fx-bg:#17252b;--fx-surface:#25343b;--fx-text:#eaf4f7;--fx-muted:#b5cbd3;--fx-line:#718690;
+ background:var(--fx-bg)!important;color:var(--fx-text);min-width:0
+}
+html[data-warlike-app=warlike-studio] .floating-plugin .suite-processor[data-effect-kind=eq]{--fx-bg:#15312e;--fx-surface:#20433f;--fx-line:#628f84}
+html[data-warlike-app=warlike-studio] .floating-plugin .suite-processor[data-effect-kind=dynamics]{--fx-bg:#2e281e;--fx-surface:#41372a;--fx-line:#96846b}
+html[data-warlike-app=warlike-studio] .floating-plugin .suite-processor[data-effect-kind=space]{--fx-bg:#1e3042;--fx-surface:#2b4259;--fx-line:#749bb6}
+html[data-warlike-app=warlike-studio] .floating-plugin .suite-processor[data-effect-kind=echo]{--fx-bg:#262640;--fx-surface:#3a395c;--fx-line:#8f8cba}
+html[data-warlike-app=warlike-studio] .floating-plugin .suite-processor[data-effect-kind=modulation]{--fx-bg:#2c2437;--fx-surface:#463450;--fx-line:#a080ad}
+html[data-warlike-app=warlike-studio] .floating-plugin .suite-processor[data-effect-kind=drive]{--fx-bg:#39271f;--fx-surface:#50372b;--fx-line:#b38a6b}
+html[data-warlike-app=warlike-studio] .floating-plugin .suite-processor[data-effect-kind=vocal]{--fx-bg:#233640;--fx-surface:#314a57;--fx-line:#85abb9}
+.floating-plugin .suite-processor[data-effect-face] .plugin-identity-banner{display:none}
+.floating-plugin .effect-face-heading{
+ display:grid;grid-template-columns:104px minmax(0,1fr);gap:12px;align-items:center;min-width:0;
+ padding:14px 0;margin:8px 0 14px;border-block:1px solid var(--fx-line)
+}
+.floating-plugin .effect-face-heading>svg{
+ width:100%;height:88px;fill:none;stroke:var(--fx-accent);stroke-width:2.5;
+ stroke-linecap:round;stroke-linejoin:round
+}
+.floating-plugin .effect-face-identity{min-width:0}
+.floating-plugin .effect-face-identity small,.floating-plugin .effect-face-macro small{
+ color:var(--fx-muted);font:600 10px ui-monospace,monospace;letter-spacing:.05em
+}
+.floating-plugin .effect-face-identity h2{
+ margin:4px 0;color:var(--fx-text);font-size:clamp(17px,2vw,26px);overflow-wrap:anywhere
+}
+.floating-plugin .effect-face-identity p{margin:0;color:var(--fx-muted);font-size:11px;overflow-wrap:anywhere}
+.floating-plugin .effect-face-readouts{
+ grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px
+}
+.floating-plugin .effect-face-macro{
+ padding:10px;min-width:0;background:var(--fx-surface);
+ border:1px solid var(--fx-line);border-radius:7px
+}
+.floating-plugin .effect-face-macro output{
+ display:block;color:var(--fx-text);font:700 17px ui-monospace,monospace;margin:5px 0 8px;
+ overflow-wrap:anywhere
+}
+.floating-plugin .effect-macro-track{display:block;overflow:hidden;height:4px;background:#0005;border-radius:4px}
+.floating-plugin .effect-macro-fill{display:block;height:100%;background:var(--fx-accent);max-width:100%}
+.floating-plugin .suite-processor[data-effect-face] .plugin-window-params{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;
+ padding:12px!important;border:1px solid var(--fx-line);border-radius:7px;
+ background:var(--fx-surface);min-width:0
+}
+.floating-plugin .effect-control-group{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));
+ gap:8px;align-content:start;min-width:0;padding:10px;
+ background:var(--fx-bg);border:1px solid var(--fx-line);border-radius:6px
+}
+.floating-plugin .effect-control-group h3{
+ grid-column:1/-1;font:700 10px ui-monospace,monospace;letter-spacing:.05em;
+ color:var(--fx-muted);margin:0 0 6px;min-width:0;overflow-wrap:anywhere
+}
+.floating-plugin .suite-processor[data-effect-face] .effect-control-group .param{
+ min-width:0;box-shadow:none;border:1px solid var(--fx-line);
+ background:var(--fx-surface);padding:10px 6px;border-radius:5px
+}
+.floating-plugin .suite-processor[data-effect-face] .effect-control-group .param>label,
+.floating-plugin .suite-processor[data-effect-face] .effect-control-group .param-value{color:var(--fx-text)}
+.floating-plugin .suite-processor[data-effect-face] .effect-control-group .param-entry{
+ color:var(--fx-text);background:var(--fx-bg);border-color:var(--fx-line)
+}
+.floating-plugin .suite-processor[data-effect-face] .plugin-mouse-guide,
+.floating-plugin .suite-processor[data-effect-face] .plugin-window-footer{color:var(--fx-muted);border-color:var(--fx-line)}
+.floating-plugin .suite-processor[data-effect-face][data-effect-enabled=false] .effect-face-heading>svg{opacity:.45}
+.floating-plugin .suite-processor[data-effect-face] :is(button,input,select):focus-visible{
+ outline:2px solid var(--fx-accent);outline-offset:2px
+}
+@media(max-width:660px){
+ .floating-plugin .effect-face-heading{grid-template-columns:64px minmax(0,1fr);gap:9px}
+ .floating-plugin .effect-face-heading>svg{height:56px}
+ .floating-plugin .effect-face-macro output{font-size:14px}
+ .floating-plugin .suite-processor[data-effect-face] .plugin-window-params{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:7px!important
+ }
+ .floating-plugin .effect-control-group{grid-template-columns:minmax(0,1fr);padding:7px}
+}
+@media(max-width:410px){
+ .floating-plugin .suite-processor[data-effect-face] .plugin-window-params{grid-template-columns:minmax(0,1fr)}
+ .floating-plugin .effect-control-group{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
