@@ -1,3 +1,4 @@
+import {EXPANSION_INSTRUMENTS} from './wl-expansion.js';
 import {expandFactorySong} from './full-song.js';
 import {createFactoryArrangement,FACTORY_STYLES} from './factory-arrangements.js?v=0.14.0';
 import {INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins} from './plugins.js?v=0.14.0';
@@ -27,6 +28,7 @@ export const PHRASES={
   pluck:[69,72,76,79,76,65,69,72,76,72].map((midi,i)=>({step:[0,3,6,8,12,16,19,22,24,28][i],midi,len:2}))
 };
 PHRASES.exo=PHRASES.keys.map(n=>({...n}));
+for(const [id,d] of Object.entries(EXPANSION_INSTRUMENTS))PHRASES[id]=PHRASES[d.phrase].map(n=>({...n}));
 for(const [type,def] of Object.entries(INSTRUMENTS))if(def.sampled)PHRASES[type]=PHRASES[['violin','cello'].includes(type)?'pad':['flute','trumpet'].includes(type)?'lead':['harp','marimba','vibes','kalimba','strum'].includes(type)?'pluck':'keys'].map(n=>({...n}));
 export const SESSION_TEMPLATES=[
   {id:'nocturne',name:'Nocturne Trap',style:'Trap mélodique',bpm:138,swing:0,groove:'trap-night',description:'Trap half-time : 808 syncopée, cloches EXO, piano feutré et progression en Fa♯ mineur.'},
