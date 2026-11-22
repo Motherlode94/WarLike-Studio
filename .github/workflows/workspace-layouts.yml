@@ -36,6 +36,7 @@ jobs:
           node tests/sampler-history-browser.mjs
           node tests/instru-bank-browser.mjs
           node tests/instrument-faces-browser.mjs
+          node tests/effect-faces-browser.mjs
       - name: Common plugin commands evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -58,4 +59,12 @@ jobs:
         with:
           name: instrument-faces
           path: artifacts/instrument-faces/
+          if-no-files-found: warn
+
+      - name: Individual effect panel screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: effect-faces
+          path: artifacts/effect-faces/
           if-no-files-found: warn
