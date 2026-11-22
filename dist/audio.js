@@ -308,7 +308,7 @@ export class AudioEngine {
     if(ACOUSTIC_INSTRUMENTS[type]){if(velocity<=0)return;return acousticVoice(ctx,out,type,midi,t,duration,params,velocity,this.instrumentBanks?.get(type),live?o=>this.remember(o):null);}
     const scope=this.voiceScope(ctx),node=scope.node;
     if(type==='wlvox')return playWLVocal(ctx,out,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null);
-    if(expansionVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null))return;
+    if(expansionVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null,note))return;
     if(warlikeInstrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null))return;
     if(type==='origins')return originsVoice(ctx,out,midi,t,duration,params,velocity,live?o=>this.remember(o):null);
     if(['bass','keys','lead','pad','pluck'].includes(type))return instrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null,note);
