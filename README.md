@@ -776,3 +776,12 @@ La finalisation d'une prise vérifie maintenant les buffers audio **avant leur e
 Une prise très silencieuse ou présentant des indices d'écrêtage déclenche un avertissement **sans être supprimée**. Ce contrôle est un indicateur et ne remplace pas un test avec les vrais microphones, ni une mesure de latence de casque ou une endurance de 30–60 minutes. La limite d'enregistrement actuelle du workflow est de 20 minutes et n'a pas été élargie par ce correctif.
 
 Tests : `node --test tests/recording-integrity.test.mjs`. CI : `recording-integrity.yml`.
+
+### R08.3g.2 — Fenêtres individuelles des plugins
+
+Plusieurs instruments et effets de pistes peuvent rester ouverts ensemble.
+Chaque fenêtre identifie sa piste, garde sa position et se ferme indépendamment.
+Rouvrir un plugin ramène sa fenêtre au premier plan ; Échap ferme le plugin
+actif. Fermer la fenêtre conserve le traitement audio et les réglages.
+La liste **Fenêtres & outils** permet de retrouver chaque processeur ouvert.
+Voir [le fonctionnement et la suite R08.3g.3–R08.4](docs/plugin-windows.md).

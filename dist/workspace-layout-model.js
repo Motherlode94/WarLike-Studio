@@ -13,7 +13,7 @@ export function fitGeometry(g,vw,vh){
  return {width,height,x:clamp(v.x,8,Math.max(8,vw-width-8)),y:clamp(v.y,8,Math.max(8,vh-height-8))};
 }
 export function sanitizeGeometryMap(x){
- const safe={};for(const id of WINDOW_IDS){const g=validGeometry(x?.[id]);if(g)safe[id]=g;}return safe;
+ const safe={};for(const id of [...WINDOW_IDS,...Object.keys(x||{}).filter(id=>id.startsWith('plugin:')&&id.length<=400).slice(-256)]){const g=validGeometry(x?.[id]);if(g)safe[id]=g;}return safe;
 }
 function read(storage,key,fallback){try{return JSON.parse(storage.getItem(key)||'null')??fallback;}catch{return fallback;}}
 export function readGeometry(storage,profile){return sanitizeGeometryMap(read(storage,GEOMETRY_KEY,{})?.[profileId(profile)]);}

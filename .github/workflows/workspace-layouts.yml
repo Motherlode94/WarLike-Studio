@@ -27,3 +27,4 @@ jobs:
           done
           curl -fsS http://127.0.0.1:8765/ -o /dev/null
           node tests/workspace-layout-browser.mjs
+          node tests/plugin-windows-browser.mjs
