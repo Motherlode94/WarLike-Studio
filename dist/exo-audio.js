@@ -1,3 +1,4 @@
+import {focusCurve} from './exo-focus-model.js';
 import {exoSpaceEnvelope} from './exo-space-model.js';
 import {exoSettings} from './exo.js?v=0.14.0';
 const db=x=>10**(x/20),waveCurve=fn=>Float32Array.from({length:4097},(_,i)=>fn(i/2048-1));
@@ -26,7 +27,7 @@ export function createExoEffects(ctx,scope,types=null){const modules={},node=(ki
 }
 export function syncExoEffect(ctx,id,m,s,now,initial,inputChannels=1){const set=(p,v)=>initial?p.setValueAtTime(v,now):p.setTargetAtTime(v,now,.02),on=s.enabled;
  if(id==='exostrip'){m.outputGain.channelCountMode='explicit';m.outputGain.channelCount=inputChannels;set(m.hp.frequency,s.highpass);set(m.body.gain,s.body);set(m.presence.gain,s.presence);set(m.air.gain,s.air);set(m.comp.threshold,s.threshold);set(m.comp.ratio,s.ratio);set(m.comp.attack,s.attack/1000);set(m.comp.release,s.release/1000);set(m.dry.gain,on?1-s.mix:1);set(m.wet.gain,on?s.mix:0);set(m.outputGain.gain,db(on?s.output:0));}
- if(id==='exofocus'){set(m.band.frequency,s.frequency);set(m.band.Q,s.q);set(m.smooth.frequency,1/(2*Math.PI*s.response/1000));set(m.scale.gain,1/32/db(s.threshold));m.control.curve=waveCurve(x=>{const relative=Math.abs(x)*32,atten=relative<=1?1:Math.max(db(-s.range),relative**(-.75));return on?(atten-1)*s.mix:0;});set(m.outputGain.gain,db(on?s.output:0));}
+ if(id==='exofocus'){set(m.band.frequency,s.frequency);set(m.band.Q,s.q);set(m.smooth.frequency,1/(2*Math.PI*s.response/1000));set(m.scale.gain,1/32/db(s.threshold));m.control.curve=focusCurve(s.range,s.mix,!!on);set(m.outputGain.gain,db(on?s.output:0));}
  if(id==='exoair'){set(m.hp.frequency,s.frequency);set(m.post.frequency,s.frequency);const drive=db(s.drive);m.shaper.curve=waveCurve(x=>Math.tanh(x*drive)/Math.tanh(drive));set(m.wet.gain,on?s.mix*.35:0);set(m.outputGain.gain,db(on?s.output:0));}
  if(id==='exospace'){/* Preserve delayed stereo samples after a short source disconnects or changes channel count. */m.pre.channelCountMode='explicit';m.pre.channelCount=inputChannels===1?1:2;set(m.pre.delayTime,s.predelay/1000);set(m.tone.frequency,s.damping);const key=s.decay.toFixed(1)+':'+s.width.toFixed(2);if(m.irKey!==key){m.convolver.buffer=impulse(ctx,s.decay,s.width);m.irKey=key;}set(m.dry.gain,(on?1-s.mix:1)*(inputChannels===1?Math.SQRT1_2:1));set(m.wet.gain,on?s.mix:0);set(m.outputGain.gain,db(on?s.output:0));}
 }
