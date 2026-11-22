@@ -5,6 +5,7 @@ import {ORIGINS_BANK} from './origins.js';
 import {GUITAR_INSTRUMENTS,SYNTH_INSTRUMENTS} from './wl-instrument-packs.js';
 import {DRUM_KIT_NAMES,requiredDrumFiles} from './recorded-drum-kits.js';
 export function instrumentFamily(id){
+ if(INSTRUMENTS[id]?.pack==='wlexpansion')return INSTRUMENTS[id].family;
  if(Object.hasOwn(ACOUSTIC_BANKS,id))return 'Échantillonné';
  if(Object.hasOwn(GUITAR_INSTRUMENTS,id))return 'Guitare modélisée';
  if(id==='sampler')return 'Sampler';
