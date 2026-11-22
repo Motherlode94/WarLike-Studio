@@ -1,0 +1,14 @@
+import {mountAlter} from './alter-face.js';
+import {alterEchoLayout} from './alter-echo-model.js';
+export const ALTER_ECHO_BANKS=Object.freeze([['01 / TEMPO',['beats','feedback']],['02 / COLOR',['tone','duck']],['03 / SEND',['mix']]]);
+const graph='<svg viewBox="0 0 360 148" role="img" aria-label="Répétitions nominales de l’écho"><rect x="1" y="1" width="358" height="146" rx="4" fill="#211711" stroke="#805d47"/>'+[0,1,2,3,4,5].map(i=>'<path d="M'+(25+i*61)+' 18V111" stroke="#514035"/>').join('')+'<path d="M25 111H330 M25 111V18" stroke="#ebdcc7"/>'+Array.from({length:5},(_,i)=>'<path data-echo-stem="'+i+'" stroke="#edab69" stroke-width="3"/>').join('')+'<text x="25" y="126" fill="#ebdcc7" font-size="9">0</text><text data-echo-axis x="330" y="126" text-anchor="end" fill="#ebdcc7" font-size="9"/><text x="180" y="139" text-anchor="middle" fill="#ebdcc7" font-size="9">NOMINAL REPEATS · BEFORE DUCK / FILTER</text></svg>';
+export function mountAlterEcho(root,{state,getStage,getBpm,master=false}){
+ const samples=new Float32Array(256);
+ return mountAlter(root,{state:()=>{const s=state();return s?{...s,bpm:getBpm()}:null;},master,live:true,id:'alter-echo',title:'ECHO 02',subtitle:'TEMPO DELAY / DUCKING',banks:ALTER_ECHO_BANKS,display:graph+'<div class="alter-pro-readouts"><output data-echo-time></output><output data-echo-feedback></output></div><div class="alter-pro-readouts"><output data-echo-gr>—</output><output data-echo-status></output></div><div class="alter-echo-meter" role="presentation"><i data-echo-meter></i></div><small>Signal direct unitaire. Répétitions nominales avant filtrage et ducking. L’indicateur DUCK mesure le gain de contrôle du chemin retardé, pas le niveau de sortie.</small>',footer:'TEMPO SYNC · 12 Hz ENVELOPE · ADDITIVE DELAY · NATIVE DSP',paint(face,s){
+ const m=alterEchoLayout(s,s.bpm);m.echoes.forEach((p,i)=>face.querySelector('[data-echo-stem="'+i+'"]').setAttribute('d','M'+(25+(i+1)*61)+' 111V'+(111-93*p.gain)));
+ face.querySelector('[data-echo-axis]').textContent=(m.delay*5/1000).toFixed(2)+' s';face.querySelector('[data-echo-time]').textContent=s.bpm+' BPM · '+m.delay.toFixed(1)+' ms';face.querySelector('[data-echo-feedback]').textContent='FB '+Math.round(s.feedback*100)+'%';
+ const monitor=s.enabled!==false&&s.mix>0?getStage?.()?.monitor:null;let gr=0;if(monitor){monitor.getFloatTimeDomainData(samples);let sum=0;for(const v of samples)sum+=v;gr=20*Math.log10(Math.max(1e-9,Math.min(1,sum/samples.length)));}
+ face.querySelector('[data-echo-gr]').textContent=monitor?'DUCK '+gr.toFixed(1)+' dB':s.enabled===false||s.mix===0?'DUCK 0.0 dB':'DUCK —';
+ face.querySelector('[data-echo-meter]').style.width=Math.max(0,Math.min(100,-gr/24*100))+'%';face.querySelector('[data-echo-status]').textContent=s.enabled===false?'BYPASS':s.mix===0?'DRY':monitor&&gr<-.1?'DUCKING':'ACTIVE';
+ }});
+}
