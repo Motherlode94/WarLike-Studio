@@ -1,0 +1,22 @@
+/* Local hardware palette; normal host theme and interaction controls remain intact. */
+.expansion-hardware{--exp-accent:#c6b187;box-sizing:border-box;min-width:0;max-width:100%;padding:10px;display:grid;gap:10px;background:#181b20;color:#eeeef0;border:1px solid #5d626b;border-radius:7px;box-shadow:inset 0 0 0 2px #101217;font:12px system-ui,sans-serif}
+.expansion-hardware header{display:grid;gap:5px;text-align:center;padding:8px;border-bottom:1px solid var(--exp-accent)}
+.expansion-hardware header strong{font-size:clamp(18px,4vw,30px);letter-spacing:.1em;color:var(--exp-accent)}
+.expansion-hardware small,.expansion-hardware footer{font-size:10px;color:#c8cbd1;line-height:1.5;overflow-wrap:anywhere}
+.expansion-display{background:#101318;border:1px solid #434a54;border-radius:5px;padding:8px;min-width:0;display:grid;gap:6px}
+.expansion-display svg{display:block;width:100%;height:auto;max-height:170px}
+.expansion-display svg text{font:9px monospace;fill:#d7dce3}
+.expansion-display .guide{fill:none;stroke:#343d48;stroke-width:1}
+.expansion-display .signal{fill:none;stroke:var(--exp-accent);stroke-width:2}
+.expansion-display .signal-fill{fill:var(--exp-accent)}
+.expansion-display .bar-track{fill:#272d36}
+.expansion-display output{color:var(--exp-accent);font:11px/1.5 monospace;overflow-wrap:anywhere}
+.expansion-hardware .expansion-controls{display:flex;flex-wrap:wrap;gap:8px;padding:0;min-width:0}
+.expansion-bank{box-sizing:border-box;flex:1 1 160px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,68px),1fr));gap:6px;padding:8px;background:#22262e;border:1px solid #525965;border-radius:4px;min-width:0;border-top:2px solid var(--exp-accent)}
+.expansion-bank h4{grid-column:1/-1;margin:0 0 4px;font:10px system-ui,sans-serif;letter-spacing:.08em;color:var(--exp-accent)}
+.expansion-bank .param{min-width:0;color:#eeeef0}
+.expansion-bank .param label{color:#d7dce3;overflow-wrap:anywhere}
+.expansion-bank .param-value{color:#eeeef0;background:#13161b;border-color:#5b626b}
+.expansion-bank :is(input,button):focus-visible{outline:2px solid var(--exp-accent);outline-offset:2px}
+.expansion-hardware footer{text-align:center;border-top:1px solid #525965;padding-top:6px}
+@media(max-width:600px){.expansion-hardware{padding:6px}.expansion-bank{flex-basis:100%;grid-template-columns:repeat(auto-fit,minmax(min(100%,72px),1fr))}}
