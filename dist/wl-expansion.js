@@ -1,3 +1,4 @@
+import {AMBIENT_CINEMATIC_PRESETS} from './ambient-cinematic-presets.js';
 import {ROCK_METAL_PRESETS} from './rock-metal-presets.js';
 import {FUNK_GOSPEL_PRESETS} from './funk-gospel-presets.js';
 import {RNB_NEO_SOUL_PRESETS} from './rnb-neo-soul-presets.js';
@@ -967,5 +968,5 @@ const entries=[
  }
 ];
 export const EXPANSION_INSTRUMENTS=Object.fromEntries(entries.map(({id,presets,...definition})=>[id,{...definition,pack:'wlexpansion'}]));
-export const EXPANSION_PRESETS=Object.fromEntries(entries.map(({id,presets})=>[id,[...presets,...(TRAP_DRILL_PRESETS[id]||[]),...(AMAPIANO_AFROBEAT_PRESETS[id]||[]),...(RNB_NEO_SOUL_PRESETS[id]||[]),...(FUNK_GOSPEL_PRESETS[id]||[]),...(ROCK_METAL_PRESETS[id]||[])]]));
+export const EXPANSION_PRESETS=Object.fromEntries(entries.map(({id,presets})=>[id,[...presets,...(TRAP_DRILL_PRESETS[id]||[]),...(AMAPIANO_AFROBEAT_PRESETS[id]||[]),...(RNB_NEO_SOUL_PRESETS[id]||[]),...(FUNK_GOSPEL_PRESETS[id]||[]),...(ROCK_METAL_PRESETS[id]||[]),...(AMBIENT_CINEMATIC_PRESETS[id]||[])]]));
 export const EXPANSION_PACK={name:'WL EXPANSION',label:'TEN ORIGINAL INSTRUMENTS',color:'#bda587',description:'Basses, organ, modal percussion, plucked strings, ensemble, granular and FM instruments; internally generated audio.',instruments:Object.keys(EXPANSION_INSTRUMENTS),modules:[]};
