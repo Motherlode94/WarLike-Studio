@@ -1,3 +1,4 @@
+import {AMBIENT_SYNTH_PRESETS} from './ambient-cinematic-presets.js';
 import {ROCK_GUITAR_PRESETS} from './rock-metal-presets.js';
 // Original editable presets; NOT loaded into demonstration sessions.
 export const WL_INSTRUMENT_PRESETS={
@@ -14,3 +15,5 @@ export const WL_INSTRUMENT_PRESETS={
 };
 
 for(const [id,patches] of Object.entries(ROCK_GUITAR_PRESETS))WL_INSTRUMENT_PRESETS[id].push(...patches);
+
+for(const [id,patches] of Object.entries(AMBIENT_SYNTH_PRESETS))WL_INSTRUMENT_PRESETS[id].push(...patches);
