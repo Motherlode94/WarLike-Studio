@@ -1172,7 +1172,6 @@ function undoPluginEdit(instance,redo=false){
 function renderPluginView(instance){
   const win=pluginWindows.entries.find(e=>e.instance===instance)?.view;if(!win)return;const {id,trackId}=instance,tr=project.tracks.find(t=>t.id===trackId),def=id==='instrument'?instrumentDefinition(tr?.type):effectDefinition(id);
   if(!tr||!def||id!=='instrument'&&!tr.inserts.includes(id)){closePluginWindow(instance);return;}ensurePlugins(tr);const state=id==='instrument'?tr.instrument:tr.effects[id];
-  observePluginEdit(instance,tr,def);
   const root=win.root,bodyRoot=win.body,local=name=>findPluginControl(bodyRoot,name);
   root.dataset.pluginTrack=tr.id;root.dataset.pack=def.pack||'studio';win.title.textContent=def.name+(id==='instrument'&&tr.type==='bass'?' 808':'')+(id==='instrument'?' · Instrument':' · Insert '+String.fromCharCode(65+tr.inserts.indexOf(id)))+' · '+tr.name;
   root.dataset.windowLabel=def.name+' · '+tr.name;root.setAttribute('aria-label',root.dataset.windowLabel);
@@ -1235,6 +1234,7 @@ function renderPluginView(instance){
   if(id==='instrument'&&tr.type==='sampler')mountSampler({panel,track:tr,engine,assets,checkpoint,changed,save,toast,esc,insertPattern:(track,s)=>{checkpoint();const start=Math.floor(engine.getPosition()/16),count=s.mode==='chromatic'?1:s.markers.length-1,steps=Math.max(16,Math.ceil(count/4)*16);track.clips.push({id:uid(),name:'EXO Slice / '+(assets.get(s.assetId)?.name||'Sample'),start,length:steps/16,patternSteps:steps,notes:Array.from({length:count},(_,i)=>({id:uid(),step:i*4,midi:s.root+i,len:3,velocity:.8}))});project.bars=fitSession(project.bars,start+steps/16);selectedClip=track.clips.at(-1).id;changed(true);toast('Pattern créé : modifie les notes dans le piano roll.');}});
   if(id==='instrument')mountExpansionHardware(panel,{id:tr.type,state:()=>project.tracks.find(t=>t.id===trackId)?.instrument});
   if(id==='instrument'&&tr.type==='exo')mountExoBrowser({panel,track:tr,engine,checkpoint,changed,toast,paramHTML,esc});
+  observePluginEdit(instance,tr,def);
   mountPluginCommandBar({root,body:win.body,panel,trackName:tr.name,slot:id==='instrument'?'Instrument':'Insert '+String.fromCharCode(65+tr.inserts.indexOf(id)),
     canUndo:pluginEdits.canUndo(instance.key),canRedo:pluginEdits.canRedo(instance.key),undo:()=>undoPluginEdit(instance),redo:()=>undoPluginEdit(instance,true),
     canEdit:()=>{if(recording||recordFinalizing||micPending){toast('Termine la prise avant cette action.');return false;}return true;}});
