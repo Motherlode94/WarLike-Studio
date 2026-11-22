@@ -514,8 +514,9 @@ function openMixMasterTemplates(kind,trackId=null){
   for(const t of visible){
    const group=presetPath(t.genre,t.category);
    if(!folders.has(group)){
-    const title=document.createElement('div');title.className='template-folder-title';title.textContent=group;
-    $('templateList').append(title);folders.set(group,true);
+    const folder=document.createElement('details');folder.className='template-folder';folder.open=true;
+    const summary=document.createElement('summary');summary.className='template-folder-title';summary.textContent=group;
+    folder.append(summary);$('templateList').append(folder);folders.set(group,folder);
    }
    const row=document.createElement('div');row.className='mix-master-template-row';
    const button=document.createElement('button');button.type='button';button.className='mix-master-template-option';button.dataset.templateId=t.id;
@@ -527,7 +528,7 @@ function openMixMasterTemplates(kind,trackId=null){
    star.textContent=isFavorite?'★':'☆';star.setAttribute('aria-label','Favori '+t.name);star.setAttribute('aria-pressed',String(isFavorite));
    star.dataset.templateFavorite=t.id;
    star.onclick=()=>{setPresetFavorite(localStorage,domain,t.id,!isFavorite);render();};
-   row.append(button,star);$('templateList').append(row);
+   row.append(button,star);folders.get(group).append(row);
   }
   const t=byId(selected);$('applyMixMasterTemplate').disabled=!t;
   $('templateName').textContent=t?.name||'Aucun template trouvé';$('templateDescription').textContent=t?.description||'';
