@@ -83,7 +83,10 @@ import {installKnobControls} from './controls.js?v=0.14.0';
 import {PluginInstances} from './plugin-instances.js?v=1';
 import {PluginWindowManager} from './plugin-window-manager.js';
 import {findPluginControl,scopePluginWindowIds} from './plugin-window-dom.js';
+import {PluginEditHistory,capturePluginEdit,applyPluginEdit} from './plugin-edit-history.js';
+import {mountPluginCommandBar} from './plugin-command-bar.js';
 const pluginInstances=new PluginInstances(),pluginWindows=new PluginWindowManager();
+const pluginEdits=new PluginEditHistory();let pluginEditGroup=0;
 const pluginWindowTemplate=document.getElementById('pluginFloat');
 pluginWindowTemplate.remove();
 let pluginWindowSerial=0,bundleOwner=null;
@@ -276,10 +279,10 @@ const clone=v=>JSON.parse(JSON.stringify(v));
 function parameterTrack(element){const owner=element.closest('[data-plugin-track]');return owner?project.tracks.find(t=>t.id===owner.dataset.pluginTrack):currentTrack();}
 
 function toast(message){$('toast').textContent=message;$('toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),4000);}
-function checkpoint(){history.push(clone(project));if(history.length>40)history.shift();future=[];updateUndo();}
+function checkpoint(){pluginEditGroup++;history.push(clone(project));if(history.length>40)history.shift();future=[];updateUndo();}
 function updateUndo(){$('undo').disabled=!history.length;$('redo').disabled=!future.length;}
-function undo(redo=false){const from=redo?future:history,to=redo?history:future;if(!from.length)return;engine.pause();to.push(clone(project));project=from.pop();project.tracks.forEach(ensurePlugins);if(!project.tracks.some(t=>t.id===selectedTrack)){selectedTrack=project.tracks[0]?.id;selectedClip=null;}if(!currentTrack()?.clips.some(c=>c.id===selectedClip))selectedClip=currentTrack()?.clips[0]?.id;engine.sync();render();save();}
-function changed(full=false){project.tracks.forEach(ensurePlugins);engine.sync();save();if(full)render();}
+function undo(redo=false){const from=redo?future:history,to=redo?history:future;if(!from.length)return;engine.pause();to.push(clone(project));project=from.pop();pluginEdits.clear();project.tracks.forEach(ensurePlugins);if(!project.tracks.some(t=>t.id===selectedTrack)){selectedTrack=project.tracks[0]?.id;selectedClip=null;}if(!currentTrack()?.clips.some(c=>c.id===selectedClip))selectedClip=currentTrack()?.clips[0]?.id;engine.sync();render();save();}
+function changed(full=false){project.tracks.forEach(ensurePlugins);syncPluginEdits();engine.sync();save();if(full)render();}
 let saveRevision=0;
 function save(){if(!loaded||!activeProjectId)return;saveRevision++;$('saveStatus').innerHTML='<em></em> Enregistrement…';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{saveTimer=null;persist().catch(()=>{});},500);}
 async function openDB(){return new Promise((resolve,reject)=>{const request=indexedDB.open('chayah-studio',1);request.onupgradeneeded=()=>request.result.createObjectStore('sessions');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}
@@ -1125,11 +1128,11 @@ function createPluginView(instance){
 }
 function closePluginWindow(instance=pluginWindow){
   const wasActive=pluginWindows.active===instance,closed=pluginWindows.close(instance,win=>{win.observer.disconnect();win.controller.dispose();win.root.remove();});
-  if(!closed)return;pluginInstances.release(instance);syncPluginWindowFocus();
+  if(!closed)return;pluginEdits.forget(instance.key);pluginInstances.release(instance);syncPluginWindowFocus();
   const active=pluginWindows.entries.at(-1)?.view;if(active&&wasActive){active.controller.focus();active.root.focus({preventScroll:true});}
 }
 function closeAllPluginWindows(){
-  pluginWindows.clear(win=>{win.observer.disconnect();win.controller.dispose();win.root.remove();});pluginInstances.clear();pluginWindow=null;bundleOwner=null;
+  pluginWindows.clear(win=>{win.observer.disconnect();win.controller.dispose();win.root.remove();});pluginInstances.clear();pluginEdits.clear();pluginWindow=null;bundleOwner=null;
 }
 function renderFloatingPlugin(){for(const {instance} of pluginWindows.entries)renderPluginView(instance);syncPluginWindowFocus();}
 function openSuite(){const tr=currentTrack();if(!instrumentDefinition(tr.type))openInsertMenu(tr.id,tr.inserts.indexOf(null));else openPluginWindow('instrument');}
@@ -1144,9 +1147,32 @@ function drawPrismResponse(track,root){
   for(const db of [-12,0,12]){ctx.beginPath();ctx.moveTo(18,y(db));ctx.lineTo(width-18,y(db));ctx.stroke();ctx.fillText(db>0?'+'+db:String(db),1,y(db)-3);}
   ctx.lineWidth=2;ctx.strokeStyle=state.enabled?'#d0bf8b':'#758366';ctx.beginPath();for(let i=0;i<240;i++){const px=x(frequencies[i]),py=Math.max(7,Math.min(height-15,y(total[i])));if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.stroke();
 }
+function observePluginEdit(instance,track,definition){
+  const signature=JSON.stringify([instance.id==='instrument'?track.type:effectType(instance.id),definition.controls]);
+  pluginEdits.observe(instance.key,signature,capturePluginEdit(track,instance.id,definition),pluginEditGroup);
+}
+function syncPluginEdits(){
+  for(const {instance,view:win} of pluginWindows.entries){
+    const tr=project.tracks.find(t=>t.id===instance.trackId),def=instance.id==='instrument'?instrumentDefinition(tr?.type):effectDefinition(instance.id);
+    if(!tr||!def||instance.id!=='instrument'&&!tr.inserts.includes(instance.id))continue;
+    observePluginEdit(instance,tr,def);
+    for(const [direction,enabled] of [['undo',pluginEdits.canUndo(instance.key)],['redo',pluginEdits.canRedo(instance.key)]]){
+      const button=win.root.querySelector('[data-plugin-history="'+direction+'"]');if(button)button.disabled=!enabled;
+    }
+  }
+}
+function undoPluginEdit(instance,redo=false){
+  if(recording||recordFinalizing||micPending)return toast('Termine la prise avant cette action.');
+  const tr=project.tracks.find(t=>t.id===instance.trackId),def=instance.id==='instrument'?instrumentDefinition(tr?.type):effectDefinition(instance.id);
+  if(!tr||!def||!pluginWindows.entries.some(e=>e.instance===instance))return;
+  syncPluginEdits();const snapshot=pluginEdits.step(instance.key,redo);if(!snapshot)return;
+  checkpoint();if(!applyPluginEdit(tr,instance.id,def,snapshot))return;
+  changed(true);toast((redo?'Modification rétablie':'Modification annulée')+' · '+def.name+' · '+tr.name);
+}
 function renderPluginView(instance){
   const win=pluginWindows.entries.find(e=>e.instance===instance)?.view;if(!win)return;const {id,trackId}=instance,tr=project.tracks.find(t=>t.id===trackId),def=id==='instrument'?instrumentDefinition(tr?.type):effectDefinition(id);
   if(!tr||!def||id!=='instrument'&&!tr.inserts.includes(id)){closePluginWindow(instance);return;}ensurePlugins(tr);const state=id==='instrument'?tr.instrument:tr.effects[id];
+  observePluginEdit(instance,tr,def);
   const root=win.root,bodyRoot=win.body,local=name=>findPluginControl(bodyRoot,name);
   root.dataset.pluginTrack=tr.id;root.dataset.pack=def.pack||'studio';win.title.textContent=def.name+(id==='instrument'&&tr.type==='bass'?' 808':'')+(id==='instrument'?' · Instrument':' · Insert '+String.fromCharCode(65+tr.inserts.indexOf(id)))+' · '+tr.name;
   root.dataset.windowLabel=def.name+' · '+tr.name;root.setAttribute('aria-label',root.dataset.windowLabel);
@@ -1209,6 +1235,9 @@ function renderPluginView(instance){
   if(id==='instrument'&&tr.type==='sampler')mountSampler({panel,track:tr,engine,assets,checkpoint,changed,save,toast,esc,insertPattern:(track,s)=>{checkpoint();const start=Math.floor(engine.getPosition()/16),count=s.mode==='chromatic'?1:s.markers.length-1,steps=Math.max(16,Math.ceil(count/4)*16);track.clips.push({id:uid(),name:'EXO Slice / '+(assets.get(s.assetId)?.name||'Sample'),start,length:steps/16,patternSteps:steps,notes:Array.from({length:count},(_,i)=>({id:uid(),step:i*4,midi:s.root+i,len:3,velocity:.8}))});project.bars=fitSession(project.bars,start+steps/16);selectedClip=track.clips.at(-1).id;changed(true);toast('Pattern créé : modifie les notes dans le piano roll.');}});
   if(id==='instrument')mountExpansionHardware(panel,{id:tr.type,state:()=>project.tracks.find(t=>t.id===trackId)?.instrument});
   if(id==='instrument'&&tr.type==='exo')mountExoBrowser({panel,track:tr,engine,checkpoint,changed,toast,paramHTML,esc});
+  mountPluginCommandBar({root,body:win.body,panel,trackName:tr.name,slot:id==='instrument'?'Instrument':'Insert '+String.fromCharCode(65+tr.inserts.indexOf(id)),
+    canUndo:pluginEdits.canUndo(instance.key),canRedo:pluginEdits.canRedo(instance.key),undo:()=>undoPluginEdit(instance),redo:()=>undoPluginEdit(instance,true),
+    canEdit:()=>{if(recording||recordFinalizing||micPending){toast('Termine la prise avant cette action.');return false;}return true;}});
   scopePluginWindowIds(root,win.uid,pluginWindows.active===instance);
   if(id==='prism'){panel.querySelector('.plugin-window-params').insertAdjacentHTML('beforebegin','<canvas id="prismResponse" class="prism-response" aria-label="Réponse en fréquence de PRISM"></canvas>');requestAnimationFrame(()=>drawPrismResponse(tr,panel));}
 }
