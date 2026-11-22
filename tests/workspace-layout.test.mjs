@@ -3,3 +3,14 @@ import {fitGeometry,readGeometry,writeGeometry,saveLayout,readLayouts,deleteLayo
 const storage=()=>{const m=new Map();return {getItem:k=>m.get(k)??null,setItem:(k,v)=>m.set(k,v)};};
 test('desktop geometry fits a smaller viewport without changing the saved geometry',()=>{const s=storage(),g={x:900,y:500,width:800,height:600};writeGeometry(s,'fl',{rack:g});assert.deepEqual(fitGeometry(g,390,844),{x:8,y:236,width:374,height:600});assert.deepEqual(readGeometry(s,'fl').rack,g);assert.deepEqual(readGeometry(s,'pt'),{});});
 test('layouts isolate profiles, reject unsafe keys and persist named snapshots',()=>{const s=storage(),g={x:12,y:18,width:400,height:300};saveLayout(s,{name:'Mix',profile:'fl',view:'mixer',windows:{plugin:g,unknown:g}});saveLayout(s,{name:'Edit',profile:'pt',view:'arrange',windows:{rack:{x:NaN}}});assert.deepEqual(readLayouts(s)[0].windows,{plugin:g});assert.deepEqual(readLayouts(s)[1].windows,{});assert.equal(readLayouts(s)[0].view,'mixer');deleteLayout(s,'Mix');assert.equal(readLayouts(s).length,1);assert.throws(()=>saveLayout(s,{name:' '}));});
+
+test('plugin instances restore their own geometry without changing another track or profile',()=>{
+ const s=storage(),a='plugin:'+JSON.stringify(['voice','glue']),b='plugin:'+JSON.stringify(['backing','glue']);
+ const left={x:24,y:42,width:640,height:520},right={x:600,y:80,width:700,height:650};
+ writeGeometry(s,'pt',{[a]:left,[b]:right});
+ saveLayout(s,{name:'Deux voix',profile:'pt',windows:readGeometry(s,'pt')});
+ assert.deepEqual(readLayouts(s)[0].windows,{[a]:left,[b]:right});
+ writeGeometry(s,'pt',{...readGeometry(s,'pt'),[a]:{...left,x:70}});
+ assert.equal(readGeometry(s,'pt')[a].x,70);assert.deepEqual(readGeometry(s,'pt')[b],right);
+ assert.deepEqual(readGeometry(s,'fl'),{});
+});
