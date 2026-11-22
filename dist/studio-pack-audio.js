@@ -1,3 +1,4 @@
+import {alterDoubleVoice} from './alter-double-model.js';
 import {doublerVoice} from './vox-doubler-model.js';
 import {voxWarmCurve} from './vox-warm-model.js';
 import {micColorGains} from './vox-mic-model.js';
@@ -52,7 +53,7 @@ export function syncStudioEffect(ctx,id,m,s,bpm,now,initial,inputChannels=1){con
  if(id==='circuiteq'||id==='vectoreq'){m.bands.forEach((band,i)=>{const g=id==='circuiteq'?['low','body','presence','air'][i]:'g'+i,f=id==='circuiteq'?['lowFreq','bodyFreq','presenceFreq','airFreq'][i]:'f'+i;set(band.frequency,Math.min(ctx.sampleRate*.45,s[f]));set(band.gain,s[g]);set(band.Q,id==='circuiteq'?.5+Math.abs(s[g])/5:s['q'+i]);});set(m.level.gain,db(s.output));}
  if(['circuitbus','vectorcomp','voxlevel'].includes(id)){set(m.comp.threshold,id==='voxlevel'?s.peakThreshold:s.threshold);set(m.comp.ratio,id==='voxlevel'?6:s.ratio);set(m.comp.attack,id==='voxlevel'?.002:s.attack/1000);set(m.comp.release,id==='voxlevel'?.08:s.release/1000);set(m.comp.knee,id==='voxlevel'?3:s.knee);if(m.second){set(m.second.threshold,s.levelThreshold);set(m.second.ratio,s.ratio);set(m.second.attack,.025);set(m.second.release,s.release/1000);set(m.second.knee,12);}set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);set(m.level.gain,db(s.output));}
  if(id==='circuitcolor'){m.shaper.curve=circuitColorCurve(s.drive,s.bias);set(m.tone.frequency,s.tone);set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);set(m.level.gain,db(s.output));}
- if(id==='alterdouble'){set(m.hp.frequency,s.focus);set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix*.5);for(const v of m.voices){set(v.delay.delayTime,(s.delay+(v.sign>0?6:0))/1000);set(v.lfo.frequency,s.rate*(v.sign>0?1.17:1));set(v.depth.gain,Math.min(s.depth,s.delay*.8)/1000*v.sign);set(v.pan.pan,s.width*v.sign);}}
+ if(id==='alterdouble'){set(m.hp.frequency,s.focus);set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix*.5);for(const v of m.voices){const p=alterDoubleVoice(s,v.sign);set(v.delay.delayTime,p.delay);set(v.lfo.frequency,p.rate);set(v.depth.gain,p.depth);set(v.pan.pan,p.pan);}}
  if(id==='alterecho'){set(m.delay.delayTime,60/bpm*s.beats);set(m.feedback.gain,s.feedback);set(m.tone.frequency,s.tone);set(m.wet.gain,s.mix);m.control.curve=curve(x=>1/(1+Math.abs(x)*s.duck*12));}
  if(id==='alterfilter'){set(m.filter.frequency,s.cutoff);set(m.filter.Q,s.q);set(m.lfo.frequency,bpm/60/s.beats);set(m.depth.gain,s.depth);set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);}
  if(id==='vectorlimit'){set(m.drive.gain,db(s.drive));set(m.comp.threshold,s.ceiling);set(m.comp.release,s.release/1000);set(m.scaleIn.gain,1/db(s.ceiling));set(m.scaleOut.gain,db(s.ceiling));}

@@ -1,0 +1,5 @@
+/* Shared EXO surface preset controls; existing per-module selectors retained for compatibility. */
+.exo-suite-presets{display:flex;flex-wrap:wrap;gap:6px;align-items:end;padding:8px 0;border-bottom:1px solid #31545e}
+.exo-suite-presets label{min-width:0;flex:1 1 100px;display:grid;gap:4px;color:#a5c7ce;font-size:9px}
+.exo-suite-presets :is(input,select,button){box-sizing:border-box;min-width:0;max-width:100%;background:#0b1a21;color:#d5faf8;border:1px solid #527a85;border-radius:3px;padding:5px;height:30px;font-size:11px}
+.exo-suite-presets :is(input,select,button):focus-visible{outline:2px solid #6ef2eb;outline-offset:2px}

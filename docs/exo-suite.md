@@ -1,0 +1,2 @@
+# EXO effect suite — R07.3e
+Four effects, 27 native controls, 20 original factory presets. The shared EXO adapter uses the existing validated cross-track/Master personal preset bank. The separate EXO synthesizer and its 32 patches remain unchanged. Certification covers insert order and project download, personal preset reuse, all four themes and mobile, with individual audio tests retained. No new DSP changes. Merge after #164 with green checks.
