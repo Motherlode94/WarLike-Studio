@@ -1,5 +1,9 @@
 # Warlike Studio + CHAYAH Suite
 
+## R08.3g.3 — Commandes communes des plugins
+
+Les fenêtres de pistes réunissent en haut l'identification piste/insert, les presets, le bypass et A/B pour les effets, ainsi qu'un historique Annuler/Rétablir propre au plugin. **Plus** regroupe Reset et les commandes secondaires ; les banques personnelles et les racks restent accessibles dans un panneau repliable. Les habillages CSS/SVG de chaque processeur sont conservés. [Fonctionnement et limites](docs/plugin-command-bar.md). Validation Chromium requise avant fusion.
+
 ## Démos : piano Drill conservé, deux Trap Atlanta et Funk brésilien
 
 Dans **Projet → Mes projets**, ouvrir une nouvelle copie des arrangements révision 3. Chaque session a 16 mesures, des pistes modifiables et trois pistes vides pour enregistrer la voix.

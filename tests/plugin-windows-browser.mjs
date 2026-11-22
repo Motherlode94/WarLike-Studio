@@ -3,7 +3,9 @@ import {chromium} from 'playwright';
 import {emptyProject} from '../dist/audio.js';
 import {createContentTrack} from '../dist/content.js';
 import {placeInsert} from '../dist/plugins.js';
+import {mkdir} from 'node:fs/promises';
 
+await mkdir('artifacts/plugin-command-bar',{recursive:true});
 const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:960}}),errors=[];
@@ -73,8 +75,51 @@ try{
  await upload();await page.waitForFunction(()=>!document.querySelector('.floating-plugin'));
  assert.deepEqual(await page.evaluate(async()=>{const {openManagedWindows}=await import('/windows.js');return openManagedWindows().filter(id=>id.startsWith('plugin:'));}),[]);
  await open('windowtrack0','instrument');await open('windowtrack0','glue');
+ // Common chrome keeps the original presets, bypass and A/B callbacks local.
+ await open('windowtrack1','glue');
+ const fx=win('windowtrack0','glue'),other=win('windowtrack1','glue');
+ const bar=root=>root.locator('.plugin-command-bar');
+ assert.equal(await page.locator('.plugin-command-bar').count(),3);
+ assert.match(await bar(fx).locator('.plugin-command-owner').textContent(),/Window 0 · Insert A/);
+ assert.equal(await fx.locator('.suite-processor .suite-preset-bar').count(),0,'Preset chrome is above the individual hardware skin');
+ assert.equal(await fx.locator('[data-plugin-history="undo"]').isDisabled(),true,'New project starts with no transient plugin history');
+ await fx.locator('[data-param="glue.threshold"]').press('End');assert.equal(await value(fx),'0');
+ await other.locator('[data-param="glue.threshold"]').press('Home');assert.equal(await value(other),'-60');
+ await fx.focus();
+ await bar(fx).locator('[data-plugin-history="undo"]').click();
+ assert.equal(await value(fx),String(project.tracks[0].effects.glue.threshold));assert.equal(await value(other),'-60');
+ await bar(fx).locator('[data-plugin-history="redo"]').click();
+ assert.equal(await value(fx),'0');assert.equal(await value(other),'-60');
+ await bar(fx).locator('[data-plugin-control="pluginCompareB"]').click();
+ await fx.locator('[data-param="glue.threshold"]').press('Home');
+ await bar(fx).locator('[data-plugin-control="pluginCompareA"]').click();
+ assert.equal(await value(fx),'0');assert.equal(await value(other),'-60');
+ await bar(fx).locator('[data-power="glue"]').click();
+ assert.equal(await bar(fx).locator('[data-power="glue"]').getAttribute('aria-pressed'),'false');
+ await bar(fx).locator('.plugin-command-more > summary').click();
+ await bar(fx).locator('[data-plugin-control="resetPlugin"]').click();
+ assert.equal(await value(fx),String(project.tracks[0].effects.glue.threshold));
+ assert.equal(await bar(fx).locator('[data-power="glue"]').getAttribute('aria-pressed'),'false','Reset does not reactivate the bypassed insert');
+ await bar(fx).locator('[data-plugin-history="undo"]').click();assert.equal(await value(fx),'0');
+ assert.equal(await value(other),'-60','Local undo never restores an unrelated track');
+ await bar(fx).locator('[data-plugin-control="pluginPresetNext"]').click();
+ assert.ok(Number(await bar(fx).locator('[data-plugin-control="suitePreset"]').inputValue())>=0);
+ assert.equal(await value(other),'-60');
+ await bar(fx).locator('.plugin-command-more > summary').click();
+ await page.keyboard.press('Escape');assert.equal(await windows.count(),3,'Escape closes the menu before the plugin');
+ assert.equal(await bar(fx).locator('.plugin-command-more').getAttribute('open'),null);
+ await bar(fx).locator('.plugin-command-more > summary').click();
+ await bar(fx).getByRole('button',{name:'Mes presets et racks',exact:true}).click();
+ assert.equal(await fx.locator('.plugin-preset-library').getAttribute('open'),'');
+ assert.equal(await fx.locator('[data-plugin-control="userPluginSave"]').isVisible(),true);
+ await fx.locator('.plugin-preset-library > summary').click();
+ await page.screenshot({path:'artifacts/plugin-command-bar/desktop.png'});
  await page.setViewportSize({width:390,height:844});
  for(const root of await windows.all()){const r=await root.boundingBox();assert.ok(r.x>=0&&r.x+r.width<=391,'plugin fits mobile width');}
+ const controls=await bar(fx).locator('button,select,summary').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length).map(n=>({left:n.getBoundingClientRect().left,right:n.getBoundingClientRect().right})));
+ assert.ok(controls.every(r=>r.left>=0&&r.right<=391),'Common commands fit the mobile viewport');
+ await page.screenshot({path:'artifacts/plugin-command-bar/mobile.png'});
  assert.deepEqual(errors,[]);
  console.log('PASS: independent plugins, track ownership, presets, focus, collapse, geometry, insert removal, project disposal and mobile viewport');
+ console.log('PASS: common commands, scoped undo/redo, bypass, A/B, reset, factory presets, secondary menus and mobile width');
 }finally{await browser.close();}
