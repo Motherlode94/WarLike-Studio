@@ -13,6 +13,8 @@ Les fenêtres d'instruments et d'effets des pistes disposent d'une barre commune
 
 Les deux boutons de la barre restaurent uniquement les paramètres du plugin de cette fenêtre, y compris son bypass et sa comparaison A/B. Les notes, clips, routages, autres inserts et autres pistes restent inchangés. Un geste continu de potentiomètre forme une étape ; l'historique est borné à 40 étapes par vue ouverte.
 
+Pour EXO SLICE, cet historique inclut aussi le sample sélectionné, Reverse, la note racine, le mode de lecture et les limites des slices. Les références de sample sont restaurées sans retirer les fichiers audio encore nécessaires au projet ou au rétablissement. La normalisation des marqueurs et des valeurs par défaut ne constitue pas une nouvelle modification.
+
 Cet historique est temporaire : fermeture de la vue, changement de projet ou annulation/rétablissement global de la session le réinitialisent. Un changement de type d'instrument ne peut pas réutiliser l'historique de l'ancien instrument. Les annulations locales restent elles-mêmes annulables depuis l'historique global de la session.
 
 Les commandes de la barre refusent une modification pendant une prise, sa préparation ou sa finalisation. Le Master conserve sa vue Mastering dédiée.
