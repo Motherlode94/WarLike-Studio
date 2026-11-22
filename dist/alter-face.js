@@ -1,5 +1,5 @@
 // Reuse host controls: state, undo, automation and preset handling remain native.
-export function mountAlterFace(root,{id,title,subtitle,banks,display,footer,state,paint,live=false,master=false}){
+export function mountAlter(root,{id,title,subtitle,banks,display,footer,state,paint,live=false,master=false}){
  const params=root.querySelector(master?'.master-module-params':'.plugin-window-params');if(!params||root.querySelector('.'+id+'-hardware'))return;
  const nodes=[...params.querySelectorAll('.param')],byKey=new Map(nodes.map(n=>{const i=n.querySelector('input');return [(i?.dataset.param||i?.dataset.masterParam||'').split('.').at(-1),n];}));
  const all=banks.flatMap(([,ks])=>ks);if(nodes.length!==all.length||all.some(k=>!byKey.has(k)))return;
