@@ -1,3 +1,4 @@
+import {openInstrumentAudit} from './instrument-audit.js';
 import {fullSongBars} from './full-song.js';
 import {ORIGINS_BANK} from './origins.js';
 import {loopBounds} from './loop-range.js';
@@ -1411,6 +1412,7 @@ installAppMenus({command:action=>{if(recording||recordFinalizing)return toast('T
 installFadeHandles({getProject:()=>project,currentTrack,selectTrack,checkpoint,changed,busy:()=>recording||recordFinalizing});
 signature=installSignature({getProject:()=>project,getAssets:()=>assets,getEngine:()=>engine,currentTrack,currentClip,esc,modal,toast,checkpoint,changed,save,selectTrack,addTrack,setView,setDetailOpen,showTrackProperties,updateTransport,busy:()=>recording||recordFinalizing});
 installAnnotations({toast});
+$('openInstrumentAudit').onclick=()=>openInstrumentAudit(modal);
 restore();requestAnimationFrame(frame);
 
 // Keep native range input semantics and existing gain/save handlers.
