@@ -33,8 +33,9 @@ try{
   return rect.width>0&&rect.width<=innerWidth;
  });
  await ambience.waitFor({state:'visible'});
+ // The browser-side layout assertion above reads a live DOM node. Do not
+ // measure an ElementHandle that may be replaced by a debounced Mastering rerender.
  assert.equal(await ambience.locator('[data-master-param="exospace.predelay"]').inputValue(),'45');
- assert.ok((await ambience.boundingBox()).width<=390);
  await page.screenshot({path:'artifacts/exo-suite/mobile.png'});
  await page.setViewportSize({width:1440,height:960});
  await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('.insert-slot.empty [data-insert-slot]').first().click();
