@@ -1,0 +1,65 @@
+/* Native instrument panels. Every rule is scoped away from inserts and chrome. */
+.floating-plugin [data-instrument-face]{--instrument-bg:#1c2228;--instrument-raised:#272e35;--instrument-ink:#edf3f4;--instrument-muted:#b8c2c8;--instrument-line:#53616c;--face-accent:var(--instrument-accent);min-width:0;background:var(--instrument-bg);color:var(--instrument-ink);border-radius:6px}
+.floating-plugin [data-instrument-material=ivory]{--instrument-bg:#e5dece;--instrument-raised:#f3edde;--instrument-ink:#2f302a;--instrument-muted:#56594c;--instrument-line:#999582;--instrument-accent:#75613c}
+.floating-plugin [data-instrument-material=walnut]{--instrument-bg:#30251e;--instrument-raised:#41342a;--instrument-ink:#f7eddb;--instrument-muted:#d3bea3;--instrument-line:#80684e}
+.floating-plugin [data-instrument-material=brass]{--instrument-bg:#302e22;--instrument-raised:#403e2d;--instrument-ink:#f6efce;--instrument-muted:#cec49e;--instrument-line:#827b52}
+.floating-plugin [data-instrument-material=mint]{--instrument-bg:#19312e;--instrument-raised:#25423c;--instrument-ink:#e3f5e8;--instrument-muted:#b1d0c0;--instrument-line:#5c8a78}
+.floating-plugin [data-instrument-material=copper]{--instrument-bg:#34231e;--instrument-raised:#47312a;--instrument-ink:#fff0df;--instrument-muted:#dfbda7;--instrument-line:#98674d}
+.floating-plugin [data-instrument-material=blue]{--instrument-bg:#172c38;--instrument-raised:#203d4e;--instrument-ink:#e2f6ff;--instrument-muted:#acd0df;--instrument-line:#528399}
+.floating-plugin [data-instrument-material=velvet]{--instrument-bg:#302432;--instrument-raised:#433148;--instrument-ink:#f7eaf5;--instrument-muted:#d5b8d0;--instrument-line:#886980}
+.floating-plugin [data-instrument-face] .instrument-face-heading{display:grid;grid-template-columns:100px minmax(0,1fr);gap:16px;align-items:center;padding:18px 0;border-bottom:1px solid var(--instrument-line);margin-bottom:16px}
+.instrument-face-heading>svg{width:100%;max-height:95px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--instrument-accent)}
+.instrument-face-title{min-width:0}.instrument-face-title small{font:10px ui-monospace,monospace;letter-spacing:1.4px;color:var(--instrument-muted)}
+.instrument-face-title h2{margin:6px 0;color:var(--instrument-ink);font-size:29px;line-height:1.1;letter-spacing:.02em;overflow-wrap:anywhere}
+.instrument-face-title p{margin:0;font-size:11px;line-height:1.5;color:var(--instrument-muted)}
+.instrument-config-readout{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.instrument-config-readout>div{padding:10px 12px;border:1px solid var(--instrument-line);border-radius:3px;background:var(--instrument-raised);min-width:0}
+.instrument-config-readout small{display:block;color:var(--instrument-muted);font:10px ui-monospace,monospace}
+.instrument-config-readout output{display:block;margin-top:5px;color:var(--instrument-ink);font:600 17px ui-monospace,monospace;overflow-wrap:anywhere}
+.floating-plugin [data-instrument-face] .instrument-control-banks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-height:0;padding:12px 0;align-items:stretch}
+.floating-plugin [data-instrument-face] .instrument-control-bank{min-width:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:10px;padding:14px 10px;background:var(--instrument-raised);border:1px solid var(--instrument-line);border-radius:4px}
+.floating-plugin [data-instrument-face] .instrument-control-bank h4{grid-column:1/-1;font:10px ui-monospace,monospace;letter-spacing:1px;color:var(--instrument-muted);margin:0 0 8px;line-height:1.5}
+.floating-plugin [data-instrument-face] .plugin-window-params .param{background:transparent;box-shadow:none;border:0;border-radius:0;min-width:0;padding:4px 0}
+.floating-plugin [data-instrument-face] .plugin-window-params .param>label{color:var(--instrument-ink);font-size:10px;overflow-wrap:anywhere}
+.floating-plugin [data-instrument-face] .plugin-window-params .param-value{color:var(--instrument-ink);font-size:12px}
+.floating-plugin [data-instrument-face] .plugin-window-params .param-entry{background:var(--instrument-bg);color:var(--instrument-ink);border-color:var(--instrument-line)}
+.floating-plugin [data-instrument-face] .plugin-window-meta,.floating-plugin [data-instrument-face] .plugin-window-footer,.floating-plugin [data-instrument-face] .plugin-mouse-guide{color:var(--instrument-muted);border-color:var(--instrument-line);font-size:11px;line-height:1.5}
+.floating-plugin [data-instrument-face] .plugin-preset-library{color:var(--instrument-ink);border-color:var(--instrument-line)}
+.floating-plugin [data-instrument-face] .plugin-window-params .param:focus-within{outline:1px solid var(--instrument-accent);outline-offset:4px}
+/* Distinct working arrangements for different playing and synthesis models. */
+.floating-plugin [data-instrument-layout=harp] .instrument-control-bank:nth-child(2),.floating-plugin [data-instrument-layout=wind] .instrument-control-bank:nth-child(2),.floating-plugin [data-instrument-layout=bow] .instrument-control-bank:nth-child(2){grid-column:1/-1;grid-template-columns:repeat(3,minmax(0,1fr));grid-row:2}
+.floating-plugin [data-instrument-layout=harp] .instrument-face-heading{grid-template-columns:150px minmax(0,1fr)}
+.floating-plugin [data-instrument-layout=harp] .instrument-face-heading>svg{max-height:125px}
+.floating-plugin [data-instrument-layout=wind] .instrument-face-heading>svg{grid-column:1/-1;max-width:260px;justify-self:center}
+.floating-plugin [data-instrument-layout=wind] .instrument-face-title{grid-column:1/-1;text-align:center}
+.floating-plugin [data-instrument-layout=wind] .instrument-control-bank:first-child{grid-column:1/-1;grid-template-columns:repeat(3,minmax(0,1fr))}
+.floating-plugin [data-instrument-layout=piano] .instrument-control-bank:first-child,.floating-plugin [data-instrument-layout=keys] .instrument-control-bank:last-child{grid-column:1/-1}
+.floating-plugin [data-instrument-layout=keys] .instrument-face-heading{grid-template-columns:minmax(0,1fr) 140px}
+.floating-plugin [data-instrument-layout=keys] .instrument-face-heading>svg{grid-column:2;grid-row:1}.floating-plugin [data-instrument-layout=keys] .instrument-face-title{grid-column:1;grid-row:1}
+.floating-plugin [data-instrument-layout=analog] .instrument-control-bank:first-child,.floating-plugin [data-instrument-layout=string] .instrument-control-bank:first-child,.floating-plugin [data-instrument-layout=layers] .instrument-control-bank:first-child{grid-column:1/-1;grid-template-columns:repeat(3,minmax(0,1fr))}
+.floating-plugin [data-instrument-layout=amp] .instrument-control-bank:nth-child(2){grid-column:1/-1;grid-row:1;grid-template-columns:repeat(3,minmax(0,1fr));border-top:3px solid var(--instrument-accent)}
+.floating-plugin [data-instrument-layout=bass] .instrument-control-bank:first-child{display:flex;flex-direction:column;align-items:center;justify-content:center;border-top:3px solid var(--instrument-accent)}
+.floating-plugin [data-instrument-layout=drum] .instrument-control-banks,.floating-plugin [data-instrument-layout=strip] .instrument-control-banks{grid-template-columns:1fr}
+.floating-plugin [data-instrument-layout=drum] .instrument-control-bank,.floating-plugin [data-instrument-layout=strip] .instrument-control-bank{grid-template-columns:repeat(3,minmax(0,1fr));border-left:3px solid var(--instrument-accent)}
+.floating-plugin [data-instrument-layout=ensemble] .instrument-control-bank:last-child,.floating-plugin [data-instrument-layout=spectral] .instrument-control-bank:nth-child(2){grid-column:1/-1;grid-template-columns:repeat(3,minmax(0,1fr))}
+.floating-plugin [data-instrument-layout=pluck] .instrument-control-banks{grid-template-columns:1.4fr 1fr}
+.floating-plugin [data-instrument-layout=voice] .instrument-control-bank:last-child{grid-column:1/-1;grid-template-columns:repeat(3,minmax(0,1fr))}
+/* Retain the working sample browsers, preview keys, pads, layer selectors and
+   computed expansion diagrams. Remove only duplicated decorative headings. */
+.floating-plugin [data-instrument-face] .acoustic-head{display:none}
+.floating-plugin [data-instrument-face] .acoustic-player{background:var(--instrument-raised);color:var(--instrument-ink);border-color:var(--instrument-line);margin-bottom:10px}
+.floating-plugin [data-instrument-face] .acoustic-specs,.floating-plugin [data-instrument-face] .acoustic-load{color:var(--instrument-ink)}
+.floating-plugin [data-instrument-face] .acoustic-actions a{color:var(--instrument-ink)}
+.floating-plugin [data-instrument-face=origins] .origins-face>strong,.floating-plugin [data-instrument-face=origins] .origins-face>small{display:none}
+.floating-plugin [data-instrument-face=exo] .exo-hero{display:none}
+.floating-plugin [data-instrument-face] .expansion-hardware>header{display:none}
+@media(max-width:660px){
+ .floating-plugin [data-instrument-face]{padding:12px!important}
+ .floating-plugin [data-instrument-face] .instrument-face-heading{grid-template-columns:75px minmax(0,1fr);gap:10px;padding:12px 0}
+ .instrument-face-title h2{font-size:22px}.instrument-face-title small{font-size:9px;letter-spacing:.6px}
+ .floating-plugin [data-instrument-layout=keys] .instrument-face-heading>svg,.floating-plugin [data-instrument-layout=keys] .instrument-face-title{grid-column:auto;grid-row:auto}
+ .floating-plugin [data-instrument-face] .instrument-control-banks{grid-template-columns:minmax(0,1fr);gap:10px}
+ .floating-plugin [data-instrument-face] .instrument-control-bank{grid-column:1!important;grid-row:auto!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;padding:12px 8px}
+ .floating-plugin [data-instrument-face] .instrument-control-bank .knob{max-width:70px;max-height:70px}
+ .instrument-config-readout{gap:7px}.instrument-config-readout>div{padding:8px}.instrument-config-readout output{font-size:14px}
+}

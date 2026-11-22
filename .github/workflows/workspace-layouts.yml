@@ -35,6 +35,7 @@ jobs:
           node tests/plugin-windows-browser.mjs
           node tests/sampler-history-browser.mjs
           node tests/instru-bank-browser.mjs
+          node tests/instrument-faces-browser.mjs
       - name: Common plugin commands evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -49,4 +50,12 @@ jobs:
         with:
           name: instru-sound-bank
           path: artifacts/instru-bank/
+          if-no-files-found: warn
+
+      - name: Individual instrument panel evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrument-faces
+          path: artifacts/instrument-faces/
           if-no-files-found: warn

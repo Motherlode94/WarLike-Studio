@@ -1,0 +1,67 @@
+import {ORIGINS_BANK} from './origins.js';
+// Presentation only. Keys explicitly group the original instrument controls.
+const e=(family,material,layout,motif,banks,focus)=>({family,material,layout,motif,banks:banks.map(([name,keys])=>({name,keys:keys.split(' ')})),focus:focus.split(' ')});
+const guitar=(material,layout,motif,first,second,focus)=>e('GUITARES',material,layout,motif,[[first,'pickPosition brightness body'],[second,'damping decay drive'],['JEU / STÉRÉO','attack release width output']],focus);
+const acoustic=(family,material,layout,motif,first,second,focus)=>e(family,material,layout,motif,[[first,'brightness tone'],[second,'attack release dynamics'],['ESPACE / ACCORDAGE','width transpose output']],focus);
+const specs={
+ origins:e('VENTS DU MONDE','walnut','wind','wind',[['MODÈLE / SOUFFLE','voice tone breath'],['EXPRESSION','vibrato expression'],['ARTICULATION','attack release']],'voice breath'),
+ wlvox:e('VOIX SYNTHÉTIQUES','velvet','voice','voice',[['VOYELLE / COULEUR','vowel tone'],['EXPRESSIVITÉ','breath vibrato'],['ENVELOPPE / SORTIE','attack release output']],'vowel breath'),
+ wlsteel:guitar('walnut','string','guitar','CORDES ACIER / CAISSE','RÉSONANCE / GRAIN','brightness decay'),
+ wlnylon:guitar('ivory','harp','guitar','DOIGTS / CAISSE','ÉTOUFFEMENT / CORDE','pickPosition body'),
+ wlfolk12:guitar('brass','ensemble','guitar','DOUBLES CORDES','TENUE / COULEUR','width decay'),
+ wljazz:guitar('walnut','keys','guitar','MICRO / HOLLOW BODY','AMORTISSEMENT / AMPLI','body brightness'),
+ wlclean:guitar('mint','strip','guitar','ATTAQUE / MICRO','CORDE / AMPLI','brightness pickPosition'),
+ wlcrunch:guitar('copper','amp','guitar','MÉDIATOR / CAISSE','SATURATION / TENUE','drive decay'),
+ wlmuted:guitar('graphite','drum','guitar','PINÇAGE / COULEUR','PALM MUTE / AMPLI','damping decay'),
+ wlrompler:e('SYNTHÈSE MULTICOUCHE','blue','layers','layers',[['COUCHE A / B','wave texture layer'],['FILTRE / ESPACE','cutoff space'],['ENVELOPPE / SORTIE','attack release output']],'layer cutoff'),
+ wlvirtual:e('ANALOGIQUE VIRTUEL','graphite','analog','analog',[['OSCILLATEURS / UNISSON','detune pulse width'],['FILTRE RÉSONANT','cutoff resonance'],['ENVELOPPE / SORTIE','attack release output']],'cutoff detune'),
+ wlspectral:e('SYNTHÈSE HYBRIDE','blue','spectral','fm',[['MATIÈRE SPECTRALE','fm harmonics'],['MOUVEMENT / FILTRE','motion cutoff width'],['ENVELOPPE / SORTIE','attack release output']],'fm motion'),
+ piano:acoustic('CLAVIERS ENREGISTRÉS','ivory','piano','piano','MARTEAUX / TABLE','TOUCHER / TENUE','brightness dynamics'),
+ upright:acoustic('CLAVIERS ENREGISTRÉS','walnut','keys','piano','CAISSE DU PIANO DROIT','TOUCHER INTIME','tone release'),
+ epiano:acoustic('CLAVIERS ENREGISTRÉS','mint','keys','piano','TINES / COULEUR','ATTAQUE FM / TOUCHER','tone dynamics'),
+ harp:acoustic('CORDES PINCÉES','ivory','harp','harp','ÉCLAT DES CORDES','PINCEMENT / RÉSONANCE','brightness release'),
+ marimba:acoustic('LAMES DE BOIS','walnut','mallet','mallet','LAMES / BOIS','MAILLOCHE / EXTINCTION','tone attack'),
+ vibes:acoustic('LAMES MÉTALLIQUES','blue','mallet','mallet','MÉTAL / BRILLANCE','MAILLOCHE / TENUE','brightness release'),
+ kalimba:acoustic('LAMES PINCÉES','brass','pluck','mallet','LAMES / CAISSE','POUCES / DYNAMIQUE','tone dynamics'),
+ strum:acoustic('CORDES PINCÉES','walnut','string','guitar','CORDES / CAISSE','PINCEMENT / TENUE','brightness release'),
+ violin:acoustic('CORDES À L’ARCHET','velvet','bow','bow','CORPS DU VIOLON','ARCHET / EXPRESSION','attack dynamics'),
+ cello:acoustic('ENSEMBLE À L’ARCHET','walnut','ensemble','bow','CAISSE / GRAVE','ARCHETS / PHRASE','tone attack'),
+ flute:acoustic('VENTS ENREGISTRÉS','mint','wind','wind','AIR / BRILLANCE','SOUFFLE / PHRASE','attack brightness'),
+ trumpet:acoustic('CUIVRES ENREGISTRÉS','brass','brass','brass','PAVILLON / COULEUR','ATTAQUE / PHRASE','tone dynamics'),
+ sampler:e('AUDIO DÉCOUPÉ','copper','sampler','pads',[['ACCORDAGE / NIVEAU','transpose output'],['CONTOUR DU SAMPLE','attack release']],'transpose attack'),
+ exo:e('SYNTHÈSE À DEUX COUCHES','blue','layers','layers',[['COUCHES / DENSITÉ','blend detune width'],['FILTRE','cutoff resonance'],['MATIÈRE / ESPACE','fm motion space'],['OSCILLATEURS','waveA waveB transposeA transposeB'],['ENVELOPPE','attack decay sustain release output'],['MODULATION','motionRate'],['ARPÉGIATEUR','arpMode arpRate arpOctaves arpGate']],'blend cutoff'),
+ drums:e('BOÎTE À RYTHMES','copper','drum','pads',[['KIT / IMPACT','kit punch'],['EXTINCTION / CHARLEY','decay hat']],'kit decay'),
+ bass:e('SYNTHÉTISEUR 808','graphite','bass','analog',[['FONDAMENTALE','body'],['COULEUR / EXTINCTION','harmonics release']],'body harmonics'),
+ keys:e('CLAVIER À TINES FM','mint','keys','piano',[['TOUCHER / TENUE','attack release'],['ACCORDAGE','detune']],'attack detune'),
+ lead:e('SYNTHÈSE LEAD','brass','analog','analog',[['FILTRE','cutoff'],['OSCILLATEURS / SORTIE DE NOTE','detune release']],'cutoff detune'),
+ pad:e('ENSEMBLE STÉRÉO','blue','ensemble','layers',[['OUVERTURE / EXTINCTION','attack release'],['UNISSON','width']],'attack width'),
+ pluck:e('CORDE PHYSIQUE','velvet','pluck','harp',[['RÉSONATEUR','decay body'],['EXCITATION','brightness']],'decay brightness'),
+ wltitan:e('BASSE ÉLECTRIQUE','walnut','string','guitar',[],'pickup damping'),
+ wlabyss:e('SUB / CHUTE DE HAUTEUR','graphite','bass','analog',[],'drop time'),
+ wlimperial:e('ENSEMBLE SYNTHÉTIQUE','brass','ensemble','bow',[],'strings brass'),
+ wltonewheel:e('ORGUE ADDITIF','walnut','organ','organ',[],'fundamental percussion'),
+ wlmbira:e('LAMES MODÉLISÉES','brass','mallet','mallet',[],'metal decay'),
+ wlngoma:e('MEMBRANE MODÉLISÉE','copper','drum','pads',[],'skin strike'),
+ wlkora:e('CORDES MODÉLISÉES','ivory','harp','harp',[],'pluck resonance'),
+ wlchoir:e('CHŒUR SYNTHÉTIQUE','velvet','voice','voice',[],'vowel spread'),
+ wldrift:e('TEXTURE GRANULAIRE','blue','spectral','layers',[],'grain density'),
+ wlmatrix:e('MATRICE FM','graphite','fm','fm',[],'ratioA indexA')
+};
+function freeze(value){if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;}
+export const INSTRUMENT_FACES=freeze(specs);
+export const instrumentFace=id=>Object.hasOwn(INSTRUMENT_FACES,id)?INSTRUMENT_FACES[id]:null;
+// Plan the whole operation before moving any DOM controls. Existing custom
+// expansion diagrams retain their original control banks.
+export function planInstrumentBanks(id,containers){
+ const spec=instrumentFace(id);if(!spec||!spec.banks.length)return null;
+ const expected=spec.banks.flatMap(b=>b.keys),provided=containers.flat();
+ if(new Set(expected).size!==expected.length||provided.length!==new Set(provided).size||expected.length!==provided.length||expected.some(k=>!provided.includes(k)))return null;
+ return containers.map(keys=>spec.banks.map(b=>({...b,keys:b.keys.filter(k=>keys.includes(k))})).filter(b=>b.keys.length));
+}
+
+export function instrumentReadout(id,control,value,formatValue){
+ if(id==='origins'&&control.key==='voice')return ORIGINS_BANK[Math.round(value)]?.name||String(value);
+ if(id==='wlvox'&&control.key==='vowel')return ['Hum','Ah','Oh','Eh','Ou'][Math.round(value)]||String(value);
+ if(id==='drums'&&control.key==='kit')return ['Synthèse','Rock','Pop','Rumba','Baile'][Math.round(value)]||String(value);
+ return formatValue(control,value);
+}
