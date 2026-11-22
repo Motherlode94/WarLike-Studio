@@ -1,3 +1,4 @@
+import {presetKey,readPresetFavorites,setPresetFavorite} from './preset-organization.js';
 const groups={voxdoubler:'Modulation',voxwarm:'Saturation',voxmicmodel:'EQ',voxambience:'Réverbération',voxaireq:'EQ',tilteq:'EQ',notch:'EQ',slap:'Delay',circuiteq:'EQ',vectoreq:'EQ',circuitbus:'Dynamique',vectorcomp:'Dynamique',vectorlimit:'Dynamique',voxlevel:'Voix',voxclean:'Voix',voxtune:'Voix',circuitcolor:'Saturation',alterdouble:'Modulation',alterecho:'Delay',alterfilter:'Modulation',sculpt:'EQ',prism:'EQ',balance:'EQ',glue:'Dynamique',press:'Dynamique',peak:'Dynamique',hush:'Voix',sibil:'Voix',exofocus:'Voix',color:'Saturation',ember:'Saturation',exoair:'Saturation',echo:'Delay',relay:'Delay',aura:'Réverbération',exospace:'Réverbération',orbit:'Modulation',sway:'Modulation',phase:'Modulation',ring:'Modulation',exostrip:'Channel strip'};
 const key='warlike.plugin.favorites.v1',normal=s=>String(s).toLowerCase().normalize('NFD').replace(/\p{M}/gu,'');
 export function pluginCategory(id,def){return groups[id]||def?.family||({origins:'Vents du monde',sampler:'Sampler',piano:'Pianos & claviers',upright:'Pianos & claviers',epiano:'Pianos & claviers',harp:'Cordes pincées',strum:'Cordes pincées',violin:'Cordes frottées',cello:'Cordes frottées',flute:'Vents',trumpet:'Vents',marimba:'Percussions mélodiques',vibes:'Percussions mélodiques',kalimba:'Percussions mélodiques',drums:'Batterie'})[id]||'Synthétiseurs';}
@@ -45,7 +46,29 @@ export function mountPluginPicker({root,registry,onChoose,selected=null,esc,disa
  const categories=[...new Set(Object.entries(registry).map(([id,d])=>pluginCategory(id,d)))];const bundles=[...new Set(Object.entries(registry).map(([id,d])=>pluginBundle(id,d)))];host.innerHTML=`<div class="picker-search"><input id="pluginSearch" aria-label="Rechercher un plugin" placeholder="Rechercher un plugin…" autocomplete="off"><button id="pluginFavoritesOnly" class="outline-btn" aria-pressed="false">★ Favoris</button></div><div class="picker-search"><label>Collection <select id="pickerBundle" aria-label="Collection de plugins"><option value="all">Toutes · WarLike</option>${bundles.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('')}</select></label>${presetBanks&&onPreset?`<label>Afficher <select id="pickerMode" aria-label="Type de contenu"><option value="plugins">Plugins</option><option value="presets">Presets</option></select></label><label id="pickerSourceLabel" hidden>Source <select id="pickerSource" aria-label="Source des presets"><option value="all">Toutes</option><option value="factory">Usine</option><option value="user">Personnels</option></select></label>`:''}</div><div class="picker-categories"><button data-picker-category="all" class="chosen">Tous</button>${categories.map(c=>`<button data-picker-category="${esc(c)}">${esc(c)}</button>`).join('')}</div><div id="pluginPickerResults" class="picker-results"></div>`;root.prepend(host);
  const result=host.querySelector('#pluginPickerResults'),expanded=new Map();
  result.style.display='block';
- function render(){if(state.mode==='presets'){const matches=filterPresetChoices(registry,presetBanks,state);result.replaceChildren();for(const {id,def,preset} of matches){const row=document.createElement('button');row.type='button';row.className='picker-choice';row.disabled=disabledIds.includes(id);row.dataset.pickerPreset=id;row.textContent=preset.name+' · '+def.name+' · '+(preset.source==='user'?'Personnel':'Usine');row.onclick=()=>onPreset(id,preset);result.append(row);}if(!matches.length)result.textContent='Aucun preset trouvé.';return;}const items=filterPluginChoices(registry,state);
+ function render(){if(state.mode==='presets'){
+ const matches=filterPresetChoices(registry,presetBanks,{...state,favoritesOnly:false}),favorites=readPresetFavorites(localStorage);
+ result.replaceChildren();
+ const folders=new Map();
+ for(const {id,def,preset} of matches){
+  const source=preset.source==='user'?'Personnel':'Usine',token=presetKey('factory',id+':'+source+':'+preset.name);
+  if(state.favoritesOnly&&!favorites.includes(token))continue;
+  const path=pluginBundle(id,def)+' / '+pluginCategory(id,def)+' / '+def.name+' / '+source;
+  if(!folders.has(path)){
+   const heading=document.createElement('div');heading.className='picker-preset-folder';heading.textContent=path;
+   result.append(heading);folders.set(path,true);
+  }
+  const wrapper=document.createElement('div');wrapper.className='picker-row';
+  const row=document.createElement('button');row.type='button';row.className='picker-choice';row.disabled=disabledIds.includes(id);
+  row.dataset.pickerPreset=id;row.textContent=preset.name+' · '+def.name+' · '+source;row.onclick=()=>onPreset(id,preset);
+  const star=document.createElement('button');star.type='button';star.className='picker-star';
+  star.textContent=favorites.includes(token)?'★':'☆';star.setAttribute('aria-label','Favori '+preset.name);
+  star.setAttribute('aria-pressed',String(favorites.includes(token)));
+  star.onclick=()=>{setPresetFavorite(localStorage,'factory',id+':'+source+':'+preset.name,!favorites.includes(token));render();};
+  wrapper.append(row,star);result.append(wrapper);
+ }
+ if(!result.childElementCount)result.textContent='Aucun preset trouvé.';
+ return;}const items=filterPluginChoices(registry,state);
  const row=([id,d])=>(`<div class="picker-row ${id===selected?'current':''}"><button data-picker-load="${id}" class="picker-choice" ${disabledIds.includes(id)?'disabled title="Déjà inséré sur le Master"':''}><strong>${esc(d.name)}</strong><span>${esc(d.subtitle)}</span><small>${esc(pluginCategory(id,d))}${d.pack?' · '+esc(d.pack.toUpperCase()):''}</small></button><button data-picker-favorite="${id}" class="picker-star" aria-label="Favori ${esc(d.name)}" aria-pressed="${state.favorites.includes(id)}">${state.favorites.includes(id)?'★':'☆'}</button></div>`) ;
  const folder=(name,path,body)=>`<details data-picker-folder="${esc(path)}" ${state.query||expanded.get(path)!==false?'open':''}><summary style="cursor:pointer;padding:7px 8px;font-weight:600">${esc(name)}</summary><div style="padding-inline-start:12px">${body}</div></details>`;
  result.innerHTML=[...pluginTree(items)].map(([bundle,cats])=>folder(bundle,bundle,[...cats].map(([cat,entries])=>folder(cat,bundle+'/'+cat,entries.map(row).join(''))).join(''))).join('')||'<p class="picker-empty">Aucun plugin trouvé.</p>';

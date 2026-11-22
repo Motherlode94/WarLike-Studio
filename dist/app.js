@@ -2,6 +2,7 @@ import {mountInstrumentFace,updateInstrumentFaces} from './instrument-faces.js';
 import {mountEffectFace,updateEffectFaces} from './effect-faces.js';
 import {INSTRU_PRESETS,INSTRU_CATEGORIES,findInstruPreset,instruValues,instruPhrase,applyInstruPreset} from './instru-presets.js';
 import {renderInstruBank} from './instru-bank-ui.js';
+import {readPresetFavorites,setPresetFavorite,presetKey,presetMatches,presetPath} from './preset-organization.js';
 import {mountExpansionHardware,updateExpansionHardware} from './expansion-hardware.js';
 import {openInstrumentAudit} from './instrument-audit.js';
 import {fullSongBars} from './full-song.js';
@@ -482,13 +483,16 @@ function openMixMasterTemplates(kind,trackId=null){
  if(!master&&!track)return toast('Piste introuvable.');
  const collection=master?MASTER_TEMPLATES:MIX_TEMPLATES;
  const genreOptions=[...new Set(collection.map(t=>t.genre))];
+ const categoryOptions=[...new Set(collection.map(t=>t.category))];
  const subtitle=master?'Le master remplacera uniquement la chaîne Master. Aucun fader de piste ne sera modifié.':'Choisis un mode explicite : remplacer les inserts de cette piste ou ajouter dans les emplacements libres.';
  const initial=collection[0];
  modal(master?'Templates Master':'Templates Mix · '+track.name,
   '<div class="mix-master-template-picker">'+
   '<p>'+esc(subtitle)+'</p>'+
   '<div class="mix-master-template-filters"><label>GENRE<select id="templateGenre"><option value="all">Tous les genres</option>'+genreOptions.map(g=>'<option value="'+esc(g)+'">'+esc(g)+'</option>').join('')+'</select></label>'+
-  '<label>RECHERCHE<input id="templateSearch" type="search" placeholder="Trap, R&B, Afrobeat, rock…"></label></div>'+
+  '<label>RECHERCHE<input id="templateSearch" type="search" placeholder="Trap, R&B, Afrobeat, rock…"></label>'+
+  '<label>DOSSIER<select id="templateCategory"><option value="all">Tous les dossiers</option>'+categoryOptions.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('')+'</select></label>'+
+  '<label class="template-favorites-only"><input type="checkbox" id="templateFavoritesOnly"> ★ Favoris uniquement</label></div>'+
   '<div class="mix-master-template-content"><div id="templateList" class="mix-master-template-list" role="listbox" aria-label="Templates disponibles"></div>'+
   '<section class="mix-master-template-detail"><h3 id="templateName"></h3><p id="templateDescription"></p><strong>CHAÎNE AUDIO · ORDRE DES INSERTS</strong><ol id="templateStages"></ol>'+
   (master?'': '<fieldset><legend>Mode d’application</legend><label><input type="radio" name="templateApplyMode" value="replace" checked> Remplacer les inserts de cette piste</label><label><input type="radio" name="templateApplyMode" value="append"> Ajouter dans les inserts libres</label></fieldset>')+
@@ -498,21 +502,41 @@ function openMixMasterTemplates(kind,trackId=null){
  let selected=initial.id;
  const byId=id=>collection.find(t=>t.id===id);
  const render=()=>{
-  const query=$('templateSearch').value.trim().toLocaleLowerCase(),genre=$('templateGenre').value;
-  const visible=collection.filter(t=>(genre==='all'||t.genre===genre)&&[t.name,t.genre,t.category,t.description].join(' ').toLocaleLowerCase().includes(query));
+  const query=$('templateSearch').value.trim(),genre=$('templateGenre').value,
+   category=$('templateCategory').value,favorites=readPresetFavorites(localStorage),
+   favoritesOnly=$('templateFavoritesOnly').checked,domain=master?'master':'mix';
+  const visible=collection.filter(t=>(genre==='all'||t.genre===genre)&&(category==='all'||t.category===category)
+   &&presetMatches({name:t.name,description:t.description,genre:t.genre,category:t.category,
+    folders:[t.genre,t.category],favoriteKey:presetKey(domain,t.id)},{query,favoritesOnly,favorites}));
   if(!visible.some(t=>t.id===selected))selected=visible[0]?.id||null;
-  $('templateList').replaceChildren(...visible.map(t=>{
-   const button=document.createElement('button');button.type='button';button.className='mix-master-template-option';button.dataset.templateId=t.id;button.setAttribute('role','option');button.setAttribute('aria-selected',String(t.id===selected));
+  $('templateList').replaceChildren();
+  const folders=new Map();
+  for(const t of visible){
+   const group=presetPath(t.genre,t.category);
+   if(!folders.has(group)){
+    const title=document.createElement('div');title.className='template-folder-title';title.textContent=group;
+    $('templateList').append(title);folders.set(group,true);
+   }
+   const row=document.createElement('div');row.className='mix-master-template-row';
+   const button=document.createElement('button');button.type='button';button.className='mix-master-template-option';button.dataset.templateId=t.id;
+   button.setAttribute('role','option');button.setAttribute('aria-selected',String(t.id===selected));
    const name=document.createElement('b');name.textContent=t.name;const caption=document.createElement('small');caption.textContent=t.genre+' · '+t.category;
-   button.append(name,caption);button.onclick=()=>{selected=t.id;render();};return button;
-  }));
+   button.append(name,caption);button.onclick=()=>{selected=t.id;render();};
+   const star=document.createElement('button');star.type='button';star.className='mix-master-template-favorite';
+   const isFavorite=favorites.includes(presetKey(domain,t.id));
+   star.textContent=isFavorite?'★':'☆';star.setAttribute('aria-label','Favori '+t.name);star.setAttribute('aria-pressed',String(isFavorite));
+   star.dataset.templateFavorite=t.id;
+   star.onclick=()=>{setPresetFavorite(localStorage,domain,t.id,!isFavorite);render();};
+   row.append(button,star);$('templateList').append(row);
+  }
   const t=byId(selected);$('applyMixMasterTemplate').disabled=!t;
   $('templateName').textContent=t?.name||'Aucun template trouvé';$('templateDescription').textContent=t?.description||'';
   $('templateStages').replaceChildren(...(t?(master?(t.stages||Object.entries(t.settings).filter(([id,v])=>MASTER_MODULES[id]&&v.enabled!==false).map(([id,values])=>({id,values}))):t.stages):[]).map(s=>{
    const item=document.createElement('li');item.textContent=(master?MASTER_MODULES[s.id]:EFFECTS[s.id])?.name||s.id;return item;
   }));
  };
- $('templateSearch').oninput=render;$('templateGenre').onchange=render;render();
+ $('templateSearch').oninput=render;$('templateGenre').onchange=render;
+ $('templateCategory').onchange=render;$('templateFavoritesOnly').onchange=render;render();
  $('applyMixMasterTemplate').onclick=()=>{
   const template=byId(selected);if(!template)return;
   if(recording||recordFinalizing||micPending)return toast('Termine la prise avant de changer les chaînes.');
