@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';i
 await mkdir('artifacts/exo-strip',{recursive:true});const browser=await chromium.launch({headless:true});try{
  const page=await browser.newPage({viewport:{width:1440,height:960}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8765/');await page.locator('[data-session-tab="create"]').click();await page.locator('#libraryNew').click();await page.locator('#modal').waitFor({state:'hidden'});
- await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('[data-add-insert-track]').click();
+ await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('.insert-slot.empty [data-insert-slot]').first().click();
  await page.locator('#pluginSearch').fill('EXO STRIP');await page.locator('[data-picker-load="exostrip"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  const face=page.locator('#pluginFloat .exo-strip-hardware');await face.waitFor();assert.equal(await face.locator('[data-param]').count(),10);
  await face.locator('[data-param="exostrip.highpass"]').evaluate((el,v)=>{el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}));},'150');
@@ -19,7 +19,7 @@ await mkdir('artifacts/exo-strip',{recursive:true});const browser=await chromium
  s.enabled=false;updateExoStripFaces();const bypass=parseFloat(root.querySelector('[data-strip-gr]').textContent);root.remove();tone.stop();await ctx.close();return {wet,dry,zero,trim,quietWet,quietDry,reading,native,bypass,eqError};});
  assert.ok((measurements.wet.rms/measurements.quietWet.rms)<(measurements.dry.rms/measurements.quietDry.rms)*.8,JSON.stringify(measurements));assert.ok(Math.abs(measurements.wet.ratio-.5)<.02,JSON.stringify(measurements));assert.ok(Math.abs(measurements.zero.rms/measurements.dry.rms-1)<.01,JSON.stringify(measurements));assert.ok(Math.abs(20*Math.log10(measurements.trim.rms/measurements.zero.rms)+6)<.05,JSON.stringify(measurements));assert.ok(measurements.reading<-.1&&Math.abs(measurements.reading-measurements.native)<.2,JSON.stringify(measurements));assert.ok(measurements.eqError<.05,JSON.stringify(measurements));assert.equal(measurements.bypass,0);
  await page.screenshot({path:'artifacts/exo-strip/track.png'});await page.locator('#pluginFloat [data-float-close]').click();
- await page.locator('#mixerView .mixer-master [data-add-insert-track="master"]').click();await page.locator('#pickerBundle').selectOption('EXO');await page.locator('#pickerMode').selectOption('presets');await page.locator('[data-picker-preset="exostrip"]').first().click();await page.locator('#modal').waitFor({state:'hidden'});
+ await page.locator('#mixerView .mixer-master .insert-slot.empty [data-insert-slot]').first().click();await page.locator('#pickerBundle').selectOption('EXO');await page.locator('#pickerMode').selectOption('presets');await page.locator('[data-picker-preset="exostrip"]').first().click();await page.locator('#modal').waitFor({state:'hidden'});
  const master=page.locator('#masteringView .exo-strip-hardware');await master.waitFor();assert.equal(await master.locator('[data-master-param]').count(),10);
  assert.equal(await master.locator('.exo-strip-presets optgroup[label="Usine"] option').count(),5);
  await master.locator('.exo-strip-presets select').selectOption('1');await master.locator('.exo-strip-presets input').fill('QA exo-strip');await master.locator('[data-exo-strip-save]').click();
