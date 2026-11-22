@@ -6,6 +6,7 @@ export function pluginCategory(id,def){return groups[id]||def?.family||({origins
 // Every query word must match, but words need not be adjacent or ordered.
 export function pluginBundle(id,def){
  if(id==='origins')return 'ORIGINS';
+ if(def?.pack==='wlexpansion')return 'WL EXPANSION';
  const family=/^(vector|circuit|vox|exo|alter)/.exec(id)?.[1];
  return family?({vox:'VOX LAB',vector:'VECTOR',circuit:'CIRCUIT',exo:'EXO',alter:'ALTER'})[family]:def?.pack?String(def.pack).toUpperCase():'Native Plugins';
 }
