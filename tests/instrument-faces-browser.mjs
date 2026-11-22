@@ -32,6 +32,11 @@ try{
   assert.equal(await root.locator('.plugin-command-bar').count(),1);
   for(const bank of await root.locator('.instrument-control-bank').all())assert.ok(await bank.evaluate(n=>n.scrollWidth<=n.clientWidth+2),id+' bank overlaps its controls');
   assert.equal(await root.locator('.instrument-face-heading svg').count(),1);
+  const contrast=await root.locator('.param>label').first().evaluate(n=>{
+   const rgb=s=>s.match(/[\d.]+/g).slice(0,3).map(Number),luma=c=>c.map(x=>x/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
+   const a=luma(rgb(getComputedStyle(n).color)),bank=n.closest('.instrument-control-bank,.expansion-bank'),b=luma(rgb(getComputedStyle(bank||n.closest('[data-instrument-face]')).backgroundColor));return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+  });assert.ok(contrast>=4.5,id+' unreadable native control label: '+contrast);
+
   const ids=await root.locator('[id]').evaluateAll(nodes=>nodes.map(n=>n.id));assert.equal(ids.length,new Set(ids).size,id+' duplicate IDs');
   if(def.sampled){assert.equal(await root.locator('[data-acoustic-key]').count(),25);assert.equal(await root.locator('.acoustic-player progress').count(),1);}
   if(id==='sampler')assert.ok(await root.locator('[data-slice-pad]').count()>=2);
@@ -52,7 +57,7 @@ try{
   report.push({id,controls:keys.length,layout:spec.layout,material:spec.material,edited:key});await root.locator('[data-float-close]').click();
  }
  // Two same-type panels must own their own parameter/readout state.
- current='ownership';const harpTrack='face'+defs.findIndex(([id])=>id==='harp');await open(harpTrack);await open('otherharp');
+ current='ownership';const harpTrack='face'+defs.findIndex(([id])=>id==='harp');await open(harpTrack);await win(harpTrack).locator('[data-plugin-control="suiteTrack"]').selectOption('otherharp');
  const a=win(harpTrack),b=win('otherharp'),other=await b.locator('[data-instrument-readout="brightness"]').textContent();
  await a.locator('[data-param="instrument.brightness"]').evaluate(n=>{n.value='4400';n.dispatchEvent(new Event('input',{bubbles:true}));});
  await page.waitForFunction(track=>document.querySelector('.floating-plugin[data-plugin-track="'+track+'"] [data-instrument-readout="brightness"]')?.textContent==='4.4 kHz',harpTrack);

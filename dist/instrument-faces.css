@@ -1,5 +1,5 @@
 /* Native instrument panels. Every rule is scoped away from inserts and chrome. */
-html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-face]{--instrument-bg:#1c2228;--instrument-raised:#272e35;--instrument-ink:#edf3f4;--instrument-muted:#b8c2c8;--instrument-line:#53616c;--face-accent:var(--instrument-accent);min-width:0;background:var(--instrument-bg)!important;color:var(--instrument-ink);border-radius:6px}
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-face]{--instrument-bg:#1c2228;--instrument-raised:#272e35;--instrument-ink:#edf3f4;--instrument-muted:#b8c2c8;--instrument-line:#53616c;--face-accent:var(--instrument-accent);--wl-text:var(--instrument-ink);--wl-text-muted:var(--instrument-muted);--wl-border:var(--instrument-line);--wl-surface:var(--instrument-raised);--wl-bg:var(--instrument-bg);min-width:0;background:var(--instrument-bg)!important;color:var(--instrument-ink);border-radius:6px}
 html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-material=ivory]{--instrument-bg:#e5dece;--instrument-raised:#f3edde;--instrument-ink:#2f302a;--instrument-muted:#56594c;--instrument-line:#999582;--instrument-accent:#75613c}
 html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-material=walnut]{--instrument-bg:#30251e;--instrument-raised:#41342a;--instrument-ink:#f7eddb;--instrument-muted:#d3bea3;--instrument-line:#80684e}
 html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-material=brass]{--instrument-bg:#302e22;--instrument-raised:#403e2d;--instrument-ink:#f6efce;--instrument-muted:#cec49e;--instrument-line:#827b52}
@@ -63,3 +63,6 @@ html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-i
  html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-face] .instrument-control-bank .knob{max-width:70px;max-height:70px}
  .instrument-config-readout{gap:7px}.instrument-config-readout>div{padding:8px}.instrument-config-readout output{font-size:14px}
 }
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-face] .expansion-bank{background:var(--instrument-raised);border-color:var(--instrument-line)}
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-face] .expansion-bank h4{color:var(--instrument-muted)}
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-face] .expansion-bank .param-value{background:transparent}
