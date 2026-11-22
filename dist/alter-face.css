@@ -1,0 +1,23 @@
+/* ALTER bronze / amber vector hardware. */
+.alter-pro-hardware{box-sizing:border-box;width:100%;min-width:0;padding:12px;background:linear-gradient(145deg,#443124,#211711 65%,#35241b);border:2px solid #805d47;border-radius:8px;color:#f3e2cd;box-shadow:inset 0 1px #ba8860,inset 0 -3px 5px #070b10}
+.alter-pro-brand{display:grid;justify-items:center;gap:5px;text-align:center;padding:6px 0 12px;border-bottom:1px solid #70513d}.alter-pro-brand strong{font-size:27px;letter-spacing:.18em;color:#f3e2cd}.alter-pro-brand strong span{color:#edab69;font-size:16px}.alter-pro-brand small{font-size:9px;letter-spacing:.15em;color:#d4bca7}
+.alter-pro-display{margin:10px 0;padding:9px;background:#211711;border:1px solid #70513d;border-radius:5px}
+.floating-plugin .alter-pro-hardware .alter-pro-controls,.master-module .alter-pro-hardware .alter-pro-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr));gap:6px;padding:6px;min-height:0;background:#2c2119;border:1px solid #70513d;margin-top:9px}
+.alter-pro-bank{min-width:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(55px,1fr));gap:5px;padding:6px 3px;border:1px solid #70513d;border-top:3px solid var(--alter-bank);background:linear-gradient(#533b2b,#35251c);border-radius:4px}.alter-pro-bank h4{grid-column:1/-1;margin:0;padding:4px 0;text-align:center;color:#f3e2cd;border-bottom:1px solid #70513d;font-size:9px;letter-spacing:.07em}
+.floating-plugin .alter-pro-bank .param,.master-module .alter-pro-bank .param{min-width:0;width:auto;color:#f3e2cd}
+.floating-plugin .alter-pro-bank .knob,.master-module .alter-pro-bank .knob{width:48px;height:48px;max-width:100%;background:repeating-conic-gradient(#36261e 0deg 5deg,#896247 5deg 10deg);border:1px solid #bc9878;border-radius:50%;position:relative;box-shadow:0 3px 4px #16121c}
+.floating-plugin .alter-pro-bank .knob:before,.master-module .alter-pro-bank .knob:before{width:34px;height:34px;background:radial-gradient(circle at 35% 25%,var(--alter-bank),#63412b);border:1px solid #e4c29d;left:50%;top:50%;transform:translate(-50%,-50%)}
+.floating-plugin .alter-pro-bank .knob:after,.master-module .alter-pro-bank .knob:after{left:calc(50% - 1px);top:5px;width:2px;height:11px;background:#fff3e4;transform-origin:1px 18px;transform:rotate(var(--rotation))}
+.alter-pro-bank label{color:#f3e2cd;font-size:9px;text-align:center;white-space:normal}.alter-pro-bank .param-value{background:#241910;color:#edab69;border:1px solid #805d47;font:10px monospace;padding:3px 1px;max-width:100%}.alter-pro-bank .knob:focus-within{outline:2px solid #edab69;outline-offset:2px}
+.alter-pro-hardware>footer{font:9px/1.5 monospace;color:#d4bca7;padding-top:9px}
+@media(max-width:660px){.alter-pro-hardware{padding:8px}.alter-pro-display{padding:5px}}
+
+.alter-pro-display svg{display:block;width:100%;height:auto;max-height:240px}.alter-pro-display>small{display:block;color:#d4bca7;font-size:10px;line-height:1.4}
+.alter-pro-legend,.alter-pro-readouts{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;padding:6px 0;font:10px monospace;color:#f3e2cd}.alter-pro-legend span:first-child{color:#edab69}.alter-pro-legend span:nth-child(2){color:#d4bca7}.alter-pro-legend output{color:#edab69}
+
+
+.alter-pro-profile{display:grid;grid-template-columns:1fr 1fr;gap:6px}.alter-pro-profile>div{min-width:0;padding:9px;background:#12111a;border:1px solid #716782;border-radius:4px;color:#d4bca7;font:10px monospace}.alter-pro-profile output{display:block;color:#edab69;font-size:15px;margin-top:4px}
+.alter-pro-readouts{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;color:#f3e2cd;font:10px monospace;padding:7px 0}
+
+.alter-pro-presets{display:flex;flex-wrap:wrap;align-items:end;gap:6px;padding:8px 0;border-bottom:1px solid #70513d}.alter-pro-presets label{flex:1 1 100px;display:grid;min-width:0;gap:4px;color:#d4bca7;font-size:9px}.alter-pro-presets :is(input,select,button){box-sizing:border-box;min-width:0;max-width:100%;background:#241910;color:#f3e2cd;border:1px solid #805d47;border-radius:3px;padding:5px;font-size:11px;height:30px}
+
