@@ -1,3 +1,4 @@
+import {ROCK_GUITAR_PRESETS} from './rock-metal-presets.js';
 // Original editable presets; NOT loaded into demonstration sessions.
 export const WL_INSTRUMENT_PRESETS={
  wlsteel:[{name:'Studio Steel',values:{}},{name:'Bright Fingerstyle',values:{brightness:11000,body:.62,decay:1.7}},{name:'Soft Ballad',values:{brightness:4600,body:.7,attack:.012,release:.5}}],
@@ -11,3 +12,5 @@ export const WL_INSTRUMENT_PRESETS={
  wlvirtual:[{name:'Vanguard Supersaw',values:{detune:26,cutoff:5400,width:1}},{name:'Vanguard Bass Lead',values:{cutoff:1900,pulse:.6,release:.15}},{name:'Vanguard Soft Pad',values:{detune:10,attack:.35,release:2.6}}],
  wlspectral:[{name:'Nebula Glass',values:{fm:.7,harmonics:.65,cutoff:8800}},{name:'Nebula Dark Atmos',values:{fm:.25,harmonics:.8,attack:1,release:4,cutoff:1800}},{name:'Nebula Bell Motion',values:{fm:.9,harmonics:.35,motion:.7,release:2}}]
 };
+
+for(const [id,patches] of Object.entries(ROCK_GUITAR_PRESETS))WL_INSTRUMENT_PRESETS[id].push(...patches);
