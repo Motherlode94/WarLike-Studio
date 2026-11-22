@@ -1,3 +1,4 @@
+import {alterFilterRate} from './alter-filter-model.js';
 import {alterEchoSeconds,alterEchoCurve} from './alter-echo-model.js';
 import {alterDoubleVoice} from './alter-double-model.js';
 import {doublerVoice} from './vox-doubler-model.js';
@@ -56,7 +57,7 @@ export function syncStudioEffect(ctx,id,m,s,bpm,now,initial,inputChannels=1){con
  if(id==='circuitcolor'){m.shaper.curve=circuitColorCurve(s.drive,s.bias);set(m.tone.frequency,s.tone);set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);set(m.level.gain,db(s.output));}
  if(id==='alterdouble'){set(m.hp.frequency,s.focus);set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix*.5);for(const v of m.voices){const p=alterDoubleVoice(s,v.sign);set(v.delay.delayTime,p.delay);set(v.lfo.frequency,p.rate);set(v.depth.gain,p.depth);set(v.pan.pan,p.pan);}}
  if(id==='alterecho'){set(m.delay.delayTime,alterEchoSeconds(s.beats,bpm));set(m.feedback.gain,s.feedback);set(m.tone.frequency,s.tone);set(m.wet.gain,s.mix);m.control.curve=alterEchoCurve(s.duck);}
- if(id==='alterfilter'){set(m.filter.frequency,s.cutoff);set(m.filter.Q,s.q);set(m.lfo.frequency,bpm/60/s.beats);set(m.depth.gain,s.depth);set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);}
+ if(id==='alterfilter'){set(m.filter.frequency,s.cutoff);set(m.filter.Q,s.q);set(m.lfo.frequency,alterFilterRate(bpm,s.beats));set(m.depth.gain,s.depth);set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);}
  if(id==='vectorlimit'){set(m.drive.gain,db(s.drive));set(m.comp.threshold,s.ceiling);set(m.comp.release,s.release/1000);set(m.scaleIn.gain,1/db(s.ceiling));set(m.scaleOut.gain,db(s.ceiling));}
  if(id==='voxtune')for(const key of ['key','scale','speed','amount','mix'])set(m.pitch.parameters.get(key),s[key]);
  if(id==='voxmicmodel'){

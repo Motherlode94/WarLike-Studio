@@ -1,0 +1,37 @@
+name: Studio ALTER FILTER hardware
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run build
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - name: ALTER FILTER track and master hardware
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory dist >/tmp/studio-context-http.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:8765/ -o /dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8765/ -o /dev/null
+          node tests/alter-filter-browser.mjs
+
+      - name: ALTER FILTER screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: alter-filter-hardware
+          path: artifacts/alter-filter/
+          if-no-files-found: ignore
