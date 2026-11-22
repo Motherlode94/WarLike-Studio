@@ -32,7 +32,7 @@ try{
  await page.locator('#undo').click();assert.equal(await clips.count(),1);
  await clips.first().click({button:'right'});await page.locator('[data-context-action="clip-edit"]').hover();await page.locator('[data-context-action="clip-duplicate"]').click();assert.equal(await clips.count(),2);
  await record('Audio import, contextual duplicate and undo',{sourceSha256:digest(wav),clips:2});
- await page.locator('[data-view="mixer"]').click();const channel=page.locator('#mixerView [data-mixer-track]').first();await channel.locator('[data-add-insert-track]').click();
+ await page.locator('[data-view="mixer"]').click();const channel=page.locator('#mixerView [data-mixer-track]').first();await channel.locator('.insert-slot.empty [data-insert-slot]').first().click();
  await page.locator('#pluginSearch').fill('NOTCH');await page.locator('[data-picker-load="notch"]').click();await page.locator('#modal').waitFor({state:'hidden'});await page.locator('#pluginFloat').waitFor({state:'visible'});
  assert.ok(await page.locator('#pluginFloat [data-param^="notch."]').count()>0);
  const controls=page.locator('#pluginFloat #suitePreset option');if(await controls.count()>1)await page.locator('#pluginFloat #suitePreset').selectOption({index:1});
