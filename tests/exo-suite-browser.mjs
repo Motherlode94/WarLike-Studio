@@ -23,7 +23,20 @@ try{
  await page.locator('#projectMenuBtn').click();const pending=page.waitForEvent('download');await page.locator('#saveProject').click();const file=await pending;await file.saveAs('artifacts/exo-suite/chain.chayah');
  const {readFile}=await import('node:fs/promises');const saved=JSON.parse(await readFile('artifacts/exo-suite/chain.chayah','utf8'));
  assert.deepEqual(saved.project.mastering.inserts.filter(Boolean),ids);assert.equal(saved.project.mastering.exospace.predelay,45);
- await page.setViewportSize({width:390,height:844});await ambience.scrollIntoViewIfNeeded();assert.ok((await ambience.boundingBox()).width<=390);await page.screenshot({path:'artifacts/exo-suite/mobile.png'});
+ // Mastering rebuilds its hardware on resize; reacquire the live EXO panel.
+ await page.setViewportSize({width:390,height:844});
+ await page.waitForFunction(()=>{
+  const face=document.querySelector('#masteringView .exo-space-hardware');
+  if(!face?.isConnected)return false;
+  face.scrollIntoView({block:'nearest',inline:'nearest'});
+  const rect=face.getBoundingClientRect();
+  return rect.width>0&&rect.width<=innerWidth;
+ });
+ await ambience.waitFor({state:'visible'});
+ // The browser-side layout assertion above reads a live DOM node. Do not
+ // measure an ElementHandle that may be replaced by a debounced Mastering rerender.
+ assert.equal(await ambience.locator('[data-master-param="exospace.predelay"]').inputValue(),'45');
+ await page.screenshot({path:'artifacts/exo-suite/mobile.png'});
  await page.setViewportSize({width:1440,height:960});
  await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('.insert-slot.empty [data-insert-slot]').first().click();
  await page.locator('#pickerBundle').selectOption('EXO');await page.locator('#pickerMode').selectOption('presets');await page.locator('#pluginSearch').fill('Suite QA');

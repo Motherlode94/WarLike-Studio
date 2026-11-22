@@ -26,3 +26,19 @@
  .plugin-command-actions{gap:4px}
  .floating-plugin .plugin-command-bar button,.plugin-command-more > summary{min-height:32px;padding:4px 6px}
 }
+
+/* R08.3g — Standalone editors: track rack is collapsed unless requested. */
+.floating-plugin .plugin-rack-drawer{flex:none;background:#19232a;border-bottom:1px solid #50606a;color:#d6e5ed}
+.floating-plugin .plugin-rack-drawer>summary{cursor:pointer;display:block;padding:7px 13px;font:600 11px system-ui,sans-serif;color:#cfdbde}
+.floating-plugin .plugin-rack-drawer>summary:hover{background:#ffffff12}
+.floating-plugin .plugin-rack-drawer>summary:focus-visible{outline:2px solid var(--face-accent,#8bd7cf);outline-offset:-3px}
+.floating-plugin .plugin-rack-drawer:not([open])>.track-rack-catalog{display:none}
+.floating-plugin .plugin-rack-drawer[open]>.track-rack-catalog{
+ width:100%;min-width:0;max-height:225px;overflow:auto;display:block;
+ border-right:0;border-bottom:1px solid #ffffff24;padding:9px 14px;
+}
+.floating-plugin .plugin-command-surface{display:block;min-width:0;width:100%}
+.floating-plugin .plugin-command-surface>.suite-processor{width:100%;min-width:0;max-width:100%}
+@media(max-width:660px){
+ .floating-plugin .plugin-rack-drawer[open]>.track-rack-catalog{max-height:175px;padding:8px}
+}
