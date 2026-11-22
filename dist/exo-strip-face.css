@@ -1,0 +1,24 @@
+/* EXO STRIP titanium / cyan vector hardware. */
+.exo-strip-hardware{box-sizing:border-box;width:100%;min-width:0;padding:12px;background:linear-gradient(145deg,#263b43,#10191f 65%,#15262e);border:2px solid #527a85;border-radius:8px;color:#d5faf8;box-shadow:inset 0 1px #7ecdd0,inset 0 -3px 5px #070b10}
+.exo-strip-brand{display:grid;justify-items:center;gap:5px;text-align:center;padding:6px 0 12px;border-bottom:1px solid #31545e}.exo-strip-brand strong{font-size:27px;letter-spacing:.18em;color:#d5faf8}.exo-strip-brand strong span{color:#6ef2eb;font-size:16px}.exo-strip-brand small{font-size:9px;letter-spacing:.15em;color:#a5c7ce}
+.exo-strip-display{margin:10px 0;padding:9px;background:#081218;border:1px solid #31545e;border-radius:5px}
+.floating-plugin .exo-strip-hardware .exo-strip-controls,.master-module .exo-strip-hardware .exo-strip-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr));gap:6px;padding:6px;min-height:0;background:#0d1d24;border:1px solid #31545e;margin-top:9px}
+.exo-strip-bank{min-width:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(55px,1fr));gap:5px;padding:6px 3px;border:1px solid #31545e;border-top:3px solid var(--vox-bank);background:linear-gradient(#203a43,#14252d);border-radius:4px}.exo-strip-bank h4{grid-column:1/-1;margin:0;padding:4px 0;text-align:center;color:#d5faf8;border-bottom:1px solid #31545e;font-size:9px;letter-spacing:.07em}
+.floating-plugin .exo-strip-bank .param,.master-module .exo-strip-bank .param{min-width:0;width:auto;color:#d5faf8}
+.floating-plugin .exo-strip-bank .knob,.master-module .exo-strip-bank .knob{width:48px;height:48px;max-width:100%;background:repeating-conic-gradient(#182f37 0deg 5deg,#456b75 5deg 10deg);border:1px solid #77afb9;border-radius:50%;position:relative;box-shadow:0 3px 4px #16121c}
+.floating-plugin .exo-strip-bank .knob:before,.master-module .exo-strip-bank .knob:before{width:34px;height:34px;background:radial-gradient(circle at 35% 25%,var(--vox-bank),#21434a);border:1px solid #a1dada;left:50%;top:50%;transform:translate(-50%,-50%)}
+.floating-plugin .exo-strip-bank .knob:after,.master-module .exo-strip-bank .knob:after{left:calc(50% - 1px);top:5px;width:2px;height:11px;background:#ebffff;transform-origin:1px 18px;transform:rotate(var(--rotation))}
+.exo-strip-bank label{color:#d5faf8;font-size:9px;text-align:center;white-space:normal}.exo-strip-bank .param-value{background:#0b1a21;color:#6ef2eb;border:1px solid #527a85;font:10px monospace;padding:3px 1px;max-width:100%}.exo-strip-bank .knob:focus-within{outline:2px solid #6ef2eb;outline-offset:2px}
+.exo-strip-hardware>footer{font:9px/1.5 monospace;color:#a5c7ce;padding-top:9px}
+@media(max-width:660px){.exo-strip-hardware{padding:8px}.exo-strip-display{padding:5px}}
+
+.exo-strip-display svg{display:block;width:100%;height:auto;max-height:240px}.exo-strip-display>small{display:block;color:#a5c7ce;font-size:10px;line-height:1.4}
+.exo-strip-legend,.exo-strip-readouts{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;padding:6px 0;font:10px monospace;color:#d5faf8}.exo-strip-legend span:first-child{color:#6ef2eb}.exo-strip-legend span:nth-child(2){color:#a5c7ce}.exo-strip-legend output{color:#6ef2eb}
+
+
+.exo-strip-profile{display:grid;grid-template-columns:1fr 1fr;gap:6px}.exo-strip-profile>div{min-width:0;padding:9px;background:#12111a;border:1px solid #716782;border-radius:4px;color:#a5c7ce;font:10px monospace}.exo-strip-profile output{display:block;color:#6ef2eb;font-size:15px;margin-top:4px}
+.exo-strip-readouts{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;color:#d5faf8;font:10px monospace;padding:7px 0}
+
+.exo-strip-presets{display:flex;flex-wrap:wrap;align-items:end;gap:6px;padding:8px 0;border-bottom:1px solid #31545e}.exo-strip-presets label{flex:1 1 100px;display:grid;min-width:0;gap:4px;color:#a5c7ce;font-size:9px}.exo-strip-presets :is(input,select,button){box-sizing:border-box;min-width:0;max-width:100%;background:#0b1a21;color:#d5faf8;border:1px solid #527a85;border-radius:3px;padding:5px;font-size:11px;height:30px}
+
+.exo-strip-gr{padding:8px;background:#081218;border:1px solid #31545e;border-radius:4px}.exo-strip-gr header{display:flex;justify-content:space-between;gap:6px;flex-wrap:wrap;color:#a5c7ce;font:10px monospace;margin-bottom:6px}.exo-strip-gr output{color:#6ef2eb;font:11px monospace}.exo-strip-leds{display:grid;grid-template-columns:repeat(24,minmax(0,1fr));gap:3px;height:16px}.exo-strip-leds i{background:#19343d;border-radius:2px}.exo-strip-leds i.lit{background:#6ef2eb}.exo-strip-leds i.lit:nth-child(n+13){background:#e6c38d}
