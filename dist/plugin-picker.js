@@ -55,8 +55,9 @@ export function mountPluginPicker({root,registry,onChoose,selected=null,esc,disa
   if(state.favoritesOnly&&!favorites.includes(token))continue;
   const path=pluginBundle(id,def)+' / '+pluginCategory(id,def)+' / '+def.name+' / '+source;
   if(!folders.has(path)){
-   const heading=document.createElement('div');heading.className='picker-preset-folder';heading.textContent=path;
-   result.append(heading);folders.set(path,true);
+   const folder=document.createElement('details');folder.className='picker-preset-directory';folder.open=true;
+   const heading=document.createElement('summary');heading.className='picker-preset-folder';heading.textContent=path;
+   folder.append(heading);result.append(folder);folders.set(path,folder);
   }
   const wrapper=document.createElement('div');wrapper.className='picker-row';
   const row=document.createElement('button');row.type='button';row.className='picker-choice';row.disabled=disabledIds.includes(id);
@@ -65,7 +66,7 @@ export function mountPluginPicker({root,registry,onChoose,selected=null,esc,disa
   star.textContent=favorites.includes(token)?'★':'☆';star.setAttribute('aria-label','Favori '+preset.name);
   star.setAttribute('aria-pressed',String(favorites.includes(token)));
   star.onclick=()=>{setPresetFavorite(localStorage,'factory',id+':'+source+':'+preset.name,!favorites.includes(token));render();};
-  wrapper.append(row,star);result.append(wrapper);
+  wrapper.append(row,star);folders.get(path).append(wrapper);
  }
  if(!result.childElementCount)result.textContent='Aucun preset trouvé.';
  return;}const items=filterPluginChoices(registry,state);
