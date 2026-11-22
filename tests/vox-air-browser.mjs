@@ -3,7 +3,7 @@ await mkdir('artifacts/vox-air',{recursive:true});const browser=await chromium.l
 try{
  const page=await browser.newPage({viewport:{width:1440,height:960}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8765/');await page.locator('[data-session-tab="create"]').click();await page.locator('#libraryNew').click();await page.locator('#modal').waitFor({state:'hidden'});
- await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('[data-add-insert-track]').click();
+ await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('.insert-slot.empty [data-insert-slot]').first().click();
  await page.locator('#pluginSearch').fill('VOX AIR EQ');await page.locator('[data-picker-load="voxaireq"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  const face=page.locator('#pluginFloat .vox-air-hardware');await face.waitFor();assert.equal(await face.locator('[data-param]').count(),7);
  const curve=face.locator('[data-air-response]'),before=await curve.getAttribute('d');
@@ -13,7 +13,7 @@ try{
  await page.waitForFunction(()=>document.querySelector('#pluginFloat [data-air-status]').textContent==='DRY');
  assert.ok((await curve.getAttribute('d')).split(/[ML]/).filter(Boolean).every(p=>Number(p.trim().split(' ')[1])===90));
  await page.screenshot({path:'artifacts/vox-air/track.png'});await page.locator('#pluginFloat [data-float-close]').click();
- await page.locator('#mixerView .mixer-master [data-add-insert-track="master"]').click();await page.locator('#pluginSearch').fill('VOX AIR EQ');await page.locator('[data-picker-load="voxaireq"]').click();await page.locator('#modal').waitFor({state:'hidden'});
+ await page.locator('#mixerView .mixer-master .insert-slot.empty [data-insert-slot]').first().click();await page.locator('#pluginSearch').fill('VOX AIR EQ');await page.locator('[data-picker-load="voxaireq"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  const master=page.locator('#masteringView .vox-air-hardware');await master.waitFor();assert.equal(await master.locator('[data-master-param]').count(),7);
  const beforeMaster=await master.locator('[data-air-response]').getAttribute('d');await master.locator('[data-master-param="voxaireq.output"]').evaluate(el=>{el.value='3';el.dispatchEvent(new Event('input',{bubbles:true}));});
  await page.waitForFunction(p=>document.querySelector('#masteringView [data-air-response]').getAttribute('d')!==p,beforeMaster);
