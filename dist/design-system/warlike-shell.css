@@ -224,3 +224,9 @@ html[data-warlike-app="warlike-studio"] .content-card:hover{border-color:var(--w
 html[data-warlike-app="warlike-studio"] .content-card .content-add{background:var(--wl-primary)!important;color:var(--wl-primary-text)!important;border-color:var(--wl-border)!important}
 html[data-warlike-app="warlike-studio"] :is(.bank-tabs button,.bank-heading button,.content-card button,.bank-search):focus-visible,
 html[data-warlike-app="warlike-studio"] .bank-search:focus-within{outline:2px solid var(--wl-focus)!important;outline-offset:-2px}
+/* Preset chrome must not inherit a fixed blue bar in Ivory. */
+html[data-warlike-app="warlike-studio"] .floating-plugin .plugin-command-bar .suite-preset-bar{
+ background:var(--wl-surface)!important;color:var(--wl-text)!important;
+}
+/* This caption sits on the deliberately dark effect face, not shared chrome. */
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-effect-face] .plugin-window-meta>strong{color:var(--fx-muted)!important}

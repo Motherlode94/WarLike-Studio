@@ -83,6 +83,8 @@ try{
   await page.locator('.top-actions [data-studio-theme]').selectOption(themes[(themes.indexOf(theme)+1)%themes.length]);
   await page.locator('.top-actions [data-studio-theme]').selectOption(theme);await resize(size);await fits(instrument);
   assert.equal(await page.locator(instrument+' [data-param="instrument.brightness"]').inputValue(),before);
+  ratios.instrumentPresetLabel=await contrast(instrument+' .suite-preset-bar label');
+  assert.ok(ratios.instrumentPresetLabel>=4.5,current+' unreadable instrument preset label');
   await page.locator(instrument+' .plugin-preset-browser > summary').click();
   await page.locator(instrument+' .plugin-preset-browser').getByRole('searchbox').fill('concert');
   assert.ok(await page.locator(instrument+' [data-preset-source="factory"]').count()>0,current+' inaccessible factory preset search');
@@ -97,7 +99,11 @@ try{
   await page.keyboard.press('Escape');assert.equal(await page.locator(instrument+' .plugin-preset-browser').getAttribute('open'),null);
   await page.locator(instrument+' [data-float-close]').click();
   await resize(sizes[0]);await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-insert-open="glue"][data-insert-track="themeharp"]').click();
-  await resize(size);await fits(effect);await page.screenshot({path:folder+'/'+layout+'-'+size.width+'-'+theme+'-plugin.png'});
+  await resize(size);await fits(effect);
+  ratios.effectPresetLabel=await contrast(effect+' .suite-preset-bar label');
+  ratios.effectCaption=await contrast(effect+' .plugin-window-meta>strong');
+  assert.ok(ratios.effectPresetLabel>=4.5&&ratios.effectCaption>=4.5,current+' unreadable effect preset label or caption');
+  await page.screenshot({path:folder+'/'+layout+'-'+size.width+'-'+theme+'-plugin.png'});
   await page.locator(effect+' [data-float-close]').click();
   const duplicates=await page.locator('[id]').evaluateAll(nodes=>{const ids=nodes.map(n=>n.id);return ids.filter((id,i)=>ids.indexOf(id)!==i);});
   assert.deepEqual(duplicates,[],current+' duplicate DOM IDs');report.push({layout,...size,theme,contrast:ratios});
