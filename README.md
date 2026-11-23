@@ -1,3 +1,7 @@
+## Sons pour Engine — banque audio de jeux
+
+**Bibliothèque → Sons pour Engine** propose 24 sons originaux : interface, gameplay, mouvements, impacts, science-fiction et ambiances. Écoute/arrêt, ajout comme vraie piste audio, WAV mono 24 bits / 48 kHz et pack ZIP filtré par dossiers. Les sons ajoutés sont sauvegardés avec le projet et compatibles Annuler/Rétablir. [Fonctionnement, transfert et limites](docs/game-sounds.md).
+
 # Warlike Studio + CHAYAH Suite
 
 ## R08.3g.6 — Organisation des presets

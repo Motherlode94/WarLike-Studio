@@ -26,7 +26,7 @@ jobs:
         run: |
           npm init -y
           npm install --no-save playwright@1.56.1
-          npx playwright install --with-deps chromium
+          npx playwright install chromium
       - name: Browser boot and mobile control regression
         run: |
           cp tests/storage-browser.html dist/_storage-qa.html
@@ -83,7 +83,7 @@ jobs:
       - name: Install Chromium
         run: |
           npm install --no-save playwright@1.56.1
-          npx playwright install --with-deps chromium
+          npx playwright install chromium
       - name: Save, reopen, play and export full arrangement
         env:
           FACTORY_SONG: ${{ matrix.song }}

@@ -16,3 +16,6 @@
 .instru-bank-grid .instru-sound-card>*{flex-shrink:0}
 .instru-bank-grid .content-card-actions [data-instru-apply]{grid-column:1/-1}
 .instru-bank-grid .content-card-actions button{min-width:0;white-space:normal;justify-content:center}
+
+.game-bank-tools{display:flex;flex-wrap:wrap;gap:8px;min-width:0}
+.game-bank-tools button{max-width:100%;white-space:normal}
