@@ -24,7 +24,10 @@ try{
   return JSON.parse(await readFile(await(await waiting).path(),'utf8'));
  };
  const baseline=await save();
- const contrast=async selector=>page.locator(selector).first().evaluate(n=>{
+ const contrast=async selector=>{
+  // Measure the final solid surface rather than a transient hover/theme paint.
+  await page.waitForFunction(selector=>{let n=document.querySelector(selector);if(!n)return false;for(;n;n=n.parentElement)if(getComputedStyle(n).backgroundImage!=='none')return false;return true;},selector);
+  return page.locator(selector).first().evaluate(n=>{
   const rgba=s=>{const p=s.match(/[\d.]+/g)?.map(Number)??[];return [p[0]??0,p[1]??0,p[2]??0,p[3]??1];};
   const over=(a,b)=>{const alpha=a[3]??1;return a.slice(0,3).map((x,i)=>x*alpha+b[i]*(1-alpha));};
   const parents=[];for(let p=n;p;p=p.parentElement)parents.push(p);
@@ -35,14 +38,14 @@ try{
   const luma=c=>c.map(x=>x/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
   const a=luma(over(rgba(getComputedStyle(n).color),bg)),b=luma(bg);
   return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
- });
+ });};
  const fits=async root=>{
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   const geometry=await page.locator(root).first().evaluate(n=>{
-   const r=n.getBoundingClientRect();return {width:r.width,left:r.left,right:r.right,scroll:n.scrollWidth,client:n.clientWidth};
+   const r=n.getBoundingClientRect();return {width:r.width,left:r.left,right:r.right,viewport:innerWidth,scroll:n.scrollWidth,client:n.clientWidth};
   });
   assert.ok(geometry.width>0,current+' missing '+root);
-  assert.ok(geometry.left>=-1&&geometry.right<=innerWidth+1,current+' horizontal panel bounds '+root+': '+JSON.stringify(geometry));
+  assert.ok(geometry.left>=-1&&geometry.right<=geometry.viewport+1,current+' horizontal panel bounds '+root+': '+JSON.stringify(geometry));
   assert.ok(geometry.scroll<=geometry.client+2,current+' horizontal panel overflow '+root+': '+JSON.stringify(geometry));
  };
  const instrument='.floating-plugin[data-plugin-track="themeharp"]:has([data-instrument-face])';
