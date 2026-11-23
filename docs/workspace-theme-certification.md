@@ -12,7 +12,8 @@ The `Rendered themes and project integrity` job in `workspace-layouts.yml` runs
 
 Each case checks rendered library text contrast (4.5:1), a visible search focus
 ring, library/panel horizontal bounds, native harp parameter preservation while
-switching theme, factory preset search/Escape, a GLUE window and unique DOM IDs.
+switching theme, factory preset search/Escape, focus/query preservation through a real debounced
+resize while typing, a GLUE window and unique DOM IDs.
 Desktop cases also check the rendered brand contrast. Library and plugin captures
 and measured ratios are uploaded as the `workspace-theme-matrix` artifact. On
 failure the artifact includes `failure.png` and the completed cases in `report.json`.

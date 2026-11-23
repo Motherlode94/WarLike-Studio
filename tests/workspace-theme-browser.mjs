@@ -76,6 +76,13 @@ try{
   await page.locator(instrument+' .plugin-preset-browser').getByRole('searchbox').fill('concert');
   assert.ok(await page.locator(instrument+' [data-preset-source="factory"]').count()>0,current+' inaccessible factory preset search');
   await fits(instrument+' .plugin-preset-browser');
+  // Exercise the real debounced resize while typing, not only a settled window.
+  const search=page.locator(instrument+' .plugin-preset-browser').getByRole('searchbox');
+  const previous=await search.elementHandle();
+  await page.setViewportSize({...size,height:size.height-1});
+  await page.waitForFunction(n=>!n.isConnected,previous);
+  assert.equal(await search.inputValue(),'concert',current+' query lost during reflow');
+  assert.ok(await search.evaluate(n=>document.activeElement===n),current+' search focus lost during reflow');
   await page.keyboard.press('Escape');assert.equal(await page.locator(instrument+' .plugin-preset-browser').getAttribute('open'),null);
   await page.locator(instrument+' [data-float-close]').click();
   await page.setViewportSize(sizes[0]);await page.locator('[data-view="mixer"]').click();await strip.locator('[data-plugin-open="glue"],[data-insert-open="glue"]').first().click({force:true});
