@@ -5,7 +5,9 @@ export const COMPOSITION_TEMPLATES=[
  {id:'rives',name:'Rives de Kin',style:'Afro · instrumental original',bpm:106,swing:8,groove:'afro-sun',bars:88,description:'Afro lumineux : guitare étouffée, kora, mbira et flûte dialoguent sur une basse électrique. Deux couplets, deux refrains et un pont allégé.'},
  {id:'pluie',name:'Après la pluie',style:'R&B · instrumental original',bpm:78,swing:22,groove:'rnb-pocket',bars:72,description:'R&B nocturne : accords de neuvième au clavier FM, réponses au piano et vibraphone, orgue discret et basse ronde. De la place pour enregistrer les voix.'},
  {id:'horizon',name:'Horizon de cuivre',style:'Amapiano · instrumental original',bpm:112,swing:12,groove:'horizon-pocket',bars:96,description:'Amapiano : log drum synthétique, clavier FM, mbira et kora se répondent sur des shakers. Introduction progressive, refrains dansants et pont suspendu.'},
- {id:'eclats',name:"Éclats d’asphalte",style:'Rock alternatif · instrumental original',bpm:124,swing:0,groove:'eclats-backbeat',bars:112,description:'Rock alternatif : riffs de guitare crunch, arpèges clean, cordes acier et basse électrique. Refrains ouverts, pont en half-time et guitare lead originale.'}
+ {id:'eclats',name:"Éclats d’asphalte",style:'Rock alternatif · instrumental original',bpm:124,swing:0,groove:'eclats-backbeat',bars:112,description:'Rock alternatif : riffs de guitare crunch, arpèges clean, cordes acier et basse électrique. Refrains ouverts, pont en half-time et guitare lead originale.'},
+ {id:'kin',name:'Kin après minuit',style:'Rumba congolaise · instrumental original',bpm:104,swing:8,groove:'kin-sebene',bars:96,bridgeLabel:'SEBENE',description:'Rumba : guitare nylon, solo clean et contrechants acier se croisent autour d’une basse ronde. Le sebene développe les échanges entre guitares.'},
+ {id:'lumiere',name:'Lumière en ville',style:'Pop organique · instrumental original',bpm:116,swing:2,groove:'lumiere-pop',bars:104,description:'Pop lumineuse : piano, thème de guitare clean, strums acoustiques et nappe douce. Deux refrains ouverts et un pont plus intime.'}
 ];
 export const COMPOSITION_STYLES={
  rives:{key:7,scale:'major',keyName:'Sol majeur',harmony:'Em9 · Cmaj9 · G6 · D(add9)',palette:'Guitare muted, kora, mbira, flûte et basse électrique',
@@ -27,7 +29,18 @@ export const COMPOSITION_STYLES={
   verse:[[52,55,59,62,66],[48,52,55,59],[55,59,62,67],[50,54,57,64]],roots:[28,24,31,26],
   bridge:[[45,52,55,60],[47,54,57,62],[48,52,55,59,62],[50,54,57,62]],bridgeRoots:[33,35,36,38],
   tracks:[['drums','ROCK · BACKBEAT',2,-12,{punch:.68,decay:.28,hat:.5}],['wltitan','TITAN · BASSE ÉLECTRIQUE',1,-14,{brightness:2700,release:.14}],['wlcrunch','CRUNCH · RIFF PRINCIPAL',1,-19,{drive:.25,brightness:5700,decay:.8,release:.13}],['wlclean','CLEAN · ARPÈGES',0,-22,{drive:0,brightness:5200,decay:1.25,release:.3}],['wlsteel','STEEL · ACCORDS OUVERTS',1,-23,{brightness:6100,release:.2}],['wljazz','HOLLOW · GUITARE LEAD',1,-22,{drive:.18,brightness:5900,release:.23}]],
-  layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['MONTÉE',8,'pre'],['REFRAIN A',16,'hook'],['PONT',16,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',24,'hook'],['OUTRO',8,'outro']]}
+  layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['MONTÉE',8,'pre'],['REFRAIN A',16,'hook'],['PONT',16,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',24,'hook'],['OUTRO',8,'outro']]},
+ kin:{key:7,scale:'major',keyName:'Sol majeur',harmony:'Gmaj7 · D(add9) · Em7 · Cmaj9',palette:'Guitares nylon, clean, muted et acier, basse et percussions',
+  verse:[[55,59,62,66],[50,54,57,64],[52,55,59,62],[48,52,55,59,62]],roots:[31,26,28,24],
+  bridge:[[48,52,55,59],[47,55,59,62],[45,52,55,60],[50,54,57,59]],bridgeRoots:[24,35,33,26],
+  tracks:[['drums','RUMBA · PERCUSSIONS',3,-12,{decay:.22,hat:.42}],['wltitan','TITAN · BASSE RONDE',2,-15,{brightness:1800,release:.16}],['wlnylon','NYLON · ACCOMPAGNEMENT',0,-18,{brightness:4400,body:.78,drive:0,release:.2}],['wlclean','CLEAN · THÈME SEBENE',0,-18,{brightness:4900,body:.68,drive:0,decay:1.1,release:.18}],['wlmuted','MUTED · CONTRETEMPS',1,-23,{brightness:3700,drive:0,release:.08}],['wlsteel','STEEL · CONTRECHANT',0,-23,{brightness:5100,release:.21}]],
+  layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['MONTÉE',8,'pre'],['REFRAIN A',12,'hook'],['SEBENE',16,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',12,'hook'],['OUTRO',8,'outro']]},
+ lumiere:{key:2,scale:'major',keyName:'Ré majeur',harmony:'Dmaj9 · Bm7 · G6 · A(add9)',palette:'Piano, guitares clean et acier, nappe ATLAS, basse et batterie',
+  verse:[[50,54,57,61,64],[47,54,57,62],[55,59,62,64],[57,61,64,71]],roots:[26,35,31,33],
+  bridge:[[52,55,59,62],[55,59,62,66],[50,54,57,64],[57,61,64,67]],bridgeRoots:[28,31,26,33],
+  tracks:[['drums','POP · GROOVE OUVERT',2,-12,{punch:.58,decay:.25,hat:.43}],['wltitan','TITAN · PULSATION',0,-14,{brightness:2300,release:.16}],['piano','GRAND · ACCORDS',1,-15,{brightness:5900,release:.4}],['wlclean','CLEAN · THÈME LUMIÈRE',0,-19,{brightness:5400,drive:0,release:.22}],['wlsteel','STEEL · STRUMS',1,-23,{brightness:5900,release:.19}],['wlrompler','ATLAS · AIR DOUX',2,-26,{cutoff:2600,attack:.35,release:1.1,output:-14}]],
+  layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['MONTÉE',8,'pre'],['REFRAIN A',16,'hook'],['PONT',8,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',24,'hook'],['OUTRO',8,'outro']]}
+
 };
 function drums(style,kind,cycle){
  const rows=Object.fromEntries(Object.keys(DRUM_VOICES).map(v=>[v,Array(64).fill(0)]));
@@ -63,8 +76,23 @@ function drums(style,kind,cycle){
    if(hook){hit('open',b+6,.26);hit('open',b+14,.29);}
    if(half)hit('rim',b+15,.23);
   }
+  if(style==='kin'){
+   for(const step of (kind==='bridge'?[0,6,8,10]:sparse?[0]:[0,8]))hit('kick',b+step,step===0?.68:.48);
+   if(!sparse||kind==='bridge')hit('clap',b+12,.34);
+   for(const step of [2,6,10,14])hit('hat',b+step,.17);
+   for(const step of [1,4,7,9,12,15])hit('shaker',b+step,step%4===3?.28:.19);
+   for(const step of [3,7,11,15])hit('rim',b+step,.27+(step===7?.08:0));
+   for(const step of (kind==='bridge'?[2,5,9,13,14]:[5,13]))hit('perc',b+step,.25);
+  }
+  if(style==='lumiere'){
+   for(const step of (sparse?[0,8]:variant?[0,3,8,10]:[0,6,8,12]))hit('kick',b+step,step===0?.72:.56);
+   for(const step of [4,12])hit('clap',b+step,sparse?.3:.48);
+   for(const step of (sparse?[2,10]:[0,2,4,6,8,10,12,14]))hit('hat',b+step,step%4===0?.23:.16);
+   for(const step of [3,7,11,15])hit('shaker',b+step,hook?.24:.17);
+   if(hook)hit('open',b+14,.23);
+  }
   if(bar===3&&!sparse){for(const s of [13,14,15])hit('tom',b+s,(hook?.32:.21)+(s-13)*.05);}
-  if(kind==='bridge'&&style!=='eclats')rows.kick.fill(0,b,b+16);
+  if(kind==='bridge'&&!['eclats','kin'].includes(style))rows.kick.fill(0,b,b+16);
  }
  return rows;
 }
@@ -136,6 +164,31 @@ function melody(style,role,kind,cycle){
     const steps=hook?[1,4,6,9,12,14]:bridge?[0,5,8,11,14]:[3,8,13],seq=hook?[2,3,1,2,0,1]:[1,2,0,3];
     for(const [i,step] of steps.entries())add(b+step,c[seq[(i+alt)%seq.length]%c.length]+12,i===steps.length-1?1.7:1.35,hook?.57:.45);
    }
+  }
+
+  if(style==='kin'){
+   if(role===1)for(const [i,step] of (bridge?[0,3,6,8,11,14]:intro?[0,8]:[0,6,8,12,15]).entries())add(b+step,root+(i%4===1?7:i%4===3?12:0),i===0?3:1.05,.7-i%2*.12);
+   if(role===2)for(const step of (intro?[0,8]:[0,4,8,12]))chord(b+step,c.slice(0,3),bridge?2.1:3.15,hook?.48:.39,.055);
+   if(role===3){
+    const steps=bridge?[0,1.5,3,4.5,6,8,9.5,11,12.5,14]:hook?[0,2,4,7,8,10,12,14]:intro?[0,7,12]:[0,3,6,9,11,14];
+    const seq=bridge?[2,1,3,2,0,1]:hook?[2,3,1,2,0,1]:[0,2,1,3];
+    for(const [i,step] of steps.entries())add(b+step,c[seq[(i+alt)%seq.length]%c.length]+12,bridge?.95:i===steps.length-1?1.65:1.15,bridge?.58:hook?.56:.46);
+   }
+   if(role===4&&!intro)for(const [i,step] of [2,6,10,14].entries())add(b+step,c[(i+alt)%c.length]+12,.65,bridge?.42:.34);
+   if(role===5&&['pre','hook','bridge'].includes(kind)){
+    const steps=bridge?[1,4,7,10,13,15]:[3,7,11,14];
+    for(const [i,step] of steps.entries())add(b+step,c[(i+alt+1)%c.length]+12,Math.min(1.25,16-step),bridge?.46:.38);
+   }
+  }
+  if(style==='lumiere'){
+   if(role===1)for(const [i,step] of (intro||bridge?[0,8]:hook?[0,4,6,8,12,14]:[0,6,8,14]).entries())add(b+step,root+(i%4===2?7:0),intro||bridge?4.8:i===0?3.2:1.5,.73-i%2*.11);
+   if(role===2)for(const step of (intro||bridge?[0,8]:hook?[0,4,8,12]:[0,8]))chord(b+step,c,hook?3.4:6.8,hook?.53:.42,.045);
+   if(role===3){
+    const steps=hook?[0,3,6,8,11,14]:intro?[0,8]:bridge?[1,7,12]:[0,5,9,13],seq=hook?[2,3,1,2,0,1]:[0,2,1,3];
+    for(const [i,step] of steps.entries())add(b+step,c[seq[(i+alt)%seq.length]%c.length]+12,i===steps.length-1?1.8:1.4,hook?.56:.42);
+   }
+   if(role===4)for(const step of (intro||bridge?[2,10]:[2,6,10,14]))chord(b+step,c.slice(0,3),intro||bridge?3.2:1.35,hook?.43:.31,.065);
+   if(role===5&&['pre','hook','bridge'].includes(kind))chord(b+.1,c.slice(1,4),14.7,hook?.25:.18,.04);
   }
 
  }

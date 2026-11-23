@@ -21,6 +21,8 @@ export const DRUM_GROOVES=[
   {id:'ambient-pulse',name:'Ambient Pulse',style:'Ambient',bpm:90,pattern:pattern({kick:[0],hat:[4,10],rim:[8],perc:[14]})},
   {id:'horizon-pocket',name:'Horizon Pocket',style:'Amapiano',bpm:112,pattern:pattern({kick:[0,6,10],clap:[4,12],hat:[2,6,10,14],rim:[3,7,11,15],shaker:all,perc:[5,13]})},
   {id:'eclats-backbeat',name:'Éclats Backbeat',style:'Rock alternatif',bpm:124,pattern:pattern({kick:[0,7,8,10],clap:[4,12],hat:even,open:[14],tom:[15]})},
+  {id:'kin-sebene',name:'Kin Sebene',style:'Rumba',bpm:104,pattern:pattern({kick:[0,6,8,10],clap:[12],hat:[2,6,10,14],rim:[3,7,11,15],shaker:[1,4,7,9,12,15],perc:[2,5,9,13,14]})},
+  {id:'lumiere-pop',name:'Lumière Pop',style:'Pop',bpm:116,pattern:pattern({kick:[0,6,8,12],clap:[4,12],hat:even,open:[14],shaker:[3,7,11,15]})},
   {id:'double-time',name:'Double Time',style:'Trap',bpm:150,pattern:pattern({kick:[0,6,10,15],clap:[4,12],hat:all,open:[14],tom:[13],perc:[7]})}
 ];
 export const PHRASES={
