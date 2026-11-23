@@ -101,7 +101,7 @@ try{
   await resize(sizes[0]);await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-insert-open="glue"][data-insert-track="themeharp"]').click();
   await resize(size);await fits(effect);
   ratios.effectPresetLabel=await contrast(effect+' .suite-preset-bar label');
-  ratios.effectCaption=await contrast(effect+' .plugin-window-meta>strong');
+  ratios.effectCaption=await contrast(effect+' .plugin-window-meta>span');
   assert.ok(ratios.effectPresetLabel>=4.5&&ratios.effectCaption>=4.5,current+' unreadable effect preset label or caption');
   await page.screenshot({path:folder+'/'+layout+'-'+size.width+'-'+theme+'-plugin.png'});
   await page.locator(effect+' [data-float-close]').click();

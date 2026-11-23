@@ -118,7 +118,7 @@ html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor{
 html[data-warlike-app="warlike-studio"] .floating-plugin :is(.suite-preset-bar,.plugin-window-meta,.plugin-mouse-guide,.plugin-window-footer){
   border-color:var(--wl-border)!important;color:var(--wl-text-muted)!important;
 }
-html[data-warlike-app="warlike-studio"] .floating-plugin :is(.suite-preset-bar label,.plugin-window-footer>span,.plugin-window-meta>strong){
+html[data-warlike-app="warlike-studio"] .floating-plugin :is(.suite-preset-bar label,.plugin-window-footer>span,.plugin-window-meta>span){
   color:var(--wl-text)!important;
 }
 html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor :is(.param>label,.param-value){
@@ -229,4 +229,4 @@ html[data-warlike-app="warlike-studio"] .floating-plugin .plugin-command-bar .su
  background:var(--wl-surface)!important;color:var(--wl-text)!important;
 }
 /* This caption sits on the deliberately dark effect face, not shared chrome. */
-html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-effect-face] .plugin-window-meta>strong{color:var(--fx-muted)!important}
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-effect-face] .plugin-window-meta>span{color:var(--fx-muted)!important}
