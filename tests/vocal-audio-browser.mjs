@@ -38,10 +38,20 @@ try{
  for(const kind of ['trap','afro','rnb','vox-trap','vox-afro','vox-rnb']){
   await sessionTab(page,'demos');await sessionTab(page,'demos');await page.locator('.project-public-demos [data-public-demo="'+kind+'"]').click();
   await page.locator('#modal').waitFor({state:'hidden'});
-  await page.waitForFunction(()=>document.getElementById('toast')?.textContent.includes('vraies voix enregistrées'));
+  await page.waitForFunction(()=>/voix humaines en anglais|vraies voix enregistrées/.test(document.getElementById('toast')?.textContent||''));
   assert.match(await page.locator('#toast').textContent(),/anglais/);
   const pending=page.waitForEvent('download');await page.locator('#projectMenuBtn').click();await page.locator('#saveProject').click();const download=await pending,file=output+'/'+kind+'.chayah';await download.saveAs(file);
-  const saved=JSON.parse(await readFile(file,'utf8'));assert.equal(saved.assets.length,3);assert.equal(saved.project.vocalDemoInfo.hasRecordedVoice,true);assert.equal(saved.project.vocalDemoInfo.credits[0].license,'CC BY 3.0');assert.deepEqual(saved.project.tracks.find(t=>t.type==='audio').clips.map(c=>c.start),[4,8,12]);
+  const saved=JSON.parse(await readFile(file,'utf8'));assert.equal(saved.assets.length,3);assert.equal(saved.project.vocalDemoInfo.hasRecordedVoice,true);assert.equal(saved.project.vocalDemoInfo.credits[0].license,'CC BY 3.0');
+  const lead=saved.project.tracks.find(t=>t.type==='audio'),starts=lead.clips.map(c=>c.start);
+  if(kind==='trap'){
+   assert.equal(saved.project.bars,96,'Full Trap song must have 96 bars');
+   assert.equal(saved.project.fullSong,true);
+   assert(starts.length>3,'Full Trap requires multiple editable vocal sections');
+   assert(starts.includes(8),'First recorded verse must begin on bar 9');
+   assert(starts.some(start=>start>=24&&start<32),'Chorus must reuse its licensed recording');
+   assert(starts.every(start=>start>=8&&start<92),'No vocals during intro/outro');
+   assert(lead.clips.every(c=>c.derivedRepeat&&c.gainDb<=-7&&c.fadeIn>=.035&&c.fadeOut>=.055),'Vocal repeats need gain staging and smooth fades');
+  }else assert.deepEqual(starts,[4,8,12]);
   // Downloaded projects contain actual media, rather than hosted URL references.
   assert.ok(saved.assets.every(a=>Buffer.from(a.data,'base64').length>4096));
   if(kind==='vox-rnb'){
