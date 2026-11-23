@@ -38,3 +38,22 @@ test('new composition scores are reproducible and isolated editable copies',()=>
  }
  assert.notDeepEqual(score(createFactorySession('rives',true)),score(createFactorySession('pluie',true)));
 });
+test('Amapiano has a pitched offbeat log drum and dedicated preview groove',()=>{
+ const p=createFactorySession('horizon',true),log=p.tracks[1];
+ assert.equal(log.type,'wlngoma');assert.ok(log.clips.flatMap(c=>c.notes).some(n=>n.step%1!==0));
+ assert.ok(new Set(log.clips.flatMap(c=>c.notes).map(n=>n.midi)).size>=5);
+ assert.equal(SESSION_TEMPLATES.find(t=>t.id==='horizon').groove,'horizon-pocket');
+ const first=p.sections[1],hook=p.sections[3];
+ const count=part=>log.clips.filter(c=>c.start>=part.start&&c.start<part.start+part.length).reduce((n,c)=>n+c.notes.length,0)/part.length;
+ assert.ok(count(hook)>count(first),'chorus log drum must develop the pocket');
+});
+test('alternative rock has power-chord riffs and a real half-time bridge',()=>{
+ const p=createFactorySession('eclats',true);assert.equal(p.tracks[2].type,'wlcrunch');assert.equal(p.tracks[3].type,'wlclean');
+ const verse=p.sections[1],bridge=p.sections[4],drum=p.tracks[0];
+ const regular=drum.clips.find(c=>c.start===verse.start).pattern.clap;
+ const half=drum.clips.find(c=>c.start===bridge.start).pattern.clap;
+ assert.ok(regular[4]>0&&regular[12]>0);assert.equal(half[4],0);assert.ok(half[8]>0);assert.equal(half[12],0);
+ const riff=p.tracks[2].clips.find(c=>c.start===verse.start).notes.filter(n=>n.step<1).map(n=>n.midi);
+ assert.deepEqual(riff.map(n=>n-riff[0]),[0,7,12]);
+ assert.equal(SESSION_TEMPLATES.find(t=>t.id==='eclats').groove,'eclats-backbeat');
+});
