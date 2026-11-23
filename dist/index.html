@@ -56,6 +56,7 @@
 <link rel="stylesheet" href="./mix-master-templates.css">
 <link rel="stylesheet" href="./effect-faces.css">
 <link rel="stylesheet" href="./session-preview.css?v=1">
+<link rel="stylesheet" href="./recording-count-in.css?v=1">
 <link rel="stylesheet" href="./warlike-update-status.css"></head>
 <body class="detail-collapsed track-properties-open"><details class="warlike-update-notice"><summary>Mises à jour en cours</summary><p>WarLike évolue : améliorations et nouvelles fonctionnalités. Vous pouvez continuer à utiliser cette application normalement.</p></details>
   <header class="topbar">
@@ -71,6 +72,7 @@
     <label class="tempo-control"><input id="bpm" type="number" min="40" max="240" value="138" aria-label="Tempo en BPM"><span>BPM</span></label>
     <div class="signature"><strong>4 / 4</strong><span>MESURE</span></div><div class="signature key-signature"><div class="session-key-selects"><select id="sessionRoot" aria-label="Clé de la session"></select><select id="sessionScale" aria-label="Gamme de la session"><option value="minor">Mineure</option><option value="major">Majeure</option><option value="chromatic">Chromatique</option></select></div><span id="sessionKey">La mineur</span></div>
     <div class="transport-options"><button id="loop" class="icon-btn active" title="Boucle (L)" aria-label="Boucle" aria-pressed="true"><i data-icon="loop"></i></button><button id="modePattern" class="mode-button" title="Écouter le pattern actif">PAT</button><button id="modeSong" class="mode-button active" title="Écouter l’arrangement">SONG</button><button id="metronome" class="icon-btn" title="Métronome" aria-label="Métronome" aria-pressed="false"><i data-icon="metronome"></i></button></div>
+    <div class="record-count-in"><label class="record-count-in-control"><span>Décompte</span><select id="recordCountIn" aria-label="Mesures de décompte avant la prise"><option value="0">Aucun</option><option value="1">1 mesure</option><option value="2">2 mesures</option></select></label><output id="recordCountInStatus" role="status" hidden></output></div>
     <div class="master-output"><div class="output-label"><span id="meterLabel">SORTIE</span> <span id="peakLabel">−∞ dB</span></div><div class="master-meter"><span id="masterLevel"></span></div></div>
     <button id="exportWav" class="export-btn"><i data-icon="download"></i> Exporter <span>WAV</span></button>
   </section>

@@ -1,0 +1,6 @@
+.record-count-in{display:grid;gap:3px;margin:0 10px;flex:0 0 auto;max-width:140px;min-width:0}
+.record-count-in-control{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--wl-text)}
+.record-count-in-control select{min-height:30px;max-width:90px;padding:4px;font-size:11px}
+#recordCountInStatus{font:11px ui-monospace,monospace;color:var(--wl-text);overflow-wrap:anywhere}
+#recordCountInStatus[hidden]{display:none}
+@media(max-width:760px){.record-count-in{margin:0 4px}.record-count-in-control{font-size:10px}.record-count-in-control select{min-height:32px}}
