@@ -207,3 +207,20 @@ html[data-warlike-app="warlike-studio"] #modal .session-dashboard>.project-home-
 .studio-theme-selector{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:11px;color:var(--wl-text)}
 .studio-theme-selector select{background:var(--wl-surface-alt);color:var(--wl-text);border:1px solid var(--wl-border);border-radius:5px;padding:6px;max-width:160px}
 @media(max-width:550px){html[data-warlike-app="warlike-studio"] #modal .session-dashboard-header{align-items:stretch}html[data-warlike-app="warlike-studio"] #modal .session-dashboard-tabs button{min-width:55px;padding:7px 8px}}
+
+/* R08.3g.7 — library and branding follow the active workspace palette.
+   Do not apply these surfaces inside branded instrument/effect hardware. */
+html[data-warlike-app="warlike-studio"] :is(.brand,.brand>span,.brand .version){color:var(--wl-text)!important}
+html[data-warlike-app="warlike-studio"] .brand .version{border-color:var(--wl-border)!important}
+html[data-warlike-app="warlike-studio"] :is(.content-browser,.bank-heading,.bank-tabs,.bank-filters,.bank-search){
+ background:var(--wl-surface)!important;color:var(--wl-text)!important;border-color:var(--wl-border)!important;
+}
+html[data-warlike-app="warlike-studio"] :is(.bank-heading h2,.bank-tabs button,.content-card h3){color:var(--wl-text)!important}
+html[data-warlike-app="warlike-studio"] :is(.bank-heading p,.bank-heading .eyebrow,.bank-tabs button>span,.bank-filters>span,.content-card p,.content-card-type,.content-card-type>span,.content-card-actions>small,.bank-empty){color:var(--wl-text-muted)!important}
+html[data-warlike-app="warlike-studio"] .bank-tabs button.selected{color:var(--wl-accent)!important}
+html[data-warlike-app="warlike-studio"] .bank-tabs button.selected:after{background:var(--wl-focus)!important}
+html[data-warlike-app="warlike-studio"] :is(.content-card,.content-card:hover){background:var(--wl-surface-alt)!important;border-color:var(--wl-border)!important}
+html[data-warlike-app="warlike-studio"] .content-card:hover{border-color:var(--wl-focus)!important}
+html[data-warlike-app="warlike-studio"] .content-card .content-add{background:var(--wl-primary)!important;color:var(--wl-primary-text)!important;border-color:var(--wl-border)!important}
+html[data-warlike-app="warlike-studio"] :is(.bank-tabs button,.bank-heading button,.content-card button,.bank-search):focus-visible,
+html[data-warlike-app="warlike-studio"] .bank-search:focus-within{outline:2px solid var(--wl-focus)!important;outline-offset:-2px}
