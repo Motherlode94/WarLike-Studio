@@ -190,7 +190,7 @@ export class AudioEngine {
       ch.pan.pan.setTargetAtTime(tr.pan,now,.015);this.syncEffects(ch,tr,now);ch.delay.delayTime.setTargetAtTime(60/this.getProject().bpm*.75,now,.02);
     }
     this.routeGraph(this.ctx,this.graph);
-    if(this.playing)this.scheduleAutomation(this.ctx,this.graph,this.getPosition()/16,this.getProject().bars,now);
+    if(this.playing)this.scheduleAutomation(this.ctx,this.graph,this.getPosition()/16,this.getProject().bars,Math.max(now,this.playStartAt||now));
     this.master.gain.setTargetAtTime(dbGain(this.masterVolume),now,.01);
     syncMasterChain(this.graph.mastering,this.getProject().mastering,now);
   }
@@ -198,18 +198,21 @@ export class AudioEngine {
   get stepDuration() {return 60/this.getProject().bpm/4;}
   getPosition() {
     if(!this.playing||!this.ctx)return this.position;
+    if(this.ctx.currentTime<this.playStartAt)return this.position;
     const raw=(this.ctx.currentTime-this.startTime)/this.stepDuration;
     const total=this.getPlaybackProject().bars*16;
     return this.loop?loopPosition(raw,this.playbackLoopBounds()):Math.max(0,Math.min(raw,total));
   }
   playbackLoopBounds(){const p=this.getPlaybackProject();return loopBounds(this.patternMode||this.clipPreview||this.takePreview?null:p.loopRange,p.bars);}
-  async play() {
+  async play({startAt}={}) {
     this.stopPreview();this.stopReference();
     const request=this.playRequest=(this.playRequest||0)+1;await this.init(); if(request!==this.playRequest||this.playing)return;await this.prepareInstruments(this.ctx,this.getPlaybackProject());if(request!==this.playRequest)return;
     if(this.loop&&!this.recordingTrackId){const b=this.playbackLoopBounds();if(this.position<b.start||this.position>=b.end)this.position=b.start;}
-    this.startTime=this.ctx.currentTime+.06-this.position*this.stepDuration;
+    const when=startAt??this.ctx.currentTime+.06;
+    if(!Number.isFinite(when)||when<this.ctx.currentTime+.02)throw Error('Le départ audio prévu est dépassé. Relance la prise.');
+    this.playStartAt=when;this.startTime=when-this.position*this.stepDuration;
     this.scheduledStep=Math.ceil(this.position); this.playing=true;
-    if(!this.patternMode&&!this.clipPreview)this.schedulePartialAudio(this.position);this.scheduleAutomation(this.ctx,this.graph,this.position/16,this.getProject().bars,this.ctx.currentTime+.06);
+    if(!this.patternMode&&!this.clipPreview)this.schedulePartialAudio(this.position);this.scheduleAutomation(this.ctx,this.graph,this.position/16,this.getProject().bars,when);
     try{this.scheduler();if(this.playing)this.timer=setInterval(()=>{try{this.scheduler();}catch(error){this.pause();this.onError?.(error);}},25);}catch(error){this.pause();throw error;}
   }
   pause() {this.stopPreview();this.stopReference();this.playRequest=(this.playRequest||0)+1;if(this.playing)this.position=this.getPosition();this.playing=false;clearInterval(this.timer);this.killVoices();if(this.ctx&&this.graph)this.clearAutomation(this.graph,this.ctx.currentTime);}
@@ -238,7 +241,7 @@ export class AudioEngine {
     if(!this.playing)return;
     let p=this.getPlaybackProject();const sd=this.stepDuration;
     if(this.midiRecordingExtend){this.midiRecordingExtend(Math.max(this.scheduledStep,(this.ctx.currentTime-this.startTime)/sd));p=this.getPlaybackProject();}
-    if(this.recordingTrackId){const bars=recordingHorizon(p.bars,Math.max(this.scheduledStep,(this.ctx.currentTime-this.startTime)/sd));if(bars>p.bars){p.bars=bars;this.onRecordingExtend?.(bars);}}
+    if(this.recordingTrackId&&this.ctx.currentTime>=(this.playStartAt??-Infinity)){const bars=recordingHorizon(p.bars,Math.max(this.scheduledStep,(this.ctx.currentTime-this.startTime)/sd));if(bars>p.bars){p.bars=bars;this.onRecordingExtend?.(bars);}}
     const total=p.bars*16;
     // Never fire missed note-on events immediately: a main-thread stall can
     // otherwise pile up drums and synth transients into one audible crackle.
@@ -261,7 +264,7 @@ export class AudioEngine {
     }
     const earliest=now+.004;
     while(this.startTime+this.scheduledStep*sd<now+.14) {
-      if(!this.loop&&this.scheduledStep>=total){this.pause();this.position=0;this.onEnded?.();return;}
+      if(!this.loop&&this.scheduledStep>=total){if(this.recordingTrackId&&this.ctx.currentTime<this.playStartAt)return;this.pause();this.position=0;this.onEnded?.();return;}
       const bounds=this.playbackLoopBounds(),local=this.loop?loopPosition(this.scheduledStep,bounds):this.scheduledStep,time=this.startTime+this.scheduledStep*sd;
       // Skipped steps are never rescheduled in the past.
       if(time<earliest){this.scheduledStep++;continue;}

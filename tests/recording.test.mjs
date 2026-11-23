@@ -19,7 +19,7 @@ test('stereo normalization uses the loudest channel',()=>{
   const {gainDb}=normalisationGain(levels);assert.ok(Math.abs(.4*dbGain(gainDb)-dbGain(-6))<1e-6);
 });
 test('recording and old clip settings have bounded, compatible defaults',()=>{
-  assert.deepEqual(recordingSettings(),{gainDb:0,autoLevel:true});assert.deepEqual(recordingSettings({gainDb:100,autoLevel:false}),{gainDb:24,autoLevel:false});assert.equal(clampClipGain(undefined),0);assert.equal(clampClipGain(200),36);assert.equal(clampClipGain(-100),-24);
+  assert.deepEqual(recordingSettings(),{gainDb:0,autoLevel:true,countInBars:0});assert.deepEqual(recordingSettings({gainDb:100,autoLevel:false}),{gainDb:24,autoLevel:false,countInBars:0});assert.equal(clampClipGain(undefined),0);assert.equal(clampClipGain(200),36);assert.equal(clampClipGain(-100),-24);
 });
 test('microphone gain feeds the recording stream and never the speakers',()=>{
   const connections=[],stopped=[];const node=name=>({name,connect(dest){connections.push([name,dest.name]);},disconnect(){},gain:{value:0,setTargetAtTime(v){this.value=v;}}});

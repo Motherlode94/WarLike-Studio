@@ -8,6 +8,7 @@ import {normaliseCurve,putPoint,pointValue} from './automation.js?v=0.14.0';
 import {createPcmCapture,recordingPlacement} from './pcm-capture.js?v=0.14.0';
 import {emitRecordingTelemetry} from './recording-telemetry.js';
 import {createRecordingSignalDiagnostics} from './recording-signal-diagnostics.js';
+import {createRecordingCountIn} from './recording-count-in.js';
 import {evaluateLoopbackLatency} from './recording-loopback-analysis.js';
 import {beginRecordingJournal} from './recording-recovery.js';
 import {createRecordingGraph,recordingSettings,measureBuffer,normalisationGain,armedRecordingTracks,captureChannelMode,extractRecordedChannel,recordingInputConstraints,validateRecordingInputChannels,inspectRecordedTake} from './recording.js?v=0.14.0';
@@ -17,6 +18,11 @@ const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>(
 const SUPPORTED={color:['mix','output'],sculpt:['cutoff','highpass'],prism:['low','mid','high','lowFreq','midFreq','highFreq','q'],glue:['threshold','ratio','attack','release','makeup','knee','mix'],echo:['mix','feedback'],aura:['mix'],hush:['threshold'],sibil:['threshold','frequency'],ember:['mix','tone','output'],orbit:['rate','depth','width','mix'],sway:['rate','depth','pan','mix'],relay:['feedback','tone','mix']};
 export function automationParameters(track){const list=[{key:'volume',name:'Volume',min:-48,max:12,value:track.volume},{key:'pan',name:'Panoramique',min:-1,max:1,value:track.pan}];for(const s of track.sends||[])list.push({key:'send:'+s.id,name:'Envoi '+s.target,min:-60,max:12,value:s.level});for(const id of track.inserts||[])if(id){const d=effectDefinition(id);for(const c of d.controls)if(SUPPORTED[effectType(id)]?.includes(c.key)||STUDIO_EFFECTS[effectType(id)]&& !['drive','bias','duck','range','beats','peakThreshold','levelThreshold'].includes(c.key))list.push({key:id+':'+c.key,name:d.name+' · '+c.name,min:c.min,max:c.max,value:track.effects[id][c.key]});}return list;}
 export function installStudioWorkflow(d){
+  let pendingRecord=null;
+  function cancelPendingRecording(){
+    if(!pendingRecord||!d.getRecordState().micPending)return false;
+    pendingRecord.cancelled=true;pendingRecord.stream?.getTracks().forEach(t=>t.stop());engine().pause();if(pendingRecord.previousLoop!==undefined)engine().loop=pendingRecord.previousLoop;d.setFlags({micPending:false});d.updateTransport();d.toast('Préparation annulée. Aucune prise créée.');return true;
+  }
   const p=d.getProject,engine=d.getEngine,assets=d.getAssets,track=()=>d.currentTrack(),clip=()=>d.currentClip();const sendEdits=new WeakSet();let testGraph=null,snapshotTimes=new Map(),stretchWorker=null,exporting=false,preparedExport=null,selectedCurve='volume',curveTrack=null,lastAnalysis=null,analysisProject=null,analysing=false;
   const setup=()=>p().audioSetup??={deviceId:'',channel:'1',monitor:false,latencyMs:0,keepTakes:true};
   function routingHTML(t){return `<div class="workflow-routing"><label>SORTIE<select data-route-output="${t.id}" aria-label="Sortie de ${esc(t.name)}"><option value="master">MASTER 1–2</option>${p().tracks.filter(b=>b.type==='bus'&&routeAllowed(p().tracks,t.id,b.id)).map(b=>`<option value="${b.id}" ${t.output===b.id?'selected':''}>${esc(b.name)}</option>`).join('')}</select></label><div class="workflow-label">ENVOIS AUXILIAIRES</div>${(t.sends||[]).map(s=>`<div class="aux-send"><div><strong>${esc(p().tracks.find(b=>b.id===s.target)?.name||'Bus')}</strong><button data-send-toggle="${t.id}:${s.id}" aria-label="Activer l’envoi" aria-pressed="${s.enabled}">${s.enabled?'ON':'OFF'}</button><button data-send-remove="${t.id}:${s.id}" aria-label="Retirer l’envoi">×</button></div><input data-send-level="${t.id}:${s.id}" type="range" min="-60" max="12" step=".5" value="${s.level}" aria-label="Niveau d’envoi ${esc(p().tracks.find(b=>b.id===s.target)?.name||'Bus')}"><label><span data-send-db="${s.id}">${s.level.toFixed(1)} dB</span><input type="number" min="-60" max="12" step="0.5" value="${s.level}" data-send-level="${t.id}:${s.id}" aria-label="Niveau précis en dB vers ${esc(p().tracks.find(b=>b.id===s.target)?.name||'Bus')}"><select data-send-position="${t.id}:${s.id}" aria-label="Position de l’envoi"><option value="post" ${!s.pre?'selected':''}>Post-fader</option><option value="pre" ${s.pre?'selected':''}>Pré-fader</option></select></label></div>`).join('')}<select data-send-add="${t.id}" aria-label="Ajouter un envoi" ${(t.sends||[]).length>=8?'disabled':''}><option value="">+ Envoi vers un bus…</option>${p().tracks.filter(b=>b.type==='bus'&&routeAllowed(p().tracks,t.id,b.id)&&!(t.sends||[]).some(s=>s.target===b.id)).map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select><button class="outline-btn" data-create-bus>+ Créer un bus / auxiliaire</button></div>`;}
@@ -125,9 +131,9 @@ export function installStudioWorkflow(d){
   }
   function showExportLink(){const a=$('downloadRendered');if(a&&preparedExport){a.hidden=false;a.href=preparedExport.url;a.download=preparedExport.filename;a.textContent='Télécharger '+preparedExport.filename;}}
   async function devices(){if(!navigator.mediaDevices?.enumerateDevices)return [];return (await navigator.mediaDevices.enumerateDevices()).filter(a=>a.kind==='audioinput');}
-  async function recordingModal(){const settings=recordingSettings(p().recording),a=setup(),list=await devices().catch(()=>[]);d.modal('Enregistrement audio',`<div class="workflow-form"><label>Entrée audio<select id="inputDevice"><option value="">Entrée système par défaut</option>${list.filter(a=>a.deviceId!=='default').map((v,i)=>`<option value="${esc(v.deviceId)}" ${v.deviceId===a.deviceId?'selected':''}>${esc(v.label||'Entrée '+(i+1))}</option>`).join('')}</select></label><button class="outline-btn" id="refreshInputs">Autoriser le micro / actualiser les entrées</button><label>Canal<select id="inputChannel"><option value="1">Entrée 1 · mono</option><option value="2" ${a.channel==='2'?'selected':''}>Entrée 2 · mono</option><option value="stereo" ${a.channel==='stereo'?'selected':''}>Entrées 1–2 · stéréo</option></select></label><label>Gain numérique (dB)<input id="workflowMicGain" type="number" min="0" max="24" step=".5" value="${settings.gainDb}"></label><label class="workflow-check"><input id="inputMonitor" type="checkbox" ${a.monitor?'checked':''}> Écouter l’entrée à travers les inserts de la piste</label><label>Casque · IN 1 (dB)<input id="inputMonitorLevel" type="number" min="-36" max="-6" step="1" value="${a.monitorLevelDb??-18}"></label><label>Casque · IN 2 (dB)<input id="inputMonitorLevel2" type="number" min="-36" max="-6" step="1" value="${a.monitorLevel2Db??-18}"></label><small>Monitoring désactivé par défaut. Utilise un casque, jamais des enceintes proches des micros. L’enregistrement PCM conserve l’entrée avant les effets.</small><label class="workflow-check"><input id="knownCompensation" type="checkbox" ${p().delayCompensation!==false?'checked':''}> Compenser les délais connus des compresseurs dans le routage</label><label class="workflow-check"><input id="keepTakes" type="checkbox" ${a.keepTakes!==false?'checked':''}> Conserver les prises superposées dans des playlists</label><label class="workflow-check"><input id="workflowAutoLevel" type="checkbox" ${settings.autoLevel?'checked':''}> Ajuster le gain du clip après la prise</label><label>Compensation d’enregistrement (ms)<input id="recordLatency" type="number" min="-500" max="1000" step=".1" value="${a.latencyMs||0}"></label><small>Une valeur positive avance la prise. Latence de sortie annoncée par le navigateur : ${engine().ctx?(((engine().ctx.baseLatency||0)+(engine().ctx.outputLatency||0))*1000).toFixed(1)+' ms':'disponible après activation audio'}. La mesure d’entrée demande un bouclage réel.</small><button class="outline-btn" id="calibrateAudio">Mesurer par bouclage sortie → entrée</button><p>Pour la mesure, relie une sortie ligne de l’interface à l’entrée sélectionnée. Un signal bref sera envoyé à faible niveau. Coupe le monitoring direct matériel et le monitoring logiciel pendant ce test.</p><output id="calibrationResult"></output><button class="primary-btn" id="saveAudioSetup">Appliquer les réglages</button></div>`,'WARLIKE / RECORDING');
+  async function recordingModal(){const settings=recordingSettings(p().recording),a=setup(),list=await devices().catch(()=>[]);d.modal('Enregistrement audio',`<div class="workflow-form"><label>Entrée audio<select id="inputDevice"><option value="">Entrée système par défaut</option>${list.filter(a=>a.deviceId!=='default').map((v,i)=>`<option value="${esc(v.deviceId)}" ${v.deviceId===a.deviceId?'selected':''}>${esc(v.label||'Entrée '+(i+1))}</option>`).join('')}</select></label><button class="outline-btn" id="refreshInputs">Autoriser le micro / actualiser les entrées</button><label>Canal<select id="inputChannel"><option value="1">Entrée 1 · mono</option><option value="2" ${a.channel==='2'?'selected':''}>Entrée 2 · mono</option><option value="stereo" ${a.channel==='stereo'?'selected':''}>Entrées 1–2 · stéréo</option></select></label><label>Décompte avant la prise<select id="workflowCountIn"><option value="0">Aucun</option><option value="1" ${settings.countInBars===1?'selected':''}>1 mesure</option><option value="2" ${settings.countInBars===2?'selected':''}>2 mesures</option></select></label><label>Gain numérique (dB)<input id="workflowMicGain" type="number" min="0" max="24" step=".5" value="${settings.gainDb}"></label><label class="workflow-check"><input id="inputMonitor" type="checkbox" ${a.monitor?'checked':''}> Écouter l’entrée à travers les inserts de la piste</label><label>Casque · IN 1 (dB)<input id="inputMonitorLevel" type="number" min="-36" max="-6" step="1" value="${a.monitorLevelDb??-18}"></label><label>Casque · IN 2 (dB)<input id="inputMonitorLevel2" type="number" min="-36" max="-6" step="1" value="${a.monitorLevel2Db??-18}"></label><small>Monitoring désactivé par défaut. Utilise un casque, jamais des enceintes proches des micros. L’enregistrement PCM conserve l’entrée avant les effets.</small><label class="workflow-check"><input id="knownCompensation" type="checkbox" ${p().delayCompensation!==false?'checked':''}> Compenser les délais connus des compresseurs dans le routage</label><label class="workflow-check"><input id="keepTakes" type="checkbox" ${a.keepTakes!==false?'checked':''}> Conserver les prises superposées dans des playlists</label><label class="workflow-check"><input id="workflowAutoLevel" type="checkbox" ${settings.autoLevel?'checked':''}> Ajuster le gain du clip après la prise</label><label>Compensation d’enregistrement (ms)<input id="recordLatency" type="number" min="-500" max="1000" step=".1" value="${a.latencyMs||0}"></label><small>Une valeur positive avance la prise. Latence de sortie annoncée par le navigateur : ${engine().ctx?(((engine().ctx.baseLatency||0)+(engine().ctx.outputLatency||0))*1000).toFixed(1)+' ms':'disponible après activation audio'}. La mesure d’entrée demande un bouclage réel.</small><button class="outline-btn" id="calibrateAudio">Mesurer par bouclage sortie → entrée</button><p>Pour la mesure, relie une sortie ligne de l’interface à l’entrée sélectionnée. Un signal bref sera envoyé à faible niveau. Coupe le monitoring direct matériel et le monitoring logiciel pendant ce test.</p><output id="calibrationResult"></output><button class="primary-btn" id="saveAudioSetup">Appliquer les réglages</button></div>`,'WARLIKE / RECORDING');
     const collect=()=>({deviceId:$('inputDevice').value,channel:$('inputChannel').value,monitor:$('inputMonitor').checked,monitorLevelDb:Math.max(-36,Math.min(-6,Number($('inputMonitorLevel').value)||-18)),monitorLevel2Db:Math.max(-36,Math.min(-6,Number($('inputMonitorLevel2').value)||-18)),keepTakes:$('keepTakes').checked,latencyMs:Math.max(-500,Math.min(1000,Number($('recordLatency').value)||0))});
-    $('saveAudioSetup').onclick=()=>{d.checkpoint();p().audioSetup=collect();p().delayCompensation=$('knownCompensation').checked;p().recording=recordingSettings({gainDb:Number($('workflowMicGain').value),autoLevel:$('workflowAutoLevel').checked});const rec=d.getRecordState().recording;if(rec)rec.graph.setGain(p().recording.gainDb);d.changed();$('modal').close();};
+    $('saveAudioSetup').onclick=()=>{d.checkpoint();p().audioSetup=collect();p().delayCompensation=$('knownCompensation').checked;p().recording=recordingSettings({gainDb:Number($('workflowMicGain').value),autoLevel:$('workflowAutoLevel').checked,countInBars:Number($('workflowCountIn').value)});const rec=d.getRecordState().recording;if(rec)rec.graph.setGain(p().recording.gainDb);d.changed();d.updateTransport();$('modal').close();};
     $('refreshInputs').onclick=async()=>{try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});stream.getTracks().forEach(t=>t.stop());p().audioSetup=collect();await recordingModal();}catch(error){d.toast('Entrée indisponible : '+error.message);}};
     $('calibrateAudio').onclick=async()=>{
       const button=$('calibrateAudio'),a=collect();
@@ -172,25 +178,35 @@ export function installStudioWorkflow(d){
   async function record(){
     if(d.getRecordState().recording){await stopRecording();return;}
     if(d.getRecordState().recordFinalizing||d.getRecordState().micPending)return;
+    const request={cancelled:false};pendingRecord=request;
+    const checkRequest=()=>{if(request.cancelled||pendingRecord!==request)throw new DOMException('Préparation annulée.','AbortError');};
     let stream,graph,capture,journal,activeRec=null,previousLoop;
     d.setFlags({micPending:true});d.updateTransport();
     try{
       stopTest();await engine().init();
+      checkRequest();
       if(!navigator.mediaDevices?.getUserMedia||!engine().ctx.audioWorklet)throw Error('La capture PCM nécessite HTTPS et AudioWorklet.');
       const a=setup(),assignments=armedRecordingTracks(p());
       stream=await navigator.mediaDevices.getUserMedia(recordingInputConstraints(a,assignments));
+      request.stream=stream;
+      checkRequest();
       validateRecordingInputChannels(stream.getAudioTracks()[0]?.getSettings?.()||{},assignments,a.channel);
       let t=track();if(!assignments.length&&t.type!=='audio')t=d.addTrack('audio');
       const targets=assignments.length?assignments:[{track:t,channel:a.channel==='2'?'2':'1'}];
       const mode=assignments.length?captureChannelMode(assignments):a.channel;
       engine().pause();engine().patternMode=null;engine().clipPreview=null;
       const start=engine().position;previousLoop=engine().loop;engine().loop=false;
+      request.previousLoop=previousLoop;
+      const countBars=recordingSettings(p().recording).countInBars;
+      if(countBars)await engine().prepareInstruments(engine().ctx,engine().getPlaybackProject());
+      checkRequest();
       graph=createRecordingGraph(engine().ctx,stream,recordingSettings(p().recording).gainDb);
       try{
         journal=await beginRecordingJournal({sampleRate:engine().ctx.sampleRate,channels:mode==='stereo'?2:1,projectName:p().name||'Session',onError:error=>{if(activeRec&&d.getRecordState().recording===activeRec){d.toast('Stockage de secours interrompu : '+error.message+'. Finalisation de la prise.');void stopRecording();}}});
       }catch(error){
         journal=null;d.toast('Sauvegarde de secours indisponible : '+error.message+'. Termine et exporte chaque prise.');
       }
+      checkRequest();
       const signalDiagnostics=createRecordingSignalDiagnostics({sampleRate:engine().ctx.sampleRate,channels:mode==='stereo'?2:1});
       capture=await createPcmCapture(engine().ctx,graph.inputNode,{
         channel:mode,
@@ -200,6 +216,7 @@ export function installStudioWorkflow(d){
         retainChunks:!journal,
         onError:error=>{if(activeRec&&d.getRecordState().recording===activeRec){d.toast(error.message+' · Finalisation de la prise partielle.');void stopRecording();}}
       });
+      checkRequest();
       if(a.monitor){
         graph.monitorMany(targets.map(({track,channel})=>({
           target:engine().channels.get(track.id).input,
@@ -210,9 +227,17 @@ export function installStudioWorkflow(d){
       }
       const telemetryId=uid();
       const rec={telemetryId,stream,graph,capture,journal,signalDiagnostics,track:targets[0].track,assignments:targets,start,previousLoop,options:clone(a),captureMode:mode,autoLevel:recordingSettings(p().recording).autoLevel};
-      activeRec=rec;d.setRecording(rec);d.setFlags({micPending:false});engine().recordingTrackId=targets[0].track.id;
+      activeRec=rec;pendingRecord=null;d.setRecording(rec);d.setFlags({micPending:false});engine().recordingTrackId=targets[0].track.id;
       stream.getAudioTracks().forEach(inputTrack=>inputTrack.addEventListener('ended',()=>{if(d.getRecordState().recording===rec){d.toast('Micro déconnecté : finalisation et sauvegarde de la prise partielle.');void stopRecording();}},{once:true}));
-      await engine().play();capture.start(engine().startTime+start*engine().stepDuration);
+      if(countBars)rec.countIn=createRecordingCountIn(engine().ctx,{bars:countBars,bpm:p().bpm,onChange:()=>d.updateTransport()});
+      d.updateTransport();
+      await engine().play(rec.countIn?{startAt:rec.countIn.endAt}:undefined);
+      if(d.getRecordState().recording!==rec)return;
+      if(!engine().playing)throw Error('Le départ de la prise a été interrompu.');
+      capture.start(engine().startTime+start*engine().stepDuration);
+      if(rec.countIn&&!await rec.countIn.done){if(d.getRecordState().recording===rec)await stopRecording();return;}
+      if(d.getRecordState().recording!==rec)return;
+      rec.started=true;rec.countIn=null;
       emitRecordingTelemetry('start',{takeId:telemetryId,frames:0,sampleRate:engine().ctx.sampleRate,channels:mode==='stereo'?2:1});
       rec.timer=setInterval(()=>{
 
@@ -232,15 +257,28 @@ export function installStudioWorkflow(d){
       },500);
       d.updateTransport();d.toast(targets.length>1?'Capture PCM synchronisée sur deux entrées.':'Capture PCM active. Stop termine la prise.');
     }catch(error){
+      const owned=activeRec?d.getRecordState().recording===activeRec:pendingRecord===request;
+      activeRec?.countIn?.cancel();if(activeRec&&owned)engine().pause();
+      if(journal&&!capture?.frames)try{await journal.clear();}catch{}
       capture?.dispose();journal?.close();graph?.dispose();stream?.getTracks().forEach(t=>t.stop());
+      if(!owned)return;pendingRecord=null;
       engine().recordingTrackId=null;if(previousLoop!==undefined)engine().loop=previousLoop;d.setRecording(null);d.setFlags({micPending:false,recordFinalizing:false});
+      if(request.cancelled)return;
       d.toast('Enregistrement impossible : '+error.message);d.updateTransport();
     }
   }
   async function stopRecording(){
     const rec=d.getRecordState().recording;if(!rec)return;
     d.setRecording(null);d.setFlags({recordFinalizing:true});clearInterval(rec.timer);
+    const cancelledBeforeStart=!rec.started&&(!rec.countIn||engine().ctx.currentTime<rec.countIn.endAt);
+    rec.countIn?.cancel();
     engine().pause();engine().recordingTrackId=null;engine().loop=rec.previousLoop;engine().position=rec.start;d.updateTransport();
+    if(cancelledBeforeStart){
+      try{rec.capture.dispose();await rec.journal?.clear();d.toast('Décompte annulé. Aucune prise créée.');}
+      catch(error){d.toast('Décompte annulé : '+error.message);}
+      finally{rec.journal?.close();graphCleanup(rec);d.setFlags({recordFinalizing:false});d.updateTransport();}
+      return;
+    }
     try{
       const inMemory=await rec.capture.stop();
       emitRecordingTelemetry('progress',{takeId:rec.telemetryId,frames:rec.capture.frames,sampleRate:engine().ctx.sampleRate});
@@ -304,5 +342,6 @@ export function installStudioWorkflow(d){
   document.addEventListener('focusout',e=>{sendEdits.delete(e.target);});
   document.addEventListener('input',e=>{if(e.target.dataset.sendLevel){const [id,sid]=e.target.dataset.sendLevel.split(':'),t=p().tracks.find(t=>t.id===id),s=t?.sends?.find(s=>s.id===sid);if(!s||!String(e.target.value).trim())return;const value=Number(e.target.value);if(!Number.isFinite(value))return;const level=Math.max(-60,Math.min(12,value));if(level===s.level)return;if(!sendEdits.has(e.target)){d.checkpoint();sendEdits.add(e.target);}s.level=level;for(const label of document.querySelectorAll(`[data-send-db="${sid}"]`))label.textContent=s.level.toFixed(1)+' dB';for(const slider of document.querySelectorAll(`[data-send-level="${id}:${sid}"]`))if(slider!==e.target)slider.value=s.level;d.changed();}});
   function updateFrame(){if(!engine().playing)return;const bar=engine().getPosition()/16;for(const t of p().tracks)if(t.automation?.mode==='read'){for(const key of ['volume','pan']){const points=t.automation.curves[key];if(!points?.length)continue;const value=pointValue(points,bar,t[key]);if(key==='volume'){for(const node of document.querySelectorAll(`[data-db="${t.id}"]`))node.textContent=value.toFixed(1)+' dB';for(const node of document.querySelectorAll(`[data-volume="${t.id}"]`))if(node!==document.activeElement)node.value=value;}}}}
-  return {renderMastering,renderInspector,renderMixer,renderAudioEditor,renderTimeline,exportModal,recordingModal,record,stopRecording,versionsModal,snapshot,updateFrame,stopTest};
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&d.getRecordState().recording?.countIn)void stopRecording();});
+  return {renderMastering,renderInspector,renderMixer,renderAudioEditor,renderTimeline,exportModal,recordingModal,record,stopRecording,cancelPendingRecording,versionsModal,snapshot,updateFrame,stopTest};
 }

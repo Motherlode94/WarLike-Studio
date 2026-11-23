@@ -40,9 +40,17 @@ jobs:
           node tests/effects-dsp-browser.mjs
           node tests/instrument-dsp-browser.mjs
           node tests/recording-browser.mjs
+          node tests/recording-count-in-browser.mjs
           node tests/vocal-audio-browser.mjs
           node tests/beat-demos-browser.mjs
           node tests/export-browser.mjs
+      - name: Recording count-in evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: recording-count-in
+          path: artifacts/recording-count-in/
+          if-no-files-found: warn
       - name: Reference workspace screenshots
         if: always()
         uses: actions/upload-artifact@v4
