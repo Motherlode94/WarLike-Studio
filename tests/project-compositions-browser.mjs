@@ -14,9 +14,11 @@ try{
  const project=emptyProject();project.name='Mon morceau conservé';project.bpm=99;project.masterVolume=-18;
  const track=createContentTrack('wltitan');track.clips=[{id:'mine',name:'Mon MIDI',start:0,length:1,notes:[{midi:60,step:0,len:8,velocity:.7}]}];project.tracks.push(track);
  const pcm=Float32Array.from({length:4000},(_,i)=>.1*Math.sin(i*2*Math.PI*220/8000));const wav=Buffer.from(encodeWav({numberOfChannels:1,length:pcm.length,sampleRate:8000,getChannelData:()=>pcm}));
- project.tracks[0].clips=[{id:'audio-mine',name:'Ma prise',start:0,length:1,audioId:'mine-wav'}];
+ project.tracks[0].clips=[{id:'audiomine',name:'Ma prise',start:0,length:1,audioId:'mine-wav'}];
+ phase='fixture import';
  await page.locator('#projectInput').setInputFiles({name:'mine.chayah',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({format:'chayah-studio',project,masterVolume:-18,assets:[{id:'mine-wav',name:'mine.wav',data:wav.toString('base64')}]}))});
- await page.waitForFunction(()=>document.querySelector('#projectName').value==='Mon morceau conservé');await page.locator('#modal').waitFor({state:'hidden'});
+ await page.waitForFunction(()=>/Projet importé et sauvegardé|Ouverture impossible/.test(document.querySelector('#toast').textContent));assert.equal(await page.locator('#toast').textContent(),'Projet importé et sauvegardé.');
+ assert.equal(await page.locator('#projectName').inputValue(),'Mon morceau conservé');await page.locator('#modal').waitFor({state:'hidden'});
  const save=async()=>{await page.locator('#projectMenuBtn').click();const pending=page.waitForEvent('download');await page.locator('#saveProject').click();return JSON.parse(await readFile(await(await pending).path(),'utf8'));};
  const home=async()=>{await page.locator('#projectMenuBtn').click();await page.locator('#myProjects').click();};
  const demos=async()=>{await page.locator('[data-session-tab=demos]').click();};
