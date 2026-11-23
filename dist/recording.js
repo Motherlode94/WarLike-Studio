@@ -1,4 +1,5 @@
 import {countInBars} from './recording-count-in.js';
+import {recordingRange} from './recording-range.js';
 export const CLIP_GAIN_MIN_DB=-24;
 export const CLIP_GAIN_MAX_DB=36;
 export const AUTO_LEVEL_TARGET_DB=-6;
@@ -7,7 +8,9 @@ const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 export const clampClipGain=value=>clamp(finite(value),CLIP_GAIN_MIN_DB,CLIP_GAIN_MAX_DB);
 
 export function recordingSettings(value={}) {
-  return {gainDb:clamp(finite(value?.gainDb),0,24),autoLevel:value?.autoLevel!==false,countInBars:countInBars(value?.countInBars)};
+  const settings={gainDb:clamp(finite(value?.gainDb),0,24),autoLevel:value?.autoLevel!==false,countInBars:countInBars(value?.countInBars)};
+  if(value?.range!=null)settings.range=recordingRange(value.range);
+  return settings;
 }
 export function measureChannels(channels) {
   let peak=0,squares=0,samples=0;

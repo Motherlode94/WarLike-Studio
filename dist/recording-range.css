@@ -1,0 +1,8 @@
+.recording-range-settings{display:grid;gap:10px;min-width:0;border:1px solid var(--wl-border);padding:12px;color:var(--wl-text);border-radius:4px}
+.recording-range-settings legend{font-weight:700;padding:0 5px}
+.recording-range-settings p{font-size:11px;line-height:1.45;color:var(--wl-text-muted);margin:0}
+.recording-range-settings input,.recording-range-settings select{box-sizing:border-box;max-width:100%;min-width:0}
+.record-range-indicator{font-size:10px;min-height:22px;padding:3px 5px;max-width:140px;overflow-wrap:anywhere;background:var(--wl-surface-alt);color:var(--wl-text);border:1px solid var(--wl-border);border-radius:3px}
+.record-range-indicator[hidden]{display:none}
+.record-count-in:has(.record-range-indicator:not([hidden])){grid-template-columns:minmax(0,1fr) auto;max-width:225px;align-items:center;column-gap:6px}
+.record-count-in #recordCountInStatus{grid-column:1/-1}
