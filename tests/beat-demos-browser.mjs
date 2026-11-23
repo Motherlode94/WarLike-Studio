@@ -94,11 +94,26 @@ try{
   assert.deepEqual(buses.map(t=>t.id).sort(),['demobusbass','demobusdrums','demobusmusic']);
   for(const bus of buses){assert.equal(bus.output,'master');assert.equal(bus.volume,0);assert.ok(saved.project.tracks.some(t=>t.type!=='bus'&&t.output===bus.id),'group bus must receive a source');}
   for(const t of saved.project.tracks.filter(t=>t.type!=='bus'&&t.clips.length))assert.ok(buses.some(b=>b.id===t.output),'source must route to its group bus');assert.equal(saved.masterVolume,-9);
-  assert.ok(saved.project.tracks.some(t=>t.type==='bass'&&t.clips.length===4));
-  assert.equal(saved.project.demoRevision,3);
+  const bass=saved.project.tracks.find(t=>t.type==='bass');
+  if(kind==='trap808'){
+   assert.equal(saved.project.bars,112,'Atlanta After Dark must have 112 editable bars');
+   assert.equal(saved.project.fullSong,true);
+   assert.equal(saved.project.demoRevision,4);
+   assert(bass?.clips.length>4,'extended Atlanta 808 must cover more than four blocks');
+   assert(saved.project.sections.some(s=>s.name==='COUPLET C'));
+   assert.equal(saved.project.sections.at(-1).start+saved.project.sections.at(-1).length,112);
+   for(const track of saved.project.tracks)for(const clip of track.clips)
+    assert(clip.start>=0&&clip.start+clip.length<=112+1e-7,'out-of-range full-length clip');
+   assert(saved.project.tracks[5].clips.some(c=>Math.abs(c.start-1/48)<1e-9),
+    'original microtiming must survive in an intro block');
+  }else{
+   assert.equal(saved.project.bars,16);
+   assert.equal(bass?.clips.length,4);
+   assert.equal(saved.project.demoRevision,3);
+  }
   if(kind==='drill')assert.ok(saved.project.tracks[1].clips[1].notes.some(n=>n.slide===12));
   if(kind==='drill')assert.equal(saved.project.tracks[5].clips[1].start,4+1/32);
-  if(kind==='trap808'||kind==='trap-air'){assert.ok(Math.abs(saved.project.tracks[5].clips[0].start-1/48)<1e-9);assert.ok(Math.abs(saved.project.tracks[5].clips[1].start-1/24)<1e-9);}
+  if(kind==='trap-air'){assert.ok(Math.abs(saved.project.tracks[5].clips[0].start-1/48)<1e-9);assert.ok(Math.abs(saved.project.tracks[5].clips[1].start-1/24)<1e-9);}
   await page.locator('#projectInput').setInputFiles(path);
   await page.waitForFunction(()=>document.getElementById('toast')?.textContent.includes('Projet importé et sauvegardé.'));
   await page.reload({waitUntil:'load'});await page.locator('[data-project-open]').first().waitFor({state:'visible'});
