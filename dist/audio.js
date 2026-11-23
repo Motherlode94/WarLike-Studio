@@ -241,8 +241,8 @@ export class AudioEngine {
     if(!this.playing)return;
     let p=this.getPlaybackProject();const sd=this.stepDuration;
     if(this.midiRecordingExtend){this.midiRecordingExtend(Math.max(this.scheduledStep,(this.ctx.currentTime-this.startTime)/sd));p=this.getPlaybackProject();}
-    if(this.recordingTrackId&&this.ctx.currentTime>=(this.playStartAt??-Infinity)){const bars=recordingHorizon(p.bars,Math.max(this.scheduledStep,(this.ctx.currentTime-this.startTime)/sd));if(bars>p.bars){p.bars=bars;this.onRecordingExtend?.(bars);}}
-    const total=p.bars*16;
+    if(this.recordingTrackId&&!Number.isFinite(this.recordingEndStep)&&this.ctx.currentTime>=(this.playStartAt??-Infinity)){const bars=recordingHorizon(p.bars,Math.max(this.scheduledStep,(this.ctx.currentTime-this.startTime)/sd));if(bars>p.bars){p.bars=bars;this.onRecordingExtend?.(bars);}}
+    const total=this.recordingTrackId&&Number.isFinite(this.recordingEndStep)?Math.min(p.bars*16,this.recordingEndStep):p.bars*16;
     // Never fire missed note-on events immediately: a main-thread stall can
     // otherwise pile up drums and synth transients into one audible crackle.
     const now=this.ctx.currentTime,current=(now-this.startTime)/sd;
@@ -264,7 +264,7 @@ export class AudioEngine {
     }
     const earliest=now+.004;
     while(this.startTime+this.scheduledStep*sd<now+.14) {
-      if(!this.loop&&this.scheduledStep>=total){if(this.recordingTrackId&&this.ctx.currentTime<this.playStartAt)return;this.pause();this.position=0;this.onEnded?.();return;}
+      if(!this.loop&&this.scheduledStep>=total){if(this.recordingTrackId&&(this.ctx.currentTime<this.playStartAt||Number.isFinite(this.recordingEndStep)&&now<this.startTime+total*sd))return;this.pause();this.position=0;this.onEnded?.();return;}
       const bounds=this.playbackLoopBounds(),local=this.loop?loopPosition(this.scheduledStep,bounds):this.scheduledStep,time=this.startTime+this.scheduledStep*sd;
       // Skipped steps are never rescheduled in the past.
       if(time<earliest){this.scheduledStep++;continue;}

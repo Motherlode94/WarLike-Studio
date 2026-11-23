@@ -1,6 +1,6 @@
 const ready=new WeakMap();
 
-export async function createPcmCapture(ctx,input,{channel='1',onError,onChunk,retainChunks=true}={}){
+export async function createPcmCapture(ctx,input,{channel='1',onError,onChunk,onComplete,retainChunks=true}={}){
   if(!ctx.audioWorklet||typeof AudioWorkletNode==='undefined')
     throw Error('L’enregistrement PCM nécessite un navigateur compatible AudioWorklet.');
   if(!ready.has(ctx))ready.set(ctx,ctx.audioWorklet.addModule(new URL('./record-worklet.js?v=0.14.0',import.meta.url)));
@@ -8,7 +8,7 @@ export async function createPcmCapture(ctx,input,{channel='1',onError,onChunk,re
   const node=new AudioWorkletNode(ctx,'chayah-pcm-recorder',{
     numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1],processorOptions:{channel}
   });
-  const chunks=[];let frames=0,closed=false,processorFailure=null;
+  const chunks=[];let frames=0,closed=false,finished=false,processorFailure=null;
   let complete;const completion=new Promise(resolve=>{complete=resolve;});
   node.port.onmessage=({data})=>{
     if(data.type==='chunk'&&Array.isArray(data.channels)&&data.channels.length){
@@ -16,7 +16,7 @@ export async function createPcmCapture(ctx,input,{channel='1',onError,onChunk,re
       frames+=data.channels[0].length;
       try{onChunk?.(data.channels);}catch(error){try{onError?.(error);}catch{}}
     }
-    if(data.type==='done')complete();
+    if(data.type==='done'&&!finished){finished=true;complete();if(data.reason==='range')try{onComplete?.();}catch(error){try{onError?.(error);}catch{}}}
   };
   node.onprocessorerror=()=>{
     if(closed)return;
@@ -51,14 +51,15 @@ export async function createPcmCapture(ctx,input,{channel='1',onError,onChunk,re
   }
   return {
     get frames(){return frames;},
-    start(time){
-      if(closed)throw Error('Capture déjà terminée.');
-      node.port.postMessage({type:'start',time});
+    start(time,{endTime}={}){
+      if(closed||finished)throw Error('Capture déjà terminée.');
+      if(!Number.isFinite(time)||time<0||endTime!==undefined&&(!Number.isFinite(endTime)||endTime<=time||Math.round(endTime*ctx.sampleRate)<=Math.round(time*ctx.sampleRate)))throw Error('Bornes de capture invalides.');
+      node.port.postMessage(endTime===undefined?{type:'start',time}:{type:'start',time,endTime});
     },
     async stop(){
       if(closed)throw Error('Prise déjà terminée.');
       closed=true;
-      if(!processorFailure)node.port.postMessage({type:'stop'});
+      if(!processorFailure&&!finished)node.port.postMessage({type:'stop'});
       try{
         if(!processorFailure){
           let timeout;
