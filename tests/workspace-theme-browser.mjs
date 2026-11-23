@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
@@ -24,16 +25,7 @@ try{
   return JSON.parse(await readFile(await(await waiting).path(),'utf8'));
  };
  const baseline=await save();
- const resize=async size=>{
-  const previousSize=page.viewportSize();
-  if(previousSize.width===size.width&&previousSize.height===size.height)return;
-  // A resized viewport schedules a full render. Wait for that actual replacement
-  // before measuring text or interacting with the rebuilt controls.
-  const row=await page.locator('#trackRows .track-row').first().elementHandle();
-  await page.setViewportSize(size);
-  await page.waitForFunction(n=>!n.isConnected,row);
- };
-
+ const resize=size=>resizeStudio(page,size);
  const contrast=async selector=>{
   // Measure the final solid surface rather than a transient hover/theme paint.
   await page.waitForFunction(selector=>{let n=document.querySelector(selector);if(!n)return false;for(;n;n=n.parentElement)if(getComputedStyle(n).backgroundImage!=='none')return false;return true;},selector);

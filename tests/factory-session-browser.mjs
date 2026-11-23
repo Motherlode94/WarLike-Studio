@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
@@ -94,9 +95,11 @@ for(const [kind,name] of selected){
    if(newComposition){
     await page.locator('[data-view="library"]').click();await page.locator('[data-bank-tab="sessions"]').click();
     assert.equal(await page.locator('[data-session-load]').count(),SESSION_TEMPLATES.length);
-    await page.setViewportSize({width:390,height:844});
     const card=page.locator('.session-card').filter({has:page.locator('[data-session-load="'+kind+'"]')});
-    await card.scrollIntoViewIfNeeded();assert.ok(await card.evaluate(n=>{const r=n.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1;}));
+    for(const size of [{width:390,height:844},{width:1440,height:960},{width:390,height:844}]){
+     await resizeStudio(page,size);await card.waitFor({state:'visible'});await card.scrollIntoViewIfNeeded();
+     assert.ok(await card.evaluate(n=>{const r=n.getBoundingClientRect();return n.isConnected&&r.width>0&&r.left>=0&&r.right<=innerWidth+1;}),kind+' session card exceeds viewport after reflow');
+    }
     await card.screenshot({path:dir+'/'+kind+'-mobile-card.png'});
    }
    // Render the complete reopened musical score using the production WAV exporter.

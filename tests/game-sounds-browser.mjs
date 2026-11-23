@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
@@ -41,10 +42,11 @@ try{
  await open();await page.locator('#bankFilter').selectOption('ambience');
  await page.screenshot({path:folder+'/desktop.png'});
  for(const theme of ['forest','graphite','slate','light']){
+  await resizeStudio(page,{width:1440,height:960});
   await page.locator('[aria-label="Thème de WarLike Studio"]').first().selectOption(theme);
-  await page.setViewportSize({width:390,height:844});
+  await resizeStudio(page,{width:390,height:844});
   const boxes=await page.locator('[data-game-sound],.game-bank-tools button,[data-game-sound] button').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length).map(n=>{const b=n.getBoundingClientRect();return {left:b.left,right:b.right,clipped:n.matches('article')&&n.scrollHeight>n.clientHeight+2};}));
-  assert.ok(boxes.length>0&&boxes.every(b=>b.left>=0&&b.right<=391&&!b.clipped),'game sound cards and actions fit mobile');
+  assert.ok(boxes.length>0&&boxes.every(b=>b.left>=0&&b.right<=391&&!b.clipped),'game sound cards and actions fit mobile ('+theme+'): '+JSON.stringify(boxes));
   await page.screenshot({path:folder+'/mobile-'+theme+'.png'});
  }
  // Every exported asset is decoded by Web Audio, independently of the encoder.

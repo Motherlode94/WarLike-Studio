@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import {chooseFolderPreset} from './preset-picker-helpers.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/vector-suite',{recursive:true});const browser=await chromium.launch({headless:true});
@@ -24,6 +25,11 @@ try{
  await page.locator('#projectMenuBtn').click();const pending=page.waitForEvent('download');await page.locator('#saveProject').click();const file=await pending;await file.saveAs('artifacts/vector-suite/chain.chayah');
  const {readFile}=await import('node:fs/promises');const saved=JSON.parse(await readFile('artifacts/vector-suite/chain.chayah','utf8'));
  assert.deepEqual(saved.project.mastering.inserts.filter(Boolean),ids);assert.equal(saved.project.mastering.vectorlimit.drive,2);
- await page.setViewportSize({width:390,height:844});await limit.scrollIntoViewIfNeeded();assert.ok((await limit.boundingBox()).width<=390);await page.screenshot({path:'artifacts/vector-suite/mobile.png'});
+ for(const size of [{width:390,height:844},{width:1440,height:960},{width:390,height:844}]){
+  await resizeStudio(page,size);await limit.waitFor({state:'visible'});await limit.scrollIntoViewIfNeeded();
+  const box=await limit.boundingBox();assert.ok(box,'VECTOR LIMIT must remain attached and visible after reflow');
+  assert.ok(box.width<=size.width,'VECTOR LIMIT exceeds viewport width');
+ }
+ await page.screenshot({path:'artifacts/vector-suite/mobile.png'});
  assert.deepEqual(errors,[]);console.log('PASS: three live VECTOR surfaces, factory picker, user preset, chain order, project persistence, four themes and mobile');
 }finally{await browser.close();}
