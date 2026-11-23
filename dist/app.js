@@ -47,6 +47,7 @@ import {NATIVE_CHAINS,nativeEffectsForNames,applyNativeChain,nativeChainCapacity
 import {VOCAL_DEMOS,createVocalDemoSession} from './vocal-demo-sessions.js';
 import {NEW_GENRE_DEMOS,createGenreDemoSession} from './genre-demo-sessions.js';
 import {BEAT_DEMOS,createBeatDemoSession} from './beat-demo-sessions.js';
+import {extendPublicDemoArrangement} from './public-demo-arrangements.js';
 import {masterPublicDemo} from './demo-mastering.js';
 import {routeVocalFX} from './demo-vocal-fx.js';
 import {routeVocalSubgroups} from './demo-vocal-buses.js';
@@ -209,6 +210,7 @@ async function launchPublicDemo(kind){
    demo.name=config.name;demo.publicDemo=true;
    demo.demoRevision=config.beat?demo.demoRevision:config.vocal||config.template?6:config.genre?1:3;
    const demoMedia=demo.vocalDemo?await createRecordedVocalDemoMedia(demo):[];
+   if(kind==='trap'||kind==='trap808')extendPublicDemoArrangement(demo,kind);
    balancePublicDemo(demo);
    mixPublicDemoInstruments(demo);
    routePublicDemoGroups(demo);
@@ -231,9 +233,9 @@ async function launchPublicDemo(kind){
    }
    $('modal').close();
    setView('arrange');fitTimeline();
-   if(demo.vocalDemo)engine.seek(4*16); // Start where the recorded verse enters; the intro remains editable.
+   if(demo.vocalDemo)engine.seek((kind==='trap'?8:4)*16); // Seek to first recorded verse.
    updateTransport();
-   toast(demo.vocalDemo?'Démo '+config.label+' · vraies voix enregistrées en anglais · COUPLET (mesure 5), puis REFRAIN · FX WarLike modifiables. Appuie sur Lecture.':'Démo '+config.label+' chargée · '+demo.bpm+' BPM · '+demo.keyName+' · 16 mesures. Appuie sur Lecture.');
+   toast(demo.vocalDemo?'Démo '+config.label+' · voix humaines en anglais · COUPLET (mesure '+(kind==='trap'?'9':'5')+') · FX modifiables · '+demo.bars+' mesures. Appuie sur Lecture.':'Démo '+config.label+' chargée · '+demo.bpm+' BPM · '+demo.keyName+' · '+demo.bars+' mesures. Appuie sur Lecture.');
  }catch(error){toast('Démo '+config.label+' indisponible : '+error.message);}
  finally{publicDemoOpening=false;document.querySelectorAll('[data-public-demo]').forEach(b=>b.disabled=false);}
 }
@@ -257,7 +259,7 @@ function showProjectLibrary(){
  const rows=projectIndex.slice(projectHomePage*pageSize,(projectHomePage+1)*pageSize).map(p=>'<article class="project-home-card"><div class="project-home-card-info"><strong>'+esc(p.name)+'</strong><small>Modifié le '+new Date(p.updatedAt).toLocaleString('fr-FR')+'</small></div><div class="project-home-card-actions"><button class="primary-btn" data-project-open="'+esc(p.id)+'">Ouvrir</button><button class="outline-btn" data-project-rename="'+esc(p.id)+'" aria-label="Renommer '+esc(p.name)+'">Renommer</button><button class="outline-btn project-home-delete" data-project-delete="'+esc(p.id)+'" aria-label="Supprimer '+esc(p.name)+'">Supprimer</button></div></article>').join('');
  const info='<div class="project-home-banner"><strong>Projets enregistrés sur cet appareil</strong><p>Mode local : pas encore de séparation sécurisée entre comptes WarLike. Sur un navigateur partagé, chacun peut accéder à ces projets.</p></div>';
  const demoButtons=Object.entries(PUBLIC_DEMOS).map(([id,config])=>'<button type="button" class="primary-btn" data-public-demo="'+esc(id)+'" title="'+esc(config.description||config.name)+'">▶ '+esc(config.label)+' · '+(config.bpm||({trap:138,afro:108,rnb:84,'vox-trap':138,'vox-afro':108,'vox-rnb':84})[id])+' BPM</button>').join('');
- const create='<div class="project-home-section project-public-demos"><strong>Découvrir WarLike Studio · Démos publiques</strong><p>Drill enrichie, deux Trap Atlanta (sombre et aérienne) et Funk brésilien, avec Trap, Afro, R&B, Rock, Pop et Rumba congolaise. Arrangements de 16 mesures avec pistes et clips modifiables. Trap, Afro et R&B incluent des voix humaines enregistrées en anglais, avec couplets et refrain ; les autres démos restent instrumentales. Une copie indépendante à chaque ouverture. <a href="./vocal-credits.html" target="_blank" rel="noopener">Crédits des voix et licences</a>.</p><div class="project-home-footer">'+demoButtons+'</div></div><form id="projectHomeCreate" class="project-home-form"><label for="libraryName">Nom du nouveau projet</label><div class="project-home-creation"><input id="libraryName" name="name" value="Nouveau morceau" maxlength="60" autocomplete="off" required aria-label="Nom du nouveau projet"><button type="submit" class="primary-btn" id="libraryNew">Créer et ouvrir</button></div></form>';
+ const create='<div class="project-home-section project-public-demos"><strong>Découvrir WarLike Studio · Démos publiques</strong><p>Drill enrichie, deux Trap Atlanta (sombre et aérienne) et Funk brésilien, avec Trap, Afro, R&B, Rock, Pop et Rumba congolaise. Atlanta After Dark : 112 mesures. Trap pour tous : 96 mesures avec prises vocales humaines réutilisées et fondus. Les autres démos conservent leurs arrangements courts de 16 mesures. Afro et R&B incluent également des voix humaines enregistrées en anglais ; les autres démos restent instrumentales. Une copie indépendante à chaque ouverture. <a href="./vocal-credits.html" target="_blank" rel="noopener">Crédits des voix et licences</a>.</p><div class="project-home-footer">'+demoButtons+'</div></div><form id="projectHomeCreate" class="project-home-form"><label for="libraryName">Nom du nouveau projet</label><div class="project-home-creation"><input id="libraryName" name="name" value="Nouveau morceau" maxlength="60" autocomplete="off" required aria-label="Nom du nouveau projet"><button type="submit" class="primary-btn" id="libraryNew">Créer et ouvrir</button></div></form>';
  const library='<section class="project-home-section"><h3>Mes projets locaux <span>'+projectIndex.length+'</span></h3><div class="project-home-list">'+(rows||'<p class="project-home-empty">Aucun projet local. Crée ton premier morceau pour commencer.</p>')+'</div></section>';
  modal('Mes projets','<div class="project-home">'+info+create+library+'<div class="project-home-footer"><button class="outline-btn" id="libraryRecover">Récupérer l’ancienne session</button><button class="outline-btn" id="libraryImport">Importer un fichier .chayah</button></div><section class="project-home-section"><h3>WarLike Cloud (optionnel)</h3><p id="studioCloudAccount" role="status">'+esc(studioCloudIdentity?'Compte cloud : '+(studioCloudIdentity.displayName||studioCloudIdentity.userId):'Cloud déconnecté')+'</p><p class="modal-body-copy">Connexion sécurisée nécessaire. Les projets locaux ne sont jamais envoyés automatiquement sans association explicite.</p><div class="project-home-footer"><button class="outline-btn" id="studioCloudConnect">Associer mon compte</button><button class="outline-btn" id="studioCloudOpen">Mes projets cloud</button><button class="primary-btn" id="studioCloudSave">Synchroniser le projet ouvert</button><button class="outline-btn" id="studioCloudLogout">Déconnecter</button></div></section></div>','WARLIKE / PROJETS');
  const home=document.querySelector('.project-home');

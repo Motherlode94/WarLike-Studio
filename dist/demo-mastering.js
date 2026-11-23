@@ -23,5 +23,13 @@ export function demoMasteringSettings(kind){
 export function masterPublicDemo(p,kind){
  if(!p?.publicDemo||p.demoMasteringRevision===1)return p;
  const settings=demoMasteringSettings(kind);if(!settings)return p;
+ // The public Trap session contains recorded lead + derived doubles/adlibs.
+ // Keep the native limiter active, but avoid additional saturation stages
+ // when these sources enter on top of the existing 808 and drums.
+ if(kind==='trap'&&p.vocalDemo){
+  if(settings.circuitcolor)Object.assign(settings.circuitcolor,{drive:0,mix:0});
+  if(settings.press)Object.assign(settings.press,{makeup:0,ratio:1.6});
+  if(settings.peak)Object.assign(settings.peak,{drive:0,ceiling:-1.5});
+ }
  p.mastering=settings;p.demoMasteringRevision=1;return p;
 }
