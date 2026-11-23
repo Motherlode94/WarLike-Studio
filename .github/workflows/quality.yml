@@ -73,7 +73,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        song: [nocturne, soleil, brume]
+        song: [nocturne, soleil, brume, rives, pluie]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -104,5 +104,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: studio-factory-sessions-${{ matrix.song }}
+          retention-days: 7
           path: artifacts/factory-sessions/
           if-no-files-found: ignore

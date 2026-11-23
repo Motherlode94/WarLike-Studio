@@ -1,6 +1,7 @@
+import {COMPOSITION_TEMPLATES,COMPOSITION_STYLES,createStudioComposition} from './studio-compositions.js';
 import {EXPANSION_INSTRUMENTS} from './wl-expansion.js';
 import {expandFactorySong} from './full-song.js';
-import {createFactoryArrangement,FACTORY_STYLES} from './factory-arrangements.js?v=0.14.0';
+import {createFactoryArrangement,FACTORY_STYLES as LEGACY_FACTORY_STYLES} from './factory-arrangements.js?v=0.14.0';
 import {INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins} from './plugins.js?v=0.14.0';
 import {FACTORY_PRESETS,applyFactoryPreset} from './bundle.js?v=0.14.0';
 const id=()=>Math.random().toString(36).slice(2,11),copy=value=>JSON.parse(JSON.stringify(value));
@@ -33,7 +34,8 @@ for(const [type,def] of Object.entries(INSTRUMENTS))if(def.sampled)PHRASES[type]
 export const SESSION_TEMPLATES=[
   {id:'nocturne',name:'Nocturne Trap',style:'Trap mélodique',bpm:138,swing:0,groove:'trap-night',description:'Trap half-time : 808 syncopée, cloches EXO, piano feutré et progression en Fa♯ mineur.'},
   {id:'soleil',name:'Soleil Afro',style:'Afro mélodique',bpm:108,swing:0,groove:'afro-pulse',description:'Afro mélodique : strumstick en contretemps, marimba, kalimba et percussions entrelacées en Ré majeur.'},
-  {id:'brume',name:'Brume R&B',style:'R&B / soul',bpm:84,swing:28,groove:'rnb-pocket',description:'R&B / neo soul : clavier FM enregistré, accords de neuvième, basse ronde et batterie souple en Do mineur.'}
+  {id:'brume',name:'Brume R&B',style:'R&B / soul',bpm:84,swing:28,groove:'rnb-pocket',description:'R&B / neo soul : clavier FM enregistré, accords de neuvième, basse ronde et batterie souple en Do mineur.'},
+  ...COMPOSITION_TEMPLATES
 ];
 export function createContentTrack(type,presetIndex=0){
   const def=INSTRUMENTS[type];if(!def)throw new Error('Instrument inconnu.');
@@ -47,8 +49,9 @@ export function createContentClip(type,name,start=0,length=2,grooveId='trap-nigh
 }
 export function createFactorySession(templateId='nocturne',full=false){
   const template=SESSION_TEMPLATES.find(t=>t.id===templateId);if(!template)throw new Error('Session inconnue.');
+  if(COMPOSITION_STYLES[templateId]){const project=createStudioComposition(template,createContentTrack,full);project.tracks.forEach(ensurePlugins);return project;}
   const project=createFactoryArrangement(template,createContentTrack);project.tracks.forEach(ensurePlugins);return full?expandFactorySong(project):project;
 }
 
-export {FACTORY_STYLES};
+export const FACTORY_STYLES={...LEGACY_FACTORY_STYLES,...COMPOSITION_STYLES};
 export function contentCounts(){return {instruments:Object.keys(INSTRUMENTS).length,effects:Object.keys(EFFECTS).length,presets:Object.values(FACTORY_PRESETS).reduce((total,list)=>total+list.length,0),grooves:DRUM_GROOVES.length,drums:Object.keys(DRUM_VOICES).length,sessions:SESSION_TEMPLATES.length};}

@@ -6,7 +6,7 @@ import {DRUM_VOICES,ensurePlugins} from '../dist/plugins.js';
 import {exportRack,importRack} from '../dist/bundle.js';
 
 test('factory sessions are complete, bounded and independent projects',()=>{
-  assert.deepEqual(contentCounts(),{instruments:42,effects:38,presets:627,grooves:12,drums:8,sessions:3});
+  assert.deepEqual(contentCounts(),{instruments:42,effects:38,presets:627,grooves:12,drums:8,sessions:5});
   for(const template of SESSION_TEMPLATES){
     const project=createFactorySession(template.id),ids=new Set();
     assert.equal(project.bars,16);assert.equal(project.tracks.length,9);
@@ -36,7 +36,7 @@ test('demo styles have different orchestration, harmony and rhythmic content, in
     assert.ok(p.tracks.slice(1,6).some(t=>t.clips.flatMap(c=>c.notes||[]).some(n=>n.velocity<.6)));
     signatures.push(JSON.stringify(p.tracks.slice(0,6).map(t=>({type:t.type,score:t.clips.map(c=>({notes:c.notes?.map(({step,midi,len,velocity})=>({step,midi,len,velocity})),pattern:c.pattern}))}))));
   }
-  assert.equal(new Set(signatures).size,3);
+  assert.equal(new Set(signatures).size,5);
   assert.ok(createFactorySession('soleil').tracks.some(t=>t.type==='strum'));
   assert.ok(createFactorySession('brume').tracks.some(t=>t.type==='epiano'));
   const trap=createFactorySession('nocturne');assert.equal(trap.tracks[0].clips[1].pattern.clap[4],0);assert.ok(trap.tracks[0].clips[1].pattern.clap[8]>0);
