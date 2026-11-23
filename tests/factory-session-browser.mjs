@@ -4,7 +4,7 @@ import {chromium} from 'playwright';
 
 const dir='artifacts/factory-sessions';
 await mkdir(dir,{recursive:true});
-const songs=[['nocturne','Nocturne Trap'],['soleil','Soleil Afro'],['brume','Brume R&B']];
+const songs=[['nocturne','Nocturne Trap'],['soleil','Soleil Afro'],['brume','Brume R&B'],['rives','Rives de Kin'],['pluie','Après la pluie']];
 const selection=process.env.FACTORY_SONG;
 if(selection&&!songs.some(([kind])=>kind===selection))throw Error('Unknown FACTORY_SONG: '+selection);
 const selected=songs.filter(([kind])=>!selection||kind===selection);
@@ -46,6 +46,9 @@ for(const [kind,name] of selected){
    await page.locator('#projectMenuBtn').click();
    await page.locator('#factorySessions').click();
    await page.locator('[data-session-load="'+kind+'"]').click();
+   if(['rives','pluie'].includes(kind)){
+    const expected=kind==='rives'?88:72;assert.match(await page.locator('#modalBody').textContent(),new RegExp(expected+' mesures'));
+   }
    await page.locator('#confirmTemplate').click();
    await page.locator('#modal').waitFor({state:'hidden'});
    assert.equal(await page.locator('#projectName').inputValue(),name);
@@ -85,6 +88,14 @@ for(const [kind,name] of selected){
    await page.waitForFunction(s=>document.getElementById('secondsDisplay').textContent!==s,initial);
    await page.locator('#stop').click();
    await page.screenshot({path:dir+'/'+kind+'.png'});
+   if(['rives','pluie'].includes(kind)){
+    await page.locator('[data-view="library"]').click();await page.locator('[data-bank-tab="sessions"]').click();
+    assert.equal(await page.locator('[data-session-load]').count(),5);
+    await page.setViewportSize({width:390,height:844});
+    const card=page.locator('.session-card').filter({has:page.locator('[data-session-load="'+kind+'"]')});
+    await card.scrollIntoViewIfNeeded();assert.ok(await card.evaluate(n=>{const r=n.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1;}));
+    await card.screenshot({path:dir+'/'+kind+'-mobile-card.png'});
+   }
    // Render the complete reopened musical score using the production WAV exporter.
    stage(kind,'Full stereo WAV export and decode');
    // Close the live audio/UI page before rendering: its audio graph, sample cache
@@ -100,6 +111,7 @@ for(const [kind,name] of selected){
     engine.renderRange=async options=>{const pcm=await render(options);renderMs=performance.now()-start;return pcm;};
     const wav=await engine.exportWav({sampleRate:44100,bits:24,tail:false});
     const encodeMs=performance.now()-start-renderMs;
+    if(p.demoRevision===6){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([wav],{type:'audio/wav'}));a.download='composition.wav';a.dataset.compositionWav='';a.textContent='WAV complet';document.body.append(a);}
     const header=new DataView(wav),decoder=new AudioContext({sampleRate:44100});
     try{
      const b=await decoder.decodeAudioData(wav.slice(0));
@@ -113,6 +125,7 @@ for(const [kind,name] of selected){
      return {renderMs,encodeMs,sampleRate:b.sampleRate,channels:b.numberOfChannels,frames:b.length,bits:header.getUint16(34,true),peak,rms:Math.sqrt(energy/(b.length*b.numberOfChannels)),sections:sections.map(s=>({name:s.name,rms:Math.sqrt(s.energy/((s.end-s.start)*b.numberOfChannels))}))};
     }finally{await decoder.close();}
    },imported.project),540000,kind+' full WAV render');
+   if(['rives','pluie'].includes(kind)){const pending=renderPage.waitForEvent('download');await renderPage.locator('[data-composition-wav]').click();await(await pending).saveAs(dir+'/'+kind+'-full.wav');}
    stage(kind,'WAV decoded; checking metrics');
    report.push({kind,seconds,...metrics});
    await writeFile(dir+'/report.json',JSON.stringify(report,null,2)+'\n');
