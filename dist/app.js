@@ -739,7 +739,7 @@ $('recordCountIn').onchange=()=>{if(recording||recordFinalizing||micPending){upd
 engine.onError=error=>{toast('Lecture arrêtée : '+error.message);updateTransport();};
 engine.onEnded=()=>{if(recording)stopRecording();updateTransport();};
 engine.onRecordingExtend=()=>{requestAnimationFrame(()=>{if(recording)changed(true);});};
-async function stop(){if(recording){await stopRecording();return;}engine.stop();updateTransport();}
+async function stop(){if(recording){await stopRecording();return;}if(micPending&&workflow.cancelPendingRecording())return;engine.stop();updateTransport();}
 async function record(){engine.stopPreview();return workflow.record();}
 async function stopRecording(){return workflow.stopRecording();}
 

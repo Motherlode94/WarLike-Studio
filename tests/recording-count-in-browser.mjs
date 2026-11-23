@@ -23,6 +23,7 @@ try{
   AudioEngine.prototype.play=async function(options){qa.engine=this;await play.call(this,options);qa.plays.push({requested:options?.startAt??null,when:this.playStartAt,position:this.position,rate:this.ctx.sampleRate});};
   const send=MessagePort.prototype.postMessage;MessagePort.prototype.postMessage=function(data,...args){if(data?.type==='start'&&Number.isFinite(data.time))qa.starts.push({time:data.time,postedAt:qa.engine?.ctx.currentTime});return send.call(this,data,...args);};
   navigator.mediaDevices.getUserMedia=async()=>{
+   if(qa.holdInput)await new Promise(resolve=>{qa.releaseInput=resolve;});
    const ctx=new AudioContext(),destination=ctx.createMediaStreamDestination(),merger=ctx.createChannelMerger(2);destination.channelCount=2;merger.connect(destination);
    for(const [i,hz] of [220,440].entries()){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=hz;g.gain.value=.1;o.connect(g);g.connect(merger,0,i);o.start();}
    await ctx.resume();qa.sources.push({ctx,stream:destination.stream});return destination.stream;
@@ -33,6 +34,9 @@ try{
  const quiet=async()=>{await page.waitForFunction(()=>!document.querySelector('#record').classList.contains('recording')&&!document.querySelector('#record').disabled);assert.equal(await page.locator('#recordCountInStatus').isVisible(),false);assert.ok(await page.evaluate(()=>window.countInQA.sources.every(s=>s.stream.getTracks().every(t=>t.readyState==='ended'))));};
  const start=async bars=>{await page.locator('#recordCountIn').selectOption(String(bars));await page.locator('#record').click();if(bars)await page.locator('#recordCountInStatus').waitFor({state:'visible'});else await page.waitForFunction(()=>document.querySelector('#record').classList.contains('recording'));};
  await page.locator('[data-seek-section="4"]').click();const cursor=await page.locator('#positionDisplay').textContent();assert.ok(cursor.startsWith('005'));
+ phase='cancel pending permission';await page.evaluate(()=>window.countInQA.holdInput=true);await page.locator('#record').click();await page.waitForFunction(()=>typeof window.countInQA.releaseInput==='function');await page.locator('#stop').click();
+ await page.waitForFunction(()=>!document.querySelector('#record').disabled);await page.evaluate(()=>{const qa=window.countInQA;qa.holdInput=false;qa.releaseInput();});
+ await page.waitForFunction(()=>window.countInQA.sources.length===1&&window.countInQA.sources[0].stream.getTracks().every(t=>t.readyState==='ended'));assert.equal(await page.evaluate(()=>window.countInQA.starts.length),0);await quiet();
  phase='cancel two bars';await start(2);await page.waitForFunction(()=>window.countInQA.starts.length===1);
  assert.equal(await page.locator('#positionDisplay').textContent(),cursor);assert.equal(await page.locator('#recordCountIn').isDisabled(),true);
  await page.locator('#rewind').click();await page.locator('#modeSong').click();await page.locator('[data-seek-section="0"]').click();assert.equal(await page.locator('#positionDisplay').textContent(),cursor);
