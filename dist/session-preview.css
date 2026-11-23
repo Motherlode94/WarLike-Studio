@@ -9,3 +9,17 @@
 .session-card .content-card-actions{flex-wrap:wrap}
 .session-card [data-session-preview][aria-pressed=true]{outline:2px solid var(--wl-focus);outline-offset:-2px}
 @media(max-width:550px){.session-preview-panel{gap:8px;padding:10px}.session-preview-panel strong{font-size:11px}.session-preview-panel button{padding:6px;min-width:70px}}
+.project-home.session-dashboard .project-public-demos{max-height:calc(100dvh - 260px);overflow-y:auto;min-height:0}
+.project-home-compositions,.project-short-demos{display:grid;gap:12px;min-width:0}
+.project-home-compositions h3{margin:0;font-size:14px;color:var(--wl-text)}
+.project-demo-catalogs,.project-composition-actions{display:flex;gap:8px;flex-wrap:wrap}
+.project-demo-catalogs button{flex:1;min-width:0;white-space:normal;font-size:11px;padding:8px}
+.project-demo-catalogs [aria-pressed=true]{outline:2px solid var(--wl-focus);outline-offset:-2px}
+.project-composition-list{display:grid;gap:8px}
+.project-composition-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px;border:1px solid var(--wl-border);background:var(--wl-surface);border-radius:4px;min-width:0}
+.project-composition-row>div:first-child{display:grid;gap:5px;min-width:0;overflow-wrap:anywhere}
+.project-composition-row strong{font-size:13px;color:var(--wl-text)}
+.project-composition-row small{font-size:11px;color:var(--wl-text-muted)}
+.project-composition-actions{flex-shrink:0}
+.project-composition-actions button{min-height:34px;font-size:11px;padding:7px 9px}
+@media(max-width:550px){.project-composition-row{align-items:stretch;flex-direction:column;gap:8px}.project-composition-actions button{flex:1}.project-home-compositions .session-dashboard-pager{font-size:11px;gap:5px}.project-home-compositions .session-dashboard-pager button{padding:6px}}

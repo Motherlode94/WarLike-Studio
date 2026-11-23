@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';import {chromium} from 'playwright';
 const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:960}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8765/');await page.locator('[data-session-tab="demos"]').click();await page.locator('#modal [data-public-demo="trap"]').click();await page.locator('#modal').waitFor({state:'hidden'});
+ await page.goto('http://127.0.0.1:8765/');await page.locator('[data-session-tab="demos"]').click();await page.locator('[data-demo-catalog="short"]').click();await page.locator('#modal [data-public-demo="trap"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  await page.locator('.reference-window-menu summary').click();await page.locator('#studioLayoutProfile').selectOption('fl');
  await page.keyboard.press('Escape');await page.evaluate(()=>document.activeElement?.blur());await page.keyboard.press('F6');
  const rack=page.locator('[data-managed-window="rack"]');await rack.waitFor({state:'visible'});
