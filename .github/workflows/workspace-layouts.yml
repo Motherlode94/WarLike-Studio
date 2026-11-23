@@ -34,6 +34,7 @@ jobs:
           node tests/workspace-layout-browser.mjs
           node tests/plugin-windows-browser.mjs
           node tests/preset-folders-browser.mjs
+          node tests/game-sounds-browser.mjs
           node tests/sampler-history-browser.mjs
           node tests/instru-bank-browser.mjs
           node tests/instrument-faces-browser.mjs
@@ -52,6 +53,14 @@ jobs:
         with:
           name: preset-folders
           path: artifacts/preset-folders/
+          if-no-files-found: warn
+
+      - name: Game sounds audio and browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-sounds
+          path: artifacts/game-sounds/
           if-no-files-found: warn
 
       - name: Instru sound bank audio and browser evidence
