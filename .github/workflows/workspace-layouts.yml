@@ -33,6 +33,7 @@ jobs:
           curl -fsS http://127.0.0.1:8765/ -o /dev/null
           node tests/workspace-layout-browser.mjs
           node tests/plugin-windows-browser.mjs
+          node tests/preset-folders-browser.mjs
           node tests/sampler-history-browser.mjs
           node tests/instru-bank-browser.mjs
           node tests/instrument-faces-browser.mjs
@@ -43,6 +44,14 @@ jobs:
         with:
           name: plugin-command-bar
           path: artifacts/plugin-command-bar/
+          if-no-files-found: warn
+
+      - name: Preset folders browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preset-folders
+          path: artifacts/preset-folders/
           if-no-files-found: warn
 
       - name: Instru sound bank audio and browser evidence
