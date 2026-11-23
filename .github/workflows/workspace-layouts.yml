@@ -36,6 +36,7 @@ jobs:
           node tests/preset-folders-browser.mjs
           node tests/game-sounds-browser.mjs
           node tests/session-preview-browser.mjs
+          node tests/project-compositions-browser.mjs
           node tests/sampler-history-browser.mjs
           node tests/instru-bank-browser.mjs
           node tests/instrument-faces-browser.mjs
@@ -70,6 +71,14 @@ jobs:
         with:
           name: session-preview
           path: artifacts/session-preview/
+          if-no-files-found: warn
+
+      - name: Project dialog compositions evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-compositions
+          path: artifacts/project-compositions/
           if-no-files-found: warn
 
       - name: Instru sound bank audio and browser evidence

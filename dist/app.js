@@ -1,4 +1,5 @@
 import {mountSessionPreview,updateSessionPreview} from './session-preview-ui.js';
+import {mountProjectCompositions} from './project-compositions-ui.js';
 import {GAME_SOUNDS,GAME_SOUND_CATEGORIES,gameSound,renderGameSound,gameSoundWav,gameSoundPack} from './game-sounds.js';
 import {renderGameSoundBank} from './game-sounds-ui.js';
 import {mountInstrumentFace,updateInstrumentFaces} from './instrument-faces.js';
@@ -181,7 +182,7 @@ async function createProjectLocal(name='Nouveau morceau',source=null,media=[]){
   const next=source?clone(source):emptyProject();next.name=name.slice(0,60);
   const id=crypto.randomUUID(),now=Date.now();
   const nextIndex=[{id,name:next.name,createdAt:now,updatedAt:now},...projectIndex];
-  await writeLocalProject(db,id,{project:next,masterVolume:0,assets:media},nextIndex);
+  await writeLocalProject(db,id,{project:next,masterVolume:Number.isFinite(next.masterVolume)?next.masterVolume:0,assets:media},nextIndex);
   projectIndex=nextIndex;await chooseProject(id);return id;
 }
 
@@ -201,6 +202,7 @@ async function launchPublicDemo(kind){
  if(publicDemoOpening)return;
  if(recording||recordFinalizing||micPending){toast('Termine la prise avant d’ouvrir la démo.');return;}
  publicDemoOpening=true;
+ engine.stopPreview();
  document.querySelectorAll('[data-public-demo]').forEach(b=>b.disabled=true);
  try{
    const demo=config.beat?createBeatDemoSession(kind):config.vocal?createVocalDemoSession(kind):config.genre?createGenreDemoSession(kind):createVocalDemoSession('vox-'+kind);
@@ -236,6 +238,18 @@ async function launchPublicDemo(kind){
  finally{publicDemoOpening=false;document.querySelectorAll('[data-public-demo]').forEach(b=>b.disabled=false);}
 }
 
+async function launchFactoryProject(id){
+ const template=SESSION_TEMPLATES.find(t=>t.id===id);if(!template||publicDemoOpening)return;
+ if(recording||recordFinalizing||micPending)return toast('Termine la prise avant d’ouvrir une composition.');
+ publicDemoOpening=true;engine.stopPreview();
+ document.querySelectorAll('[data-public-demo],[data-factory-project-open]').forEach(b=>b.disabled=true);
+ try{
+  await createProjectLocal(template.name,createFactorySession(id,true));
+  setView('arrange');fitTimeline();updateTransport();
+  toast(template.name+' · copie complète ouverte. Ton projet précédent reste dans Mes projets.');
+ }catch(error){toast('Ouverture impossible : '+error.message);}
+ finally{publicDemoOpening=false;document.querySelectorAll('[data-public-demo],[data-factory-project-open]').forEach(b=>b.disabled=false);}
+}
 let projectHomeTab='open',projectHomePage=0;
 function showProjectLibrary(){
  if(!db)return toast('Stockage local indisponible.');
@@ -248,6 +262,7 @@ function showProjectLibrary(){
  modal('Mes projets','<div class="project-home">'+info+create+library+'<div class="project-home-footer"><button class="outline-btn" id="libraryRecover">Récupérer l’ancienne session</button><button class="outline-btn" id="libraryImport">Importer un fichier .chayah</button></div><section class="project-home-section"><h3>WarLike Cloud (optionnel)</h3><p id="studioCloudAccount" role="status">'+esc(studioCloudIdentity?'Compte cloud : '+(studioCloudIdentity.displayName||studioCloudIdentity.userId):'Cloud déconnecté')+'</p><p class="modal-body-copy">Connexion sécurisée nécessaire. Les projets locaux ne sont jamais envoyés automatiquement sans association explicite.</p><div class="project-home-footer"><button class="outline-btn" id="studioCloudConnect">Associer mon compte</button><button class="outline-btn" id="studioCloudOpen">Mes projets cloud</button><button class="primary-btn" id="studioCloudSave">Synchroniser le projet ouvert</button><button class="outline-btn" id="studioCloudLogout">Déconnecter</button></div></section></div>','WARLIKE / PROJETS');
  const home=document.querySelector('.project-home');
  const [banner,demos,form,libraryPanel,footer,cloud]=Array.from(home.children);
+ mountProjectCompositions(demos,{stop:()=>engine.stopPreview(),sync:syncSessionPreview});
  const tabs=document.createElement('nav');tabs.className='session-dashboard-tabs';tabs.setAttribute('aria-label','Sessions');
  const panels={create:[form,footer],open:[libraryPanel,banner],demos:[demos],cloud:[cloud]};
  const pager=document.createElement('div');pager.className='session-dashboard-pager';
@@ -258,7 +273,7 @@ function showProjectLibrary(){
  pager.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{projectHomePage+=Number(b.dataset.page);showProjectLibrary();});
  for(const [key,label] of Object.entries({create:'Créer',open:'Ouvrir',demos:'Démos',cloud:'Cloud'})){
   const b=document.createElement('button');b.type='button';b.className='outline-btn';b.textContent=label;b.dataset.sessionTab=key;tabs.append(b);
-  b.onclick=()=>{projectHomeTab=key;applyTab();};
+  b.onclick=()=>{engine.stopPreview();projectHomeTab=key;applyTab();};
  }
  function applyTab(){for(const [key,nodes] of Object.entries(panels))for(const node of nodes)node.hidden=key!==projectHomeTab;
   tabs.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.sessionTab===projectHomeTab)));
@@ -631,6 +646,7 @@ function renderContentCards(){
 }
 function syncSessionPreview(){
  if(view==='library'&&bankState.tab==='sessions')updateSessionPreview($('contentCards'),engine.sessionPreview.state,engine.sessionPreview.elapsed);
+ if($('modal').open){const root=$('modal').querySelector('.project-home-compositions');if(root)updateSessionPreview(root,engine.sessionPreview.state,engine.sessionPreview.elapsed);}
 }
 engine.onSessionPreviewChange=()=>{syncSessionPreview();updateTransport();};
 async function previewFactorySession(id){
@@ -924,6 +940,7 @@ $('editorTab').onclick=()=>{detail='editor';setDetailOpen(true);renderDetail();}
 $('tuneTab').onclick=()=>{detail='tune';setDetailOpen(true);renderDetail();};
 $('duplicateClip').onclick=duplicateClip;$('deleteClip').onclick=deleteClip;$('trackSettings').onclick=()=>trackSettings();
 $('closeModal').onclick=()=>$('modal').close();$('modal').addEventListener('click',e=>{if(e.target===$('modal')){const r=$('modal').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('modal').close();}});
+$('modal').addEventListener('close',()=>{if($('modal').open)return;engine.stopPreview();if($('modalBody').querySelector('.project-home'))$('modalBody').replaceChildren();});
 document.querySelectorAll('[data-view]').forEach(el=>el.onclick=()=>setView(el.dataset.view));
 $('libraryEffects').innerHTML=Object.entries(EFFECTS).map(([id,d])=>`<button class="fx-library-item" data-open-fx="${id}"><span></span>${d.name[0]+d.name.slice(1).toLowerCase()}<small>${d.subtitle.toLowerCase()}</small></button>`).join('');
 $('librarySearch').oninput=e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('.library-item,.fx-library-item,.sample-row').forEach(el=>el.hidden=!el.textContent.toLowerCase().includes(q));};
@@ -962,6 +979,7 @@ document.addEventListener('click',async e=>{
   const groovePreview=e.target.closest('[data-groove-preview]');if(groovePreview){const groove=DRUM_GROOVES.find(g=>g.id===groovePreview.dataset.groovePreview);try{if(groove)await engine.previewGroove(groove);updateTransport();}catch(error){toast(error.message);}return;}
   const drumDownload=e.target.closest('[data-drum-download]');if(drumDownload){const voice=drumDownload.dataset.drumDownload;drumDownload.disabled=true;try{download(await engine.renderDrumWav(voice),'CHAYAH_Pulse_'+voice+'.wav','audio/wav');toast('Percussion WAV générée.');}catch(error){toast(error.message);}finally{drumDownload.disabled=false;}return;}
   const sessionPreview=e.target.closest('[data-session-preview]');if(sessionPreview){await previewFactorySession(sessionPreview.dataset.sessionPreview);return;}
+  const factoryProject=e.target.closest('[data-factory-project-open]');if(factoryProject){await launchFactoryProject(factoryProject.dataset.factoryProjectOpen);return;}
   const sessionLoad=e.target.closest('[data-session-load]');if(sessionLoad){loadFactorySession(sessionLoad.dataset.sessionLoad);return;}
   const suiteInstrument=e.target.closest('[data-suite-instrument]');if(suiteInstrument){const type=suiteInstrument.dataset.suiteInstrument,tr=currentTrack()?.type===type?currentTrack():project.tracks.find(t=>t.type===type)||addTrack(type);openPluginWindow('instrument',tr.id);return;}
   const suiteEffect=e.target.closest('[data-suite-effect]');if(suiteEffect){openPluginWindow(suiteEffect.dataset.suiteEffect,pluginWindow?.trackId||selectedTrack);return;}
