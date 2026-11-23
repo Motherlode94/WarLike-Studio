@@ -24,11 +24,22 @@ try{
   return JSON.parse(await readFile(await(await waiting).path(),'utf8'));
  };
  const baseline=await save();
+ const resize=async size=>{
+  const previousSize=page.viewportSize();
+  if(previousSize.width===size.width&&previousSize.height===size.height)return;
+  // A resized viewport schedules a full render. Wait for that actual replacement
+  // before measuring text or interacting with the rebuilt controls.
+  const row=await page.locator('#trackRows .track-row').first().elementHandle();
+  await page.setViewportSize(size);
+  await page.waitForFunction(n=>!n.isConnected,row);
+ };
+
  const contrast=async selector=>{
   // Measure the final solid surface rather than a transient hover/theme paint.
   await page.waitForFunction(selector=>{let n=document.querySelector(selector);if(!n)return false;for(;n;n=n.parentElement)if(getComputedStyle(n).backgroundImage!=='none')return false;return true;},selector);
   return page.locator(selector).first().evaluate(n=>{
-  const rgba=s=>{const p=s.match(/[\d.]+/g)?.map(Number)??[];return [p[0]??0,p[1]??0,p[2]??0,p[3]??1];};
+  if(!n.isConnected)throw Error("Contrast target detached during measurement");
+  const rgba=s=>{const p=s.match(/[\d.]+/g)?.map(Number);if(!p||p.length<3)throw Error("Invalid computed color: "+s);return [...p.slice(0,3),p[3]??1];};
   const over=(a,b)=>{const alpha=a[3]??1;return a.slice(0,3).map((x,i)=>x*alpha+b[i]*(1-alpha));};
   const parents=[];for(let p=n;p;p=p.parentElement)parents.push(p);
   let bg=[255,255,255];for(const p of parents.reverse()){
@@ -51,10 +62,10 @@ try{
  const instrument='.floating-plugin[data-plugin-track="themeharp"]:has([data-instrument-face])';
  const effect='.floating-plugin[data-plugin-track="themeharp"]:has([data-effect-face])';
  for(const layout of ['pt','fl'])for(const size of sizes)for(const theme of themes){
-  current=layout+'/'+size.width+'/'+theme;await page.setViewportSize(sizes[0]);
+  current=layout+'/'+size.width+'/'+theme;await resize(sizes[0]);
   await page.locator('.reference-window-menu > summary').click();await page.locator('#studioLayoutProfile').selectOption(layout);await page.locator('.reference-window-menu > summary').click();
   await page.locator('[data-view="library"]').click();await page.locator('[data-bank-tab="sounds"]').click();
-  await page.locator('.top-actions [data-studio-theme]').selectOption(theme);await page.setViewportSize(size);
+  await page.locator('.top-actions [data-studio-theme]').selectOption(theme);await resize(size);
   await fits('.content-browser');
   const ratios={};
   for(const selector of ['.bank-heading .eyebrow','.bank-heading h2','.bank-heading p','.content-card h3','.content-card p','.content-card-type','.bank-tabs button.selected']){
@@ -65,12 +76,12 @@ try{
   assert.ok(await page.locator('.bank-search').evaluate(n=>{const s=getComputedStyle(n);return s.outlineStyle!=='none'&&parseFloat(s.outlineWidth)>=2;}),current+' missing keyboard focus ring');
   if(size.width>760){assert.ok(await contrast('.brand>span:not(.brandmark):not(.version)')>=4.5,current+' brand contrast');}
   await page.screenshot({path:folder+'/'+layout+'-'+size.width+'-'+theme+'-library.png'});
-  await page.setViewportSize(sizes[0]);await page.locator('[data-view="mixer"]').click();
+  await resize(sizes[0]);await page.locator('[data-view="mixer"]').click();
   const strip=page.locator('#mixerView [data-mixer-track="themeharp"]');
   await strip.locator('[data-plugin-open="instrument"]').click({force:true});
   const before=await page.locator(instrument+' [data-param="instrument.brightness"]').inputValue();
   await page.locator('.top-actions [data-studio-theme]').selectOption(themes[(themes.indexOf(theme)+1)%themes.length]);
-  await page.locator('.top-actions [data-studio-theme]').selectOption(theme);await page.setViewportSize(size);await fits(instrument);
+  await page.locator('.top-actions [data-studio-theme]').selectOption(theme);await resize(size);await fits(instrument);
   assert.equal(await page.locator(instrument+' [data-param="instrument.brightness"]').inputValue(),before);
   await page.locator(instrument+' .plugin-preset-browser > summary').click();
   await page.locator(instrument+' .plugin-preset-browser').getByRole('searchbox').fill('concert');
@@ -79,19 +90,19 @@ try{
   // Exercise the real debounced resize while typing, not only a settled window.
   const search=page.locator(instrument+' .plugin-preset-browser').getByRole('searchbox');
   const previous=await search.elementHandle();
-  await page.setViewportSize({...size,height:size.height-1});
+  await resize({...size,height:size.height-1});
   await page.waitForFunction(n=>!n.isConnected,previous);
   assert.equal(await search.inputValue(),'concert',current+' query lost during reflow');
   assert.ok(await search.evaluate(n=>document.activeElement===n),current+' search focus lost during reflow');
   await page.keyboard.press('Escape');assert.equal(await page.locator(instrument+' .plugin-preset-browser').getAttribute('open'),null);
   await page.locator(instrument+' [data-float-close]').click();
-  await page.setViewportSize(sizes[0]);await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-insert-open="glue"][data-insert-track="themeharp"]').click();
-  await page.setViewportSize(size);await fits(effect);await page.screenshot({path:folder+'/'+layout+'-'+size.width+'-'+theme+'-plugin.png'});
+  await resize(sizes[0]);await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-insert-open="glue"][data-insert-track="themeharp"]').click();
+  await resize(size);await fits(effect);await page.screenshot({path:folder+'/'+layout+'-'+size.width+'-'+theme+'-plugin.png'});
   await page.locator(effect+' [data-float-close]').click();
   const duplicates=await page.locator('[id]').evaluateAll(nodes=>{const ids=nodes.map(n=>n.id);return ids.filter((id,i)=>ids.indexOf(id)!==i);});
   assert.deepEqual(duplicates,[],current+' duplicate DOM IDs');report.push({layout,...size,theme,contrast:ratios});
  }
- current='persistence';await page.setViewportSize(sizes[0]);const after=await save();
+ current='persistence';await resize(sizes[0]);const after=await save();
  assert.deepEqual(after.project,baseline.project,'appearance changes must preserve the normalized project');assert.deepEqual(after.assets,baseline.assets);
  await page.reload();await page.locator('[data-session-tab="open"]').click();await page.locator('[data-project-open]').first().click();await page.locator('#modal').waitFor({state:'hidden'});
  assert.equal(await page.locator('html').getAttribute('data-warlike-theme'),'light');assert.equal(await page.locator('body').getAttribute('data-layout-profile'),'fl');
