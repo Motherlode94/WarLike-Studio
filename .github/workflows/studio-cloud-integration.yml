@@ -42,7 +42,7 @@ jobs:
       - name: Install Chromium test tools
         run: |
           npm install --no-save playwright@1.62.1
-          npx playwright install --with-deps chromium
+          npx playwright install chromium
       - run: node tests/studio-cloud-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
