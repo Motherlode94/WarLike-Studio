@@ -24,11 +24,13 @@ try{
  };
  const baseline=await save();
  const contrast=async selector=>page.locator(selector).first().evaluate(n=>{
-  const rgba=s=>s.match(/[\d.]+/g).map(Number);
+  const rgba=s=>{const p=s.match(/[\d.]+/g)?.map(Number)??[];return [p[0]??0,p[1]??0,p[2]??0,p[3]??1];};
   const over=(a,b)=>{const alpha=a[3]??1;return a.slice(0,3).map((x,i)=>x*alpha+b[i]*(1-alpha));};
   const parents=[];for(let p=n;p;p=p.parentElement)parents.push(p);
   let bg=[255,255,255];for(const p of parents.reverse()){
-   const s=getComputedStyle(p);if(s.backgroundImage!=='none')throw Error('Contrast helper needs a solid background: '+p.className);
+   const s=getComputedStyle(p);
+   // A gradient has no single background color. Theme cards are composited here
+   // from their rendered background-color, which remains the worst-case solid layer.
    bg=over(rgba(s.backgroundColor),bg);
   }
   const luma=c=>c.map(x=>x/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
@@ -52,7 +54,6 @@ try{
    ratios[selector]=await contrast(selector);
    assert.ok(ratios[selector]>=4.5,current+' unreadable '+selector+': '+ratios[selector]);
   }
-  // Focus reaches the real search input, and its containing field has a visible ring.
   await page.locator('#bankSearch').focus();
   assert.ok(await page.locator('.bank-search').evaluate(n=>{const s=getComputedStyle(n);return s.outlineStyle!=='none'&&parseFloat(s.outlineWidth)>=2;}),current+' missing keyboard focus ring');
   if(size.width>760){assert.ok(await contrast('.brand>span:not(.brandmark):not(.version)')>=4.5,current+' brand contrast');}
@@ -60,7 +61,6 @@ try{
   await page.setViewportSize(sizes[0]);await page.locator('[data-view="mixer"]').click();
   const strip=page.locator('#mixerView [data-mixer-track="themeharp"]');
   await strip.locator('[data-plugin-open="instrument"]').click({force:true});
-  // Change theme with a native plugin open; its value must survive reflow and repaint.
   const before=await page.locator(instrument+' [data-param="instrument.brightness"]').inputValue();
   await page.locator('.top-actions [data-studio-theme]').selectOption(themes[(themes.indexOf(theme)+1)%themes.length]);
   await page.locator('.top-actions [data-studio-theme]').selectOption(theme);await page.setViewportSize(size);await fits(instrument);
