@@ -43,6 +43,13 @@ try{
  });
  const open=async()=>{await page.locator('#projectMenuBtn').click();await page.locator('#factorySessions').click();};
  await open();assert.equal(await page.locator('[data-session-preview]').count(),SESSION_TEMPLATES.length);
+ const assertCards=async()=>{
+  const cards=await page.locator('.session-card').evaluateAll(nodes=>nodes.map(card=>{
+   const r=card.getBoundingClientRect();return {name:card.querySelector('h3').textContent,overflow:card.scrollHeight-card.clientHeight,actions:[...card.querySelectorAll('.content-card-actions button')].map(button=>{const b=button.getBoundingClientRect();return {left:b.left-r.left,right:r.right-b.right,top:b.top-r.top,bottom:r.bottom-b.bottom};})};
+  }));
+  for(const card of cards){assert.ok(card.overflow<=1,card.name+' has clipped content');assert.equal(card.actions.length,3);assert.ok(card.actions.every(b=>b.left>=0&&b.right>=-1&&b.top>=0&&b.bottom>=-1),card.name+' hides an action');}
+ };
+ await assertCards();
  const panel=page.locator('.session-preview-panel'),button=id=>page.locator('[data-session-preview="'+id+'"]');
  const playing=async name=>page.waitForFunction(name=>document.querySelector('.session-preview-panel')?.dataset.state==='playing'&&document.querySelector('[data-session-preview-status]').textContent.includes(name),name,{timeout:90000});
  const stop=async()=>{await page.locator('[data-session-preview-stop]').click();await page.waitForFunction(()=>document.querySelector('.session-preview-panel').dataset.state==='idle');await page.waitForFunction(()=>window.sessionPreviewQA.sources.every(s=>s.ended));};
@@ -77,10 +84,11 @@ try{
   await resizeStudio(page,{width:1440,height:960});await page.locator('.top-actions [data-studio-theme]').selectOption(theme);
   await button('kin').click();await playing('Kin après minuit');await resizeStudio(page,{width:390,height:844});
   assert.equal(await panel.getAttribute('data-state'),'playing','audition survives a viewport reflow');
+  await assertCards();
   const rects=await page.locator('.session-preview-panel,.session-preview-panel button,.session-card [data-session-preview]').evaluateAll(nodes=>nodes.map(n=>{const r=n.getBoundingClientRect();return {x:r.x,right:r.right,width:r.width};}));
   assert.ok(rects.every(r=>r.width>0&&r.x>=0&&r.right<=391));await page.screenshot({path:folder+'/mobile-'+theme+'.png'});await stop();
  }
- await resizeStudio(page,{width:1440,height:960});await page.screenshot({path:folder+'/desktop.png'});
+ await resizeStudio(page,{width:1440,height:960});await assertCards();await page.screenshot({path:folder+'/desktop.png'});
  current='project preservation';const after=await save();assert.deepEqual(after.project,before.project);assert.deepEqual(after.assets,before.assets);assert.equal(after.masterVolume,-18);assert.equal(await page.locator('#undo').isEnabled(),undoBefore);assert.equal(await page.locator('#positionDisplay').textContent(),cursorBefore);
  current='transport cancellation';await button('kin').click();await playing('Kin après minuit');await page.locator('#play').click();await page.waitForFunction(()=>document.querySelector('#play').getAttribute('aria-label')==='Pause');assert.equal(await panel.getAttribute('data-state'),'idle');await page.locator('#stop').click();
  // Simulate a pending permission request: no physical microphone is requested.
