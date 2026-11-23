@@ -12,7 +12,8 @@ const sizes=[{width:1920,height:1080},{width:1366,height:768},{width:390,height:
 const browser=await chromium.launch({headless:true});let page,current='boot';
 const errors=[],report=[];
 try{
- page=await browser.newPage({viewport:sizes[0]});page.on('pageerror',e=>errors.push(e.message));
+ page=await browser.newPage({viewport:sizes[0]});page.setDefaultTimeout(10000);
+ page.on('pageerror',e=>errors.push(e.message));
  const project=emptyProject();project.name='R08.3g.7 theme matrix';
  const track=createContentTrack('harp');track.id='themeharp';track.name='Harpe — thèmes';placeInsert(track,0,'glue');project.tracks=[track];
  await page.goto('http://127.0.0.1:8765/');await page.locator('html[data-app-ready="true"]').waitFor({state:'attached'});
@@ -29,8 +30,6 @@ try{
   const parents=[];for(let p=n;p;p=p.parentElement)parents.push(p);
   let bg=[255,255,255];for(const p of parents.reverse()){
    const s=getComputedStyle(p);
-   // A gradient has no single background color. Theme cards are composited here
-   // from their rendered background-color, which remains the worst-case solid layer.
    bg=over(rgba(s.backgroundColor),bg);
   }
   const luma=c=>c.map(x=>x/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
@@ -38,8 +37,13 @@ try{
   return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
  });
  const fits=async root=>{
-  await page.waitForFunction(selector=>{const r=document.querySelector(selector)?.getBoundingClientRect();return r&&r.width>0&&r.left>=-1&&r.right<=innerWidth+1;},root);
-  assert.ok(await page.locator(root).evaluate(n=>n.scrollWidth<=n.clientWidth+2),current+' horizontal panel overflow');
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  const geometry=await page.locator(root).first().evaluate(n=>{
+   const r=n.getBoundingClientRect();return {width:r.width,left:r.left,right:r.right,scroll:n.scrollWidth,client:n.clientWidth};
+  });
+  assert.ok(geometry.width>0,current+' missing '+root);
+  assert.ok(geometry.left>=-1&&geometry.right<=innerWidth+1,current+' horizontal panel bounds '+root+': '+JSON.stringify(geometry));
+  assert.ok(geometry.scroll<=geometry.client+2,current+' horizontal panel overflow '+root+': '+JSON.stringify(geometry));
  };
  const instrument='.floating-plugin[data-plugin-track="themeharp"]:has([data-instrument-face])';
  const effect='.floating-plugin[data-plugin-track="themeharp"]:has([data-effect-face])';
