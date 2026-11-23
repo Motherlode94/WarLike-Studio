@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {createBeatDemoSession} from '../dist/beat-demo-sessions.js';
 import {createVocalDemoSession} from '../dist/vocal-demo-sessions.js';
 import {extendPublicDemoArrangement} from '../dist/public-demo-arrangements.js';
+import {masterPublicDemo} from '../dist/demo-mastering.js';
 
 test('Atlanta After Dark has 112 editable bars, distinct sections and duration over 3 minutes',()=>{
  const old=createBeatDemoSession('trap808'),p=extendPublicDemoArrangement(createBeatDemoSession('trap808'),'trap808');
@@ -46,4 +47,14 @@ test('transforms preserve 4-bar MIDI notes and 16-step drum blocks without overr
 test('extension refuses invalid 16-bar origin and never modifies reopened projects',()=>{
  const p=createBeatDemoSession('trap808');p.bars=32;
  assert.throws(()=>extendPublicDemoArrangement(p,'trap808'),/16 mesures/);
+});
+
+test('factory Trap vocal mastering retains peak protection without saturated input drive',()=>{
+ const p=createVocalDemoSession('vox-trap');p.publicDemo=true;
+ masterPublicDemo(p,'trap');
+ assert.equal(p.mastering.circuitcolor.drive,0);
+ assert.equal(p.mastering.circuitcolor.mix,0);
+ assert.equal(p.mastering.peak.drive,0);
+ assert.equal(p.mastering.peak.ceiling,-1.5);
+ assert.equal(p.mastering.press.makeup,0);
 });
