@@ -85,7 +85,7 @@ try{
   assert.ok(await search.evaluate(n=>document.activeElement===n),current+' search focus lost during reflow');
   await page.keyboard.press('Escape');assert.equal(await page.locator(instrument+' .plugin-preset-browser').getAttribute('open'),null);
   await page.locator(instrument+' [data-float-close]').click();
-  await page.setViewportSize(sizes[0]);await page.locator('[data-view="mixer"]').click();await strip.locator('[data-plugin-open="glue"],[data-insert-open="glue"]').first().click({force:true});
+  await page.setViewportSize(sizes[0]);await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-insert-open="glue"][data-insert-track="themeharp"]').click();
   await page.setViewportSize(size);await fits(effect);await page.screenshot({path:folder+'/'+layout+'-'+size.width+'-'+theme+'-plugin.png'});
   await page.locator(effect+' [data-float-close]').click();
   const duplicates=await page.locator('[id]').evaluateAll(nodes=>{const ids=nodes.map(n=>n.id);return ids.filter((id,i)=>ids.indexOf(id)!==i);});
