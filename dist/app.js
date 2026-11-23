@@ -1242,7 +1242,17 @@ function closePluginWindow(instance=pluginWindow){
 function closeAllPluginWindows(){
   pluginWindows.clear(win=>{win.observer.disconnect();win.controller.dispose();win.root.remove();});pluginInstances.clear();pluginEdits.clear();pluginWindow=null;bundleOwner=null;
 }
-function renderFloatingPlugin(){for(const {instance} of pluginWindows.entries)renderPluginView(instance);syncPluginWindowFocus();}
+function renderFloatingPlugin(){
+ const focused=document.activeElement,owner=focused?.closest('.floating-plugin');
+ const browsing=focused?.closest('.plugin-preset-browser');
+ const selector=browsing?(focused.matches('input[type="search"]')?'input[type="search"]':focused.matches('select')?'select':focused.matches('summary')?'summary':null):null;
+ const selection=selector==='input[type="search"]'?[focused.selectionStart,focused.selectionEnd]:null;
+ for(const {instance} of pluginWindows.entries)renderPluginView(instance);
+ syncPluginWindowFocus();
+ // A viewport reflow rebuilds plugin contents. Keep keyboard input in its owner.
+ const next=selector&&owner?.isConnected?owner.querySelector('.plugin-preset-browser '+selector):null;
+ if(next){next.focus({preventScroll:true});if(selection&&selection[0]!=null)next.setSelectionRange(...selection);}
+}
 function openSuite(){const tr=currentTrack();if(!instrumentDefinition(tr.type))openInsertMenu(tr.id,tr.inserts.indexOf(null));else openPluginWindow('instrument');}
 let eqVisualContext=null;
 function drawPrismResponse(track,root){

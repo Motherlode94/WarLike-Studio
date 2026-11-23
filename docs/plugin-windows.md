@@ -41,3 +41,5 @@ certification.
 | R08.3g.6 | Preset organization |
 | R08.3g.7 | Graphical and functional certification |
 | R08.4 | New musical compositions |
+
+R08.3g.7 browser coverage and evidence: [rendered workspace certification](workspace-theme-certification.md).

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {mkdir} from 'node:fs/promises';
+import {mkdir,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
 import {emptyProject} from '../dist/audio.js';
 import {createContentTrack} from '../dist/content.js';
@@ -7,7 +7,8 @@ import {EFFECTS,placeInsert,formatParam} from '../dist/plugins.js';
 import {effectFace,effectReadout} from '../dist/effect-face-model.js';
 
 const dir='artifacts/effect-faces';await mkdir(dir,{recursive:true});
-const ids=['prism','glue','exospace','alterecho','phase','color','voxtune','vectoreq'];
+const ids=Object.keys(EFFECTS);
+const report=[];
 for(const id of ids)assert.ok(EFFECTS[id],id+' missing native processor');
 const project=emptyProject();project.name='Individual effect faces QA';
 project.tracks=ids.map((id,i)=>{
@@ -59,6 +60,7 @@ try{
   assert.equal(await root.locator('[data-plugin-history="undo"]').isEnabled(),true,id+' undo unavailable');
   await root.locator('[data-plugin-history="undo"]').click();
   assert.equal(Number(await root.locator('[data-param="'+id+'.'+key+'"]').inputValue()),before,id+' undo must restore local value');
+  report.push({id,controls:keys.length,edited:key});
   if(['prism','glue','exospace','vectoreq'].includes(id)){
    await page.screenshot({path:dir+'/'+id+'-desktop.png'});
   }
@@ -66,20 +68,22 @@ try{
  }
  await page.setViewportSize({width:390,height:844});
  // Verify an independent effect panel fits mobile width and retains its native inputs.
- const button=page.locator('#mixerView [data-mixer-track="fxface0"] [data-plugin-open="prism"],#mixerView [data-mixer-track="fxface0"] [data-insert-open="prism"]').first();
+ const prismTrack='fxface'+ids.indexOf('prism');
+ const button=page.locator('#mixerView [data-mixer-track="'+prismTrack+'"] [data-plugin-open="prism"],#mixerView [data-mixer-track="'+prismTrack+'"] [data-insert-open="prism"]').first();
  await button.click({force:true});
- const mobile=page.locator('.floating-plugin[data-plugin-track="fxface0"]');
+ const mobile=page.locator('.floating-plugin[data-plugin-track="'+prismTrack+'"]');
  await mobile.locator('[data-effect-face="prism"]').waitFor();
- await page.waitForFunction(()=>{
-  const face=document.querySelector('.floating-plugin[data-plugin-track="fxface0"] [data-effect-face="prism"]');
+ await page.waitForFunction(track=>{
+  const face=document.querySelector('.floating-plugin[data-plugin-track="'+track+'"] [data-effect-face="prism"]');
   if(!face)return false;
   const r=face.getBoundingClientRect();return r.width>0&&r.width<=innerWidth;
- });
+ },prismTrack);
  const geometry=await mobile.locator('[data-effect-face="prism"]').evaluate(face=>({
   scroll:face.scrollWidth,client:face.clientWidth,rect:face.getBoundingClientRect().toJSON()
  }));
  assert.ok(geometry.scroll<=geometry.client+2,'mobile hardware overflow');
  await page.screenshot({path:dir+'/prism-mobile.png'});
  assert.deepEqual(errors,[],'browser script exceptions');
- console.log('PASS: 8 native effect families, control integrity, live parameter readouts, scoped undo, rack independence, desktop/mobile');
+ await writeFile(dir+'/report.json',JSON.stringify(report,null,2)+'\n');
+ console.log('PASS: '+ids.length+' native effects, control integrity, live parameter readouts, scoped undo, rack independence, desktop/mobile');
 }finally{await browser.close();}
