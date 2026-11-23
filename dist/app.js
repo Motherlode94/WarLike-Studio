@@ -47,6 +47,7 @@ import {NATIVE_CHAINS,nativeEffectsForNames,applyNativeChain,nativeChainCapacity
 import {VOCAL_DEMOS,createVocalDemoSession} from './vocal-demo-sessions.js';
 import {NEW_GENRE_DEMOS,createGenreDemoSession} from './genre-demo-sessions.js';
 import {BEAT_DEMOS,createBeatDemoSession} from './beat-demo-sessions.js';
+import {extendPublicDemoArrangement} from './public-demo-arrangements.js';
 import {masterPublicDemo} from './demo-mastering.js';
 import {routeVocalFX} from './demo-vocal-fx.js';
 import {routeVocalSubgroups} from './demo-vocal-buses.js';
@@ -209,6 +210,7 @@ async function launchPublicDemo(kind){
    demo.name=config.name;demo.publicDemo=true;
    demo.demoRevision=config.beat?demo.demoRevision:config.vocal||config.template?6:config.genre?1:3;
    const demoMedia=demo.vocalDemo?await createRecordedVocalDemoMedia(demo):[];
+   if(kind==='trap'||kind==='trap808')extendPublicDemoArrangement(demo,kind);
    balancePublicDemo(demo);
    mixPublicDemoInstruments(demo);
    routePublicDemoGroups(demo);
@@ -231,9 +233,9 @@ async function launchPublicDemo(kind){
    }
    $('modal').close();
    setView('arrange');fitTimeline();
-   if(demo.vocalDemo)engine.seek(4*16); // Start where the recorded verse enters; the intro remains editable.
+   if(demo.vocalDemo)engine.seek((kind==='trap'?8:4)*16); // Seek to first recorded verse.
    updateTransport();
-   toast(demo.vocalDemo?'Démo '+config.label+' · vraies voix enregistrées en anglais · COUPLET (mesure 5), puis REFRAIN · FX WarLike modifiables. Appuie sur Lecture.':'Démo '+config.label+' chargée · '+demo.bpm+' BPM · '+demo.keyName+' · 16 mesures. Appuie sur Lecture.');
+   toast(demo.vocalDemo?'Démo '+config.label+' · voix humaines en anglais · COUPLET (mesure '+(kind==='trap'?'9':'5')+') · FX modifiables · '+demo.bars+' mesures. Appuie sur Lecture.':'Démo '+config.label+' chargée · '+demo.bpm+' BPM · '+demo.keyName+' · '+demo.bars+' mesures. Appuie sur Lecture.');
  }catch(error){toast('Démo '+config.label+' indisponible : '+error.message);}
  finally{publicDemoOpening=false;document.querySelectorAll('[data-public-demo]').forEach(b=>b.disabled=false);}
 }
