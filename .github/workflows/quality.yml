@@ -73,7 +73,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        song: [nocturne, soleil, brume, rives, pluie, horizon, eclats]
+        song: [nocturne, soleil, brume, rives, pluie, horizon, eclats, kin, lumiere]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

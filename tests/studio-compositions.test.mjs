@@ -10,7 +10,7 @@ test('R08.4 compositions own full forms, diatonic scores and valid native parame
   assert.ok(SESSION_TEMPLATES.some(t=>t.id===template.id));
   const p=createFactorySession(template.id,true);assert.equal(p.bars,template.bars);assert.equal(p.fullSong,true);
   assert.ok(p.bars*240/p.bpm>=180&&p.bars*240/p.bpm<=300);
-  assert.deepEqual(p.sections.map(s=>s.name),['INTRO','COUPLET A','MONTÉE','REFRAIN A','PONT','COUPLET B','REFRAIN B','OUTRO']);
+  assert.deepEqual(p.sections.map(s=>s.name),['INTRO','COUPLET A','MONTÉE','REFRAIN A',template.id==='kin'?'SEBENE':'PONT','COUPLET B','REFRAIN B','OUTRO']);
   const ids=new Set();
   for(const track of p.tracks){
    assert.ok(!ids.has(track.id));ids.add(track.id);
@@ -56,4 +56,20 @@ test('alternative rock has power-chord riffs and a real half-time bridge',()=>{
  const riff=p.tracks[2].clips.find(c=>c.start===verse.start).notes.filter(n=>n.step<1).map(n=>n.midi);
  assert.deepEqual(riff.map(n=>n-riff[0]),[0,7,12]);
  assert.equal(SESSION_TEMPLATES.find(t=>t.id==='eclats').groove,'eclats-backbeat');
+});
+test('rumba develops interlocking guitars in its dedicated sebene section',()=>{
+ const p=createFactorySession('kin',true),verse=p.sections.find(s=>s.name==='COUPLET A'),sebene=p.sections.find(s=>s.name==='SEBENE');
+ assert.equal(sebene.length,16);assert.equal(p.tracks[2].type,'wlnylon');assert.equal(p.tracks[3].type,'wlclean');assert.equal(p.tracks[5].type,'wlsteel');
+ const density=(role,part)=>p.tracks[role].clips.filter(c=>c.start>=part.start&&c.start<part.start+part.length).flatMap(c=>c.notes).length/part.length;
+ assert.ok(density(3,sebene)>density(3,verse),'sebene must develop the solo guitar');assert.ok(density(5,sebene)>0,'steel guitar must answer the solo');
+ assert.ok(p.tracks[0].clips.find(c=>c.start===sebene.start).pattern.kick.some(Boolean),'sebene keeps the dance pulse');
+ assert.equal(SESSION_TEMPLATES.find(t=>t.id==='kin').bridgeLabel,'SEBENE');
+});
+test('organic pop develops piano pulse and a clean guitar hook with a quiet bridge',()=>{
+ const p=createFactorySession('lumiere',true),verse=p.sections[1],hook=p.sections[3],bridge=p.sections[4];
+ assert.equal(p.tracks[2].type,'piano');assert.equal(p.tracks[3].type,'wlclean');assert.equal(p.tracks[4].type,'wlsteel');
+ const density=part=>p.tracks[2].clips.filter(c=>c.start>=part.start&&c.start<part.start+part.length).flatMap(c=>c.notes).length/part.length;
+ assert.ok(density(hook)>density(verse));assert.ok(density(bridge)<density(hook));
+ assert.ok(p.tracks[3].clips.find(c=>c.start===hook.start).notes.length>p.tracks[3].clips.find(c=>c.start===verse.start).notes.length);
+ assert.equal(SESSION_TEMPLATES.find(t=>t.id==='lumiere').groove,'lumiere-pop');
 });
