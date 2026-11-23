@@ -71,8 +71,8 @@ try{
  await page.locator('#pluginSearch').fill('eclat');
  await page.screenshot({path:folder+'/picker-desktop.png'});
  await page.setViewportSize({width:390,height:844});
- const rects=await page.locator('#pluginPickerResults summary,#pluginPickerResults button:visible').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length).map(n=>{const r=n.getBoundingClientRect();return {left:r.left,right:r.right};}));
- assert.ok(rects.length>0&&rects.every(r=>r.left>=0&&r.right<=391),'preset folders fit mobile width');
+ const rects=await page.locator('#pluginPickerResults summary,#modal .plugin-picker button,#modal .plugin-picker input,#modal .plugin-picker select').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length).map(n=>{const r=n.getBoundingClientRect();return {left:r.left,right:r.right};}));
+ assert.ok(rects.length>0&&rects.every(r=>r.left>=0&&r.right<=391),'preset folders and every picker control fit mobile width');
  await page.screenshot({path:folder+'/picker-mobile.png'});
  await page.locator('#closeModal').click();
  await expand(fx);await browse(fx).getByRole('searchbox').fill('eclat');

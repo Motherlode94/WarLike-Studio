@@ -30,6 +30,9 @@
 .preset-folder-results .preset-folder-choice:hover{background:var(--panel-raised,#39472c)}
 .preset-folder-results :focus-visible{outline:2px solid var(--accent,#c9d6ac);outline-offset:-2px}
 .preset-folder-results button:disabled{opacity:.45;cursor:default}
+.plugin-picker .picker-search{flex-wrap:wrap;align-items:end;gap:6px}
+.plugin-picker .picker-search>label{display:grid;gap:4px;flex:1 1 110px;min-width:0}
+.plugin-picker .picker-search select{width:100%;max-width:100%;min-width:0}
 @media(max-width:660px){
  .plugin-command-surface{flex-direction:column}
  .plugin-command-owner{max-width:100%}
