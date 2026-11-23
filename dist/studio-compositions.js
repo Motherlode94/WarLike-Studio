@@ -87,7 +87,7 @@ export function createStudioComposition(template,makeTrack,full=false){
  const layout=full?spec.layout:[['INTRO',4,'intro'],['COUPLET A',4,'verse'],['MONTÉE',4,'pre'],['REFRAIN A',4,'hook']];
  let cursor=0;const sections=layout.map(([name,length,kind])=>{const part={name,start:cursor,length,kind};cursor+=length;return part;});
  const tracks=spec.tracks.map(([type,name,preset,volume,params],role)=>{
-  const t=makeTrack(type,preset);Object.assign(t,{name,volume,pan:role===2?-.17:role===4?.2:role===3?.1:0,instrument:{...t.instrument,...params}});
+  const t=makeTrack(type,preset);Object.assign(t,{name,volume:volume+12,pan:role===2?-.17:role===4?.2:role===3?.1:0,instrument:{...t.instrument,...params}});
   t.inserts=Array(12).fill(null);
   if(role===5){t.inserts[0]='echo';Object.assign(t.effects.echo,{enabled:true,mix:.065,feedback:.18});}
   for(const [section,part] of sections.entries())for(let offset=0;offset<part.length;offset+=4){
@@ -103,7 +103,7 @@ export function createStudioComposition(template,makeTrack,full=false){
  for(const [name,volume] of [['LEAD VOX',-3],['BACKS',-7],['ADLIBS',-9]]){
   const t=makeTrack('keys');Object.assign(t,{type:'audio',name,volume,instrument:{},clips:[],recordArm:false});tracks.push(t);
  }
- return {version:1,demo:true,demoRevision:full?6:4,fullSong:full,name:template.name,bpm:template.bpm,bars:cursor,swing:template.swing,masterVolume:-9,
+ return {version:1,demo:true,demoRevision:full?6:4,fullSong:full,name:template.name,bpm:template.bpm,bars:cursor,swing:template.swing,masterVolume:-1,
   mastering:{inserts:['peak'],peak:{enabled:true,drive:0,ceiling:-1.5,release:140}},recording:{gainDb:0,autoLevel:true},
   pianoKey:spec.key,pianoScale:spec.scale,keyName:spec.keyName,sections:sections.map(({kind,...part})=>part),tracks};
 }

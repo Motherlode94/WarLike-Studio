@@ -26,7 +26,9 @@ The catalog displays the actual bar counts instead of the old automatic duration
 estimate. All notes and drum events can be edited; no rendered backing track hides
 the score. Existing acoustic instruments use the recordings already bundled with
 Studio. A light delay is confined to the response instrument; the session PEAK
-stage and -9 dB master retain export headroom.
+stage and -1 dB master retain export headroom. Instrument faders compensate
+for the quiet native source presets; the full-render gate requires mix RMS
+above 0.02, peak between 0.2 and 0.95 and every section RMS above 0.005.
 
 Validation:
 

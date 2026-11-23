@@ -30,6 +30,7 @@ const score=p=>({name:p.name,bpm:p.bpm,bars:p.bars,sections:p.sections,fullSong:
  notes:c.notes?.map(n=>[n.id,n.step,n.midi,n.len,n.velocity,!!n.muted]),
  pattern:c.pattern?Object.fromEntries(Object.entries(c.pattern).filter(([,row])=>row.some(Boolean))):undefined}))}))});
 for(const [kind,name] of selected){
+ const newComposition=['rives','pluie'].includes(kind),expectedMaster=newComposition?-1:-9;
  stage(kind,'Launching isolated Chromium');
  const browser=await chromium.launch({headless:true});
  try{
@@ -56,7 +57,7 @@ for(const [kind,name] of selected){
    stage(kind,'Local save complete; downloading project');
    const before=await save(page,dir+'/'+kind+'.chayah');
    assert.equal(before.project.fullSong,true);
-   assert.equal(before.masterVolume,-9);
+   assert.equal(before.masterVolume,expectedMaster);
    assert.equal(before.project.tracks.length,9);
    const seconds=before.project.bars*240/before.project.bpm;
    assert.ok(seconds>=180&&seconds<=300);
@@ -79,7 +80,7 @@ for(const [kind,name] of selected){
    await page.waitForFunction(()=>document.getElementById('toast').textContent.includes('Projet importé et sauvegardé.'));
    const imported=await save(page,dir+'/'+kind+'-imported.chayah');
    assert.deepEqual(score(imported.project),score(portable.project));
-   assert.equal(imported.masterVolume,-9);
+   assert.equal(imported.masterVolume,expectedMaster);
    stage(kind,'Live transport');
    await page.locator('#modeSong').click();
    await page.locator('#play').click();
@@ -133,6 +134,11 @@ for(const [kind,name] of selected){
    assert.ok(Math.abs(metrics.frames/44100-seconds)<.03,'incorrect WAV duration');
    assert.ok(metrics.peak>.02&&metrics.peak<.999,'silent or clipped WAV');
    assert.ok(metrics.rms>.002,'silent mix');
+   if(newComposition){
+    assert.ok(metrics.rms>.02&&metrics.rms<.35,'composition mix level is too low or excessive');
+    assert.ok(metrics.peak>.2&&metrics.peak<.95,'composition peak headroom outside target');
+    for(const section of metrics.sections)assert.ok(section.rms>.005,'composition section too quiet: '+section.name);
+   }
    for(const section of metrics.sections)assert.ok(section.rms>.0005,kind+' silent '+section.name);
    assert.deepEqual(errors,[]);
   }finally{await deadline(context.close(),15000,kind+' context cleanup');}
