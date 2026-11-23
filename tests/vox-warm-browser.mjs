@@ -1,3 +1,4 @@
+import {chooseFolderPreset} from './preset-picker-helpers.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/vox-warm',{recursive:true});const browser=await chromium.launch({headless:true});try{
  const page=await browser.newPage({viewport:{width:1440,height:960}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -9,7 +10,7 @@ await mkdir('artifacts/vox-warm',{recursive:true});const browser=await chromium.
  await page.waitForFunction(({selector,value})=>document.querySelector('#pluginFloat '+selector)?.textContent===value,{selector:'[data-warm-drive]',value:'DRIVE 12.0 dB'});
  const previous=await face.locator('[data-warm-curve]').getAttribute('d');await face.locator('[data-param="voxwarm.bias"]').evaluate(el=>{el.value='-.5';el.dispatchEvent(new Event('input',{bubbles:true}));});await page.waitForFunction(p=>document.querySelector('#pluginFloat [data-warm-curve]').getAttribute('d')!==p,previous);
  await page.screenshot({path:'artifacts/vox-warm/track.png'});await page.locator('#pluginFloat [data-float-close]').click();
- await page.locator('#mixerView .mixer-master .insert-slot.empty [data-insert-slot]').first().click();await page.locator('#pickerBundle').selectOption('VOX LAB');await page.locator('#pickerMode').selectOption('presets');await page.locator('[data-picker-preset="voxwarm"]').first().click();await page.locator('#modal').waitFor({state:'hidden'});
+ await page.locator('#mixerView .mixer-master .insert-slot.empty [data-insert-slot]').first().click();await page.locator('#pickerBundle').selectOption('VOX LAB');await page.locator('#pickerMode').selectOption('presets');await chooseFolderPreset(page.locator('[data-picker-preset="voxwarm"]').first());await page.locator('#modal').waitFor({state:'hidden'});
  const master=page.locator('#masteringView .vox-warm-hardware');await master.waitFor();assert.equal(await master.locator('[data-master-param]').count(),5);
  assert.equal(await master.locator('.vox-master-presets optgroup[label="Usine"] option').count(),5);
  await master.locator('.vox-master-presets select').selectOption('1');await master.locator('.vox-master-presets input').fill('QA vox-warm');await master.locator('[data-vox-save]').click();

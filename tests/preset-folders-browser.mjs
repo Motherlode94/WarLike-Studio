@@ -27,7 +27,7 @@ try{
  const open=async(id,plugin)=>strip(id).locator('[data-plugin-open="'+plugin+'"],[data-insert-open="'+plugin+'"]').first().click({force:true});
  const win=(id,plugin)=>page.locator('.floating-plugin[data-plugin-track="'+id+'"]').filter({has:page.locator(plugin==='instrument'?'[data-param^="instrument."]':'[data-param^="'+plugin+'."]')});
  const browse=root=>root.locator('.plugin-preset-browser');
- const expand=async root=>{await root.locator('.plugin-preset-browser > summary').click();};
+ const expand=async root=>{await root.focus();await root.locator('.plugin-preset-browser > summary').click();};
  await open('presettrack0','instrument');await open('presettrack1','instrument');
  const a=win('presettrack0','instrument'),b=win('presettrack1','instrument');
  const original=await a.locator('[data-param="instrument.brightness"]').inputValue();
@@ -58,7 +58,7 @@ try{
  await expand(fx);await browse(fx).getByRole('searchbox').fill('no-match-qa');assert.match(await browse(fx).textContent(),/Aucun preset trouvé/);
  await page.keyboard.press('Escape');assert.equal(await browse(fx).getAttribute('open'),null);assert.equal(await page.locator('.floating-plugin').count(),4);
  // The global picker uses source / collection / family / plugin / genre folders.
- await strip('presettrack0').locator('[data-insert-slot="1"]').click();
+ await strip('presettrack0').locator('[data-insert-slot="1"]').click({force:true});
  await page.locator('#pickerMode').selectOption('presets');await page.locator('#pluginSearch').fill('eclat');
  assert.ok(await page.locator('#pluginPickerResults [data-preset-folder]').count()>3);
  assert.equal(await page.locator('#pluginPickerResults [data-preset-source="user"]').count(),1);

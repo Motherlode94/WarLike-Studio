@@ -1,3 +1,4 @@
+import {chooseFolderPreset} from './preset-picker-helpers.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/vox-doubler',{recursive:true});const browser=await chromium.launch({headless:true});try{
  const page=await browser.newPage({viewport:{width:1440,height:960}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -17,7 +18,7 @@ await mkdir('artifacts/vox-doubler',{recursive:true});const browser=await chromi
  return {left:peakIndex(0),right:peakIndex(1),expected:doublerLayout(state).voices.map(v=>v.base*48000)};
  });assert.ok(metrics.left.peak>.1&&metrics.right.peak>.1,JSON.stringify(metrics));assert.ok(Math.abs(metrics.left.index-metrics.expected[0])<=1,JSON.stringify(metrics));assert.ok(Math.abs(metrics.right.index-metrics.expected[1])<=1,JSON.stringify(metrics));
  await page.screenshot({path:'artifacts/vox-doubler/track.png'});await page.locator('#pluginFloat [data-float-close]').click();
- await page.locator('#mixerView .mixer-master .insert-slot.empty [data-insert-slot]').first().click();await page.locator('#pickerBundle').selectOption('VOX LAB');await page.locator('#pickerMode').selectOption('presets');await page.locator('[data-picker-preset="voxdoubler"]').first().click();await page.locator('#modal').waitFor({state:'hidden'});
+ await page.locator('#mixerView .mixer-master .insert-slot.empty [data-insert-slot]').first().click();await page.locator('#pickerBundle').selectOption('VOX LAB');await page.locator('#pickerMode').selectOption('presets');await chooseFolderPreset(page.locator('[data-picker-preset="voxdoubler"]').first());await page.locator('#modal').waitFor({state:'hidden'});
  const master=page.locator('#masteringView .vox-doubler-hardware');await master.waitFor();assert.equal(await master.locator('[data-master-param]').count(),5);
  assert.equal(await master.locator('.vox-master-presets optgroup[label="Usine"] option').count(),5);
  await master.locator('.vox-master-presets select').selectOption('1');await master.locator('.vox-master-presets input').fill('QA vox-doubler');await master.locator('[data-vox-save]').click();

@@ -1,3 +1,4 @@
+import {chooseFolderPreset} from './preset-picker-helpers.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/circuit-suite',{recursive:true});const browser=await chromium.launch({headless:true});
 try{
@@ -7,7 +8,7 @@ try{
  for(const id of ids){
   await page.locator('#openMastering').click();await page.locator('#masteringView [data-add-insert-track="master"]').click();
   await page.locator('#pickerBundle').selectOption('CIRCUIT');await page.locator('#pickerMode').selectOption('presets');assert.equal(await page.locator('[data-picker-preset^="vector"]').count(),0);
-  await page.locator('[data-picker-preset="'+id+'"]').first().click();await page.locator('#modal').waitFor({state:'hidden'});
+  await chooseFolderPreset(page.locator('[data-picker-preset="'+id+'"]').first());await page.locator('#modal').waitFor({state:'hidden'});
  }
  const master=page.locator('#masteringView');
  for(const [id,count] of [['circuiteq',9],['circuitbus',7],['circuitcolor',5]]){
