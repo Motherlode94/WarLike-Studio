@@ -18,6 +18,21 @@
 .plugin-preset-library{margin-top:14px;border-top:1px solid var(--line,#68765c);padding-top:8px;font-size:11px}
 .plugin-preset-library > summary{padding:6px;font-weight:600}
 .plugin-command-bar :focus-visible,.plugin-preset-library > summary:focus-visible{outline:2px solid var(--accent,#c9d6ac);outline-offset:2px}
+.plugin-preset-browser{margin-top:7px;min-width:0;border-top:1px solid var(--line,#68765c);padding-top:5px}
+.plugin-preset-browser>summary{cursor:pointer;padding:5px 0;font-weight:600}
+.preset-browser-tools{display:flex;flex-wrap:wrap;gap:6px;margin:7px 0;min-width:0}
+.floating-plugin .preset-browser-tools input,.floating-plugin .preset-browser-tools select{flex:1;min-width:0;width:100%;min-height:32px;padding:6px;border:1px solid var(--line,#68765c);border-radius:4px;background:var(--panel,#263129);color:var(--text,#eff3e7);font:inherit}
+.plugin-preset-browser>output{display:block;margin:6px 0}
+.preset-folder-results{max-height:250px;overflow:auto;min-width:0;scrollbar-width:thin}
+.preset-folder-results details{min-width:0;border-inline-start:1px solid var(--line,#68765c);margin-inline-start:7px;padding-inline-start:6px}
+.preset-folder-results summary{cursor:pointer;padding:7px 3px;overflow-wrap:anywhere;color:var(--text,#eff3e7);font-size:11px}
+.preset-folder-results .preset-folder-choice{display:block;width:100%;min-width:0;text-align:start;padding:7px 9px;white-space:normal!important;overflow-wrap:anywhere;border-radius:3px;font-size:11px;color:var(--text,#eff3e7)}
+.preset-folder-results .preset-folder-choice:hover{background:var(--panel-raised,#39472c)}
+.preset-folder-results :focus-visible{outline:2px solid var(--accent,#c9d6ac);outline-offset:-2px}
+.preset-folder-results button:disabled{opacity:.45;cursor:default}
+.plugin-picker .picker-search{flex-wrap:wrap;align-items:end;gap:6px}
+.plugin-picker .picker-search>label{display:grid;gap:4px;flex:1 1 110px;min-width:0}
+.plugin-picker .picker-search select{width:100%;max-width:100%;min-width:0}
 @media(max-width:660px){
  .plugin-command-surface{flex-direction:column}
  .plugin-command-owner{max-width:100%}

@@ -1,5 +1,9 @@
 # Warlike Studio + CHAYAH Suite
 
+## R08.3g.6 — Organisation des presets
+
+Le mode **Presets** du sélecteur d'instrument ou d'insert classe les sons par **source → collection → famille → plugin → genre**. Chaque fenêtre propose aussi **Parcourir les presets**, avec recherche et sources **Usine / Projet / Cet appareil**, sans changer les indices ni les valeurs des banques. Les commandes de gestion restent dans **Mes presets et racks**. [Fonctionnement et validation](docs/preset-folders.md).
+
 ## R08.3g.3 — Commandes communes des plugins
 
 Les fenêtres de pistes réunissent en haut l'identification piste/insert, les presets, le bypass et A/B pour les effets, ainsi qu'un historique Annuler/Rétablir propre au plugin. **Plus** regroupe Reset et les commandes secondaires ; les banques personnelles et les racks restent accessibles dans un panneau repliable. Les habillages CSS/SVG de chaque processeur sont conservés. [Fonctionnement et limites](docs/plugin-command-bar.md). Validation Chromium requise avant fusion.

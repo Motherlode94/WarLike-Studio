@@ -1,4 +1,5 @@
 import {findPluginControl} from './plugin-window-dom.js';
+import {groupFactoryPresetOptions,mountPluginPresetBrowser} from './plugin-preset-browser.js';
 
 // Move the existing functional controls; listeners and per-window IDs survive.
 export function mountPluginCommandBar({root,body,panel,trackName,slot,canUndo,canRedo,undo,redo,canEdit}){
@@ -7,6 +8,7 @@ export function mountPluginCommandBar({root,body,panel,trackName,slot,canUndo,ca
   const owner=element('span','plugin-command-owner',trackName+' · '+slot);owner.title=owner.textContent;
   const primary=element('div','plugin-command-primary'),actions=element('div','plugin-command-actions');
   const presets=panel.querySelector('.suite-preset-bar');
+  groupFactoryPresetOptions(findPluginControl(panel,'suitePreset'));
   primary.append(owner,presets);bar.append(primary,actions);
   const control=name=>findPluginControl(panel,name);
   for(const name of ['pluginPresetPrevious','pluginPresetNext']){
@@ -30,6 +32,7 @@ export function mountPluginCommandBar({root,body,panel,trackName,slot,canUndo,ca
   panel.append(library);
   const libraryButton=element('button','outline-btn','Mes presets et racks');libraryButton.type='button';
   libraryButton.onclick=()=>{more.open=false;library.open=true;library.scrollIntoView({block:'nearest'});libraryTitle.focus();};menu.append(libraryButton);actions.append(more);
+  mountPluginPresetBrowser({root,bar,panel:body});
   // The visible controls cannot change parameters during capture or finalization.
   for(const type of ['click','change'])bar.addEventListener(type,event=>{if(event.target.closest('button,select')&&!canEdit()){event.preventDefault();event.stopImmediatePropagation();}},true);
   bar.addEventListener('keydown',event=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Home','End','Enter',' '].includes(event.key)&&event.target.matches('button,select')&&!canEdit()){event.preventDefault();event.stopImmediatePropagation();}},true);

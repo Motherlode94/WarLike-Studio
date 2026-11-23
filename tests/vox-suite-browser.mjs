@@ -1,3 +1,4 @@
+import {chooseFolderPreset} from './preset-picker-helpers.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/vox-suite',{recursive:true});const browser=await chromium.launch({headless:true});
 try{
@@ -7,7 +8,7 @@ try{
  for(const id of ids){
   await page.locator('#openMastering').click();await page.locator('#masteringView [data-add-insert-track="master"]').click();
   await page.locator('#pickerBundle').selectOption('VOX LAB');await page.locator('#pickerMode').selectOption('presets');assert.equal(await page.locator('[data-picker-preset^="vector"]').count(),0);
-  await page.locator('[data-picker-preset="'+id+'"]').first().click();await page.locator('#modal').waitFor({state:'hidden'});
+  await chooseFolderPreset(page.locator('[data-picker-preset="'+id+'"]').first());await page.locator('#modal').waitFor({state:'hidden'});
  }
  const master=page.locator('#masteringView');
  for(const [id,count] of [['voxtune',5],['voxclean',6],['voxlevel',6],['voxaireq',7],['voxambience',6]]){
@@ -36,7 +37,7 @@ try{
  await page.setViewportSize({width:1440,height:960});
  await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('.insert-slot.empty [data-insert-slot]').first().click();
  await page.locator('#pickerBundle').selectOption('VOX LAB');await page.locator('#pickerMode').selectOption('presets');await page.locator('#pluginSearch').fill('Suite QA');
- await page.locator('[data-picker-preset="voxambience"]').click();await page.locator('#modal').waitFor({state:'hidden'});
+ await chooseFolderPreset(page.locator('[data-picker-preset="voxambience"]'));await page.locator('#modal').waitFor({state:'hidden'});
  const track=page.locator('#pluginFloat .vox-ambience-hardware');await track.waitFor();assert.equal(await track.locator('[data-param="voxambience.slap"]').inputValue(),'118');
  assert.deepEqual(errors,[]);console.log('PASS: five live VOX LAB surfaces, factory picker, user preset, chain order, project persistence, four themes and mobile');
 }finally{await browser.close();}
