@@ -16,12 +16,14 @@ export function mountRecordingRange(root,project,positionBar,busy=false){
  const start=node('input'),end=node('input');start.id='recordRangeStart';end.id='recordRangeEnd';
  for(const input of [start,end]){input.type='number';input.min='1';input.max=String(project.bars+1);input.step='0.0625';}
  start.value=String(initial.start+1);end.value=String(initial.end+1);startLabel.append(start);endLabel.append(end);controls.append(startLabel,endLabel);field.append(controls);
- const description=node('p','La prise s’arrête à la borne de fin, sans remplacer les autres prises. Le décompte choisi précède le début de cette plage.');field.append(description);
- function refresh(){for(const input of [select,start,end])input.disabled=!toggle.checked;}
+ const preRollLabel=node('label','Prélecture du morceau avant la prise'),preRoll=node('select');preRoll.id='recordPreRoll';
+ for(const bars of [0,1,2,4]){const option=node('option',bars?bars+' mesure'+(bars>1?'s':''):'Aucune');option.value=String(bars);preRoll.append(option);}preRoll.value=String(initial.preRollBars||0);preRollLabel.append(preRoll);field.append(preRollLabel);
+ const description=node('p','Écoute le morceau avant la plage ; seule la plage choisie est enregistrée. La prélecture est raccourcie au début du morceau. Le décompte la précède et les autres prises restent conservées.');field.append(description);
+ function refresh(){for(const input of [select,start,end,preRoll])input.disabled=!toggle.checked;}
  function match(){const found=sections.findIndex(s=>s.start===Number(start.value)-1&&s.start+s.length===Number(end.value)-1);select.value=found<0?'custom':String(found);}
  select.onchange=()=>{const s=sections[Number(select.value)];if(select.value==='custom'||!s)return;start.value=String(s.start+1);end.value=String(s.start+s.length+1);};
  start.oninput=end.oninput=match;toggle.onchange=refresh;match();refresh();const anchor=root.querySelector('#workflowCountIn')?.closest('label');if(anchor)anchor.after(field);else root.append(field);
- return {read(){const range=recordingRange({enabled:toggle.checked,start:Number(start.value)-1,end:Number(end.value)-1});recordingWindow(range,project);return range;}};
+ return {read(){const range=recordingRange({enabled:toggle.checked,start:Number(start.value)-1,end:Number(end.value)-1,preRollBars:Number(preRoll.value)});recordingWindow(range,project);return range;}};
 }
 export function recordingRangeIndicator({getRange,busy,open}){
  const parent=document.getElementById('recordCountIn')?.closest('.record-count-in');if(!parent)return ()=>{};
