@@ -41,7 +41,7 @@ import {auditRouting,measureAudio,verifyWav32} from './audio-certification.js';
 import {encodeWav as encodeCertificationWav} from './wav.js';
 import {installedTrackChains,applyTrackChain} from './track-chain-extension.js';
 import {MIX_TEMPLATES,MASTER_TEMPLATES,TEMPLATE_GENRES,mixTemplatePreview,masterTemplatePreview,applyMixTemplate,applyMasterTemplate} from './mix-master-templates.js';
-import {VOX_STUDIORACKS,STUDIORACK_CATEGORIES,rackCapacity,applyVoxStudioRack,shiftVoxStudioInsert,bypassVoxStudioInsert} from './vox-studioracks.js';
+import {VOX_STUDIORACKS,RACK_CATEGORIES,rackCapacity,planVoxStudioRack,applyVoxStudioRack,shiftVoxStudioInsert,bypassVoxStudioInsert} from './vox-studioracks.js';
 import {parseReaperRpp,matchReaperMedia,reaperBasename} from './reaper-rpp.js';
 import {NATIVE_CHAINS,nativeEffectsForNames,applyNativeChain,nativeChainCapacity} from './native-vocal-chains.js';
 import {VOCAL_DEMOS,createVocalDemoSession} from './vocal-demo-sessions.js';
@@ -1198,7 +1198,7 @@ function syncParameterWidgets(target,control,value,attribute='data-param',trackI
 }
 function openVoxStudioRacks(trackId=selectedTrack){
  const tr=project.tracks.find(t=>t.id===trackId);if(!tr)return;ensurePlugins(tr);
- const categories=[...new Set([...STUDIORACK_CATEGORIES,...Object.values(VOX_STUDIORACKS).map(p=>p.category||'Voix')])];
+ const categories=[...new Set([...RACK_CATEGORIES,...Object.values(VOX_STUDIORACKS).map(p=>p.category||'Voix')])];
  const choices=categories.map(category=>{
   const items=Object.entries(VOX_STUDIORACKS).filter(([,p])=>(p.category||'Voix')===category).map(([key,p])=>{
    const c=rackCapacity(tr,key);
@@ -1207,9 +1207,14 @@ function openVoxStudioRacks(trackId=selectedTrack){
   return items?`<optgroup label="${esc(category)}">${items}</optgroup>`:'';
  }).join('');
  const rackSummary=key=>{
-  const preset=VOX_STUDIORACKS[key];
-  if(!preset)return '';
-  return `<strong>${esc(preset.name)}</strong><p>${esc(preset.description)}</p><ol>${preset.stages.map(stage=>`<li>${esc(effectDefinition(stage.id)?.name||stage.id)}</li>`).join('')}</ol><small>Les réglages individuels restent éditables après insertion.</small>`;
+  if(!key)return '<p>Choisis un preset de chaîne.</p>';
+  const plan=planVoxStudioRack(tr,key);
+  return `<strong>${esc(plan.name)}</strong><p>${esc(plan.description)}</p>
+   <p>${plan.required} plugins natifs à installer · ${plan.available} inserts libres.</p>
+   <ol>${plan.stages.map(stage=>`<li><strong>${esc(stage.name)}</strong><ul>
+    ${Object.entries(stage.values).map(([parameter,value])=>`<li>${esc(parameter)} : ${esc(String(value))}</li>`).join('')}
+    </ul></li>`).join('')}</ol>
+   <small>Prévisualisation uniquement. Le preset ajoute les plugins et leurs réglages en une seule opération. Chaque plugin s'édite ensuite dans sa fenêtre individuelle.</small>`;
  };
  const slots=tr.inserts.map((id,i)=>id?`<div class="vox-rack-stage">
    <span class="vox-rack-position">${String.fromCharCode(65+i)}</span>
@@ -1221,15 +1226,21 @@ function openVoxStudioRacks(trackId=selectedTrack){
   </div>`:'').join('');
  modal('VOX STUDIORACKS · '+tr.name,`<section class="vox-studioracks" data-vox-track="${tr.id}">
   <header><strong>WARLIKE / VOX STUDIORACKS</strong><span>RACK DSP ACTIF · ${tr.inserts.filter(Boolean).length} / ${tr.inserts.length} INSERTS</span></header>
-  <p>Choisis un mix vocal, instrumental, bus ou mastering. La liste ci-dessous montre l’ordre réel des plugins. Les traitements sont les inserts de Play et de l’export WAV.</p>
+  <p>Choisis un genre musical ou un template Mix/Master. Le rack installe les plugins natifs et leurs paramètres; il ne remplace pas les fenêtres individuelles des effets. Les traitements fonctionnent dans Play et l’export WAV.</p>
   <div class="vox-rack-apply"><label>PRESET / TYPE DE MIX <select id="voxStudioPreset">${choices}</select></label>
   <button class="primary-btn" id="voxStudioApply">Ajouter aux inserts libres</button></div>
+  <nav class="vox-rack-template-navigation" aria-label="Presets par genre et usage">
+   <button type="button" class="outline-btn" id="voxRackInstrumentTemplates">Instruments par genre</button>
+   <button type="button" class="outline-btn" id="voxRackMasterTemplates">Master par genre</button>
+  </nav>
   <div class="vox-rack-preset-details" id="voxStudioPreview" aria-live="polite"></div>
   <div class="vox-rack-stages">${slots||'<p>Aucun effet sur cette piste. Choisis une chaîne ci-dessus.</p>'}</div>
   <small>Déplacer modifie le routage de la piste · Bypass conserve le réglage · Les inserts déjà présents sont préservés.</small>
   </section>`,'CHAYAH SUITE / DSP');
  const root=document.querySelector('#modalBody .vox-studioracks');
  const presetSelect=root.querySelector('#voxStudioPreset'),preview=root.querySelector('#voxStudioPreview');
+ root.querySelector('#voxRackInstrumentTemplates').onclick=()=>openMixMasterTemplates('mix',tr.id);
+ root.querySelector('#voxRackMasterTemplates').onclick=()=>openMixMasterTemplates('master');
  const refreshRackPreview=()=>{preview.innerHTML=rackSummary(presetSelect.value);};
  presetSelect.addEventListener('change',refreshRackPreview);
  refreshRackPreview();

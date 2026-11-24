@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {ensurePlugins,EFFECTS} from '../dist/plugins.js';
-import {VOX_STUDIORACKS,rackCapacity,applyVoxStudioRack,shiftVoxStudioInsert,bypassVoxStudioInsert} from '../dist/vox-studioracks.js';
+import {VOX_STUDIORACKS,RACK_CATEGORIES,planVoxStudioRack,rackCapacity,applyVoxStudioRack,shiftVoxStudioInsert,bypassVoxStudioInsert} from '../dist/vox-studioracks.js';
+import {GENRE_RACK_CATEGORIES,GENRE_RACK_PRESETS} from '../dist/genre-rack-presets.js';
 const track=()=>{const t={id:'test-voice',name:'Lead vocal',type:'audio',clips:[]};ensurePlugins(t);return t;};
 test('every VOX STUDIORACKS preset references working registered DSP with bounded values',()=>{
  assert.ok(['trapLead','afroLead','rnbSilk','cleanVoice'].every(id=>VOX_STUDIORACKS[id]));
@@ -46,4 +47,40 @@ test('rack controls update the same persisted state as the DAW mixer',()=>{
  assert.equal(shiftVoxStudioInsert(t,0,1),true);
  assert.equal(t.inserts[0],second);assert.equal(t.inserts[1],first);
  assert.equal(shiftVoxStudioInsert(t,0,-1),false);
+});
+
+test('genre rack offers a complete native chain for every supported musical genre',()=>{
+ const genres=new Set(Object.values(GENRE_RACK_PRESETS).map(p=>p.genre));
+ assert.deepEqual([...genres].sort(),[...GENRE_RACK_CATEGORIES].sort());
+ assert(GENRE_RACK_CATEGORIES.length>=12);
+ for(const [genre,preset] of Object.entries(GENRE_RACK_PRESETS)){
+  assert.equal(preset.genre,preset.category,genre);
+  assert(RACK_CATEGORIES.includes(preset.genre));
+  const t=track(),before=structuredClone(t);
+  const plan=planVoxStudioRack(t,genre);
+  assert.equal(plan.name,preset.name);
+  assert.equal(plan.canApply,true,genre);
+  assert.equal(plan.required,preset.stages.length);
+  assert(plan.stages.length>=3);
+  assert.deepEqual(t,before,'preview may not touch the track: '+genre);
+  const result=applyVoxStudioRack(t,genre);
+  assert.equal(result.length,preset.stages.length);
+  assert.deepEqual(result.map(s=>s.id),preset.stages.map(s=>s.id),genre+' order changed');
+  for(let i=0;i<result.length;i++){
+   const stage=preset.stages[i],installed=t.effects[result[i].id];
+   assert.equal(installed.enabled,true);
+   for(const [parameter,value] of Object.entries(stage.values))
+    assert.equal(installed[parameter],value,genre+' '+stage.id+'.'+parameter);
+  }
+ }
+});
+test('rack plan rejects missing capacity without partially installing genre plugins',()=>{
+ const t=track();t.inserts=t.inserts.map((_,i)=>i<2?null:'color__instance'+i);
+ const before=structuredClone(t);
+ const plan=planVoxStudioRack(t,'trapVocal');
+ assert.equal(plan.canApply,false);
+ assert.equal(plan.available,2);
+ assert.throws(()=>applyVoxStudioRack(t,'trapVocal'),/inserts libres/);
+ assert.deepEqual(t,before);
+ assert.throws(()=>planVoxStudioRack(t,'unknownGenre'),/inconnu/);
 });

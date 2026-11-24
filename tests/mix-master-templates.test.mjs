@@ -5,6 +5,8 @@ import {createContentTrack} from '../dist/content.js';
 import {placeInsert,ensurePlugins,INSERT_COUNT} from '../dist/plugins.js';
 import {emptyProject} from '../dist/audio.js';
 import {masteringSettings} from '../dist/mastering.js';
+import {GENRE_INSTRUMENT_TEMPLATES,GENRE_MASTER_TEMPLATES} from '../dist/genre-instrument-master-templates.js';
+import {GENRE_RACK_CATEGORIES} from '../dist/genre-rack-presets.js';
 
 test('mix and master templates reference genuine engines and valid DSP ranges',()=>{
  assert.ok(MIX_TEMPLATES.length>=20);
@@ -50,5 +52,53 @@ test('master templates alter master only, keep ordered modules and bypass false'
   assert.deepEqual(project.mastering.inserts.filter(Boolean),planned);
   for(const id of planned)assert.equal(project.mastering[id].enabled,true);
   assert.deepEqual(project.mastering,masteringSettings(project.mastering));
+ }
+});
+
+test('all music genres have separate instrumental and master racks with authentic DSP',()=>{
+ const genres=[...GENRE_RACK_CATEGORIES].sort();
+ assert.equal(GENRE_INSTRUMENT_TEMPLATES.length,genres.length);
+ assert.equal(GENRE_MASTER_TEMPLATES.length,genres.length);
+ assert.deepEqual(GENRE_INSTRUMENT_TEMPLATES.map(t=>t.genre).sort(),genres);
+ assert.deepEqual(GENRE_MASTER_TEMPLATES.map(t=>t.genre).sort(),genres);
+ for(const [collection,kind] of [[GENRE_INSTRUMENT_TEMPLATES,'mix'],[GENRE_MASTER_TEMPLATES,'master']]){
+  for(const preset of collection){
+   assert.equal(validateTemplate(preset,kind),true,preset.name);
+   assert.equal(preset.stages.length,3,preset.name);
+   assert.equal(new Set(preset.stages.map(stage=>stage.id)).size,3);
+   const start=kind==='master'?masterTemplatePreview(preset):mixTemplatePreview(preset);
+   assert.match(start,/01 ·/);
+  }
+ }
+});
+test('genre instrument rack installs actual parameter states, without replacing notes, instrument or route',()=>{
+ for(const preset of GENRE_INSTRUMENT_TEMPLATES){
+  const track=createContentTrack('piano');
+  ensurePlugins(track);track.clips=[{id:'keep',notes:[{midi:64}]}];
+  const before=structuredClone(track);
+  applyMixTemplate(track,preset,{mode:'append'});
+  assert.equal(track.type,before.type);
+  assert.deepEqual(track.clips,before.clips);
+  assert.equal(track.output,before.output);
+  for(const stage of preset.stages){
+   const instance=track.inserts.find(id=>id===stage.id||id?.startsWith(stage.id+'__'));
+   assert(instance,preset.name+' missing '+stage.id);
+   for(const [key,value] of Object.entries(stage.values))
+    assert.equal(track.effects[instance][key],value,preset.name+'.'+stage.id+'.'+key);
+  }
+ }
+});
+test('genre master rack replaces only mastering stages, with prescribed parameters',()=>{
+ for(const preset of GENRE_MASTER_TEMPLATES){
+  const project=emptyProject(),originalTracks=structuredClone(project.tracks);
+  applyMasterTemplate(project,preset);
+  assert.deepEqual(project.tracks,originalTracks);
+  assert.deepEqual(project.mastering.inserts.filter(Boolean),preset.stages.map(s=>s.id));
+  for(const stage of preset.stages){
+   const actual=project.mastering[stage.id];
+   assert.equal(actual.enabled,true);
+   for(const [key,value] of Object.entries(stage.values))
+    assert.equal(actual[key],value,preset.name+'.'+stage.id+'.'+key);
+  }
  }
 });
