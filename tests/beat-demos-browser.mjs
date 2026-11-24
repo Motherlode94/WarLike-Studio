@@ -1,5 +1,5 @@
 
-async function sessionTab(page,tab){const button=page.locator('[data-session-tab="'+tab+'"]');await button.waitFor({state:'visible'});await button.click();if(tab==='demos')await page.locator('[data-demo-catalog="short"]').click();}
+async function sessionTab(page,tab){const button=page.locator('[data-session-tab="'+tab+'"]');await button.waitFor({state:'visible'});await button.click();if(tab==='demos')await page.locator('#modal .project-short-demos [data-public-demo]').first().waitFor({state:'visible'});}
 import assert from 'node:assert/strict';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
@@ -88,10 +88,11 @@ try{
   const downloadPromise=page.waitForEvent('download');await page.locator('#saveProject').click();
   const download=await downloadPromise,path=directory+'/'+kind+'.chayah';await download.saveAs(path);
   const saved=JSON.parse(await readFile(path,'utf8'));
-  assert.equal(saved.project.demoGenre,kind);assert.equal(saved.project.tracks.filter(t=>t.type!=='bus').length,kind==='funk'?7:9);
+  assert.equal(saved.project.demoGenre,kind);assert.equal(saved.project.tracks.filter(t=>t.type!=='bus').length,kind==='funk'?10:12);
+   assert.equal(saved.project.tracks.filter(t=>t.type==='wlvox'&&t.clips.length).length,3,'complete public demos must contain lead, harmonies and adlibs');
   const buses=saved.project.tracks.filter(t=>t.type==='bus');
-  assert.equal(buses.length,3,'instrumental demos must contain three group buses');
-  assert.deepEqual(buses.map(t=>t.id).sort(),['demobusbass','demobusdrums','demobusmusic']);
+  assert.equal(buses.length,4,'complete demos require drums, bass, music and vocal group buses');
+  assert.deepEqual(buses.map(t=>t.id).sort(),['demobusbass','demobusdrums','demobusmusic','demobusvocals']);
   for(const bus of buses){assert.equal(bus.output,'master');assert.equal(bus.volume,0);assert.ok(saved.project.tracks.some(t=>t.type!=='bus'&&t.output===bus.id),'group bus must receive a source');}
   for(const t of saved.project.tracks.filter(t=>t.type!=='bus'&&t.clips.length))assert.ok(buses.some(b=>b.id===t.output),'source must route to its group bus');assert.equal(saved.masterVolume,-9);
   const bass=saved.project.tracks.find(t=>t.type==='bass');
