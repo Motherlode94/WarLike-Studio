@@ -55,7 +55,7 @@ export function mountInstrumentFace(panel,{id,definition,state,formatValue}){
  const performance=instrumentPerformanceDeck(id,definition);
  if(performance){
   const available=new Map([...panel.querySelectorAll('.plugin-window-params .param')]
-   .map(node=>[node.querySelector('[data-param]')?.dataset.param?.replace(/^instrument\\./,''),node]));
+   .map(node=>[node.querySelector('[data-param]')?.dataset.param?.replace(/^instrument\./,''),node]));
   if(performance.keys.every(key=>available.has(key))){
    const deck=el('section',null,'instrument-performance-deck');
    deck.dataset.performanceType=performance.type;
