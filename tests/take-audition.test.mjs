@@ -22,3 +22,20 @@ test('stopping or ending restores the cursor and transport modes without resumin
 test('closing while prepare is pending cannot restart playback or overwrite a later audition',async()=>{
  const h=harness();let release;h.e.play=()=>new Promise(resolve=>{release=resolve;});const pending=h.a.listen('a',{start:2,end:4});h.a.stop();h.e.takePreview={external:true};release();await pending;assert.deepEqual(h.e.takePreview,{external:true});assert.equal(h.e.position,96);h.a.dispose();
 });
+test('before and after restart the same context while keeping one preview and the original transport',async()=>{
+ const h=harness(),before=structuredClone(h.p),range={start:1.75,end:3.25},current=h.p.tracks[0].clips,proposed=[{id:'new',audioId:'a',start:2,length:1,gainDb:-6,fadeIn:.02,fadeOut:.02}];
+ await h.a.listen(null,range,{clips:current,comparison:'before',loop:true});assert.equal(h.e.takePreview.comparison,'before');assert.equal(h.e.takePreview.project.tracks[0].clips[0].audioId,'old');assert.equal(h.e.loop,true);assert.equal(h.e.position,28);
+ await h.a.listen(null,range,{clips:proposed,comparison:'after'});assert.equal(h.e.takePreview.comparison,'after');assert.equal(h.e.takePreview.project.tracks[0].clips[0].audioId,'a');assert.equal(h.e.takePreview.project.tracks[0].clips[0].gainDb,-6);assert.equal(h.e.loop,false);assert.equal(h.e.position,28);
+ await h.a.listen(null,range,{clips:current,comparison:'before'});assert.equal(h.e.takePreview.project.tracks[0].clips[0].audioId,'old');h.a.stop();assert.equal(h.e.position,96);assert.equal(h.e.loop,true);assert.equal(h.e.patternMode,'pattern');assert.deepEqual(h.e.clipPreview,{id:'clip'});assert.equal(h.e.takePreview,undefined);assert.deepEqual(h.p,before);h.a.dispose();
+});
+test('comparison states distinguish before, after and idle',async()=>{
+ const h=harness(),events=[],a=createTakeAudition({engine:h.e,project:h.p,trackId:'vox',onChange:state=>events.push(state),setTimer:()=>1,clearTimer:()=>{}});
+ await a.listen(null,{start:2,end:3},{clips:h.p.tracks[0].clips,comparison:'before'});assert.deepEqual(events.slice(-2).map(s=>[s.status,s.comparison]),[['preparing','before'],['playing','before']]);a.stop();assert.deepEqual(events.at(-1),{status:'idle'});a.dispose();h.a.dispose();
+});
+
+test('before can compare an empty, out of range or muted target with the unchanged accompaniment',async()=>{
+ for(const clips of [[],[{id:'outside',audioId:'old',start:8,length:1}],[{id:'muted',audioId:'old',start:2,length:1,muted:true}]]){
+  const h=harness();h.p.tracks[0].clips=clips;const before=structuredClone(h.p);await h.a.listen(null,{start:2,end:3},{clips,comparison:'before'});assert.equal(h.e.playing,true);assert.equal(h.e.takePreview.project.bars,3);assert.deepEqual(h.e.takePreview.range,{start:2,end:3});assert.ok(h.e.takePreview.project.tracks[0].clips.every(c=>c.muted));assert.equal(h.e.takePreview.project.tracks[1].clips[0].audioId,'music');assert.equal(h.e.takePreview.project.tracks[1].clips[0].sourceOffset,4);h.a.stop();assert.equal(h.e.position,96);assert.deepEqual(h.p,before);
+  await assert.rejects(()=>h.a.listen(null,{start:2,end:3},{clips,comparison:'after'}),/ne contient pas/);assert.throws(()=>takeAuditionProject(h.p,'vox','a',{start:8,end:9}),/ne contient pas/);h.a.dispose();
+ }
+});

@@ -9,6 +9,7 @@ function destination(track,mode){
 }
 export function compFadeMs(value=8){if(!Number.isFinite(value)||value<0||value>50)throw Error('Choisis un fondu de raccord entre 0 et 50 ms.');return value;}
 export function compGainOffsetDb(value=0){if(!Number.isFinite(value)||value< -24||value>24)throw Error('Choisis un ajustement de niveau entre −24 et +24 dB.');return value;}
+function validRange({start,end},bars){if(![start,end,bars].every(Number.isFinite)||start<0||end<=start||end>bars)throw Error('Choisis une plage de montage valide dans le morceau.');}
 function seamFades(clips,pieces,range,bpm,milliseconds){
  const inserted=new Set(pieces.map(c=>c.id)),seconds=milliseconds/1000;
  for(const c of clips){if(!c.audioId)continue;const amount=Math.min(seconds,c.length*240/bpm/2);if(inserted.has(c.id)||Math.abs(c.start-range.end)<1e-8)c.fadeIn=amount;if(inserted.has(c.id)||Math.abs(c.start+c.length-range.start)<1e-8)c.fadeOut=amount;}
@@ -19,14 +20,14 @@ export function prepareComp(project,trackId,sourceId,range,idFactory,{mode='new'
  destination(track,mode);
  fadeMs=compFadeMs(fadeMs);
  gainOffsetDb=compGainOffsetDb(gainOffsetDb);
- if(![start,end].every(Number.isFinite)||start<0||end<=start||end>project.bars)throw Error('Choisis une plage de montage valide dans le morceau.');
+ validRange(range,project.bars);
  const candidate=structuredClone(track),pieces=compPlaylist(candidate,sourceId,start,end,project.bpm,idFactory);
  for(const c of pieces){if(!c.audioId)continue;const gain=(c.gainDb??0)+gainOffsetDb;if(!Number.isFinite(gain)||gain<CLIP_GAIN_MIN_DB||gain>CLIP_GAIN_MAX_DB)throw Error('Le gain final d’un extrait doit rester entre −24 et +36 dB. Réduis l’ajustement.');if(gainOffsetDb!==0)c.gainDb=gain;}
  seamFades(candidate.clips,pieces,range,project.bpm,fadeMs);
  if(candidate.clips.length>512)throw Error('Le montage dépasse la limite de 512 clips par piste. Réduis le nombre d’extraits.');
  return {trackId,sourceId,range:{start,end},mode,fadeMs,gainOffsetDb,base:base(track),clips:candidate.clips,pieces};
 }
-export function compContext(range,bars){return {start:Math.max(0,range.start-.25),end:Math.min(bars,range.end+.25)};}
+export function compContext(range,bars){validRange(range,bars);return {start:Math.max(0,range.start-.25),end:Math.min(bars,range.end+.25)};}
 export function commitComp(track,prepared,idFactory){
  const mode=prepared.mode||'new',fadeMs=compFadeMs(prepared.fadeMs);destination(track,mode);
  compGainOffsetDb(prepared.gainOffsetDb);
