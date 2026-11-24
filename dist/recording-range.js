@@ -1,11 +1,13 @@
 import {MAX_BARS} from './studio-model.js?v=0.14.0';
+import {seriesTakes} from './recording-series.js';
 export function recordingRange(value){
  if(value==null)return null;
  const start=Number(value.start),end=Number(value.end);
  if(typeof value!=='object'||!Number.isFinite(start)||!Number.isFinite(end)||start<0||end<=start||end>MAX_BARS)throw Error('Plage de prise invalide : la fin doit suivre le début.');
  const preRollBars=Number(value.preRollBars??0);
  if(![0,1,2,4].includes(preRollBars))throw Error('Prélecture invalide : choisis 0, 1, 2 ou 4 mesures.');
- return {enabled:value.enabled===true,start,end,...(preRollBars?{preRollBars}:{})};
+ const takes=seriesTakes(value.takes??1);
+ return {enabled:value.enabled===true,start,end,...(preRollBars?{preRollBars}:{}),...(takes>1?{takes}:{})};
 }
 export function recordingWindow(value,{bars,bpm}){
  const range=recordingRange(value);if(!range?.enabled)return null;

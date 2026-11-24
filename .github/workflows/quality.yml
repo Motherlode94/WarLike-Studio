@@ -43,6 +43,7 @@ jobs:
           node tests/recording-count-in-browser.mjs
           node tests/recording-range-browser.mjs
           node tests/recording-preroll-browser.mjs
+          node tests/recording-series-browser.mjs
           node tests/vocal-audio-browser.mjs
           node tests/beat-demos-browser.mjs
           node tests/export-browser.mjs
@@ -66,6 +67,13 @@ jobs:
         with:
           name: recording-preroll
           path: artifacts/recording-preroll/
+          if-no-files-found: warn
+      - name: Recording series evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: recording-series
+          path: artifacts/recording-series/
           if-no-files-found: warn
       - name: Reference workspace screenshots
         if: always()

@@ -10,6 +10,7 @@ import {emitRecordingTelemetry} from './recording-telemetry.js';
 import {createRecordingSignalDiagnostics} from './recording-signal-diagnostics.js';
 import {createRecordingCountIn} from './recording-count-in.js';
 import {createRecordingPreRoll} from './recording-preroll.js';
+import {createRecordingSeries} from './recording-series.js';
 import {recordingWindow,rangePlacement} from './recording-range.js';
 import {mountRecordingRange,recordingRangeIndicator} from './recording-range-ui.js';
 import {evaluateLoopbackLatency} from './recording-loopback-analysis.js';
@@ -21,8 +22,10 @@ const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>(
 const SUPPORTED={color:['mix','output'],sculpt:['cutoff','highpass'],prism:['low','mid','high','lowFreq','midFreq','highFreq','q'],glue:['threshold','ratio','attack','release','makeup','knee','mix'],echo:['mix','feedback'],aura:['mix'],hush:['threshold'],sibil:['threshold','frequency'],ember:['mix','tone','output'],orbit:['rate','depth','width','mix'],sway:['rate','depth','pan','mix'],relay:['feedback','tone','mix']};
 export function automationParameters(track){const list=[{key:'volume',name:'Volume',min:-48,max:12,value:track.volume},{key:'pan',name:'Panoramique',min:-1,max:1,value:track.pan}];for(const s of track.sends||[])list.push({key:'send:'+s.id,name:'Envoi '+s.target,min:-60,max:12,value:s.level});for(const id of track.inserts||[])if(id){const d=effectDefinition(id);for(const c of d.controls)if(SUPPORTED[effectType(id)]?.includes(c.key)||STUDIO_EFFECTS[effectType(id)]&& !['drive','bias','duck','range','beats','peakThreshold','levelThreshold'].includes(c.key))list.push({key:id+':'+c.key,name:d.name+' · '+c.name,min:c.min,max:c.max,value:track.effects[id][c.key]});}return list;}
 export function installStudioWorkflow(d){
-  let pendingRecord=null;
+  let pendingRecord=null,recordingSeries=null;
+  function cancelRecordingSeries(){recordingSeries?.cancel();}
   function cancelPendingRecording(){
+    cancelRecordingSeries();
     if(!pendingRecord||!d.getRecordState().micPending)return false;
     pendingRecord.cancelled=true;pendingRecord.stream?.getTracks().forEach(t=>t.stop());engine().pause();if(pendingRecord.returnPosition!==undefined)engine().position=pendingRecord.returnPosition;if(pendingRecord.previousLoop!==undefined)engine().loop=pendingRecord.previousLoop;d.setFlags({micPending:false});d.updateTransport();d.toast('Préparation annulée. Aucune prise créée.');return true;
   }
@@ -180,11 +183,14 @@ export function installStudioWorkflow(d){
   }
   // Both armed mono inputs are captured by a single stereo worklet on the
   // same AudioContext clock. This avoids drift between independent recorders.
-  async function record(){
+  const seriesSignature=()=>JSON.stringify({bpm:p().bpm,recording:recordingSettings(p().recording),audioSetup:setup(),armed:armedRecordingTracks(p()).map(a=>[a.track.id,a.channel])});
+  const seriesMatches=series=>{try{return p()===series.project&&series.signature===seriesSignature()&&(!series.target||p().tracks.includes(series.target))&&!document.hidden;}catch{return false;}};
+  async function record(series=null){
     if(d.getRecordState().recording){await stopRecording();return;}
     if(d.getRecordState().recordFinalizing||d.getRecordState().micPending)return;
+    if(series&&(recordingSeries!==series||!series.state.active||!seriesMatches(series)))return;
     const request={cancelled:false,project:p(),bpm:p().bpm};pendingRecord=request;
-    const checkRequest=()=>{if(request.cancelled||pendingRecord!==request)throw new DOMException('Préparation annulée.','AbortError');if(p()!==request.project||p().bpm!==request.bpm)throw Error('Le projet ou le tempo a changé pendant la préparation. Relance la prise.');};
+    const checkRequest=()=>{if(request.cancelled||pendingRecord!==request||series&&(!series.state.active||!seriesMatches(series)))throw new DOMException('Préparation annulée.','AbortError');if(p()!==request.project||p().bpm!==request.bpm)throw Error('Le projet ou le tempo a changé pendant la préparation. Relance la prise.');};
     let stream,graph,capture,journal,activeRec=null,previousLoop;
     d.setFlags({micPending:true});d.updateTransport();
     try{
@@ -194,12 +200,14 @@ export function installStudioWorkflow(d){
       const a=setup(),assignments=armedRecordingTracks(p());
       const window=recordingWindow(p().recording?.range,p());
       if(window&&window.seconds<=Math.abs(a.latencyMs||0)/1000)throw Error('La compensation de latence est plus longue que la plage de prise.');
+      if(!series&&window?.takes>1){if(document.hidden)throw Error('Garde Studio visible pour lancer une série.');series=createRecordingSeries(window.takes);series.project=p();series.signature=seriesSignature();recordingSeries=series;}
       stream=await navigator.mediaDevices.getUserMedia(recordingInputConstraints(a,assignments));
       request.stream=stream;
       checkRequest();
       validateRecordingInputChannels(stream.getAudioTracks()[0]?.getSettings?.()||{},assignments,a.channel);
-      let t=track();if(!assignments.length&&t.type!=='audio')t=d.addTrack('audio');
+      let t=series?.target||track();if(!assignments.length&&t.type!=='audio')t=d.addTrack('audio');
       const targets=assignments.length?assignments:[{track:t,channel:a.channel==='2'?'2':'1'}];
+      if(series&&!series.target)series.target=targets[0].track;
       const mode=assignments.length?captureChannelMode(assignments):a.channel;
       engine().pause();engine().patternMode=null;engine().clipPreview=null;
       const originalPosition=engine().position;if(window){request.returnPosition=originalPosition;engine().position=window.playbackStart*16;}
@@ -212,13 +220,13 @@ export function installStudioWorkflow(d){
       try{
         journal=await beginRecordingJournal({sampleRate:engine().ctx.sampleRate,channels:mode==='stereo'?2:1,projectName:p().name||'Session',onError:error=>{if(activeRec&&d.getRecordState().recording===activeRec){d.toast('Stockage de secours interrompu : '+error.message+'. Finalisation de la prise.');void stopRecording();}}});
       }catch(error){
-        journal=null;d.toast('Sauvegarde de secours indisponible : '+error.message+'. Termine et exporte chaque prise.');
+        journal=null;series?.cancel();d.toast('Sauvegarde de secours indisponible : '+error.message+'. Termine et exporte chaque prise.');
       }
       checkRequest();
       const signalDiagnostics=createRecordingSignalDiagnostics({sampleRate:engine().ctx.sampleRate,channels:mode==='stereo'?2:1});
       capture=await createPcmCapture(engine().ctx,graph.inputNode,{
         channel:mode,
-        onComplete:()=>{if(activeRec&&d.getRecordState().recording===activeRec)void stopRecording();},
+        onComplete:()=>{if(activeRec&&d.getRecordState().recording===activeRec)void stopRecording({automatic:true});},
         onChunk:channels=>{signalDiagnostics.add(channels);journal?.append(channels);},
         // With a durable journal available, keep only the current PCM group
         // in memory. Fallback to the legacy in-RAM capture if IndexedDB fails to open.
@@ -235,7 +243,7 @@ export function installStudioWorkflow(d){
         d.toast('Retour casque logiciel actif : utilise impérativement un casque pour éviter les larsens.');
       }
       const telemetryId=uid();
-      const rec={telemetryId,stream,graph,capture,journal,signalDiagnostics,track:targets[0].track,assignments:targets,start,originalPosition,window,previousLoop,options:clone(a),captureMode:mode,autoLevel:recordingSettings(p().recording).autoLevel};
+      const rec={telemetryId,stream,graph,capture,journal,signalDiagnostics,track:targets[0].track,assignments:targets,start,originalPosition,window,previousLoop,series,seriesIndex:series?.state.current,options:clone(series?{...a,keepTakes:true}:a),captureMode:mode,autoLevel:recordingSettings(p().recording).autoLevel};
       activeRec=rec;pendingRecord=null;d.setRecording(rec);d.setFlags({micPending:false});engine().recordingTrackId=targets[0].track.id;
       engine().recordingEndStep=window?window.end*16:null;
       engine().loop=false;
@@ -272,6 +280,7 @@ export function installStudioWorkflow(d){
       },500);
       d.updateTransport();d.toast(targets.length>1?'Capture PCM synchronisée sur deux entrées.':'Capture PCM active. Stop termine la prise.');
     }catch(error){
+      series?.cancel();if(recordingSeries===series)recordingSeries=null;
       const owned=activeRec?d.getRecordState().recording===activeRec:pendingRecord===request;
       activeRec?.countIn?.cancel();activeRec?.preRoll?.cancel();if(activeRec&&owned)engine().pause();
       if(journal&&!capture?.frames)try{await journal.clear();}catch{}
@@ -282,8 +291,9 @@ export function installStudioWorkflow(d){
       d.toast('Enregistrement impossible : '+error.message);d.updateTransport();
     }
   }
-  async function stopRecording(){
-    const rec=d.getRecordState().recording;if(!rec)return;
+  async function stopRecording({automatic=false}={}){
+    if(!automatic)cancelRecordingSeries();
+    const rec=d.getRecordState().recording;if(!rec){if(!automatic)cancelPendingRecording();return;}
     d.setRecording(null);d.setFlags({recordFinalizing:true});clearInterval(rec.timer);
     const cancelledBeforeStart=Number.isFinite(rec.captureAt)?engine().ctx.currentTime<rec.captureAt:!rec.started;
     rec.countIn?.cancel();rec.preRoll?.cancel();
@@ -291,11 +301,13 @@ export function installStudioWorkflow(d){
     if(cancelledBeforeStart){
       try{rec.capture.dispose();await rec.journal?.clear();d.toast('Préparation annulée. Aucune prise créée.');}
       catch(error){d.toast('Préparation annulée : '+error.message);}
-      finally{rec.journal?.close();graphCleanup(rec);d.setFlags({recordFinalizing:false});d.updateTransport();}
+      finally{rec.series?.cancel();if(recordingSeries===rec.series)recordingSeries=null;rec.journal?.close();graphCleanup(rec);d.setFlags({recordFinalizing:false});d.updateTransport();}
       return;
     }
+    let persisted=false,complete=false;
     try{
       const inMemory=await rec.capture.stop();
+      complete=!!rec.window&&rec.capture.frames===Math.round((rec.captureAt+rec.window.seconds)*engine().ctx.sampleRate)-Math.round(rec.captureAt*engine().ctx.sampleRate);
       emitRecordingTelemetry('progress',{takeId:rec.telemetryId,frames:rec.capture.frames,sampleRate:engine().ctx.sampleRate});
       // Journal-backed capture never accumulates PCM blocks in JS memory.
       // A cursor reads the stored groups directly into the final AudioBuffer.
@@ -310,7 +322,7 @@ export function installStudioWorkflow(d){
         const quality=inspectRecordedTake(buffer);
         const data=encodeWav(buffer,{bits:32}),levels=measureBuffer(buffer);
         const gain=rec.autoLevel?normalisationGain(levels):{gainDb:0};
-        const name='Prise '+new Date().toLocaleTimeString('fr-FR')+' · '+track.name;
+        const name='Prise '+(rec.series?rec.seriesIndex+'/'+rec.series.state.total+' · ':'')+new Date().toLocaleTimeString('fr-FR')+' · '+track.name;
         const placement=rangePlacement(recordingPlacement(rec.start/16,buffer.duration,p().bpm,rec.options.latencyMs),rec.window,p().bpm);
         return {track,id:uid(),name,data,buffer,levels,gain,placement,quality};
       });
@@ -328,6 +340,7 @@ export function installStudioWorkflow(d){
       // The WAV buffers remain available in this session if storage fails.
       try{
         await d.persistNow();
+        persisted=true;
         try{await rec.journal?.clear();}catch(error){console.warn('Journal de récupération conservé',error);}
         emitRecordingTelemetry('finalized',{takeId:rec.telemetryId,frames:rec.capture.frames,sampleRate:engine().ctx.sampleRate,signal:rec.signalDiagnostics.snapshot()});
         d.toast(prepared.length+' prise(s) PCM enregistrée(s) et sauvegardée(s) localement.');
@@ -336,7 +349,16 @@ export function installStudioWorkflow(d){
         d.toast('Prise en mémoire, mais sauvegarde locale échouée : '+saveError.message+'. Exporte le projet avant de fermer.');
       }
     }catch(error){emitRecordingTelemetry('error',{takeId:rec.telemetryId,message:error.message});d.toast('Capture impossible : '+error.message);}
-    finally{rec.journal?.close();graphCleanup(rec);d.setFlags({recordFinalizing:false});d.updateTransport();}
+    finally{
+      rec.journal?.close();graphCleanup(rec);d.setFlags({recordFinalizing:false});
+      const series=rec.series;
+      if(series&&recordingSeries===series){
+        if(!seriesMatches(series))series.cancel();
+        if(series.advance({persisted,complete,automatic})){void record(series);}
+        else{recordingSeries=null;if(persisted&&automatic&&complete&&series.state.current===series.state.total)d.toast('Série terminée : '+series.state.total+' prises sauvegardées par piste.');}
+      }
+      d.updateTransport();
+    }
   }
   function graphCleanup(rec){rec.graph.dispose();rec.stream.getTracks().forEach(t=>t.stop());}
   function stopTest(){testGraph?.dispose();testGraph=null;}
@@ -357,6 +379,6 @@ export function installStudioWorkflow(d){
   document.addEventListener('focusout',e=>{sendEdits.delete(e.target);});
   document.addEventListener('input',e=>{if(e.target.dataset.sendLevel){const [id,sid]=e.target.dataset.sendLevel.split(':'),t=p().tracks.find(t=>t.id===id),s=t?.sends?.find(s=>s.id===sid);if(!s||!String(e.target.value).trim())return;const value=Number(e.target.value);if(!Number.isFinite(value))return;const level=Math.max(-60,Math.min(12,value));if(level===s.level)return;if(!sendEdits.has(e.target)){d.checkpoint();sendEdits.add(e.target);}s.level=level;for(const label of document.querySelectorAll(`[data-send-db="${sid}"]`))label.textContent=s.level.toFixed(1)+' dB';for(const slider of document.querySelectorAll(`[data-send-level="${id}:${sid}"]`))if(slider!==e.target)slider.value=s.level;d.changed();}});
   function updateFrame(){updateRangeIndicator();if(!engine().playing)return;const bar=engine().getPosition()/16;for(const t of p().tracks)if(t.automation?.mode==='read'){for(const key of ['volume','pan']){const points=t.automation.curves[key];if(!points?.length)continue;const value=pointValue(points,bar,t[key]);if(key==='volume'){for(const node of document.querySelectorAll(`[data-db="${t.id}"]`))node.textContent=value.toFixed(1)+' dB';for(const node of document.querySelectorAll(`[data-volume="${t.id}"]`))if(node!==document.activeElement)node.value=value;}}}}
-  document.addEventListener('visibilitychange',()=>{const rec=d.getRecordState().recording;if(document.hidden&&(rec?.countIn||rec?.preRoll))void stopRecording();});
-  return {renderMastering,renderInspector,renderMixer,renderAudioEditor,renderTimeline,exportModal,recordingModal,record,stopRecording,cancelPendingRecording,versionsModal,snapshot,updateFrame,stopTest};
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)return;cancelRecordingSeries();const rec=d.getRecordState().recording;if(rec?.countIn||rec?.preRoll)void stopRecording();});
+  return {renderMastering,renderInspector,renderMixer,renderAudioEditor,renderTimeline,exportModal,recordingModal,record,stopRecording,cancelPendingRecording,cancelRecordingSeries,versionsModal,snapshot,updateFrame,stopTest};
 }
