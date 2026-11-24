@@ -3,7 +3,7 @@ import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
 import {emptyProject} from '../dist/audio.js';
 import {INSTRUMENTS,formatParam,placeInsert} from '../dist/plugins.js';
-import {INSTRUMENT_FACES,instrumentReadout,instrumentHardwareIdentity} from '../dist/instrument-face-model.js';
+import {INSTRUMENT_FACES,instrumentReadout,instrumentHardwareIdentity,instrumentPerformanceDeck} from '../dist/instrument-face-model.js';
 import {createContentTrack} from '../dist/content.js';
 import {encodeWav} from '../dist/wav.js';
 const folder='artifacts/instrument-faces';await mkdir(folder,{recursive:true});
@@ -36,6 +36,22 @@ try{
   assert(badgeWidth.plate>0&&badgeWidth.plate<=badgeWidth.owner+2,id+' faceplate overflow');
   const keys=await root.locator('[data-param^="instrument."],[data-exo-control]').evaluateAll(nodes=>nodes.map(n=>n.dataset.exoControl||n.dataset.param.replace('instrument.','')));
   assert.deepEqual(keys.sort(),def.controls.map(c=>c.key).sort(),id+' lost or duplicate native controls');
+  // The dedicated deck physically relocates the original parameter nodes;
+  // every parameter must still exist exactly once with its live listeners.
+  const deck=instrumentPerformanceDeck(id,def),surface=root.locator('.instrument-performance-deck');
+  assert.equal(await surface.count(),deck?1:0,id+' unexpected performance deck');
+  if(deck){
+   assert.equal(await root.locator('[data-instrument-performance]').getAttribute('data-instrument-performance'),deck.type);
+   assert.equal(await surface.getAttribute('data-performance-type'),deck.type);
+   assert.equal(await surface.getAttribute('aria-label'),deck.title);
+   const native=await surface.locator('[data-performance-key]').evaluateAll(nodes=>nodes.map(n=>n.dataset.performanceKey));
+   assert.deepEqual(native,deck.keys,id+' dedicated panel must contain its original controls');
+   const widths=await surface.evaluate(node=>({
+    content:node.scrollWidth,viewport:node.clientWidth,
+    visible:node.getBoundingClientRect().width
+   }));
+   assert(widths.visible>0&&widths.content<=widths.viewport+2,id+' desktop performance panel overflow');
+  }
   assert.equal(await root.locator('.plugin-command-bar').count(),1);
   assert.equal(await root.locator('.plugin-command-surface > [data-instrument-face="'+id+'"]').count(),1,id+' must own exactly one standalone editor');
   assert.equal(await root.locator('.track-rack-catalog,.plugin-rack-drawer').count(),0,id+' embeds a forbidden track rack');
@@ -86,6 +102,9 @@ try{
   const root=win(track);await root.locator('[data-instrument-face="'+id+'"]').waitFor();
   await page.waitForFunction(track=>{const n=document.querySelector('.floating-plugin[data-plugin-track="'+track+'"]');if(!n)return false;const r=n.getBoundingClientRect();return r.x>=-1&&r.right<=391;},track);
   const panel=root.locator('[data-instrument-face]');assert.ok(await panel.evaluate(n=>n.scrollWidth<=n.clientWidth+2),id+' face overflow');
+  if(instrumentPerformanceDeck(id,INSTRUMENTS[id])){
+   assert.ok(await root.locator('.instrument-performance-deck').evaluate(n=>n.scrollWidth<=n.clientWidth+2),id+' mobile performance deck overflow');
+  }
   assert.equal(await root.locator('.track-rack-catalog,.plugin-rack-drawer').count(),0,id+' rack reappeared on mobile');
   assert.ok(await root.locator('.instrument-control-bank,.expansion-bank').count());await root.screenshot({path:folder+'/'+id+'-mobile.png'});await root.locator('[data-float-close]').click();await page.setViewportSize({width:1440,height:1000});
  }
