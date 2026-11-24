@@ -1229,12 +1229,18 @@ function openVoxStudioRacks(trackId=selectedTrack){
   <p>Choisis un genre musical ou un template Mix/Master. Le rack installe les plugins natifs et leurs paramètres; il ne remplace pas les fenêtres individuelles des effets. Les traitements fonctionnent dans Play et l’export WAV.</p>
   <div class="vox-rack-apply"><label>PRESET / TYPE DE MIX <select id="voxStudioPreset">${choices}</select></label>
   <button class="primary-btn" id="voxStudioApply">Ajouter aux inserts libres</button></div>
+  <nav class="vox-rack-template-navigation" aria-label="Presets par genre et usage">
+   <button type="button" class="outline-btn" id="voxRackInstrumentTemplates">Instruments par genre</button>
+   <button type="button" class="outline-btn" id="voxRackMasterTemplates">Master par genre</button>
+  </nav>
   <div class="vox-rack-preset-details" id="voxStudioPreview" aria-live="polite"></div>
   <div class="vox-rack-stages">${slots||'<p>Aucun effet sur cette piste. Choisis une chaîne ci-dessus.</p>'}</div>
   <small>Déplacer modifie le routage de la piste · Bypass conserve le réglage · Les inserts déjà présents sont préservés.</small>
   </section>`,'CHAYAH SUITE / DSP');
  const root=document.querySelector('#modalBody .vox-studioracks');
  const presetSelect=root.querySelector('#voxStudioPreset'),preview=root.querySelector('#voxStudioPreview');
+ root.querySelector('#voxRackInstrumentTemplates').onclick=()=>openMixMasterTemplates('mix',tr.id);
+ root.querySelector('#voxRackMasterTemplates').onclick=()=>openMixMasterTemplates('master');
  const refreshRackPreview=()=>{preview.innerHTML=rackSummary(presetSelect.value);};
  presetSelect.addEventListener('change',refreshRackPreview);
  refreshRackPreview();
