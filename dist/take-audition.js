@@ -13,11 +13,11 @@ export function takeAuditionProject(project,trackId,playlistId,range,proposedCli
 export function createTakeAudition({engine,project,trackId,onChange=()=>{},setTimer=setInterval,clearTimer=clearInterval}){
  let saved=null,preview=null,timer,request=0,disposed=false;
  function stop(){request++;clearTimer(timer);if(preview&&engine.takePreview===preview&&engine.getProject()===project){engine.pause();engine.takePreview=saved.takePreview;engine.loop=saved.loop;engine.patternMode=saved.patternMode;engine.clipPreview=saved.clipPreview;engine.position=saved.position;}saved=null;preview=null;onChange({status:'idle'});}
- return {stop,dispose(){if(disposed)return;stop();disposed=true;},async listen(playlistId,range,{loop=false,clips}={}){
+ return {stop,dispose(){if(disposed)return;stop();disposed=true;},async listen(playlistId,range,{loop=false,clips,comparison=null}={}){
   if(disposed)return;const snapshot=takeAuditionProject(project,trackId,playlistId,range,clips);stop();const token=++request;
   engine.pause();saved={position:engine.position,loop:engine.loop,patternMode:engine.patternMode,clipPreview:engine.clipPreview,takePreview:engine.takePreview};
-  preview={project:snapshot,trackId,playlistId,range:{...range}};engine.takePreview=preview;engine.patternMode=null;engine.clipPreview=null;engine.loop=loop;engine.position=range.start*16;onChange({status:'preparing',playlistId});
-  try{await engine.play();if(token!==request||disposed)return;if(!engine.playing)throw Error('Écoute interrompue.');onChange({status:'playing',playlistId});timer=setTimer(()=>{if(!engine.playing||engine.takePreview!==preview||engine.getProject()!==project)stop();},50);}
+  preview={project:snapshot,trackId,playlistId,range:{...range},comparison};engine.takePreview=preview;engine.patternMode=null;engine.clipPreview=null;engine.loop=loop;engine.position=range.start*16;onChange({status:'preparing',playlistId,comparison});
+  try{await engine.play();if(token!==request||disposed)return;if(!engine.playing)throw Error('Écoute interrompue.');onChange({status:'playing',playlistId,comparison});timer=setTimer(()=>{if(!engine.playing||engine.takePreview!==preview||engine.getProject()!==project)stop();},50);}
   catch(error){if(token!==request||disposed)return;stop();throw error;}
  }};
 }

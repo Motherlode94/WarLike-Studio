@@ -78,3 +78,6 @@ test('continuing with another gain preserves earlier excerpts and does not accum
  const p=project(),t=p.tracks[0];commitComp(t,prepareComp(p,'vox','A',{start:4,end:5},uid,{gainOffsetDb:-6}),uid);const first=structuredClone(t.clips.find(c=>c.start===4));commitComp(t,prepareComp(p,'vox','A',{start:6,end:7},uid,{mode:'append',gainOffsetDb:3}),uid);assert.deepEqual(t.clips.find(c=>c.id===first.id),first);assert.equal(t.clips.find(c=>c.start===6).gainDb,3);assert.equal(t.playlists.find(l=>l.id==='A').clips[0].gainDb,undefined);
  commitComp(t,prepareComp(p,'vox','A',{start:2,end:3},uid,{mode:'append'}),uid);assert.equal(t.clips.find(c=>c.start===2).gainDb,undefined);assert.equal(t.clips.find(c=>c.start===4).gainDb,-6);
 });
+test('before and after contexts refuse invalid bounds instead of clamping them into a different edit',()=>{
+ for(const [range,bars] of [[{start:-1,end:2},16],[{start:1,end:17},16],[{start:2,end:2},16],[{start:NaN,end:2},16],[{start:1,end:2},Infinity]])assert.throws(()=>compContext(range,bars),/plage de montage valide/);
+});
