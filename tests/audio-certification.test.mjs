@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {auditRouting,measureAudio,verifyWav32,measureCompRenderedSeams,measureStudioCompRender} from '../dist/audio-certification.js';
+import {auditRouting,measureAudio,verifyWav32,measureCompRenderedSeams,measureStudioCompRender,compareRenderedWav} from '../dist/audio-certification.js';
 import {encodeWav} from '../dist/wav.js';
 const buffer=(...channels)=>({numberOfChannels:channels.length,length:channels[0].length,sampleRate:44100,getChannelData:i=>Float32Array.from(channels[i])});
 test('known peak RMS and float WAV roundtrip',()=>{const b=buffer([.5,-.5],[.5,-.5]);const m=measureAudio(b);assert.ok(Math.abs(m.peakDb+6.0206)<.001);assert.equal(m.peakDb,m.rmsDb);const wav=encodeWav(b,{bits:32});assert.ok(verifyWav32(wav,b));new DataView(wav).setFloat32(44,0,true);assert.equal(verifyWav32(wav,b),false);});
@@ -83,4 +83,42 @@ test('R08.18 rejects malformed or uninspectable ranges instead of reporting fals
   {bpm:120,startBar:0,range:{start:.5,end:.75},scheduleLeadSeconds:-1}]){
   assert.throws(()=>measureStudioCompRender(audio,options),/invalide|hors du rendu/);
  }
+});
+
+test('R08.19 WAV parity accepts stereo rendered PCM at 16, 24 and float 32 bits without rewriting a sample',()=>{
+ const channels=[Float32Array.from({length:1025},(_,i)=>Math.sin(i*.023)*.73),
+  Float32Array.from({length:1025},(_,i)=>Math.cos(i*.019)*.42)];
+ const b={numberOfChannels:2,length:1025,sampleRate:48000,getChannelData:i=>channels[i]};
+ const before=channels.map(a=>a.slice());
+ for(const bits of [16,24,32]){
+  const wav=encodeWav(b,{bits}),result=compareRenderedWav(b,wav,{bits});
+  assert.equal(result.valid,true,JSON.stringify(result));
+  assert.equal(result.frames,1025);assert.equal(result.channels,2);
+  assert.equal(result.invalid,0);assert.equal(result.clipped,0);
+  assert.equal(result.mismatches,0);
+  assert(result.maxError<= (bits===32?0:1/(2**(bits-1)))+1e-8);
+ }
+ assert.deepEqual(channels,before);
+});
+test('R08.19 refuses corrupted WAV headers, channel mismatches and modified PCM payloads',()=>{
+ const samples=Float32Array.from([.2,-.4,.15,-.1]);
+ const b={numberOfChannels:1,length:samples.length,sampleRate:44100,getChannelData:()=>samples};
+ const original=encodeWav(b,{bits:24});
+ for(const position of [0,20,22,24,34,40]){
+  const copy=original.slice(0),view=new DataView(copy);view.setUint8(position,view.getUint8(position)^1);
+  assert.throws(()=>compareRenderedWav(b,copy,{bits:24}),/WAV incompatible|En-tête WAV incompatible/);
+ }
+ const modified=original.slice(0),view=new DataView(modified);
+ for(const offset of [44,45,46])view.setUint8(offset,255);
+ const result=compareRenderedWav(b,modified,{bits:24});
+ assert.equal(result.valid,false);assert(result.mismatches>0);
+ assert.deepEqual(samples,Float32Array.from([.2,-.4,.15,-.1]));
+});
+test('R08.19 never certifies clipped or invalid rendered vocal samples',()=>{
+ const samples=Float32Array.from([.1,1.2,-1.1,.2]),b={numberOfChannels:1,length:4,sampleRate:48000,getChannelData:()=>samples};
+ const r=compareRenderedWav(b,encodeWav(b,{bits:32}),{bits:32});
+ assert.equal(r.clipped,2);assert.equal(r.valid,false);
+ const bad=Float32Array.from([.1,NaN,.2,.3]),invalid={...b,getChannelData:()=>bad};
+ const other=compareRenderedWav(invalid,encodeWav(invalid,{bits:32}),{bits:32});
+ assert.equal(other.invalid,1);assert.equal(other.valid,false);
 });
