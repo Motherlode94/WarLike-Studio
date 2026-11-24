@@ -93,3 +93,54 @@ export function measureStudioCompRender(buffer,{bpm,startBar,range,scheduleLeadS
   seamBars:[range.start-startBar+offset,range.end-startBar+offset]});
  return {...report,seams:report.seams.map((seam,index)=>({...seam,bar:index?range.end:range.start}))};
 }
+
+/**
+ * R08.19 — Independent decode/compare of exported PCM against an offline
+ * Studio render. Supports WAV PCM 16/24 and IEEE float 32 without using the
+ * encoder's internal sample loop. Never changes the source buffers or bytes.
+ * Threshold is one integer least-significant bit for PCM; float is bit-exact.
+ */
+export function compareRenderedWav(buffer,bytes,{bits}={}){
+ const data=bytes instanceof ArrayBuffer?new DataView(bytes):
+  ArrayBuffer.isView(bytes)?new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength):null;
+ const channels=buffer?.numberOfChannels,frames=buffer?.length,rate=buffer?.sampleRate;
+ if(!data||!Number.isInteger(channels)||channels<1||channels>32||
+ !Number.isInteger(frames)||frames<0||!Number.isInteger(rate)||rate<=0||
+ ![16,24,32].includes(bits))throw Error('Comparaison WAV invalide.');
+ const chunk=bits/8,total=frames*channels*chunk;
+ if(!Number.isSafeInteger(total)||total>0xffffffff-36||data.byteLength!==44+total)
+  throw Error('Longueur WAV incompatible avec le rendu.');
+ const tag=(offset,value)=>[...value].every((ch,i)=>data.getUint8(offset+i)===ch.charCodeAt(0));
+ if(!tag(0,'RIFF')||!tag(8,'WAVE')||!tag(12,'fmt ')||!tag(36,'data')||
+ data.getUint32(4,true)!==36+total||data.getUint32(16,true)!==16||
+ data.getUint16(20,true)!==(bits===32?3:1)||data.getUint16(22,true)!==channels||
+ data.getUint32(24,true)!==rate||data.getUint32(28,true)!==rate*channels*chunk||
+ data.getUint16(32,true)!==channels*chunk||data.getUint16(34,true)!==bits||
+ data.getUint32(40,true)!==total)throw Error('En-tête WAV incompatible avec le rendu.');
+ const inputs=Array.from({length:channels},(_,channel)=>{
+  const source=buffer.getChannelData(channel);
+  if(!source||source.length!==frames)throw Error('Canal du rendu incomplet.');
+  return source;
+ });
+ let offset=44,peak=0,maxError=0,mismatches=0,invalid=0,clipped=0;
+ const tolerance=bits===32?0:1/(2**(bits-1));
+ for(let i=0;i<frames;i++)for(let channel=0;channel<channels;channel++){
+  const sample=inputs[channel][i],finite=Number.isFinite(sample);
+  if(!finite)invalid++;else{peak=Math.max(peak,Math.abs(sample));if(Math.abs(sample)>=1)clipped++;}
+  let decoded;
+  if(bits===32)decoded=data.getFloat32(offset,true);
+  else if(bits===16)decoded=data.getInt16(offset,true)/32768;
+  else{
+   let value=data.getUint8(offset)|(data.getUint8(offset+1)<<8)|(data.getUint8(offset+2)<<16);
+   if(value&0x800000)value-=0x1000000;
+   decoded=value/8388608;
+  }
+  const error=finite?Math.abs(decoded-sample):Infinity;
+  maxError=Math.max(maxError,error);
+  // Float exports preserve the float32 source; PCM exports quantize and clip.
+  if(!finite||error>tolerance+1e-8)mismatches++;
+  offset+=chunk;
+ }
+ return {bits,channels,frames,rate,peak,maxError,mismatches,invalid,clipped,
+  valid:mismatches===0&&invalid===0&&clipped===0};
+}
