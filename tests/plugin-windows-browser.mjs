@@ -31,9 +31,16 @@ try{
  const win=(id,plugin)=>page.locator('.floating-plugin').filter({has:page.locator('[data-plugin-control="suiteTrack"] option[value="'+id+'"][selected]')}).filter({has:page.locator(plugin==='instrument'?'[data-param^="instrument."]':'[data-param^="'+plugin+'."]')});
  await open('windowtrack0','instrument');await open('windowtrack0','glue');await open('windowtrack1','glue');
  const windows=page.locator('.floating-plugin');assert.equal(await windows.count(),3);
- assert.equal(await page.locator('.plugin-rack-drawer').count(),3);
- assert.equal(await page.locator('.plugin-rack-drawer[open]').count(),0,'Racks must start collapsed in individual plugin windows');
- assert.equal(await page.locator('.floating-plugin .track-rack-catalog:visible').count(),0,'No permanent rack behind plugin controls');
+ assert.equal(await page.locator('.floating-plugin .plugin-rack-drawer').count(),0,
+  'Every plugin editor must be fully individual, not an embedded rack drawer');
+ assert.equal(await page.locator('.floating-plugin .track-rack-catalog').count(),0,
+  'No hidden or permanent track rack in an individual plugin window');
+ assert.equal(await page.locator('.floating-plugin .plugin-command-surface > .plugin-window').count(),3,
+  'Each floating window must contain exactly one instrument or effect editor');
+ assert.equal(await page.locator('.floating-plugin .plugin-window .plugin-window-params').count(),3,
+  'Each editor retains its own independent controls');
+ assert.equal(await page.locator('.floating-plugin .plugin-command-bar').count(),3,
+  'Per-instance command bars and presets remain independent');
  const a=win('windowtrack0','glue'),b=win('windowtrack1','glue'),instrument=win('windowtrack0','instrument');
  await a.waitFor();await b.waitFor();await instrument.waitFor();
  const set=async(root,value)=>root.locator('[data-param="glue.threshold"]').evaluate((el,value)=>{el.value=String(value);el.dispatchEvent(new Event('input',{bubbles:true}));},value);
