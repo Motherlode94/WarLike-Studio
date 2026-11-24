@@ -9,7 +9,10 @@ import {circuitColorCurve} from './circuit-color-model.js';
 import {STUDIO_EFFECTS} from './studio-packs.js?v=0.14.0';
 import {createVoxBC,syncVoxBC} from './vox-bc-audio.js?v=0.14.0';
 const db=x=>10**(x/20),curve=fn=>Float32Array.from({length:4097},(_,i)=>fn(i/2048-1)),prepared=new WeakMap();
-export async function prepareStudioContext(ctx){if(!ctx.audioWorklet)return;if(!prepared.has(ctx)){const task=ctx.audioWorklet.addModule(new URL('./vocal-worklet.js?v=0.14.0',import.meta.url)).catch(error=>{prepared.delete(ctx);throw error;});prepared.set(ctx,task);}await prepared.get(ctx);}
+export async function prepareStudioContext(ctx){if(!ctx.audioWorklet)return;if(!prepared.has(ctx)){const task=Promise.all([
+ ctx.audioWorklet.addModule(new URL('./vocal-worklet.js?v=0.14.0',import.meta.url)),
+ ctx.audioWorklet.addModule(new URL('./voice-shift-worklet.js',import.meta.url))
+ ]).catch(error=>{prepared.delete(ctx);throw error;});prepared.set(ctx,task);}await prepared.get(ctx);}
 export function createStudioEffects(ctx,scope,types=null){const modules={},node=(kind,...args)=>scope.node(kind,...args),join=(a,b)=>a.connect(b);
  for(const id of Object.keys(STUDIO_EFFECTS)){if(types&&!types.includes(id))continue;if(id==='voxaireq'||id==='voxambience'){modules[id]=createVoxBC(ctx,scope,id);continue;}const m=modules[id]={input:node('createGain'),output:node('createGain'),bindings:{}};
   if(id==='circuiteq'||id==='vectoreq'){m.bands=[];let last=m.input;const keys=id==='circuiteq'?['low','body','presence','air']:Array.from({length:6},(_,i)=>'g'+i);keys.forEach((key,i)=>{const band=node('createBiquadFilter');band.type=id==='circuiteq'&&i===0?'lowshelf':id==='circuiteq'&&i===3?'highshelf':'peaking';join(last,band);last=band;m.bands.push(band);m.bindings[key]=[band.gain];m.bindings[id==='circuiteq'?['lowFreq','bodyFreq','presenceFreq','airFreq'][i]:'f'+i]=[band.frequency];if(id==='vectoreq')m.bindings['q'+i]=[band.Q];});m.level=node('createGain');join(last,m.level);join(m.level,m.output);m.bindings.output=[[m.level.gain,db,true]];}
@@ -20,6 +23,18 @@ export function createStudioEffects(ctx,scope,types=null){const modules={},node=
   if(id==='alterfilter'){m.filter=node('createBiquadFilter');m.filter.type='lowpass';m.lfo=node('createOscillator');m.depth=node('createGain');m.dry=node('createGain');m.wet=node('createGain');join(m.input,m.filter);join(m.filter,m.wet);join(m.input,m.dry);join(m.wet,m.output);join(m.dry,m.output);join(m.lfo,m.depth);m.depth.connect(m.filter.detune);m.lfo.start(0);scope.oscillators.push(m.lfo);m.bindings={cutoff:[m.filter.frequency],q:[m.filter.Q],depth:[m.depth.gain],mix:[[m.dry.gain,x=>1-x],m.wet.gain]};}
   if(id==='vectorlimit'){m.drive=node('createGain');m.comp=node('createDynamicsCompressor');m.comp.knee.value=0;m.comp.ratio.value=20;m.comp.attack.value=0;m.scaleIn=node('createGain');m.guard=node('createWaveShaper');m.guard.curve=new Float32Array([-1,0,1]);m.scaleOut=node('createGain');join(m.input,m.drive);join(m.drive,m.comp);join(m.comp,m.scaleIn);join(m.scaleIn,m.guard);join(m.guard,m.scaleOut);join(m.scaleOut,m.output);m.bindings={drive:[[m.drive.gain,db,true]],release:[[m.comp.release,x=>x/1000]],ceiling:[m.comp.threshold,[m.scaleIn.gain,x=>1/db(x),true],[m.scaleOut.gain,db,true]]};}
   if(id==='voxtune'){if(!ctx.audioWorklet||typeof AudioWorkletNode==='undefined')throw Error('VOX TUNE demande AudioWorklet et une connexion HTTPS.');m.pitch=new AudioWorkletNode(ctx,'warlike-vocal-pitch',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2],channelCount:2,channelCountMode:'explicit'});scope.nodes.push(m.pitch);join(m.input,m.pitch);join(m.pitch,m.output);m.bindings=Object.fromEntries([...m.pitch.parameters].map(([key,value])=>[key,[value]]));}
+  if(id==='voxshift'){
+   if(!ctx.audioWorklet||typeof AudioWorkletNode==='undefined')throw Error('VOX SHIFT demande AudioWorklet et une connexion HTTPS.');
+   m.pitch=new AudioWorkletNode(ctx,'warlike-voice-shift',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2],channelCount:2,channelCountMode:'explicit'});
+   scope.nodes.push(m.pitch);join(m.input,m.pitch);join(m.pitch,m.output);
+   m.bindings=Object.fromEntries([...m.pitch.parameters].map(([key,value])=>[key,[value]]));
+  }
+  if(id==='voxformant'){
+   m.dry=node('createGain');m.wet=node('createGain');m.low=node('createBiquadFilter');m.mid=node('createBiquadFilter');m.high=node('createBiquadFilter');
+   m.low.type='peaking';m.low.Q.value=1.2;m.mid.type='peaking';m.mid.Q.value=1.4;m.high.type='highshelf';
+   join(m.input,m.dry);join(m.dry,m.output);
+   join(m.input,m.low);join(m.low,m.mid);join(m.mid,m.high);join(m.high,m.wet);join(m.wet,m.output);
+  }
   if(id==='voxmicmodel'){
     m.low=node('createBiquadFilter');m.low.type='lowshelf';m.low.frequency.value=180;
     m.presence=node('createBiquadFilter');m.presence.type='peaking';m.presence.frequency.value=3200;m.presence.Q.value=.85;
@@ -60,6 +75,14 @@ export function syncStudioEffect(ctx,id,m,s,bpm,now,initial,inputChannels=1){con
  if(id==='alterfilter'){set(m.filter.frequency,s.cutoff);set(m.filter.Q,s.q);set(m.lfo.frequency,alterFilterRate(bpm,s.beats));set(m.depth.gain,s.depth);set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);}
  if(id==='vectorlimit'){set(m.drive.gain,db(s.drive));set(m.comp.threshold,s.ceiling);set(m.comp.release,s.release/1000);set(m.scaleIn.gain,1/db(s.ceiling));set(m.scaleOut.gain,db(s.ceiling));}
  if(id==='voxtune')for(const key of ['key','scale','speed','amount','mix'])set(m.pitch.parameters.get(key),s[key]);
+ if(id==='voxshift')for(const key of ['semitones','mix'])set(m.pitch.parameters.get(key),s[key]);
+ if(id==='voxformant'){
+   const ratio=2**(s.shift/12);
+   set(m.low.frequency,Math.min(ctx.sampleRate*.42,550*ratio));set(m.low.gain,s.shift*.75);
+   set(m.mid.frequency,Math.min(ctx.sampleRate*.42,1550*ratio));set(m.mid.gain,s.shift*1.15);
+   set(m.high.frequency,Math.min(ctx.sampleRate*.42,4200*ratio));set(m.high.gain,s.brightness);
+   set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);
+ }
  if(id==='voxmicmodel'){
    const [low,presence,air]=micColorGains(s);
    set(m.low.frequency,Math.min(180,ctx.sampleRate*.45));set(m.presence.frequency,Math.min(3200,ctx.sampleRate*.45));set(m.air.frequency,Math.min(9500,ctx.sampleRate*.45));
