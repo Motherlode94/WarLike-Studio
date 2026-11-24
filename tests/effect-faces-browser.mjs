@@ -43,8 +43,14 @@ try{
   const face=root.locator('[data-effect-face="'+id+'"]');
   await face.waitFor();
   assert.equal(await face.locator('.effect-face-identity h2').textContent(),EFFECTS[id].name);
-  assert.equal(await root.locator('.plugin-rack-drawer[open]').count(),0,'rack starts hidden');
-  assert.equal(await root.locator('.track-rack-catalog:visible').count(),0,'no permanent rack');
+  assert.equal(await root.locator('.plugin-rack-drawer,.track-rack-catalog').count(),0,id+' embeds a forbidden rack');
+  assert.equal(await root.locator('.plugin-command-surface > [data-effect-face="'+id+'"]').count(),1,id+' must own exactly one standalone editor');
+  assert.equal(await root.locator('[data-instrument-face]').count(),0,id+' mixes instrument and effect surfaces');
+  const bounds=await root.evaluate(node=>{
+   const shell=node.getBoundingClientRect(),face=node.querySelector('[data-effect-face]').getBoundingClientRect();
+   return {shellLeft:shell.left,shellRight:shell.right,faceLeft:face.left,faceRight:face.right,faceWidth:face.width};
+  });
+  assert(bounds.faceWidth>0&&bounds.faceLeft>=bounds.shellLeft-2&&bounds.faceRight<=bounds.shellRight+2,id+' editor leaves its own window');
   const keys=await root.locator('[data-param^="'+id+'."]').evaluateAll(nodes=>nodes.map(n=>n.dataset.param.split('.').at(-1)));
   assert.deepEqual(keys.sort(),EFFECTS[id].controls.map(c=>c.key).sort(),id+' missing or duplicated controls');
   assert.equal(await root.locator('.plugin-command-bar').count(),1);
@@ -83,8 +89,9 @@ try{
   scroll:face.scrollWidth,client:face.clientWidth,rect:face.getBoundingClientRect().toJSON()
  }));
  assert.ok(geometry.scroll<=geometry.client+2,'mobile hardware overflow');
+ assert.equal(await mobile.locator('.plugin-rack-drawer,.track-rack-catalog').count(),0,'mobile effect shows a forbidden rack');
  await page.screenshot({path:dir+'/prism-mobile.png'});
  assert.deepEqual(errors,[],'browser script exceptions');
  await writeFile(dir+'/report.json',JSON.stringify(report,null,2)+'\n');
- console.log('PASS: '+ids.length+' native effects, control integrity, live parameter readouts, scoped undo, rack independence, desktop/mobile');
+ console.log('PASS: '+ids.length+' standalone effect editors with no rack nodes, bounded desktop layout, control integrity, live readouts, scoped undo and mobile spot-check');
 }finally{await browser.close();}
