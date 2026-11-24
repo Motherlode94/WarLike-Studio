@@ -87,3 +87,99 @@ html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-i
 .floating-plugin [data-instrument-chassis=stage] .instrument-hardware-plate{border-radius:10px;border-left-width:7px}
 .floating-plugin [data-instrument-chassis=module] .instrument-hardware-plate{border-block-width:2px}
 .floating-plugin [data-instrument-chassis=vintage] .instrument-hardware-plate{border-style:double;border-width:3px}
+
+/* Native front-panel controls: original sliders/knobs are moved, never cloned.
+   The acoustic and synthesis decks have different hierarchy and proportions. */
+.floating-plugin .suite-processor[data-instrument-face] .instrument-control-bank[hidden]{display:none!important}
+.floating-plugin .instrument-performance-deck{
+ --deck-edge:var(--instrument-accent);
+ display:grid;grid-template-columns:minmax(125px,.66fr) minmax(0,2fr);
+ align-items:stretch;gap:12px;min-width:0;margin:0 0 16px;
+ border:1px solid var(--instrument-line);border-top:3px solid var(--deck-edge);
+ border-radius:7px;background:var(--instrument-raised);padding:12px
+}
+.floating-plugin .instrument-performance-description{
+ display:flex;flex-direction:column;justify-content:center;gap:8px;
+ border-right:1px solid var(--instrument-line);padding-right:10px;min-width:0
+}
+.floating-plugin .instrument-performance-description strong{
+ color:var(--instrument-ink);font:800 12px/1.4 ui-monospace,monospace;
+ letter-spacing:.08em;overflow-wrap:anywhere
+}
+.floating-plugin .instrument-performance-description small{
+ color:var(--instrument-muted);font:11px/1.45 ui-monospace,monospace;overflow-wrap:anywhere
+}
+.floating-plugin .instrument-performance-controls{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ align-items:center;gap:12px;min-width:0
+}
+.floating-plugin .suite-processor[data-instrument-face] .instrument-performance-controls>.param{
+ display:grid;gap:6px;min-width:0;margin:0;padding:14px 10px;
+ border:1px solid var(--instrument-line);border-radius:7px;
+ background:var(--instrument-bg);box-shadow:none
+}
+.floating-plugin .instrument-performance-controls .param>label,
+.floating-plugin .instrument-performance-controls .param-value{color:var(--instrument-ink)}
+.floating-plugin .instrument-performance-controls .param-entry{
+ color:var(--instrument-ink);background:var(--instrument-raised);border-color:var(--instrument-line)
+}
+.floating-plugin .instrument-performance-controls .knob{max-width:90px;max-height:90px}
+.floating-plugin [data-performance-type=hammer]{
+ grid-template-columns:minmax(145px,.8fr) minmax(0,1.8fr);
+ background:linear-gradient(135deg,var(--instrument-raised),var(--instrument-bg))
+}
+.floating-plugin [data-performance-type=hammer] .instrument-performance-controls>.param{
+ border-bottom:3px solid var(--deck-edge)
+}
+.floating-plugin [data-performance-type=keys] .instrument-performance-controls>.param{
+ border-left:3px solid var(--deck-edge)
+}
+.floating-plugin [data-performance-type=plucked]{
+ grid-template-columns:minmax(110px,.55fr) minmax(0,2fr);border-radius:16px 5px 16px 5px
+}
+.floating-plugin [data-performance-type=plucked] .instrument-performance-controls>.param{
+ border-radius:12px;border-top:3px solid var(--deck-edge)
+}
+.floating-plugin [data-performance-type=bowed] .instrument-performance-controls{
+ grid-template-columns:minmax(0,1fr) minmax(0,1.4fr)
+}
+.floating-plugin [data-performance-type=bowed] .instrument-performance-controls>.param:first-child{
+ border-left:4px solid var(--deck-edge)
+}
+.floating-plugin [data-performance-type=breath]{
+ grid-template-columns:minmax(0,1fr);gap:8px
+}
+.floating-plugin [data-performance-type=breath] .instrument-performance-description{
+ border-right:0;border-bottom:1px solid var(--instrument-line);padding:0 0 10px
+}
+.floating-plugin [data-performance-type=breath] .instrument-performance-controls{
+ grid-template-columns:repeat(2,minmax(0,1fr))
+}
+.floating-plugin [data-performance-type=osc] .instrument-performance-controls>.param{
+ border-top:4px solid var(--deck-edge);border-radius:3px
+}
+.floating-plugin [data-performance-type=layers] .instrument-performance-controls>.param{
+ border-left:4px solid var(--deck-edge);border-radius:4px
+}
+.floating-plugin [data-performance-type=spectral]{
+ background:linear-gradient(135deg,var(--instrument-bg),var(--instrument-raised))
+}
+.floating-plugin [data-performance-type=spectral] .instrument-performance-controls>.param{
+ border-block:2px solid var(--deck-edge)
+}
+@media(max-width:660px){
+ .floating-plugin .instrument-performance-deck,
+ .floating-plugin [data-performance-type=hammer],
+ .floating-plugin [data-performance-type=plucked],
+ .floating-plugin [data-performance-type=breath]{
+  grid-template-columns:minmax(0,1fr);padding:9px;gap:9px
+ }
+ .floating-plugin .instrument-performance-description{
+  border-right:0;border-bottom:1px solid var(--instrument-line);padding:0 0 8px
+ }
+ .floating-plugin .instrument-performance-controls{gap:7px}
+ .floating-plugin .suite-processor[data-instrument-face] .instrument-performance-controls>.param{
+  padding:8px 6px;min-width:0
+ }
+ .floating-plugin .instrument-performance-controls .knob{max-width:65px;max-height:65px}
+}
