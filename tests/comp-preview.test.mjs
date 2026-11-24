@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {prepareComp,compContext,commitComp,canContinueComp,compFadeMs} from '../dist/comp-preview.js';
+import {prepareComp,compContext,commitComp,canContinueComp,compFadeMs,compGainOffsetDb} from '../dist/comp-preview.js';
 import {takeAuditionProject} from '../dist/take-audition.js';
 let next=0;const uid=()=>String(++next);
 function project(){const a={id:'a',audioId:'sourceA',start:1,length:7,sourceOffset:.2},b={id:'b',audioId:'sourceB',start:1,length:7,sourceOffset:.5};return {bars:16,bpm:120,tracks:[{id:'vox',type:'audio',clips:[structuredClone(b)],activePlaylist:'B',playlists:[{id:'A',name:'A',clips:[a]},{id:'B',name:'B',clips:[structuredClone(b)]}]}]};}
@@ -55,4 +55,26 @@ test('short clips cap each new fade at half their musical duration',()=>{
 });
 test('continuing a montage stores its duration while earlier edits retain theirs',()=>{
  const p=project(),t=p.tracks[0];commitComp(t,prepareComp(p,'vox','A',{start:4,end:5},uid,{fadeMs:20}),uid);const first=structuredClone(t.clips.find(c=>c.audioId==='sourceA'));commitComp(t,prepareComp(p,'vox','A',{start:6,end:7},uid,{mode:'append',fadeMs:30}),uid);assert.equal(t.playlists.find(l=>l.id===t.activePlaylist).comp.fadeMs,30);assert.deepEqual(t.clips.find(c=>c.id===first.id),first);assert.equal(t.clips.find(c=>c.start===6).fadeIn,.03);assert.equal(t.clips.find(c=>c.start===6).fadeOut,.03);
+});
+
+test('excerpt gain accepts finite offsets and rejects invalid requests before mutation',()=>{
+ assert.equal(compGainOffsetDb(),0);for(const value of [-24,-6,.5,0,24])assert.equal(compGainOffsetDb(value),value);
+ const p=project(),before=structuredClone(p);for(const value of [-24.1,24.1,NaN,Infinity,null,'3']){assert.throws(()=>compGainOffsetDb(value),/ajustement/);assert.throws(()=>prepareComp(p,'vox','A',{start:4,end:5},uid,{gainOffsetDb:value}),/ajustement/);}assert.deepEqual(p,before);
+ const plan=prepareComp(p,'vox','A',{start:4,end:5},uid);plan.gainOffsetDb=Infinity;assert.throws(()=>commitComp(p.tracks[0],plan,uid),/ajustement/);assert.deepEqual(p,before);
+});
+test('gain adjustment adds to each inserted source gain and leaves neighbours and files intact',()=>{
+ const p=project(),t=p.tracks[0];t.clips[0].gainDb=2;t.playlists[1].clips[0].gainDb=2;t.playlists[0].clips=[{id:'one',audioId:'sourceA',start:1,length:3.5,sourceOffset:.2,gainDb:3,fadeCurve:'equalPower'},{id:'two',audioId:'sourceA2',start:4.5,length:3.5,sourceOffset:2,gainDb:-2}];const before=structuredClone(p),plan=prepareComp(p,'vox','A',{start:4,end:5},uid,{gainOffsetDb:-6});
+ assert.deepEqual(plan.pieces.map(c=>[c.audioId,c.gainDb,c.sourceOffset]),[['sourceA',-3,6.2],['sourceA2',-8,2]]);assert.equal(plan.pieces[0].fadeCurve,'equalPower');assert.deepEqual(plan.clips.filter(c=>c.audioId==='sourceB').map(c=>c.gainDb),[2,2]);assert.deepEqual(p,before);
+ const snapshot=takeAuditionProject(p,'vox',null,compContext(plan.range,p.bars),plan.clips);assert.deepEqual(snapshot.tracks[0].clips.filter(c=>c.audioId!=='sourceB').map(c=>c.gainDb),[-3,-8]);commitComp(t,plan,uid);assert.deepEqual(t.playlists.slice(0,2),before.tracks[0].playlists);assert.deepEqual(t.clips,plan.clips);
+});
+test('zero gain adjustment preserves existing and unspecified source gains',()=>{
+ for(const gain of [undefined,0,-24,36]){const p=project(),c=p.tracks[0].playlists[0].clips[0];if(gain!==undefined)c.gainDb=gain;const plan=prepareComp(p,'vox','A',{start:4,end:5},uid);assert.equal(plan.pieces[0].gainDb,gain);assert.equal(Object.hasOwn(plan.pieces[0],'gainDb'),gain!==undefined);}
+});
+test('out of range final gains are refused rather than silently clipped',()=>{
+ for(const [gain,offset] of [[35,2],[-23,-2],[NaN,1],[Infinity,0]]){const p=project();p.tracks[0].playlists[0].clips[0].gainDb=gain;const before=structuredClone(p);assert.throws(()=>prepareComp(p,'vox','A',{start:4,end:5},uid,{gainOffsetDb:offset}),/gain final/);assert.deepEqual(p,before);}
+ for(const [gain,offset] of [[35,1],[-23,-1]]){const p=project();p.tracks[0].playlists[0].clips[0].gainDb=gain;assert.equal(prepareComp(p,'vox','A',{start:4,end:5},uid,{gainOffsetDb:offset}).pieces[0].gainDb,gain+offset);}
+});
+test('continuing with another gain preserves earlier excerpts and does not accumulate on raw takes',()=>{
+ const p=project(),t=p.tracks[0];commitComp(t,prepareComp(p,'vox','A',{start:4,end:5},uid,{gainOffsetDb:-6}),uid);const first=structuredClone(t.clips.find(c=>c.start===4));commitComp(t,prepareComp(p,'vox','A',{start:6,end:7},uid,{mode:'append',gainOffsetDb:3}),uid);assert.deepEqual(t.clips.find(c=>c.id===first.id),first);assert.equal(t.clips.find(c=>c.start===6).gainDb,3);assert.equal(t.playlists.find(l=>l.id==='A').clips[0].gainDb,undefined);
+ commitComp(t,prepareComp(p,'vox','A',{start:2,end:3},uid,{mode:'append'}),uid);assert.equal(t.clips.find(c=>c.start===2).gainDb,undefined);assert.equal(t.clips.find(c=>c.start===4).gainDb,-6);
 });
