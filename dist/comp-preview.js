@@ -37,3 +37,36 @@ export function commitComp(track,prepared,idFactory){
  playlist.comp.fadeMs=fadeMs;
  track.clips=structuredClone(prepared.clips);saveActivePlaylist(track);return playlist;
 }
+
+/**
+ * R08.16 — non-destructive edit-point audit.
+ * Structural warnings only: actual clicks/clipping require audio audition.
+ * Report separately for both boundaries of the proposed excerpt.
+ */
+export function auditCompSeams(project,prepared){
+ if(!project||!prepared||!Array.isArray(prepared.clips)||!Number.isFinite(project.bpm)||project.bpm<=0)
+  throw Error('Montage invalide pour le contrôle des raccords.');
+ validRange(prepared.range,project.bars);
+ const {start,end}=prepared.range;
+ const tolerance=1e-6;
+ const clips=prepared.clips.filter(c=>c.audioId&&!c.muted).sort((a,b)=>a.start-b.start||a.length-b.length);
+ const seams=[start,end].map(bar=>{
+  const ending=clips.filter(c=>Math.abs(c.start+c.length-bar)<tolerance);
+  const starting=clips.filter(c=>Math.abs(c.start-bar)<tolerance);
+  const previous=ending.at(-1)||null,next=starting[0]||null;
+  const warnings=[];
+  if(!previous||!next)warnings.push('Raccord sans audio des deux côtés : vérifier le silence.');
+  if(previous&&next){
+   const a=Number(previous.gainDb??0),b=Number(next.gainDb??0);
+   if(!Number.isFinite(a)||!Number.isFinite(b))warnings.push('Gain de clip non valide.');
+   else if(Math.abs(a-b)>6)warnings.push('Écart de niveau supérieur à 6 dB : écouter le raccord.');
+   const fadeOut=Number(previous.fadeOut??0),fadeIn=Number(next.fadeIn??0);
+   if(!Number.isFinite(fadeOut)||!Number.isFinite(fadeIn)||fadeOut<0||fadeIn<0)
+    warnings.push('Fondu de raccord non valide.');
+   else if(fadeOut<.003&&fadeIn<.003)
+    warnings.push('Pas de fondu de sécurité ≥ 3 ms sur ce raccord : risque de clic.');
+  }
+  return {bar,previousId:previous?.id??null,nextId:next?.id??null,warnings};
+ });
+ return {seams,warnings:seams.flatMap(s=>s.warnings),clean:seams.every(s=>s.warnings.length===0)};
+}

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {prepareComp,compContext,commitComp,canContinueComp,compFadeMs,compGainOffsetDb} from '../dist/comp-preview.js';
+import {prepareComp,compContext,commitComp,canContinueComp,compFadeMs,compGainOffsetDb,auditCompSeams} from '../dist/comp-preview.js';
 import {takeAuditionProject} from '../dist/take-audition.js';
 let next=0;const uid=()=>String(++next);
 function project(){const a={id:'a',audioId:'sourceA',start:1,length:7,sourceOffset:.2},b={id:'b',audioId:'sourceB',start:1,length:7,sourceOffset:.5};return {bars:16,bpm:120,tracks:[{id:'vox',type:'audio',clips:[structuredClone(b)],activePlaylist:'B',playlists:[{id:'A',name:'A',clips:[a]},{id:'B',name:'B',clips:[structuredClone(b)]}]}]};}
@@ -80,4 +80,35 @@ test('continuing with another gain preserves earlier excerpts and does not accum
 });
 test('before and after contexts refuse invalid bounds instead of clamping them into a different edit',()=>{
  for(const [range,bars] of [[{start:-1,end:2},16],[{start:1,end:17},16],[{start:2,end:2},16],[{start:NaN,end:2},16],[{start:1,end:2},Infinity]])assert.throws(()=>compContext(range,bars),/plage de montage valide/);
+});
+
+test('R08.16 checks both junctions without modifying the proposed or saved montage',()=>{
+ const p=project(),before=structuredClone(p),plan=prepareComp(p,'vox','A',{start:4,end:5},uid);
+ const snapshot=structuredClone(plan),report=auditCompSeams(p,plan);
+ assert.deepEqual(report.seams.map(s=>s.bar),[4,5]);
+ assert.equal(report.clean,true);
+ assert.deepEqual(report.warnings,[]);
+ assert.deepEqual(p,before);
+ assert.deepEqual(plan,snapshot);
+});
+test('R08.16 warns on dangerous gain jump and absent safety fade, without rewriting any take',()=>{
+ const p=project();p.tracks[0].playlists[0].clips[0].gainDb=12;
+ const plan=prepareComp(p,'vox','A',{start:4,end:5},uid,{fadeMs:0});
+ const before=structuredClone(p),candidate=structuredClone(plan);
+ const report=auditCompSeams(p,plan);
+ assert.equal(report.clean,false);
+ assert.equal(report.seams.length,2);
+ for(const seam of report.seams){
+  assert(seam.warnings.some(w=>w.includes('6 dB')));
+  assert(seam.warnings.some(w=>w.includes('3 ms')));
+ }
+ assert.deepEqual(p,before);
+ assert.deepEqual(plan,candidate);
+});
+test('R08.16 validates range and flags an excerpt without audio at a boundary',()=>{
+ const p=project(),plan=prepareComp(p,'vox','A',{start:4,end:5},uid);
+ plan.clips=plan.clips.filter(c=>c.audioId!=='sourceA');
+ assert.equal(auditCompSeams(p,plan).clean,false);
+ assert(auditCompSeams(p,plan).warnings.some(w=>w.includes('sans audio')));
+ assert.throws(()=>auditCompSeams(p,{...plan,range:{start:5,end:5}}),/plage de montage valide/);
 });
