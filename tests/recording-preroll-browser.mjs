@@ -49,7 +49,12 @@ try{
  await page.waitForFunction(()=>window.preRollQA.engine.ctx.currentTime>=window.preRollQA.plays.at(-1).when+.3);
  assert.match(await page.locator('#recordCountInStatus').textContent(),/^Prélecture/);
  const backingRms=await page.evaluate(()=>{const a=window.preRollQA.engine.masterAnalyser,pcm=new Float32Array(a.fftSize);a.getFloatTimeDomainData(pcm);return Math.sqrt(pcm.reduce((sum,v)=>sum+v*v,0)/pcm.length);});assert.ok(backingRms>.015,'the backing really plays during pre-roll');
+ const transport=await page.locator('.transport').boundingBox();
+ for(const id of ['recordCountIn','recordCountInStatus','recordRangeIndicator']){const box=await page.locator('#'+id).boundingBox();assert.ok(box&&box.y>=transport.y&&box.y+box.height<=transport.y+transport.height,'active '+id+' fits the transport');}
  await page.screenshot({path:folder+'/preroll-desktop.png'});
+ await resizeStudio(page,{width:390,height:844});
+ const mobileTransport=await page.locator('.transport').boundingBox();for(const id of ['recordCountIn','recordCountInStatus','recordRangeIndicator']){const box=await page.locator('#'+id).boundingBox();assert.ok(box&&box.x>=0&&box.x+box.width<=391&&box.y>=mobileTransport.y&&box.y+box.height<=mobileTransport.y+mobileTransport.height,'active mobile '+id+' fits the transport');}
+ await page.screenshot({path:folder+'/preroll-mobile.png'});await resizeStudio(page,{width:1440,height:960});
  phase='capture begins during UI stall';await page.waitForFunction(()=>window.preRollQA.engine.ctx.currentTime>=window.preRollQA.starts.at(-1).time-.1);await page.evaluate(()=>{const until=performance.now()+500;while(performance.now()<until){/* UI observer cannot schedule the punch-in. */}});await ready();
  const bounded=await save(),expectedFrames=Math.round(timing.capture.endTime*timing.capture.rate)-Math.round(timing.capture.time*timing.capture.rate);
  const metrics=await page.evaluate(async state=>{const ctx=new AudioContext(),result=[];try{for(const track of state.project.tracks.filter(t=>t.recordArm)){
