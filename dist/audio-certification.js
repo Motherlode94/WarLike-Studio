@@ -150,3 +150,40 @@ export function compareRenderedWav(buffer,bytes,{bits}={}){
  return {bits,channels,frames,rate,peak,maxError,mismatches,invalid,clipped,
   valid:mismatches===0&&invalid===0&&clipped===0};
 }
+
+/**
+ * R08.20 — Measure successive independent live analyser snapshots.
+ * These are short windows, not a continuous PCM capture; never infer a
+ * click from the difference between two separately acquired windows.
+ * Sampling gaps and consecutive silence are explicitly reported.
+ */
+export function auditLiveAudioWindows(windows,{silenceThresholdDb=-65,clipThreshold=.999,maxGapSeconds=.5}={}){
+ if(!Array.isArray(windows)||!windows.length||
+ ![silenceThresholdDb,clipThreshold,maxGapSeconds].every(Number.isFinite)||
+ clipThreshold<=0||clipThreshold>2||maxGapSeconds<=0)
+  throw Error('Fenêtres d’écoute live invalides.');
+ let previous=-Infinity,dropoutRuns=0,run=0,peak=0,clipped=0,invalid=0,gaps=0;
+ const results=windows.map(({time,channels},index)=>{
+  if(!Number.isFinite(time)||time<=previous||
+   !Array.isArray(channels)||!channels.length||channels.length>32)
+   throw Error('Fenêtre d’écoute live invalide.');
+  if(index&&time-previous>maxGapSeconds)gaps++;
+  previous=time;
+  let power=0,count=0,windowPeak=0,windowClipped=0,windowInvalid=0;
+  for(const ch of channels){
+   if(!ch?.length)throw Error('Canal d’écoute live vide.');
+   for(const x of ch){
+    if(!Number.isFinite(x)){windowInvalid++;continue}
+    const a=Math.abs(x);windowPeak=Math.max(windowPeak,a);power+=x*x;count++;
+    if(a>=clipThreshold)windowClipped++;
+   }
+  }
+  const rms=Math.sqrt(power/Math.max(1,count)),rmsDb=rms>0?20*Math.log10(rms):-Infinity;
+  const silent=rmsDb<silenceThresholdDb;
+  run=silent?run+1:0;dropoutRuns=Math.max(dropoutRuns,run);
+  peak=Math.max(peak,windowPeak);clipped+=windowClipped;invalid+=windowInvalid;
+  return {time,peak:windowPeak,rmsDb,silent,clipped:windowClipped,invalid:windowInvalid};
+ });
+ return {windows:results,peak,clipped,invalid,gaps,longestSilentRun:dropoutRuns,
+  status:invalid?'invalid':clipped?'clipping':gaps?'incomplete':'measured'};
+}
