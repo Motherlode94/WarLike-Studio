@@ -21,3 +21,59 @@ export function verifyWav32(bytes,buffer){
  const channels=Array.from({length:buffer.numberOfChannels},(_,i)=>buffer.getChannelData(i));let offset=44;
  for(let i=0;i<buffer.length;i++)for(const ch of channels){if(!Number.isFinite(ch[i])||v.getFloat32(offset,true)!==ch[i])return false;offset+=4;}return true;
 }
+
+/**
+ * R08.17 — PCM-level verification around two comp edit points.
+ * Analyses rendered samples, not merely the fades/gain metadata. A large
+ * isolated one-sample jump indicates a potential click (not proof of audibility).
+ * This never modifies or normalizes the source signal.
+ */
+export function measureCompRenderedSeams(buffer,{bpm,seamBars,windowMs=10,jumpThreshold=.35}={}){
+ const channels=buffer?.numberOfChannels,rate=buffer?.sampleRate,length=buffer?.length;
+ if(!Number.isInteger(channels)||channels<1||channels>32||
+ !Number.isFinite(rate)||rate<=0||!Number.isInteger(length)||length<2||
+ !Number.isFinite(bpm)||bpm<=0||!Array.isArray(seamBars)||seamBars.length!==2||
+ !seamBars.every(Number.isFinite)||!Number.isFinite(windowMs)||windowMs<2||windowMs>100||
+ !Number.isFinite(jumpThreshold)||jumpThreshold<=0||jumpThreshold>2)
+  throw Error('Paramètres de certification PCM invalides.');
+ const signals=Array.from({length:channels},(_,channel)=>{
+  const data=buffer.getChannelData(channel);
+  if(!data||data.length!==length)throw Error('Canaux PCM incomplets.');
+  return data;
+ });
+ const radius=Math.max(2,Math.round(windowMs*rate/1000));
+ const seams=seamBars.map(bar=>{
+  const frame=Math.round(bar*240/bpm*rate);
+  if(frame<radius||frame+radius>=length)throw Error('Raccord hors du rendu audio ou fenêtre trop courte.');
+  const measurements=signals.map((data,channel)=>{
+   let peak=0,invalid=0,clipped=0,maxJump=0,maxJumpFrame=frame;
+   let preSquares=0,postSquares=0,preCount=0,postCount=0;
+   const jumps=[];
+   for(let i=frame-radius;i<=frame+radius;i++){
+    const value=data[i];
+    if(!Number.isFinite(value)){invalid++;continue;}
+    peak=Math.max(peak,Math.abs(value));
+    if(Math.abs(value)>=1)clipped++;
+    if(i<frame){preSquares+=value*value;preCount++}
+    else{postSquares+=value*value;postCount++}
+    if(i>frame-radius&&Number.isFinite(data[i-1])){
+     const jump=Math.abs(value-data[i-1]);
+     if(jump>maxJump){maxJump=jump;maxJumpFrame=i}
+     jumps.push(jump);
+    }
+   }
+   const ordered=jumps.sort((a,b)=>a-b);
+   const baseline=ordered.length?ordered[Math.floor(ordered.length*.5)]:0;
+   const nearestJump=frame>0&&Number.isFinite(data[frame])&&Number.isFinite(data[frame-1])?
+    Math.abs(data[frame]-data[frame-1]):Infinity;
+   const suspectedClick=nearestJump>jumpThreshold&&nearestJump>Math.max(.01,baseline*5);
+   return {channel:channel+1,peak,clipped,invalid,maxJump,maxJumpFrame,
+    nearestJump,baselineJump:baseline,preRms:Math.sqrt(preSquares/Math.max(1,preCount)),
+    postRms:Math.sqrt(postSquares/Math.max(1,postCount)),suspectedClick};
+  });
+  return {bar,frame,channels:measurements,invalid:measurements.reduce((sum,x)=>sum+x.invalid,0),
+   clipped:measurements.reduce((sum,x)=>sum+x.clipped,0),
+   suspectedClick:measurements.some(x=>x.suspectedClick)};
+ });
+ return {sampleRate:rate,seams,valid:seams.every(s=>s.invalid===0&&s.clipped===0&&!s.suspectedClick)};
+}
