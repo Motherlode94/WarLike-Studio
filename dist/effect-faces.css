@@ -82,3 +82,26 @@ html[data-warlike-app=warlike-studio] .floating-plugin .suite-processor[data-eff
  .floating-plugin .suite-processor[data-effect-face] .plugin-window-params{grid-template-columns:minmax(0,1fr)}
  .floating-plugin .effect-control-group{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* Processor-specific engraved hardware, independent of shared family controls.
+   These accents do not imply activity, signal level, or filter measurements. */
+.floating-plugin .effect-hardware-plate{
+ display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+ margin-top:12px;padding:8px 10px;min-width:0;max-width:100%;
+ background:linear-gradient(100deg,var(--fx-surface),var(--fx-bg));
+ border:1px solid var(--fx-accent);border-left-width:4px;border-radius:5px
+}
+.floating-plugin .effect-hardware-plate strong{
+ color:var(--fx-text);font:800 15px ui-monospace,monospace;letter-spacing:.14em
+}
+.floating-plugin .effect-hardware-plate small{
+ color:var(--fx-muted);font:650 10px ui-monospace,monospace;letter-spacing:.08em
+}
+.floating-plugin [data-effect-hardware=console] .effect-hardware-plate{border-radius:2px;box-shadow:inset 0 2px #ffffff16}
+.floating-plugin [data-effect-hardware=rack] .effect-hardware-plate{border-radius:7px;border-left-width:7px}
+.floating-plugin [data-effect-hardware=pedal] .effect-hardware-plate{border-radius:14px;border-style:double}
+.floating-plugin [data-effect-hardware=module] .effect-hardware-plate{border-radius:4px;border-block-width:2px}
+.floating-plugin [data-effect-hardware=console] .effect-control-group{border-top:3px solid var(--fx-accent)}
+.floating-plugin [data-effect-hardware=rack] .effect-control-group{border-left:3px solid var(--fx-accent)}
+.floating-plugin [data-effect-hardware=pedal] .effect-control-group{border-radius:12px}
+.floating-plugin [data-effect-hardware=module] .effect-control-group{border-bottom:3px solid var(--fx-accent)}
