@@ -77,3 +77,19 @@ export function measureCompRenderedSeams(buffer,{bpm,seamBars,windowMs=10,jumpTh
  });
  return {sampleRate:rate,seams,valid:seams.every(s=>s.invalid===0&&s.clipped===0&&!s.suspectedClick)};
 }
+
+/**
+ * R08.18 — Convert absolute edit bars to positions inside a Studio OfflineAudioContext
+ * render. renderRange starts every schedule at 0.01 seconds.
+ * Do not inspect beyond the exported context when a seam touches song edges.
+ */
+export function measureStudioCompRender(buffer,{bpm,startBar,range,scheduleLeadSeconds=.01}={}){
+ if(!Number.isFinite(bpm)||bpm<=0||!Number.isFinite(startBar)||startBar<0||
+ !Number.isFinite(scheduleLeadSeconds)||scheduleLeadSeconds<0||scheduleLeadSeconds>.1||
+ !range||![range.start,range.end].every(Number.isFinite)||range.end<=range.start||range.start<startBar)
+  throw Error('Plage de rendu Studio invalide.');
+ const barSeconds=240/bpm,offset=scheduleLeadSeconds/barSeconds;
+ const report=measureCompRenderedSeams(buffer,{bpm,
+  seamBars:[range.start-startBar+offset,range.end-startBar+offset]});
+ return {...report,seams:report.seams.map((seam,index)=>({...seam,bar:index?range.end:range.start}))};
+}
