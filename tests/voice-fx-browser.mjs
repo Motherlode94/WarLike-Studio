@@ -23,7 +23,7 @@ try{
    const pcm=await ctx.startRendering(),samples=pcm.getChannelData(0);
    let peak=0,rms=0,invalid=0;
    for(const x of samples){if(!Number.isFinite(x))invalid++;peak=Math.max(peak,Math.abs(x));rms+=x*x;}
-   return {peak,rms:Math.sqrt(rms/samples.length),invalid,head:Array.from(samples.slice(4000,4032))};
+   return {peak,rms:Math.sqrt(rms/samples.length),invalid,head:Array.from(samples.slice(11000,11032))};
   };
   const dry=await render('voxshift',{semitones:0,mix:1});
   const baby=await render('voxshift',{semitones:7,mix:1});
