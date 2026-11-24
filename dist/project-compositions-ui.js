@@ -29,11 +29,7 @@ export function mountProjectCompositions(root,{stop,sync}){
   previous.disabled=page===0;next.disabled=page===pages-1;position.textContent='Page '+(page+1)+' / '+pages;sync();
  }
  previous.onclick=()=>{stop();page--;render();};next.onclick=()=>{stop();page++;render();};
- const nav=node('nav',null,'project-demo-catalogs');nav.setAttribute('aria-label','Types de démos');
- for(const [key,label] of [['complete','Compositions complètes'],['short','Démos courtes · 16 mesures']]){
-  const b=button(label);b.dataset.demoCatalog=key;nav.append(b);
-  b.onclick=()=>select(key);
- }
- function select(key){stop();complete.hidden=key!=='complete';short.hidden=key!=='short';for(const b of nav.querySelectorAll('button'))b.setAttribute('aria-pressed',String(b.dataset.demoCatalog===key));sync();}
- root.append(nav,complete,short);mountSessionPreview(complete,stop);render();select('complete');
+ // One catalog in the main project menu. Full compositions and public
+ // demonstrations are displayed together, never split into selectable tabs.
+ root.append(complete,short);mountSessionPreview(complete,stop);render();sync();
 }
