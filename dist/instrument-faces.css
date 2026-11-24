@@ -66,3 +66,24 @@ html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-i
 html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-face] .expansion-bank{background:var(--instrument-raised);border-color:var(--instrument-line)}
 html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-face] .expansion-bank h4{color:var(--instrument-muted)}
 html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-face] .expansion-bank .param-value{background:transparent}
+
+/* Per-instrument engraved faceplate; decorative, never a fake audio meter. */
+.floating-plugin .instrument-hardware-plate{
+ display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;
+ border:1px solid var(--instrument-line);border-left:4px solid var(--instrument-accent);
+ background:var(--instrument-raised);border-radius:5px;padding:7px 9px;margin-top:10px
+}
+.floating-plugin .instrument-hardware-plate strong{
+ font:800 12px ui-monospace,monospace;letter-spacing:.12em;color:var(--instrument-ink)
+}
+.floating-plugin .instrument-hardware-plate small{
+ font:600 10px ui-monospace,monospace;letter-spacing:.07em;color:var(--instrument-muted)
+}
+.floating-plugin .instrument-hardware-trim{display:flex;gap:3px;margin-left:auto}
+.floating-plugin .instrument-hardware-trim i{
+ display:block;width:3px;height:9px;border-radius:1px;background:var(--instrument-accent)
+}
+.floating-plugin [data-instrument-chassis=studio] .instrument-hardware-plate{border-radius:2px}
+.floating-plugin [data-instrument-chassis=stage] .instrument-hardware-plate{border-radius:10px;border-left-width:7px}
+.floating-plugin [data-instrument-chassis=module] .instrument-hardware-plate{border-block-width:2px}
+.floating-plugin [data-instrument-chassis=vintage] .instrument-hardware-plate{border-style:double;border-width:3px}

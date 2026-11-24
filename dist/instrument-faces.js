@@ -1,4 +1,4 @@
-import {instrumentFace,planInstrumentBanks,instrumentReadout} from './instrument-face-model.js';
+import {instrumentFace,planInstrumentBanks,instrumentReadout,instrumentHardwareIdentity} from './instrument-face-model.js';
 const active=new WeakMap();
 const ns='http://www.w3.org/2000/svg';
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
@@ -35,9 +35,17 @@ export function mountInstrumentFace(panel,{id,definition,state,formatValue}){
   containers[i].classList.add('instrument-control-banks');
   containers[i].replaceChildren(...plan[i].map((bank,index)=>{const group=el('section',null,'instrument-control-bank');group.dataset.instrumentBank=bank.name;group.append(el('h4',bank.name));for(const key of bank.keys){const control=byKey.get(key);control.dataset.instrumentKey=key;group.append(control);}if(!index)group.classList.add('instrument-primary-bank');return group;}));
  }
- panel.dataset.instrumentFace=id;panel.dataset.instrumentLayout=spec.layout;panel.dataset.instrumentMaterial=spec.material;panel.style.setProperty('--instrument-accent',definition.color||'#a8c8bb');
+ const hardware=instrumentHardwareIdentity(id);
+ panel.dataset.instrumentFace=id;panel.dataset.instrumentLayout=spec.layout;panel.dataset.instrumentMaterial=spec.material;
+ panel.dataset.instrumentChassis=hardware.chassis;panel.dataset.instrumentVariant=hardware.variant;
+ panel.style.setProperty('--instrument-accent',definition.color||'#a8c8bb');
  const heading=el('header',null,'instrument-face-heading');heading.append(emblem(spec.motif));
- const title=el('div',null,'instrument-face-title');title.append(el('small','WARLIKE / '+spec.family),el('h2',definition.name),el('p',definition.subtitle));heading.append(title);
+ const title=el('div',null,'instrument-face-title');title.append(el('small','WARLIKE / '+spec.family),el('h2',definition.name),el('p',definition.subtitle));
+ const plate=el('div',null,'instrument-hardware-plate');plate.setAttribute('aria-label','Identité matérielle de '+definition.name);
+ plate.append(el('strong',hardware.engraving),el('small','SERIES '+hardware.serial));
+ const trim=el('span',null,'instrument-hardware-trim');trim.setAttribute('aria-hidden','true');
+ for(let i=0;i<hardware.notches;i++)trim.append(el('i'));
+ plate.append(trim);title.append(plate);heading.append(title);
  const readout=el('div',null,'instrument-config-readout');readout.setAttribute('aria-label','Paramètres configurés de '+definition.name);
  for(const key of spec.focus){const c=definition.controls.find(c=>c.key===key);if(!c)continue;const field=el('div');field.append(el('small',c.name));const value=el('output');value.dataset.instrumentReadout=key;field.append(value);readout.append(field);}
  heading.append(readout);panel.querySelector('.plugin-identity-banner')?.replaceWith(heading);

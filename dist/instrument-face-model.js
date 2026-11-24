@@ -65,3 +65,17 @@ export function instrumentReadout(id,control,value,formatValue){
  if(id==='drums'&&control.key==='kit')return ['Synthèse','Rock','Pop','Rumba','Baile'][Math.round(value)]||String(value);
  return formatValue(control,value);
 }
+
+/** Stable individual faceplate per native instrument; purely presentation data. */
+export function instrumentHardwareIdentity(id){
+ const spec=instrumentFace(id);
+ if(!spec)throw Error('Instrument inconnu pour sa façade.');
+ const hash=[...id].reduce((acc,ch)=>((acc*33)^ch.charCodeAt(0))>>>0,5381);
+ const engraving=id.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
+ const serial=String(hash%10000).padStart(4,'0');
+ // Retain the instrument-specific material and layout, varying the engraving
+ // and chassis details without pretending to show DSP or audio measurements.
+ const chassis=['studio','stage','module','vintage'][hash%4];
+ return Object.freeze({engraving,serial,chassis,material:spec.material,
+  variant:id+'-'+serial,notches:2+(hash%5)});
+}

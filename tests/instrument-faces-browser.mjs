@@ -3,7 +3,7 @@ import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
 import {emptyProject} from '../dist/audio.js';
 import {INSTRUMENTS,formatParam,placeInsert} from '../dist/plugins.js';
-import {INSTRUMENT_FACES,instrumentReadout} from '../dist/instrument-face-model.js';
+import {INSTRUMENT_FACES,instrumentReadout,instrumentHardwareIdentity} from '../dist/instrument-face-model.js';
 import {createContentTrack} from '../dist/content.js';
 import {encodeWav} from '../dist/wav.js';
 const folder='artifacts/instrument-faces';await mkdir(folder,{recursive:true});
@@ -27,6 +27,13 @@ try{
  for(const [i,[id,def]]of defs.entries()){
   current=id;const track='face'+i,spec=INSTRUMENT_FACES[id];await open(track);const root=win(track);await root.locator('[data-instrument-face="'+id+'"]').waitFor();
   assert.equal(await root.locator('.instrument-face-heading h2').textContent(),def.name);
+  const identity=instrumentHardwareIdentity(id);
+  assert.equal(await root.locator('[data-instrument-face]').getAttribute('data-instrument-variant'),identity.variant,id+' missing distinct faceplate');
+  assert.equal(await root.locator('[data-instrument-face]').getAttribute('data-instrument-chassis'),identity.chassis,id+' wrong housing');
+  assert.equal(await root.locator('.instrument-hardware-plate strong').textContent(),identity.engraving);
+  assert.equal(await root.locator('.instrument-hardware-trim i').count(),identity.notches);
+  const badgeWidth=await root.locator('.instrument-hardware-plate').evaluate(n=>({plate:n.getBoundingClientRect().width,owner:n.closest('[data-instrument-face]').getBoundingClientRect().width}));
+  assert(badgeWidth.plate>0&&badgeWidth.plate<=badgeWidth.owner+2,id+' faceplate overflow');
   const keys=await root.locator('[data-param^="instrument."],[data-exo-control]').evaluateAll(nodes=>nodes.map(n=>n.dataset.exoControl||n.dataset.param.replace('instrument.','')));
   assert.deepEqual(keys.sort(),def.controls.map(c=>c.key).sort(),id+' lost or duplicate native controls');
   assert.equal(await root.locator('.plugin-command-bar').count(),1);

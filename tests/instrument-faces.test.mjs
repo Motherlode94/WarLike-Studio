@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {INSTRUMENTS,formatParam} from '../dist/plugins.js';
-import {INSTRUMENT_FACES,instrumentFace,planInstrumentBanks,instrumentReadout} from '../dist/instrument-face-model.js';
+import {INSTRUMENT_FACES,instrumentFace,planInstrumentBanks,instrumentReadout,instrumentHardwareIdentity} from '../dist/instrument-face-model.js';
 import {expansionBanks} from '../dist/expansion-hardware-model.js';
 
 test('individual presentation covers all 42 instruments and exactly their 314 original parameters',()=>{
@@ -30,4 +30,22 @@ test('configured readouts use real parameter values, including native voice and 
  assert.equal(instrumentReadout('drums',c('drums','kit'),4,formatParam),'Baile');
  assert.equal(instrumentReadout('harp',c('harp','release'),.5,formatParam),'0.50 s');
  assert.equal(instrumentReadout('wlvirtual',c('wlvirtual','cutoff'),3200,formatParam),'3.2 kHz');
+});
+
+test('all 42 instruments receive unique stable hardware plates without changing their native controls',()=>{
+ const before=JSON.stringify(INSTRUMENTS),seen=new Set(),chassis=new Set();
+ for(const id of Object.keys(INSTRUMENTS)){
+  const first=instrumentHardwareIdentity(id),second=instrumentHardwareIdentity(id);
+  assert.deepEqual(first,second,id+' faceplate must remain stable');
+  assert(Object.isFrozen(first));
+  assert.match(first.engraving,/^[A-Z0-9]{1,8}$/);
+  assert.match(first.serial,/^\d{4}$/);
+  assert(!seen.has(first.variant),id+' must have an individual faceplate');
+  assert(first.notches>=2&&first.notches<=6);
+  seen.add(first.variant);chassis.add(first.chassis);
+ }
+ assert.equal(seen.size,42);
+ assert.equal(chassis.size,4);
+ assert.equal(JSON.stringify(INSTRUMENTS),before,'visual identities cannot alter the DSP registry');
+ assert.throws(()=>instrumentHardwareIdentity('unknown'),/inconnu/);
 });
