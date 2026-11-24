@@ -8,6 +8,29 @@ export const RACK_CATEGORIES=Object.freeze([...GENRE_RACK_CATEGORIES,...STUDIORA
 
 const rack=(name,description,stages)=>({name,category:'Voix',description,stages});
 export const VOX_STUDIORACKS=Object.freeze({
+ futuristLead:rack('TRAP / FUTURIST LEAD','Esthétique trap futuriste : accordage très rapide, transposition légère, saturation contrôlée et écho. Une création originale, pas une reproduction de voix.',[
+  {id:'voxclean',values:{highpass:105,range:5}},
+  {id:'voxtune',values:{speed:5,amount:1,mix:1}},
+  {id:'voxshift',values:{semitones:2,mix:.65}},
+  {id:'voxlevel',values:{peakThreshold:-17,levelThreshold:-27,ratio:3.5}},
+  {id:'voxwarm',values:{drive:7,mix:.3,output:-3}},
+  {id:'alterecho',values:{beats:.25,feedback:.22,mix:.14}}
+ ]),
+ babyVoice:rack('BABY VOICE / HIGH','Voix rap plus aiguë : véritable pitch shift et coloration de résonances. À doser pour éviter l’effet cartoon involontaire.',[
+  {id:'voxclean',values:{highpass:125,range:4}},
+  {id:'voxtune',values:{speed:10,amount:.95,mix:1}},
+  {id:'voxshift',values:{semitones:7,mix:1}},
+  {id:'voxformant',values:{shift:4,brightness:2.5,mix:.8}},
+  {id:'voxlevel',values:{peakThreshold:-16,levelThreshold:-27,ratio:2.8}},
+  {id:'sibil',values:{frequency:7600,range:5}}
+ ]),
+ babyAdlibs:rack('BABY VOICE / ADLIBS','Adlibs aigus modulés, élargissement stéréo et répétitions courtes.',[
+  {id:'voxclean',values:{highpass:150,range:4}},
+  {id:'voxshift',values:{semitones:9,mix:1}},
+  {id:'voxformant',values:{shift:5,brightness:3,mix:.85}},
+  {id:'voxdoubler',values:{delay:21,detune:10,width:.9,mix:.25}},
+  {id:'alterecho',values:{beats:.25,feedback:.28,mix:.2}}
+ ]),
  trapLead:rack('TRAP / LEAD','Coupe-bas, accordage, densité, couleur et slapback.',[
   {id:'voxclean',values:{highpass:90,range:5}},
   {id:'voxtune',values:{speed:12,amount:.92,mix:1}},
