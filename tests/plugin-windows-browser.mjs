@@ -80,6 +80,10 @@ try{
  await page.keyboard.press('Escape');assert.equal(await windows.count(),2,'Escape closes only the active plugin');
  // Removing an insert closes that view, while unrelated instrument windows survive.
  // Insert options remain in the Mixer, not in standalone plugin windows.
+ // Restore the Mixer before opening its insert menu: the workspace may have
+ // switched to another view while multiple floating editors were active.
+ await page.locator('[data-view="mixer"]').click({force:true});
+ await page.waitForFunction(()=>{const node=document.querySelector('#mixerView [data-mixer-track="windowtrack1"] [data-insert-slot="0"][data-insert-track="windowtrack1"]');return node&&node.getClientRects().length>0;});
  const mixerOptions=strip('windowtrack1').locator('[data-insert-slot="0"][data-insert-track="windowtrack1"]').first();
  await mixerOptions.click({force:true});
  await page.locator('#removeCurrentInsert').click();
