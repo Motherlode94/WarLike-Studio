@@ -9,6 +9,7 @@ import {createPcmCapture,recordingPlacement} from './pcm-capture.js?v=0.14.0';
 import {emitRecordingTelemetry} from './recording-telemetry.js';
 import {createRecordingSignalDiagnostics} from './recording-signal-diagnostics.js';
 import {createRecordingCountIn} from './recording-count-in.js';
+import {createRecordingPreRoll} from './recording-preroll.js';
 import {recordingWindow,rangePlacement} from './recording-range.js';
 import {mountRecordingRange,recordingRangeIndicator} from './recording-range-ui.js';
 import {evaluateLoopbackLatency} from './recording-loopback-analysis.js';
@@ -201,11 +202,11 @@ export function installStudioWorkflow(d){
       const targets=assignments.length?assignments:[{track:t,channel:a.channel==='2'?'2':'1'}];
       const mode=assignments.length?captureChannelMode(assignments):a.channel;
       engine().pause();engine().patternMode=null;engine().clipPreview=null;
-      const originalPosition=engine().position;if(window){request.returnPosition=originalPosition;engine().position=window.start*16;}
-      const start=engine().position;previousLoop=engine().loop;engine().loop=false;
+      const originalPosition=engine().position;if(window){request.returnPosition=originalPosition;engine().position=window.playbackStart*16;}
+      const start=window?window.start*16:engine().position;previousLoop=engine().loop;engine().loop=false;
       request.previousLoop=previousLoop;
       const countBars=recordingSettings(p().recording).countInBars;
-      if(countBars)await engine().prepareInstruments(engine().ctx,engine().getPlaybackProject());
+      if(countBars||window?.preRollSeconds)await engine().prepareInstruments(engine().ctx,engine().getPlaybackProject());
       checkRequest();
       graph=createRecordingGraph(engine().ctx,stream,recordingSettings(p().recording).gainDb);
       try{
@@ -244,10 +245,14 @@ export function installStudioWorkflow(d){
       await engine().play(rec.countIn?{startAt:rec.countIn.endAt}:undefined);
       if(d.getRecordState().recording!==rec)return;
       if(!engine().playing)throw Error('Le départ de la prise a été interrompu.');
-      const captureAt=engine().startTime+start*engine().stepDuration;capture.start(captureAt,window?{endTime:captureAt+window.seconds}:undefined);
+      const captureAt=rec.captureAt=engine().startTime+start*engine().stepDuration;capture.start(captureAt,window?{endTime:captureAt+window.seconds}:undefined);
+      if(window?.preRollSeconds)rec.preRoll=createRecordingPreRoll(engine().ctx,{startAt:engine().playStartAt,endAt:captureAt,bpm:p().bpm,onChange:()=>d.updateTransport()});
       if(rec.countIn&&!await rec.countIn.done){if(d.getRecordState().recording===rec)await stopRecording();return;}
       if(d.getRecordState().recording!==rec)return;
-      rec.started=true;rec.countIn=null;
+      rec.countIn=null;d.updateTransport();
+      if(rec.preRoll&&!await rec.preRoll.done){if(d.getRecordState().recording===rec)await stopRecording();return;}
+      if(d.getRecordState().recording!==rec)return;
+      rec.started=true;rec.preRoll=null;
       emitRecordingTelemetry('start',{takeId:telemetryId,frames:0,sampleRate:engine().ctx.sampleRate,channels:mode==='stereo'?2:1});
       rec.timer=setInterval(()=>{
 
@@ -268,7 +273,7 @@ export function installStudioWorkflow(d){
       d.updateTransport();d.toast(targets.length>1?'Capture PCM synchronisée sur deux entrées.':'Capture PCM active. Stop termine la prise.');
     }catch(error){
       const owned=activeRec?d.getRecordState().recording===activeRec:pendingRecord===request;
-      activeRec?.countIn?.cancel();if(activeRec&&owned)engine().pause();
+      activeRec?.countIn?.cancel();activeRec?.preRoll?.cancel();if(activeRec&&owned)engine().pause();
       if(journal&&!capture?.frames)try{await journal.clear();}catch{}
       capture?.dispose();journal?.close();graph?.dispose();stream?.getTracks().forEach(t=>t.stop());
       if(!owned)return;pendingRecord=null;
@@ -280,12 +285,12 @@ export function installStudioWorkflow(d){
   async function stopRecording(){
     const rec=d.getRecordState().recording;if(!rec)return;
     d.setRecording(null);d.setFlags({recordFinalizing:true});clearInterval(rec.timer);
-    const cancelledBeforeStart=!rec.started&&(!rec.countIn||engine().ctx.currentTime<rec.countIn.endAt);
-    rec.countIn?.cancel();
+    const cancelledBeforeStart=Number.isFinite(rec.captureAt)?engine().ctx.currentTime<rec.captureAt:!rec.started;
+    rec.countIn?.cancel();rec.preRoll?.cancel();
     engine().pause();engine().recordingTrackId=null;engine().recordingEndStep=null;engine().loop=rec.previousLoop;engine().position=cancelledBeforeStart&&rec.window?rec.originalPosition:rec.start;d.updateTransport();
     if(cancelledBeforeStart){
-      try{rec.capture.dispose();await rec.journal?.clear();d.toast('Décompte annulé. Aucune prise créée.');}
-      catch(error){d.toast('Décompte annulé : '+error.message);}
+      try{rec.capture.dispose();await rec.journal?.clear();d.toast('Préparation annulée. Aucune prise créée.');}
+      catch(error){d.toast('Préparation annulée : '+error.message);}
       finally{rec.journal?.close();graphCleanup(rec);d.setFlags({recordFinalizing:false});d.updateTransport();}
       return;
     }
@@ -352,6 +357,6 @@ export function installStudioWorkflow(d){
   document.addEventListener('focusout',e=>{sendEdits.delete(e.target);});
   document.addEventListener('input',e=>{if(e.target.dataset.sendLevel){const [id,sid]=e.target.dataset.sendLevel.split(':'),t=p().tracks.find(t=>t.id===id),s=t?.sends?.find(s=>s.id===sid);if(!s||!String(e.target.value).trim())return;const value=Number(e.target.value);if(!Number.isFinite(value))return;const level=Math.max(-60,Math.min(12,value));if(level===s.level)return;if(!sendEdits.has(e.target)){d.checkpoint();sendEdits.add(e.target);}s.level=level;for(const label of document.querySelectorAll(`[data-send-db="${sid}"]`))label.textContent=s.level.toFixed(1)+' dB';for(const slider of document.querySelectorAll(`[data-send-level="${id}:${sid}"]`))if(slider!==e.target)slider.value=s.level;d.changed();}});
   function updateFrame(){updateRangeIndicator();if(!engine().playing)return;const bar=engine().getPosition()/16;for(const t of p().tracks)if(t.automation?.mode==='read'){for(const key of ['volume','pan']){const points=t.automation.curves[key];if(!points?.length)continue;const value=pointValue(points,bar,t[key]);if(key==='volume'){for(const node of document.querySelectorAll(`[data-db="${t.id}"]`))node.textContent=value.toFixed(1)+' dB';for(const node of document.querySelectorAll(`[data-volume="${t.id}"]`))if(node!==document.activeElement)node.value=value;}}}}
-  document.addEventListener('visibilitychange',()=>{if(document.hidden&&d.getRecordState().recording?.countIn)void stopRecording();});
+  document.addEventListener('visibilitychange',()=>{const rec=d.getRecordState().recording;if(document.hidden&&(rec?.countIn||rec?.preRoll))void stopRecording();});
   return {renderMastering,renderInspector,renderMixer,renderAudioEditor,renderTimeline,exportModal,recordingModal,record,stopRecording,cancelPendingRecording,versionsModal,snapshot,updateFrame,stopTest};
 }

@@ -3,14 +3,17 @@ export function recordingRange(value){
  if(value==null)return null;
  const start=Number(value.start),end=Number(value.end);
  if(typeof value!=='object'||!Number.isFinite(start)||!Number.isFinite(end)||start<0||end<=start||end>MAX_BARS)throw Error('Plage de prise invalide : la fin doit suivre le début.');
- return {enabled:value.enabled===true,start,end};
+ const preRollBars=Number(value.preRollBars??0);
+ if(![0,1,2,4].includes(preRollBars))throw Error('Prélecture invalide : choisis 0, 1, 2 ou 4 mesures.');
+ return {enabled:value.enabled===true,start,end,...(preRollBars?{preRollBars}:{})};
 }
 export function recordingWindow(value,{bars,bpm}){
  const range=recordingRange(value);if(!range?.enabled)return null;
  if(!Number.isFinite(bars)||!Number.isFinite(bpm)||bpm<40||bpm>240||range.end>bars)throw Error('La plage de prise dépasse le morceau. Ajuste les bornes.');
  const seconds=(range.end-range.start)*240/bpm;
  if(seconds>1200)throw Error('Une plage de prise est limitée à 20 minutes.');
- return {...range,seconds};
+ const playbackStart=Math.max(0,range.start-(range.preRollBars||0));
+ return {...range,seconds,playbackStart,preRollSeconds:(range.start-playbackStart)*240/bpm};
 }
 export function rangePlacement(placement,range,bpm){
  if(!range)return placement;
