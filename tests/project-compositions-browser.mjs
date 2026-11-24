@@ -27,7 +27,10 @@ try{
  const idle=async()=>page.waitForFunction(()=>document.querySelector('.project-home-compositions .session-preview-panel')?.dataset.state==='idle');
  const ids=async()=>root.locator('[data-composition]').evaluateAll(nodes=>nodes.map(n=>n.dataset.composition));
  const before=await save();await home();await demos();
- assert.equal(await page.locator('[data-demo-catalog=complete]').getAttribute('aria-pressed'),'true');
+ assert.equal(await page.locator('.project-demo-catalogs').count(),0,'main demo catalog must not be split into separate menus');
+ assert.equal(await page.locator('.project-short-demos [data-public-demo]').count(),13);
+ assert.equal(await page.locator('.project-home-compositions').isVisible(),true);
+ assert.equal(await page.locator('.project-short-demos').isVisible(),true);
  const found=[];
  for(let p=0;p<3;p++){
   phase='catalog page '+p;const current=await ids();assert.equal(current.length,3);found.push(...current);
@@ -39,9 +42,10 @@ try{
  await page.waitForFunction(()=>document.querySelector('.project-home-compositions progress').value>0);
  await root.locator('[data-session-preview=kin]').press('Space');await idle();
  await root.locator('[data-session-preview=lumiere]').click();await playing('Lumière en ville');await root.locator('[data-composition-page=previous]').click();await idle();
- await root.locator('[data-session-preview=rives]').click();await playing('Rives de Kin');await page.locator('[data-demo-catalog=short]').click();await idle();
- assert.equal(await page.locator('.project-short-demos [data-public-demo]').count(),13);assert.equal(await page.locator('.project-short-demos').isVisible(),true);
- await page.locator('[data-demo-catalog=complete]').click();await root.locator('[data-session-preview=rives]').click();await playing('Rives de Kin');await page.locator('[data-session-tab=open]').click();await idle();await demos();
+ await root.locator('[data-session-preview=rives]').click();await playing('Rives de Kin');
+ assert.equal(await page.locator('.project-short-demos').isVisible(),true,'demos remain visible while auditioning full compositions');
+ assert.equal(await page.locator('.project-short-demos [data-public-demo]').count(),13);
+ await page.locator('[data-session-tab=open]').click();await idle();await demos();
  await root.locator('[data-session-preview=rives]').click();await playing('Rives de Kin');await page.locator('#closeModal').click();
  await page.waitForFunction(()=>!document.querySelector('#audioStatus').textContent.includes('Préécoute'));assert.equal(await page.locator('.project-home-compositions').count(),0);
  const after=await save();assert.deepEqual(after.project,before.project);assert.deepEqual(after.assets,before.assets);assert.equal(after.masterVolume,-18);
