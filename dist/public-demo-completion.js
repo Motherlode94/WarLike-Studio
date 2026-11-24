@@ -20,7 +20,7 @@ const hasVoiceSection=(role,name)=>{
 function pitchesFor(project,section){
  const numbers=(project.tracks||[]).filter(t=>!['drums','bass','audio','bus','wlvox'].includes(t.type))
   .flatMap(t=>(t.clips||[]).filter(c=>c.notes?.length&&c.start<section.start+section.length&&c.start+c.length>section.start))
-  .flatMap(c=>c.notes.slice(0,8).map(n=>n.midi))).filter(Number.isFinite);
+  .flatMap(c=>c.notes.slice(0,8).map(n=>n.midi)).filter(Number.isFinite);
  return numbers.length?numbers:[60,63,67,70];
 }
 export function completePublicDemoVocals(project){
