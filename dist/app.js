@@ -47,6 +47,7 @@ import {NATIVE_CHAINS,nativeEffectsForNames,applyNativeChain,nativeChainCapacity
 import {VOCAL_DEMOS,createVocalDemoSession} from './vocal-demo-sessions.js';
 import {NEW_GENRE_DEMOS,createGenreDemoSession} from './genre-demo-sessions.js';
 import {BEAT_DEMOS,createBeatDemoSession} from './beat-demo-sessions.js';
+import {completePublicDemoVocals} from './public-demo-completion.js';
 import {extendPublicDemoArrangement} from './public-demo-arrangements.js';
 import {masterPublicDemo} from './demo-mastering.js';
 import {routeVocalFX} from './demo-vocal-fx.js';
@@ -211,6 +212,7 @@ async function launchPublicDemo(kind){
    demo.demoRevision=config.beat?demo.demoRevision:config.vocal||config.template?6:config.genre?1:3;
    const demoMedia=demo.vocalDemo?await createRecordedVocalDemoMedia(demo):[];
    if(kind==='trap'||kind==='trap808')extendPublicDemoArrangement(demo,kind);
+   completePublicDemoVocals(demo);
    balancePublicDemo(demo);
    mixPublicDemoInstruments(demo);
    routePublicDemoGroups(demo);
