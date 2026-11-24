@@ -5,8 +5,8 @@ import {FACTORY_PRESETS,exportRack,importRack} from '../dist/bundle.js';
 import {createFactorySession} from '../dist/content.js';
 
 test('original effect packs retain thirty processors and their complete presets',()=>{
-  const originals=Object.values(EFFECT_PACKS).filter(pack=>pack.kind!== 'track' && pack.kind!== 'master');
-  assert.equal(originals.length,14);assert.equal(Object.keys(PACK_EFFECTS).length,32);
+  const originals=Object.values(EFFECT_PACKS).filter(pack=>pack.kind!== 'track' && pack.kind!== 'master' && !pack.modules.includes('voxshift'));
+  assert.equal(originals.length,14);assert.equal(Object.keys(PACK_EFFECTS).length,34);
   for(const pack of originals)for(const id of pack.modules){assert.ok(PACK_EFFECTS[id]);assert.equal(FACTORY_PRESETS[id].length,['phase','ring'].includes(id)?10:5);for(const preset of FACTORY_PRESETS[id])for(const c of PACK_EFFECTS[id].controls)assert.ok(preset.values[c.key]>=c.min&&preset.values[c.key]<=c.max);}
 });
 test('envelope curves stay bounded, preserve quiet sibilants and obey maximum attenuation',()=>{

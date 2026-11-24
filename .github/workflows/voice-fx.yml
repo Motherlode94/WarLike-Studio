@@ -1,0 +1,34 @@
+name: Studio VOICE FX pitch and color
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run build
+      - run: node --test tests/voice-fx-racks.test.mjs
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install chromium
+      - name: Browser offline vocal DSP
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory dist >/tmp/studio-voicefx-http.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:8765/ -o /dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8765/ -o /dev/null
+          node tests/voice-fx-browser.mjs
