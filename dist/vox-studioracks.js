@@ -38,30 +38,48 @@ export const VOX_STUDIORACKS=Object.freeze({
  ,...STUDIORACK_MIX_PRESETS
 });
 
+/**
+ * A rack preset is an install plan: ordered real DSP instances and parameter
+ * values, not another VST window. Build the plan without editing the track.
+ */
+export function planVoxStudioRack(track,key){
+ const preset=VOX_STUDIORACKS[key];
+ if(!preset)throw Error('Preset de rack inconnu.');
+ const slots=Array.isArray(track?.inserts)?track.inserts:[];
+ const available=slots.filter(id=>id===null).length;
+ const stages=preset.stages.map(stage=>{
+  const definition=EFFECTS[stage.id];
+  if(!definition)throw Error('DSP indisponible : '+stage.id);
+  const values={};
+  for(const [param,value] of Object.entries(stage.values)){
+   const control=definition.controls.find(c=>c.key===param);
+   if(!control||!Number.isFinite(value)||value<control.min||value>control.max)
+    throw Error('Preset invalide : '+stage.id+'.'+param);
+   values[param]=value;
+  }
+  return {id:stage.id,name:definition.name,values};
+ });
+ return {key,name:preset.name,category:preset.category||'Voix',description:preset.description,
+  required:stages.length,available,canApply:available>=stages.length,stages};
+}
 export function rackCapacity(track,key){
- const preset=VOX_STUDIORACKS[key];if(!preset)throw Error('Preset de rack inconnu.');
- ensurePlugins(track);
- for(const stage of preset.stages)if(!EFFECTS[stage.id])throw Error('DSP indisponible : '+stage.id);
- return {required:preset.stages.length,available:track.inserts.filter(id=>id===null).length};
+ const plan=planVoxStudioRack(track,key);
+ return {required:plan.required,available:plan.available};
 }
 export function applyVoxStudioRack(track,key){
- const preset=VOX_STUDIORACKS[key],capacity=rackCapacity(track,key);
- if(capacity.available<capacity.required)throw Error('VOX STUDIORACKS : '+capacity.required+' inserts libres requis ('+capacity.available+' disponibles).');
- // Preflight all controls before modifying any project data.
- for(const stage of preset.stages){
-  const controls=EFFECTS[stage.id].controls;
-  for(const [param,value] of Object.entries(stage.values)){
-   const c=controls.find(x=>x.key===param);
-   if(!c||!Number.isFinite(value)||value<c.min||value>c.max)throw Error('Preset invalide : '+stage.id+'.'+param);
-  }
- }
+ const plan=planVoxStudioRack(track,key);
+ if(!plan.canApply)throw Error('VOX STUDIORACKS : '+plan.required+' inserts libres requis ('+plan.available+' disponibles).');
+ // Build the new chain on a copy. Invalid stages or capacity cannot leave a
+ // half-installed rack on the original project.
+ const draft=structuredClone(track);
+ ensurePlugins(draft);
  const added=[];
- for(const stage of preset.stages){
-  const slot=track.inserts.indexOf(null),id=placeInsert(track,slot,stage.id);
-  // placeInsert can allocate a unique instance ID if the same type already exists.
-  track.effects[id]={...track.effects[id],...stage.values,enabled:true};
+ for(const stage of plan.stages){
+  const slot=draft.inserts.indexOf(null),id=placeInsert(draft,slot,stage.id);
+  draft.effects[id]={...draft.effects[id],...stage.values,enabled:true};
   added.push({id,slot});
  }
+ track.inserts=draft.inserts;track.effects=draft.effects;
  track.voxStudioRack={preset:key,stages:added.map(x=>x.id)};
  return added;
 }
