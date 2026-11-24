@@ -4,7 +4,7 @@ import {chromium} from 'playwright';
 import {emptyProject} from '../dist/audio.js';
 import {createContentTrack} from '../dist/content.js';
 import {EFFECTS,placeInsert,formatParam} from '../dist/plugins.js';
-import {effectFace,effectReadout} from '../dist/effect-face-model.js';
+import {effectFace,effectReadout,effectHardwareIdentity} from '../dist/effect-face-model.js';
 import {resizeStudio} from './browser-viewport.mjs';
 
 const dir='artifacts/effect-faces';await mkdir(dir,{recursive:true});
@@ -43,6 +43,17 @@ try{
   const face=root.locator('[data-effect-face="'+id+'"]');
   await face.waitFor();
   assert.equal(await face.locator('.effect-face-identity h2').textContent(),EFFECTS[id].name);
+  const identity=effectHardwareIdentity(id,EFFECTS[id]);
+  assert.equal(await face.getAttribute('data-effect-variant'),identity.variant,id+' missing individual identity');
+  assert.equal(await face.getAttribute('data-effect-hardware'),identity.geometry,id+' incorrect hardware housing');
+  assert.equal(await face.locator('.effect-hardware-plate strong').textContent(),identity.engraving,id+' wrong engraving');
+  assert.match(await face.locator('.effect-hardware-plate').getAttribute('aria-label'),/Identité du processeur/);
+  assert.equal(await face.locator('[data-hardware-mark]').count(),4,id+' no individual hardware marks');
+  const plate=await face.locator('.effect-hardware-plate').evaluate(node=>({
+    width:node.getBoundingClientRect().width,
+    surface:node.closest('[data-effect-face]').getBoundingClientRect().width
+  }));
+  assert(plate.width>0&&plate.width<=plate.surface+2,id+' hardware plate overflowing window');
   assert.equal(await root.locator('.plugin-rack-drawer,.track-rack-catalog').count(),0,id+' embeds a forbidden rack');
   assert.equal(await root.locator('.plugin-command-surface > [data-effect-face="'+id+'"]').count(),1,id+' must own exactly one standalone editor');
   assert.equal(await root.locator('[data-instrument-face]').count(),0,id+' mixes instrument and effect surfaces');
