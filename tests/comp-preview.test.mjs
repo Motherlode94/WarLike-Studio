@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {prepareComp,compContext,commitComp} from '../dist/comp-preview.js';
+import {prepareComp,compContext,commitComp,canContinueComp} from '../dist/comp-preview.js';
 import {takeAuditionProject} from '../dist/take-audition.js';
 let next=0;const uid=()=>String(++next);
 function project(){const a={id:'a',audioId:'sourceA',start:1,length:7,sourceOffset:.2},b={id:'b',audioId:'sourceB',start:1,length:7,sourceOffset:.5};return {bars:16,bpm:120,tracks:[{id:'vox',type:'audio',clips:[structuredClone(b)],activePlaylist:'B',playlists:[{id:'A',name:'A',clips:[a]},{id:'B',name:'B',clips:[structuredClone(b)]}]}]};}
@@ -22,4 +22,20 @@ test('audition context is one beat on either side and stays within the song',()=
 });
 test('new montages respect the playlist count accepted by project import',()=>{
  const p=project();while(p.tracks[0].playlists.length<64)p.tracks[0].playlists.push({id:uid(),clips:[]});const before=structuredClone(p);assert.throws(()=>prepareComp(p,'vox','A',{start:4,end:5},uid),/64 playlists/);assert.deepEqual(p,before);
+});
+test('several excerpts continue one montage with the original sources intact',()=>{
+ const p=project(),t=p.tracks[0],originals=structuredClone(t.playlists);commitComp(t,prepareComp(p,'vox','A',{start:4,end:5},uid),uid);const id=t.activePlaylist;t.playlists.find(l=>l.id===id).name='Choix voix';assert.equal(canContinueComp(t),true);
+ const before=structuredClone(t),plan=prepareComp(p,'vox','A',{start:6,end:7},uid,{mode:'append'});assert.deepEqual(t,before);commitComp(t,plan,uid);assert.equal(t.activePlaylist,id);assert.equal(t.playlists.length,3);assert.equal(t.playlists.find(l=>l.id===id).name,'Choix voix');assert.deepEqual(t.playlists.slice(0,2),originals);assert.deepEqual(t.clips.map(c=>[c.start,c.length,c.audioId,c.sourceOffset]),[[1,3,'sourceB',.5],[4,1,'sourceA',6.2],[5,1,'sourceB',8.5],[6,1,'sourceA',10.2],[7,1,'sourceB',12.5]]);
+});
+test('raw or legacy playlists cannot be overwritten as a continued montage',()=>{
+ const p=project(),t=p.tracks[0];t.playlists.find(l=>l.id===t.activePlaylist).name='Montage 1';assert.equal(canContinueComp(t),false);const before=structuredClone(t);assert.throws(()=>prepareComp(p,'vox','A',{start:4,end:5},uid,{mode:'append'}),/Crée d’abord/);assert.deepEqual(t,before);assert.throws(()=>prepareComp(p,'vox','A',{start:4,end:5},uid,{mode:'invalid'}),/destination/);
+});
+test('continuation works at 64 playlists while an explicit new copy is blocked',()=>{
+ const p=project(),t=p.tracks[0];commitComp(t,prepareComp(p,'vox','A',{start:4,end:5},uid),uid);while(t.playlists.length<64)t.playlists.push({id:uid(),clips:[]});const current=t.activePlaylist;commitComp(t,prepareComp(p,'vox','A',{start:6,end:7},uid,{mode:'append'}),uid);assert.equal(t.playlists.length,64);assert.equal(t.activePlaylist,current);assert.throws(()=>prepareComp(p,'vox','A',{start:6,end:7},uid,{mode:'new'}),/64 playlists/);
+});
+test('explicit new copies stay independent of the montage being continued',()=>{
+ const p=project(),t=p.tracks[0];commitComp(t,prepareComp(p,'vox','A',{start:4,end:5},uid),uid);const current=t.activePlaylist,old=structuredClone(t.clips);commitComp(t,prepareComp(p,'vox','A',{start:6,end:7},uid,{mode:'new'}),uid);assert.notEqual(t.activePlaylist,current);assert.equal(t.playlists.length,4);assert.deepEqual(t.playlists.find(l=>l.id===current).clips,old);assert.equal(canContinueComp(t),true);
+});
+test('a continuation cannot exceed the clip count accepted on reopening',()=>{
+ const p=project(),t=p.tracks[0];commitComp(t,prepareComp(p,'vox','A',{start:4,end:5},uid),uid);t.clips=Array.from({length:512},(_,i)=>({id:uid(),audioId:'sourceB',start:i/32,length:1/32}));t.playlists.find(l=>l.id==='A').clips=[{id:'wide',audioId:'sourceA',start:0,length:16}];const before=structuredClone(t);assert.throws(()=>prepareComp(p,'vox','A',{start:.01,end:.02},uid,{mode:'append'}),/512 clips/);assert.deepEqual(t,before);
 });
