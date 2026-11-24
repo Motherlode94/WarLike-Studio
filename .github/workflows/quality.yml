@@ -45,6 +45,7 @@ jobs:
           node tests/recording-preroll-browser.mjs
           node tests/recording-series-browser.mjs
           node tests/take-comparison-browser.mjs
+          node tests/comp-preview-browser.mjs
           node tests/vocal-audio-browser.mjs
           node tests/beat-demos-browser.mjs
           node tests/export-browser.mjs
@@ -82,6 +83,13 @@ jobs:
         with:
           name: take-comparison
           path: artifacts/take-comparison/
+          if-no-files-found: warn
+      - name: Comp preview evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comp-preview
+          path: artifacts/comp-preview/
           if-no-files-found: warn
       - name: Reference workspace screenshots
         if: always()

@@ -5,6 +5,7 @@ import {emptyProject} from '../dist/audio.js';
 import {createContentTrack} from '../dist/content.js';
 import {EFFECTS,placeInsert,formatParam} from '../dist/plugins.js';
 import {effectFace,effectReadout} from '../dist/effect-face-model.js';
+import {resizeStudio} from './browser-viewport.mjs';
 
 const dir='artifacts/effect-faces';await mkdir(dir,{recursive:true});
 const ids=Object.keys(EFFECTS);
@@ -66,11 +67,11 @@ try{
   }
   await root.locator('[data-float-close]').click();
  }
- await page.setViewportSize({width:390,height:844});
+ await resizeStudio(page,{width:390,height:844});
  // Verify an independent effect panel fits mobile width and retains its native inputs.
  const prismTrack='fxface'+ids.indexOf('prism');
  const button=page.locator('#mixerView [data-mixer-track="'+prismTrack+'"] [data-plugin-open="prism"],#mixerView [data-mixer-track="'+prismTrack+'"] [data-insert-open="prism"]').first();
- await button.click({force:true});
+ await button.click();
  const mobile=page.locator('.floating-plugin[data-plugin-track="'+prismTrack+'"]');
  await mobile.locator('[data-effect-face="prism"]').waitFor();
  await page.waitForFunction(track=>{
