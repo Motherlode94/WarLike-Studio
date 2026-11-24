@@ -37,3 +37,21 @@ export function effectDialFraction(control,value){
  const raw=Number.isFinite(value)?value:control.default;
  return Number.isFinite(raw)&&control.max>control.min?Math.max(0,Math.min(1,(raw-control.min)/(control.max-control.min))):0;
 }
+
+/**
+ * Hardware identity belongs to the processor, not its family. A deterministic
+ * engraving and accent are stable across reloads and are presentation-only.
+ * No synthetic audio meter, fake response curve or DSP parameter is created.
+ */
+export function effectHardwareIdentity(id,definition){
+ if(typeof id!=='string'||!id||!definition?.name||!definition?.controls?.length)
+  throw Error('Identité matérielle de plugin invalide.');
+ const seed=[...id].reduce((n,char)=>((n*33)^char.charCodeAt(0))>>>0,5381);
+ const hue=seed%360;
+ const engraving=id.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+ const serial=String(seed%10000).padStart(4,'0');
+ const geometry=['console','rack','pedal','module'][seed%4];
+ const accent='hsl('+hue+' 68% 75%)';
+ return Object.freeze({engraving,serial,geometry,accent,
+  hash:seed,variant:id+'-'+serial});
+}
