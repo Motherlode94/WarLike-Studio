@@ -79,3 +79,29 @@ export function instrumentHardwareIdentity(id){
  return Object.freeze({engraving,serial,chassis,material:spec.material,
   variant:id+'-'+serial,notches:2+(hash%5)});
 }
+
+/**
+ * Hand-authored performance decks use the actual existing instrument controls,
+ * not decorative replacements. This first set targets acoustic instruments
+ * and synths; unlisted instruments keep their certified layout.
+ */
+const PERFORMANCE_DECKS=Object.freeze({
+ piano:{type:'hammer',title:'PIANO · EXPRESSIVITÉ',hint:'Marteaux et dynamique',keys:['brightness','dynamics']},
+ upright:{type:'hammer',title:'PIANO DROIT · TOUCHER',hint:'Réponse de la caisse',keys:['tone','release']},
+ epiano:{type:'keys',title:'E-PIANO · TINES',hint:'Couleur et toucher',keys:['tone','dynamics']},
+ harp:{type:'plucked',title:'HARPE · RÉSONANCE',hint:'Éclat et durée des cordes',keys:['brightness','release']},
+ violin:{type:'bowed',title:'VIOLON · ARCHET',hint:'Attaque et expression',keys:['attack','dynamics']},
+ cello:{type:'bowed',title:'VIOLONCELLE · PHRASE',hint:'Corps et attaque',keys:['tone','attack']},
+ flute:{type:'breath',title:'FLÛTE · SOUFFLE',hint:'Air et articulation',keys:['attack','brightness']},
+ trumpet:{type:'breath',title:'TROMPETTE · PAVILLON',hint:'Timbre et dynamique',keys:['tone','dynamics']},
+ wlvirtual:{type:'osc',title:'ANALOG · OSCILLATEURS',hint:'Accord et filtre résonant',keys:['detune','cutoff']},
+ wlrompler:{type:'layers',title:'ROMPLER · COUCHES',hint:'Équilibre des couches et filtre',keys:['layer','cutoff']},
+ wlspectral:{type:'spectral',title:'SPECTRAL · MODULATION',hint:'Modulation de fréquence et mouvement',keys:['fm','motion']}
+});
+export function instrumentPerformanceDeck(id,definition){
+ const authored=Object.hasOwn(PERFORMANCE_DECKS,id)?PERFORMANCE_DECKS[id]:null;
+ if(!authored||!definition?.controls)return null;
+ const keys=new Set(definition.controls.map(control=>control.key));
+ if(authored.keys.some(key=>!keys.has(key)))return null;
+ return Object.freeze({...authored,keys:Object.freeze([...authored.keys])});
+}

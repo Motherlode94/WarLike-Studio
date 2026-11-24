@@ -1,4 +1,4 @@
-import {instrumentFace,planInstrumentBanks,instrumentReadout,instrumentHardwareIdentity} from './instrument-face-model.js';
+import {instrumentFace,planInstrumentBanks,instrumentReadout,instrumentHardwareIdentity,instrumentPerformanceDeck} from './instrument-face-model.js';
 const active=new WeakMap();
 const ns='http://www.w3.org/2000/svg';
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
@@ -49,6 +49,33 @@ export function mountInstrumentFace(panel,{id,definition,state,formatValue}){
  const readout=el('div',null,'instrument-config-readout');readout.setAttribute('aria-label','Paramètres configurés de '+definition.name);
  for(const key of spec.focus){const c=definition.controls.find(c=>c.key===key);if(!c)continue;const field=el('div');field.append(el('small',c.name));const value=el('output');value.dataset.instrumentReadout=key;field.append(value);readout.append(field);}
  heading.append(readout);panel.querySelector('.plugin-identity-banner')?.replaceWith(heading);
+ // Move the TWO genuine native parameter nodes into a purpose-built performance
+ // desk. DOM listeners, keyboard controls, automation and per-plugin undo survive.
+ // Remaining controls stay in their existing banks; no DSP state is duplicated.
+ const performance=instrumentPerformanceDeck(id,definition);
+ if(performance){
+  const available=new Map([...panel.querySelectorAll('.plugin-window-params .param')]
+   .map(node=>[node.querySelector('[data-param]')?.dataset.param?.replace(/^instrument\./,''),node]));
+  if(performance.keys.every(key=>available.has(key))){
+   const deck=el('section',null,'instrument-performance-deck');
+   deck.dataset.performanceType=performance.type;
+   deck.setAttribute('aria-label',performance.title);
+   const description=el('div',null,'instrument-performance-description');
+   description.append(el('strong',performance.title),el('small',performance.hint));
+   const controls=el('div',null,'instrument-performance-controls');
+   for(const key of performance.keys){
+    const original=available.get(key);
+    original.dataset.performanceKey=key;
+    controls.append(original);
+   }
+   deck.append(description,controls);
+   heading.after(deck);
+   panel.dataset.instrumentPerformance=performance.type;
+   panel.querySelectorAll('.instrument-control-bank').forEach(bank=>{
+    if(!bank.querySelector('.param'))bank.hidden=true;
+   });
+  }
+ }
  active.set(panel,{id,state,definition,formatValue,keys:spec.focus,signature:''});paint(panel);return true;
 }
 function paint(panel){const entry=active.get(panel),state=entry?.state();if(!state)return;const values=entry.keys.map(k=>state[k]),signature=JSON.stringify(values);if(signature===entry.signature)return;entry.signature=signature;for(const key of entry.keys){const control=entry.definition.controls.find(c=>c.key===key),node=panel.querySelector('[data-instrument-readout="'+key+'"]');if(node&&control)node.textContent=instrumentReadout(entry.id,control,state[key]??control.default,entry.formatValue);}}

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {INSTRUMENTS,formatParam} from '../dist/plugins.js';
-import {INSTRUMENT_FACES,instrumentFace,planInstrumentBanks,instrumentReadout,instrumentHardwareIdentity} from '../dist/instrument-face-model.js';
+import {INSTRUMENT_FACES,instrumentFace,planInstrumentBanks,instrumentReadout,instrumentHardwareIdentity,instrumentPerformanceDeck} from '../dist/instrument-face-model.js';
 import {expansionBanks} from '../dist/expansion-hardware-model.js';
 
 test('individual presentation covers all 42 instruments and exactly their 314 original parameters',()=>{
@@ -48,4 +48,23 @@ test('all 42 instruments receive unique stable hardware plates without changing 
  assert.equal(chassis.size,4);
  assert.equal(JSON.stringify(INSTRUMENTS),before,'visual identities cannot alter the DSP registry');
  assert.throws(()=>instrumentHardwareIdentity('unknown'),/inconnu/);
+});
+
+test('acoustic and synth performance decks reference only real native controls',()=>{
+ const ids=['piano','upright','epiano','harp','violin','cello','flute','trumpet','wlvirtual','wlrompler','wlspectral'];
+ const before=JSON.stringify(INSTRUMENTS),types=new Set();
+ for(const id of ids){
+  const def=INSTRUMENTS[id],deck=instrumentPerformanceDeck(id,def);
+  assert.ok(deck,id+' performance deck missing');
+  assert(Object.isFrozen(deck)&&Object.isFrozen(deck.keys));
+  assert.equal(deck.keys.length,2,id+' must place two genuine original controls');
+  assert.equal(new Set(deck.keys).size,2);
+  assert(deck.keys.every(key=>def.controls.some(control=>control.key===key)),id+' invalid native control');
+  types.add(deck.type);
+  assert.deepEqual(instrumentPerformanceDeck(id,def),deck);
+ }
+ assert.equal(types.size,8,'acoustic and synthesis decks should not share one generic layout');
+ assert.equal(instrumentPerformanceDeck('sampler',INSTRUMENTS.sampler),null);
+ assert.equal(instrumentPerformanceDeck('piano',{controls:[]}),null);
+ assert.equal(JSON.stringify(INSTRUMENTS),before,'performance decks must never touch sound presets or DSP');
 });
