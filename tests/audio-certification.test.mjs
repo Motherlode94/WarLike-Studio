@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {auditRouting,measureAudio,verifyWav32,measureCompRenderedSeams,measureStudioCompRender,compareRenderedWav} from '../dist/audio-certification.js';
+import {auditRouting,measureAudio,verifyWav32,measureCompRenderedSeams,measureStudioCompRender,compareRenderedWav,auditLiveAudioWindows} from '../dist/audio-certification.js';
 import {encodeWav} from '../dist/wav.js';
 const buffer=(...channels)=>({numberOfChannels:channels.length,length:channels[0].length,sampleRate:44100,getChannelData:i=>Float32Array.from(channels[i])});
 test('known peak RMS and float WAV roundtrip',()=>{const b=buffer([.5,-.5],[.5,-.5]);const m=measureAudio(b);assert.ok(Math.abs(m.peakDb+6.0206)<.001);assert.equal(m.peakDb,m.rmsDb);const wav=encodeWav(b,{bits:32});assert.ok(verifyWav32(wav,b));new DataView(wav).setFloat32(44,0,true);assert.equal(verifyWav32(wav,b),false);});
@@ -128,4 +128,34 @@ test('R08.19 never certifies clipped or invalid rendered vocal samples',()=>{
  const bad=Float32Array.from([.1,NaN,.2,.3]),invalid={...b,getChannelData:()=>bad};
  const other=compareRenderedWav(invalid,encodeWav(invalid,{bits:32}),{bits:32});
  assert.equal(other.invalid,1);assert.equal(other.valid,false);
+});
+
+test('R08.20 measures distinct real-time PCM windows without false clip detection across sample gaps',()=>{
+ const rate=48000,window=Float32Array.from({length:1024},(_,i)=>Math.sin(i*2*Math.PI*440/rate)*.15);
+ const snapshots=[0,.15,.30].map(time=>({time,channels:[window,window]}));
+ const before=window.slice(),report=auditLiveAudioWindows(snapshots);
+ assert.equal(report.status,'measured');
+ assert.equal(report.invalid,0);assert.equal(report.clipped,0);assert.equal(report.gaps,0);
+ assert.equal(report.longestSilentRun,0);assert(report.peak>.14&&report.peak<.16);
+ assert(report.windows.every(w=>w.rmsDb>-25&&w.rmsDb< -15));
+ assert.deepEqual(window,before);
+});
+test('R08.20 distinguishes silence, missing polling intervals, overload and invalid live audio',()=>{
+ const silence=Float32Array.from([0,0,0,0]);
+ const note=Float32Array.from([.2,-.2,.1,-.1]);
+ const r=auditLiveAudioWindows([{time:0,channels:[silence]},{time:.2,channels:[silence]},
+  {time:1.1,channels:[note]},{time:1.2,channels:[Float32Array.from([1.1,NaN,.2])]}]);
+ assert.equal(r.longestSilentRun,2);
+ assert.equal(r.gaps,1);
+ assert.equal(r.clipped,1);
+ assert.equal(r.invalid,1);
+ assert.equal(r.status,'invalid');
+});
+test('R08.20 refuses non-monotonic timestamps, absent channels and malformed calibration',()=>{
+ const window={time:1,channels:[Float32Array.from([.1,.2])]};
+ for(const windows of [[],[window,window],[{time:NaN,channels:window.channels}],
+  [{time:0,channels:[]}],[{time:0,channels:[new Float32Array()]}]]){
+  assert.throws(()=>auditLiveAudioWindows(windows),/invalide|vide/);
+ }
+ assert.throws(()=>auditLiveAudioWindows([window],{clipThreshold:0}),/invalides/);
 });
