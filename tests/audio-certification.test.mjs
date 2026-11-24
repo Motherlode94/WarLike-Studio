@@ -96,7 +96,9 @@ test('R08.19 WAV parity accepts stereo rendered PCM at 16, 24 and float 32 bits 
   assert.equal(result.frames,1025);assert.equal(result.channels,2);
   assert.equal(result.invalid,0);assert.equal(result.clipped,0);
   assert.equal(result.mismatches,0);
-  assert(result.maxError<= (bits===32?0:1/(2**(bits-1)))+1e-8);
+  // Studio positive PCM uses (2^(bits-1)-1); its reconstruction error may
+  // slightly exceed one symmetric LSB, while the quantized word stays exact.
+  assert(result.maxError<= (bits===32?0:1.5/(2**(bits-1)))+1e-8);
  }
  assert.deepEqual(channels,before);
 });
@@ -112,6 +114,11 @@ test('R08.19 refuses corrupted WAV headers, channel mismatches and modified PCM 
  for(const offset of [44,45,46])view.setUint8(offset,255);
  const result=compareRenderedWav(b,modified,{bits:24});
  assert.equal(result.valid,false);assert(result.mismatches>0);
+ // Even a single quantization-word modification must fail certification.
+ const oneLsb=original.slice(0),word=new DataView(oneLsb);
+ word.setUint8(44,word.getUint8(44)^1);
+ const single=compareRenderedWav(b,oneLsb,{bits:24});
+ assert.equal(single.valid,false);assert.equal(single.mismatches,1);
  assert.deepEqual(samples,Float32Array.from([.2,-.4,.15,-.1]));
 });
 test('R08.19 never certifies clipped or invalid rendered vocal samples',()=>{
