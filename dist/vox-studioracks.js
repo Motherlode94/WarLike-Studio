@@ -3,7 +3,8 @@
 // retain responsibility for Play, bypass, automation, persistence and WAV export.
 import {EFFECTS,ensurePlugins,placeInsert,moveInsert} from './plugins.js?v=0.14.0';
 import {STUDIORACK_MIX_PRESETS,STUDIORACK_CATEGORIES} from './studiorack-mix-presets.js';
-export {STUDIORACK_CATEGORIES};
+import {GENRE_RACK_PRESETS,GENRE_RACK_CATEGORIES} from './genre-rack-presets.js';
+export const RACK_CATEGORIES=Object.freeze([...GENRE_RACK_CATEGORIES,...STUDIORACK_CATEGORIES]);
 
 const rack=(name,description,stages)=>({name,category:'Voix',description,stages});
 export const VOX_STUDIORACKS=Object.freeze({
@@ -35,7 +36,7 @@ export const VOX_STUDIORACKS=Object.freeze({
   {id:'voxlevel',values:{peakThreshold:-13,levelThreshold:-24,ratio:2.5}},
   {id:'voxaireq',values:{presence:1.5,air:1.5}}
  ])
- ,...STUDIORACK_MIX_PRESETS
+ ,...STUDIORACK_MIX_PRESETS,...GENRE_RACK_PRESETS
 });
 
 /**
