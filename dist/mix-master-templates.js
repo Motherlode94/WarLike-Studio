@@ -1,4 +1,5 @@
 import {STUDIORACK_MIX_PRESETS} from './studiorack-mix-presets.js';
+import {GENRE_INSTRUMENT_TEMPLATES,GENRE_MASTER_TEMPLATES} from './genre-instrument-master-templates.js';
 import {EFFECTS,ensurePlugins,placeInsert,INSERT_COUNT,effectType} from './plugins.js';
 import {MASTER_PRESETS,MASTER_MODULES,masteringSettings} from './mastering.js';
 
@@ -24,7 +25,7 @@ export const MIX_TEMPLATES=Object.freeze([
  ...Object.entries(STUDIORACK_MIX_PRESETS).filter(([,p])=>p.category!=='Master').map(([id,p])=>({
   id,name:p.name,genre:genreFor(p.category),category:p.category,description:p.description,
   stages:p.stages.map(s=>({id:s.id,values:{...s.values}}))
- })),...additions
+ })),...additions,...GENRE_INSTRUMENT_TEMPLATES
 ]);
 export const MASTER_TEMPLATES=Object.freeze([
  ...MASTER_PRESETS.filter(p=>p.name!=='Départ neutre').map((p,i)=>({
@@ -34,7 +35,7 @@ export const MASTER_TEMPLATES=Object.freeze([
  ...Object.entries(STUDIORACK_MIX_PRESETS).filter(([,p])=>p.category==='Master').map(([id,p])=>({
   id:'rack-'+id,name:p.name,genre:'Master',category:'Master',description:p.description,
   stages:p.stages.map(s=>({id:s.id,values:{...s.values}}))
- }))
+ })),...GENRE_MASTER_TEMPLATES
 ]);
 export const TEMPLATE_GENRES=Object.freeze(['Tous','Trap','Drill','Afrobeat','Amapiano','R&B / Soul','Gospel','Rock alternatif','Vocal','Mixage','Master']);
 const checkValues=(definition,values,context)=>{
