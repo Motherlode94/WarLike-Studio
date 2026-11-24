@@ -194,7 +194,7 @@ export class AudioEngine {
     this.master.gain.setTargetAtTime(dbGain(this.masterVolume),now,.01);
     syncMasterChain(this.graph.mastering,this.getProject().mastering,now);
   }
-  getPlaybackProject(){const p=this.getProject();if(this.takePreview)return {...p,tracks:p.tracks.map(t=>t.id===this.takePreview.trackId?{...t,clips:this.takePreview.clips}:t)};if(this.patternMode)return patternPlaybackProject(p,this.patternMode);if(this.clipPreview){const {trackId,clip}=this.clipPreview;return {...p,bars:(clip.patternSteps||32)/16,tracks:p.tracks.map(t=>({...t,clips:t.id===trackId?[{...clip,start:0,length:(clip.patternSteps||32)/16}]:[]}))};}return p;}
+  getPlaybackProject(){const p=this.getProject();if(this.takePreview?.project)return this.takePreview.project;if(this.takePreview)return {...p,tracks:p.tracks.map(t=>t.id===this.takePreview.trackId?{...t,clips:this.takePreview.clips}:t)};if(this.patternMode)return patternPlaybackProject(p,this.patternMode);if(this.clipPreview){const {trackId,clip}=this.clipPreview;return {...p,bars:(clip.patternSteps||32)/16,tracks:p.tracks.map(t=>({...t,clips:t.id===trackId?[{...clip,start:0,length:(clip.patternSteps||32)/16}]:[]}))};}return p;}
   get stepDuration() {return 60/this.getProject().bpm/4;}
   getPosition() {
     if(!this.playing||!this.ctx)return this.position;
@@ -203,7 +203,7 @@ export class AudioEngine {
     const total=this.getPlaybackProject().bars*16;
     return this.loop?loopPosition(raw,this.playbackLoopBounds()):Math.max(0,Math.min(raw,total));
   }
-  playbackLoopBounds(){const p=this.getPlaybackProject();return loopBounds(this.patternMode||this.clipPreview||this.takePreview?null:p.loopRange,p.bars);}
+  playbackLoopBounds(){const p=this.getPlaybackProject();return loopBounds(this.takePreview?.range||(this.patternMode||this.clipPreview||this.takePreview?null:p.loopRange),p.bars);}
   async play({startAt}={}) {
     this.stopPreview();this.stopReference();
     const request=this.playRequest=(this.playRequest||0)+1;await this.init(); if(request!==this.playRequest||this.playing)return;await this.prepareInstruments(this.ctx,this.getPlaybackProject());if(request!==this.playRequest)return;
@@ -212,7 +212,7 @@ export class AudioEngine {
     if(!Number.isFinite(when)||when<this.ctx.currentTime+.02)throw Error('Le départ audio prévu est dépassé. Relance la prise.');
     this.playStartAt=when;this.startTime=when-this.position*this.stepDuration;
     this.scheduledStep=Math.ceil(this.position); this.playing=true;
-    if(!this.patternMode&&!this.clipPreview)this.schedulePartialAudio(this.position);this.scheduleAutomation(this.ctx,this.graph,this.position/16,this.getProject().bars,when);
+    if(!this.patternMode&&!this.clipPreview)this.schedulePartialAudio(this.position);this.scheduleAutomation(this.ctx,this.graph,this.position/16,this.takePreview?.range?.end??this.getProject().bars,when);
     try{this.scheduler();if(this.playing)this.timer=setInterval(()=>{try{this.scheduler();}catch(error){this.pause();this.onError?.(error);}},25);}catch(error){this.pause();throw error;}
   }
   pause() {this.stopPreview();this.stopReference();this.playRequest=(this.playRequest||0)+1;if(this.playing)this.position=this.getPosition();this.playing=false;clearInterval(this.timer);this.killVoices();if(this.ctx&&this.graph)this.clearAutomation(this.graph,this.ctx.currentTime);}
@@ -264,7 +264,7 @@ export class AudioEngine {
     }
     const earliest=now+.004;
     while(this.startTime+this.scheduledStep*sd<now+.14) {
-      if(!this.loop&&this.scheduledStep>=total){if(this.recordingTrackId&&(this.ctx.currentTime<this.playStartAt||Number.isFinite(this.recordingEndStep)&&now<this.startTime+total*sd))return;this.pause();this.position=0;this.onEnded?.();return;}
+      if(!this.loop&&this.scheduledStep>=total){if(this.recordingTrackId&&(this.ctx.currentTime<this.playStartAt||Number.isFinite(this.recordingEndStep)&&now<this.startTime+total*sd)||this.takePreview?.range&&now<this.startTime+total*sd)return;this.pause();this.position=0;this.onEnded?.();return;}
       const bounds=this.playbackLoopBounds(),local=this.loop?loopPosition(this.scheduledStep,bounds):this.scheduledStep,time=this.startTime+this.scheduledStep*sd;
       // Skipped steps are never rescheduled in the past.
       if(time<earliest){this.scheduledStep++;continue;}
