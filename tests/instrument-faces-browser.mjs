@@ -30,6 +30,14 @@ try{
   const keys=await root.locator('[data-param^="instrument."],[data-exo-control]').evaluateAll(nodes=>nodes.map(n=>n.dataset.exoControl||n.dataset.param.replace('instrument.','')));
   assert.deepEqual(keys.sort(),def.controls.map(c=>c.key).sort(),id+' lost or duplicate native controls');
   assert.equal(await root.locator('.plugin-command-bar').count(),1);
+  assert.equal(await root.locator('.plugin-command-surface > [data-instrument-face="'+id+'"]').count(),1,id+' must own exactly one standalone editor');
+  assert.equal(await root.locator('.track-rack-catalog,.plugin-rack-drawer').count(),0,id+' embeds a forbidden track rack');
+  assert.equal(await root.locator('[data-effect-face]').count(),0,id+' mixes instrument and effect surfaces');
+  const bounds=await root.evaluate(node=>{
+   const shell=node.getBoundingClientRect(),face=node.querySelector('[data-instrument-face]').getBoundingClientRect();
+   return {shellLeft:shell.left,shellRight:shell.right,faceLeft:face.left,faceRight:face.right,faceWidth:face.width};
+  });
+  assert(bounds.faceWidth>0&&bounds.faceLeft>=bounds.shellLeft-2&&bounds.faceRight<=bounds.shellRight+2,id+' editor leaves its own window');
   for(const bank of await root.locator('.instrument-control-bank').all())assert.ok(await bank.evaluate(n=>n.scrollWidth<=n.clientWidth+2),id+' bank overlaps its controls');
   assert.equal(await root.locator('.instrument-face-heading svg').count(),1);
   const contrast=await root.locator('.param>label').first().evaluate(n=>{
@@ -71,6 +79,7 @@ try{
   const root=win(track);await root.locator('[data-instrument-face="'+id+'"]').waitFor();
   await page.waitForFunction(track=>{const n=document.querySelector('.floating-plugin[data-plugin-track="'+track+'"]');if(!n)return false;const r=n.getBoundingClientRect();return r.x>=-1&&r.right<=391;},track);
   const panel=root.locator('[data-instrument-face]');assert.ok(await panel.evaluate(n=>n.scrollWidth<=n.clientWidth+2),id+' face overflow');
+  assert.equal(await root.locator('.track-rack-catalog,.plugin-rack-drawer').count(),0,id+' rack reappeared on mobile');
   assert.ok(await root.locator('.instrument-control-bank,.expansion-bank').count());await root.screenshot({path:folder+'/'+id+'-mobile.png'});await root.locator('[data-float-close]').click();await page.setViewportSize({width:1440,height:1000});
  }
  current='project roundtrip';await page.locator('#projectMenuBtn').click();const waiting=page.waitForEvent('download');await page.locator('#saveProject').click();const saved=JSON.parse(await readFile(await(await waiting).path(),'utf8'));
