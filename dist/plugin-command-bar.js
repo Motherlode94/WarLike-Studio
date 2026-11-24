@@ -38,16 +38,11 @@ export function mountPluginCommandBar({root,body,panel,trackName,slot,canUndo,ca
   bar.addEventListener('keydown',event=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Home','End','Enter',' '].includes(event.key)&&event.target.matches('button,select')&&!canEdit()){event.preventDefault();event.stopImmediatePropagation();}},true);
   more.addEventListener('keydown',event=>{if(event.key==='Escape'&&more.open){more.open=false;summary.focus();event.preventDefault();event.stopPropagation();}});
   panel.querySelector('.plugin-window-meta > strong')?.remove();
-  // Each plugin opens in its own editor. The track rack is opt-in rather than
-  // occupying a permanent sidebar in every instrument/effect window.
-  const rack=body.querySelector('.track-rack-catalog');
-  const drawer=element('details','plugin-rack-drawer');
-  const rackToggle=element('summary','','Afficher le rack de piste');
-  rackToggle.setAttribute('aria-label','Afficher ou masquer le rack de la piste');
-  drawer.append(rackToggle);
-  if(rack)drawer.append(rack);
+  // Dedicated plugin editor: never embed another plugin, channel rack,
+  // or insert browser inside this floating window. The mixer and track
+  // inspector remain the owners of the full insert chain.
   const surface=element('div','plugin-command-surface');
   surface.append(panel);
-  body.replaceChildren(bar,drawer,surface);
+  body.replaceChildren(bar,surface);
   root.dataset.commandBar='common';
 }
