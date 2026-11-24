@@ -123,22 +123,28 @@ export function compareRenderedWav(buffer,bytes,{bits}={}){
   return source;
  });
  let offset=44,peak=0,maxError=0,mismatches=0,invalid=0,clipped=0;
- const tolerance=bits===32?0:1/(2**(bits-1));
+ // Studio's PCM encoder uses +max = 2^(bits-1)-1, -max = 2^(bits-1).
+ // Compare exact quantized integer words, not a symmetric one-LSB tolerance.
+ // This detects corruption without flagging the positive scaling difference.
+ const scale=2**(bits-1);
  for(let i=0;i<frames;i++)for(let channel=0;channel<channels;channel++){
   const sample=inputs[channel][i],finite=Number.isFinite(sample);
   if(!finite)invalid++;else{peak=Math.max(peak,Math.abs(sample));if(Math.abs(sample)>=1)clipped++;}
-  let decoded;
+  let decoded,actualWord;
   if(bits===32)decoded=data.getFloat32(offset,true);
-  else if(bits===16)decoded=data.getInt16(offset,true)/32768;
+  else if(bits===16){actualWord=data.getInt16(offset,true);decoded=actualWord/scale;}
   else{
-   let value=data.getUint8(offset)|(data.getUint8(offset+1)<<8)|(data.getUint8(offset+2)<<16);
-   if(value&0x800000)value-=0x1000000;
-   decoded=value/8388608;
+   actualWord=data.getUint8(offset)|(data.getUint8(offset+1)<<8)|(data.getUint8(offset+2)<<16);
+   if(actualWord&0x800000)actualWord-=0x1000000;
+   decoded=actualWord/scale;
   }
   const error=finite?Math.abs(decoded-sample):Infinity;
   maxError=Math.max(maxError,error);
-  // Float exports preserve the float32 source; PCM exports quantize and clip.
-  if(!finite||error>tolerance+1e-8)mismatches++;
+  // Float32 is byte-accurate to its input. Signed PCM must equal Studio's
+  // quantizer (rounding and its asymmetric positive full-scale included).
+  const expectedWord=finite&&bits!==32?
+   Math.round(Math.max(-1,Math.min(1,sample))*(sample<0?scale:scale-1)):null;
+  if(!finite||(bits===32?decoded!==sample:actualWord!==expectedWord))mismatches++;
   offset+=chunk;
  }
  return {bits,channels,frames,rate,peak,maxError,mismatches,invalid,clipped,
