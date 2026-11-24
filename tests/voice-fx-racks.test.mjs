@@ -8,7 +8,7 @@ const track=()=>{const t={id:'voice-fx-qa',type:'audio',name:'Lead vocal',clips:
 test('VOX SHIFT and VOX FORMANT COLOR are real native effects with independent factory presets',()=>{
  assert.deepEqual(STUDIO_PACKS.voicefx.modules,['voxshift','voxformant']);
  for(const id of STUDIO_PACKS.voicefx.modules){
-  assert.equal(EFFECTS[id],STUDIO_EFFECTS[id]);
+  assert.deepEqual(EFFECTS[id],STUDIO_EFFECTS[id]);
   assert(STUDIO_PRESETS[id].length>=5);
   assert.equal(EFFECTS[id].defaultEnabled,false);
   for(const control of EFFECTS[id].controls){
