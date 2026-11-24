@@ -5,7 +5,7 @@ Dans **Prises / comping**, deux commandes permettent de décider si un nouvel ex
 - **A · Avant montage** écoute les clips actuellement actifs sur la piste.
 - **B · Après montage** écoute le nouvel extrait proposé, avec l’ajustement de gain et les fondus choisis.
 
-Les autres pistes restent audibles. A et B utilisent la même plage Début / Fin, avec un temps de contexte avant et après les raccords, borné au morceau. Chaque commande redémarre au début de cette plage ; elle ne bascule pas à la position courante. **Boucler la plage pendant l’écoute** fonctionne pour les deux versions. Le statut et les boutons indiquent la version écoutée.
+Les autres pistes restent audibles. Si la piste actuelle est vide, muette ou sans clip dans la plage, A écoute son silence avec l’accompagnement ; B permet alors de comparer le remplissage du passage. A et B utilisent la même plage Début / Fin, avec un temps de contexte avant et après les raccords, borné au morceau. Chaque commande redémarre au début de cette plage ; elle ne bascule pas à la position courante. **Boucler la plage pendant l’écoute** fonctionne pour les deux versions. Le statut et les boutons indiquent la version écoutée.
 
 Cliquer sur l’autre version remplace l’écoute temporaire en cours. **Stop**, la fin de la plage, un changement de réglage ou la fermeture de la fenêtre arrêtent la comparaison et restaurent le curseur et les modes de transport précédents. A reste disponible sans prise source valide ni réglage de gain/fondu valide pour B ; les bornes de la plage doivent rester valides.
 

@@ -32,3 +32,10 @@ test('comparison states distinguish before, after and idle',async()=>{
  const h=harness(),events=[],a=createTakeAudition({engine:h.e,project:h.p,trackId:'vox',onChange:state=>events.push(state),setTimer:()=>1,clearTimer:()=>{}});
  await a.listen(null,{start:2,end:3},{clips:h.p.tracks[0].clips,comparison:'before'});assert.deepEqual(events.slice(-2).map(s=>[s.status,s.comparison]),[['preparing','before'],['playing','before']]);a.stop();assert.deepEqual(events.at(-1),{status:'idle'});a.dispose();h.a.dispose();
 });
+
+test('before can compare an empty, out of range or muted target with the unchanged accompaniment',async()=>{
+ for(const clips of [[],[{id:'outside',audioId:'old',start:8,length:1}],[{id:'muted',audioId:'old',start:2,length:1,muted:true}]]){
+  const h=harness();h.p.tracks[0].clips=clips;const before=structuredClone(h.p);await h.a.listen(null,{start:2,end:3},{clips,comparison:'before'});assert.equal(h.e.playing,true);assert.equal(h.e.takePreview.project.bars,3);assert.deepEqual(h.e.takePreview.range,{start:2,end:3});assert.ok(h.e.takePreview.project.tracks[0].clips.every(c=>c.muted));assert.equal(h.e.takePreview.project.tracks[1].clips[0].audioId,'music');assert.equal(h.e.takePreview.project.tracks[1].clips[0].sourceOffset,4);h.a.stop();assert.equal(h.e.position,96);assert.deepEqual(h.p,before);
+  await assert.rejects(()=>h.a.listen(null,{start:2,end:3},{clips,comparison:'after'}),/ne contient pas/);assert.throws(()=>takeAuditionProject(h.p,'vox','a',{start:8,end:9}),/ne contient pas/);h.a.dispose();
+ }
+});
