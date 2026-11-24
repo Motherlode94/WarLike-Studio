@@ -32,10 +32,13 @@ for(const style of ['rock','pop','rumba']){
   assert(musical,'no playable MIDI clip');
   const note=musical.clips.find(clip=>clip.notes?.length).notes[0];
   const before=note.velocity;
-  note.velocity=.42;
-  assert.equal(note.velocity,.42,'MIDI edit must survive reload');
-  assert.notEqual(JSON.parse(JSON.stringify(project)).tracks.find(t=>t.id===musical.id).clips.find(c=>c.notes?.length).notes[0].velocity,.42,
+  // Some factory notes already have velocity .42; guarantee a genuine edit.
+  const edited=before===.42?.57:.42;
+  note.velocity=edited;
+  assert.equal(note.velocity,edited,'MIDI edit must survive reload');
+  assert.equal(JSON.parse(JSON.stringify(project)).tracks.find(t=>t.id===musical.id).clips.find(c=>c.notes?.length).notes[0].velocity,before,
    'saved edit must not alter original session');
+  assert.notEqual(before,edited,'the test must actually change MIDI velocity');
   assert(Number.isFinite(before));
  });
 }
