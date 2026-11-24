@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {auditRouting,measureAudio,verifyWav32,measureCompRenderedSeams} from '../dist/audio-certification.js';
+import {auditRouting,measureAudio,verifyWav32,measureCompRenderedSeams,measureStudioCompRender} from '../dist/audio-certification.js';
 import {encodeWav} from '../dist/wav.js';
 const buffer=(...channels)=>({numberOfChannels:channels.length,length:channels[0].length,sampleRate:44100,getChannelData:i=>Float32Array.from(channels[i])});
 test('known peak RMS and float WAV roundtrip',()=>{const b=buffer([.5,-.5],[.5,-.5]);const m=measureAudio(b);assert.ok(Math.abs(m.peakDb+6.0206)<.001);assert.equal(m.peakDb,m.rmsDb);const wav=encodeWav(b,{bits:32});assert.ok(verifyWav32(wav,b));new DataView(wav).setFloat32(44,0,true);assert.equal(verifyWav32(wav,b),false);});
@@ -58,4 +58,29 @@ test('R08.17: invalid render, missing samples and out-of-range seams fail closed
  }
  assert.throws(()=>measureCompRenderedSeams({...input,getChannelData:()=>new Float32Array(1)},
  {bpm:120,seamBars:[.5,1]}),/incomplets/);
+});
+
+test('R08.18 aligns the real 10 ms Studio offline render lead to both absolute comp edits',()=>{
+ const bpm=120,rate=48000,startBar=3.75,range={start:4,end:5},frames=rate*4;
+ const samples=new Float32Array(frames);
+ const first=Math.round(((range.start-startBar)*240/bpm+.01)*rate),last=Math.round(((range.end-startBar)*240/bpm+.01)*rate);
+ samples[first-1]=-.72;samples[first]=.72;
+ const audio={numberOfChannels:1,sampleRate:rate,length:frames,getChannelData:()=>samples};
+ const snapshot=samples.slice(),result=measureStudioCompRender(audio,{bpm,startBar,range});
+ assert.deepEqual(result.seams.map(x=>x.frame),[first,last]);
+ assert.deepEqual(result.seams.map(x=>x.bar),[4,5]);
+ assert.equal(result.seams[0].suspectedClick,true);
+ assert.equal(result.seams[1].suspectedClick,false);
+ assert.deepEqual(samples,snapshot);
+});
+test('R08.18 rejects malformed or uninspectable ranges instead of reporting false clean audio',()=>{
+ const rate=48000,audio={numberOfChannels:1,sampleRate:rate,length:rate*2,getChannelData:()=>new Float32Array(rate*2)};
+ for(const options of [{bpm:0,startBar:0,range:{start:.5,end:.75}},
+  {bpm:120,startBar:2,range:{start:1,end:2}},
+  {bpm:120,startBar:0,range:{start:1,end:1}},
+  {bpm:120,startBar:0,range:{start:0,end:.5}},
+  {bpm:120,startBar:0,range:{start:.5,end:2}},
+  {bpm:120,startBar:0,range:{start:.5,end:.75},scheduleLeadSeconds:-1}]){
+  assert.throws(()=>measureStudioCompRender(audio,options),/invalide|hors du rendu/);
+ }
 });
