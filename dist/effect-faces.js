@@ -1,4 +1,4 @@
-import {effectFace,effectReadout,effectDialFraction} from './effect-face-model.js';
+import {effectFace,effectReadout,effectDialFraction,effectHardwareIdentity} from './effect-face-model.js';
 const panels=new WeakMap(),svgNS='http://www.w3.org/2000/svg';
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!=null)n.textContent=text;if(cls)n.className=cls;return n;};
 const emblems={
@@ -29,15 +29,33 @@ export function mountEffectFace(panel,{id,definition,state,formatValue}){
    return section;
   }));
  }else for(const [key,node] of byKey)node.dataset.effectControl=key;
- panel.dataset.effectFace=id;panel.dataset.effectKind=spec.kind;panel.style.setProperty('--fx-accent',definition.color||'#a9d3cd');
+ const hardware=effectHardwareIdentity(id,definition);
+ panel.dataset.effectFace=id;panel.dataset.effectKind=spec.kind;
+ panel.dataset.effectHardware=hardware.geometry;panel.dataset.effectVariant=hardware.variant;
+ panel.style.setProperty('--fx-accent',hardware.accent);
  const head=el('header',null,'effect-face-heading'),identity=el('div',null,'effect-face-identity'),readouts=el('div',null,'effect-face-readouts');
  identity.append(el('small',spec.label),el('h2',definition.name),el('p',definition.subtitle));
+ const plate=el('div',null,'effect-hardware-plate');
+ plate.dataset.effectEngraving=hardware.engraving;
+ plate.append(el('strong',hardware.engraving),el('small','WARLIKE · '+hardware.serial));
+ plate.setAttribute('aria-label','Identité du processeur '+definition.name);
+ identity.append(plate);
  for(const key of spec.focus){
   const control=definition.controls.find(c=>c.key===key),card=el('div',null,'effect-face-macro');
   card.append(el('small',control.name));const value=el('output');value.dataset.effectReadout=key;card.append(value);
   const track=el('span',null,'effect-macro-track'),fill=el('span',null,'effect-macro-fill');fill.dataset.effectFill=key;track.append(fill);card.append(track);readouts.append(card);
  }
- head.append(emblem(spec.kind),identity,readouts);
+ const mark=emblem(spec.kind);
+ // Per-processor engraved bars decorate the static housing, not the signal.
+ const ns=mark.namespaceURI;
+ for(let i=0;i<4;i++){
+  const line=document.createElementNS(ns,'path');
+  const offset=9+i*12+(hardware.hash>>(i*5)&7);
+  line.setAttribute('d','M'+(offset+102)+' 78v-'+(6+(hardware.hash>>(i*3)&15)));
+  line.setAttribute('data-hardware-mark',String(i));
+  mark.append(line);
+ }
+ head.append(mark,identity,readouts);
  panel.querySelector('.plugin-identity-banner')?.replaceWith(head);
  panels.set(panel,{definition,state,formatValue,spec,signature:null});paint(panel);return true;
 }
