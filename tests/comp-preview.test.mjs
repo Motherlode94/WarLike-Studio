@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {prepareComp,compContext,commitComp,canContinueComp} from '../dist/comp-preview.js';
+import {prepareComp,compContext,commitComp,canContinueComp,compFadeMs} from '../dist/comp-preview.js';
 import {takeAuditionProject} from '../dist/take-audition.js';
 let next=0;const uid=()=>String(++next);
 function project(){const a={id:'a',audioId:'sourceA',start:1,length:7,sourceOffset:.2},b={id:'b',audioId:'sourceB',start:1,length:7,sourceOffset:.5};return {bars:16,bpm:120,tracks:[{id:'vox',type:'audio',clips:[structuredClone(b)],activePlaylist:'B',playlists:[{id:'A',name:'A',clips:[a]},{id:'B',name:'B',clips:[structuredClone(b)]}]}]};}
@@ -38,4 +38,21 @@ test('explicit new copies stay independent of the montage being continued',()=>{
 });
 test('a continuation cannot exceed the clip count accepted on reopening',()=>{
  const p=project(),t=p.tracks[0];commitComp(t,prepareComp(p,'vox','A',{start:4,end:5},uid),uid);t.clips=Array.from({length:512},(_,i)=>({id:uid(),audioId:'sourceB',start:i/32,length:1/32}));t.playlists.find(l=>l.id==='A').clips=[{id:'wide',audioId:'sourceA',start:0,length:16}];const before=structuredClone(t);assert.throws(()=>prepareComp(p,'vox','A',{start:.01,end:.02},uid,{mode:'append'}),/512 clips/);assert.deepEqual(t,before);
+});
+test('fade durations accept zero and fractional milliseconds within a finite range',()=>{
+ assert.equal(compFadeMs(),8);for(const value of [0,.5,8,15.5,50])assert.equal(compFadeMs(value),value);for(const value of [-1,50.1,NaN,Infinity,null])assert.throws(()=>compFadeMs(value),/0 et 50/);
+ const p=project(),t=p.tracks[0],prepared=prepareComp(p,'vox','A',{start:4,end:5},uid),before=structuredClone(t);prepared.fadeMs=99;assert.throws(()=>commitComp(t,prepared,uid),/0 et 50/);assert.deepEqual(t,before);
+});
+test('only inserted clips and their touching neighbours receive the requested duration',()=>{
+ const p=project(),t=p.tracks[0];t.clips[0].fadeIn=.003;t.clips[0].fadeOut=.004;t.playlists[0].clips[0].fadeCurve='equalPower';t.playlists[0].clips[0].gainDb=3;t.clips.push({id:'far',audioId:'far',start:10,length:1,fadeIn:.03,fadeOut:.04});const before=structuredClone(p),plan=prepareComp(p,'vox','A',{start:4,end:5},uid,{fadeMs:20});
+ const [left,insert,right,far]=plan.clips;assert.equal(left.fadeIn,.003);assert.equal(left.fadeOut,.02);assert.equal(insert.fadeIn,.02);assert.equal(insert.fadeOut,.02);assert.equal(insert.fadeCurve,'equalPower');assert.equal(insert.gainDb,3);assert.equal(right.fadeIn,.02);assert.equal(right.fadeOut,.004);assert.deepEqual(far,t.clips[1]);assert.deepEqual(p,before);
+});
+test('zero explicitly disables new seam fades without changing the audio references',()=>{
+ const p=project(),plan=prepareComp(p,'vox','A',{start:4,end:5},uid,{fadeMs:0});assert.equal(plan.clips[0].fadeOut,0);assert.equal(plan.clips[1].fadeIn,0);assert.equal(plan.clips[1].fadeOut,0);assert.equal(plan.clips[2].fadeIn,0);assert.deepEqual(plan.clips.map(c=>c.audioId),['sourceB','sourceA','sourceB']);
+});
+test('short clips cap each new fade at half their musical duration',()=>{
+ const plan=prepareComp(project(),'vox','A',{start:4,end:4.001},uid,{fadeMs:50}),c=plan.pieces[0];assert.ok(Math.abs(c.fadeIn-.001)<1e-10);assert.ok(Math.abs(c.fadeOut-.001)<1e-10);
+});
+test('continuing a montage stores its duration while earlier edits retain theirs',()=>{
+ const p=project(),t=p.tracks[0];commitComp(t,prepareComp(p,'vox','A',{start:4,end:5},uid,{fadeMs:20}),uid);const first=structuredClone(t.clips.find(c=>c.audioId==='sourceA'));commitComp(t,prepareComp(p,'vox','A',{start:6,end:7},uid,{mode:'append',fadeMs:30}),uid);assert.equal(t.playlists.find(l=>l.id===t.activePlaylist).comp.fadeMs,30);assert.deepEqual(t.clips.find(c=>c.id===first.id),first);assert.equal(t.clips.find(c=>c.start===6).fadeIn,.03);assert.equal(t.clips.find(c=>c.start===6).fadeOut,.03);
 });
