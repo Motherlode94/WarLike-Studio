@@ -6,10 +6,15 @@ export const STUDIO_PACKS={
  alter:{name:'ALTER',label:'CRÉATIF / VOIX & EFFETS',color:'#d89971',description:'Approche créative inspirée de Soundtoys : doublage modulé, écho avec ducking et filtre animé.',modules:['alterdouble','alterecho','alterfilter']},
  vector:{name:'VECTOR',label:'PRÉCISION / MIX & MASTER',color:'#87c6bb',description:'Façades analogiques vectorielles WarLike : EQ six bandes, compression parallèle et plafond de crête sur échantillons.',modules:['vectoreq','vectorcomp','vectorlimit']},
  voxlab:{name:'VOX LAB',label:'VOIX / JUSTESSE & CONTRÔLE',color:'#b89dd1',description:'Traitements vocaux originaux WarLike : correction monophonique, compression en deux étages et nettoyage de voix.',modules:['voxtune','voxlevel','voxclean']},
+ voicefx:{name:'VOICE FX',label:'VOIX / PITCH & FORMANT COLOR',color:'#d8a3ca',description:'Processeurs natifs de transformation vocale WarLike. Pitch granulaire et couleur formantique approchée, sans imitation de timbre individuel.',modules:['voxshift','voxformant']},
  voxpro:{...VOXPRO_PACK,modules:[...VOXPRO_STARTER_MODULES,'voxmicmodel','voxwarm','voxdoubler','voxaireq','voxambience'],description:'VOX LAB PRO avec 7 processeurs existants et 5 effets DSP originaux supplémentaires. Le plan des 12 modules dédiés est documenté séparément dans voxlab-pro-spec.js ; ces modules avancés ne sont pas encore intégrés au DSP.'}
 };
 const def=(name,subtitle,pack,description,controls)=>({name,subtitle,pack,color:STUDIO_PACKS[pack].color,defaultEnabled:false,description,controls});
 export const STUDIO_EFFECTS={
+ voxshift:def('VOX SHIFT','GRANULAR PITCH SHIFTER','voicefx','Transposition monophonique stéréo à grains croisés. Conserve la durée ; les formants ne sont pas garantis. Pour effets rap aigus/graves et doublages.',[
+  c('semitones','Transposition',-12,12,.5,4,'st'),c('mix','Mix',0,1,.01,1,'%')]),
+ voxformant:def('VOX FORMANT COLOR','VOCAL RESONANCE COLOR','voicefx','Coloration de la résonance vocale par filtre de présence et deux résonateurs ajustables. Ne prétend pas isoler ni décaler les vrais formants du locuteur.',[
+  c('shift','Couleur formant',-6,6,.5,3,'st'),c('brightness','Clarté',-9,9,.5,2),c('mix','Mix',0,1,.01,.75,'%')]),
  voxaireq:def('VOX AIR EQ','AIR / PRESENCE EQ','voxpro','Coupe-bas, présence paramétrique et shelf air. Traitement minimum-phase Web Audio avec bypass lissé.',[
   c('highpass','Coupe-bas',30,350,5,80,'Hz'),c('presenceFreq','Fréq présence',1000,8000,100,3500,'Hz'),c('presence','Présence',-9,9,.5,1.5),
   c('airFreq','Fréq air',6000,18000,100,12000,'Hz'),c('air','Air',-9,9,.5,2),c('mix','Mix',0,1,.01,1,'%'),c('output','Sortie',-12,12,.5,0)]),
@@ -51,4 +56,6 @@ const variations={
  voxlevel:[['Lead steady',{peakThreshold:-14,levelThreshold:-25,output:2}],['Backs dense',{peakThreshold:-18,levelThreshold:-28,ratio:4}],['Gentle phrase',{peakThreshold:-8,levelThreshold:-18,ratio:1.6}],['Parallel voice',{levelThreshold:-32,ratio:5,mix:.4}],['Vocal bus',{peakThreshold:-10,levelThreshold:-20,ratio:2}]],
  voxclean:[['Lead clean',{highpass:85,range:6,air:1}],['Dark voice',{highpass:65,frequency:5000,range:5}],['Bright control',{frequency:8000,range:10}],['Backs soft',{highpass:150,air:-2}],['Air touch',{range:3,air:3}]]
 };
+variations.voxshift=[['Baby high',{semitones:7,mix:1}],['Hyper lead',{semitones:3,mix:.8}],['Deep octave',{semitones:-12,mix:.8}],['Half wet',{semitones:5,mix:.5}],['Neutral',{semitones:0,mix:1}]];
+variations.voxformant=[['Baby bright',{shift:4,brightness:3,mix:.85}],['Cyber nasal',{shift:3,brightness:1,mix:.7}],['Warm low',{shift:-3,brightness:-2,mix:.7}],['Soft air',{shift:1,brightness:2,mix:.5}],['Neutral',{shift:0,brightness:0,mix:0}]];
 export const STUDIO_PRESETS=variations;
