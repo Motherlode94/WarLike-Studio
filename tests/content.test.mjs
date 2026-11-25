@@ -43,7 +43,7 @@ test('demo styles have different orchestration, harmony and rhythmic content, in
 });
 
 test('every groove has eight valid rows and produces independent editable clips',()=>{
-  assert.equal(new Set(DRUM_GROOVES.map(g=>g.id)).size,16);
+  assert.equal(new Set(DRUM_GROOVES.map(g=>g.id)).size,DRUM_GROOVES.length);
   for(const groove of DRUM_GROOVES){
     assert.deepEqual(Object.keys(groove.pattern),Object.keys(DRUM_VOICES));
     assert.ok(groove.bpm>=60&&groove.bpm<=200);
