@@ -47,6 +47,23 @@ const specs={
  wldrift:e('TEXTURE GRANULAIRE','blue','spectral','layers',[],'grain density'),
  wlmatrix:e('MATRICE FM','graphite','fm','fm',[],'ratioA indexA')
 };
+const HARDI_FACES={
+ hardiharpa:['CORDES PINCÉES','ivory','harp','harp'],
+ hardimbira:['LAMELLOPHONES','brass','mallet','mallet'],
+ hardicelesta:['CÉLESTA','blue','keys','piano'],
+ hardimallet:['PERCUSSIONS MÉLODIQUES','walnut','mallet','mallet'],
+ hardiflute:['VENTS','mint','wind','wind'],
+ hardireed:['ANCHES','walnut','wind','wind'],
+ hardibrass:['CUIVRES','brass','brass','brass'],
+ hardistrings:['CORDES','velvet','ensemble','bow'],
+ hardichoira:['CHŒURS SYNTHÉTIQUES','velvet','voice','voice'],
+ hardisoul:['ORGUES','walnut','organ','organ'],
+ hardipulse:['SYNTHÉTISEURS','graphite','analog','analog'],
+ hardiambient:['TEXTURES CINÉMATIQUES','blue','layers','layers']
+};
+for(const [id,[family,material,layout,motif]] of Object.entries(HARDI_FACES)){
+ specs[id]=e(family,material,layout,motif,[['TIMBRE / CORPS','tone body'],['ENVELOPPE / MOUVEMENT','attack release motion'],['NIVEAU','output']],'tone motion');
+}
 function freeze(value){if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;}
 export const INSTRUMENT_FACES=freeze(specs);
 export const instrumentFace=id=>Object.hasOwn(INSTRUMENT_FACES,id)?INSTRUMENT_FACES[id]:null;

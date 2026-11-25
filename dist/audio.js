@@ -5,6 +5,7 @@ import {loopBounds,loopPosition} from './loop-range.js';
 import {recordingHorizon} from './recording-horizon.js';
 import {playBaileDrum,isRecordedDrumKit} from './baile-drum-voices.js';
 import {warlikeInstrumentVoice} from './wl-instrument-voices.js';
+import {hardiInstrumentVoice} from './hardi-audio.js';
 import {playWLVocal} from './wl-vocal-voices.js';
 import {loadRecordedDrumKit,playRecordedDrum} from './recorded-drum-kits.js';
 import {instrumentVoice} from './instrument-voices.js';
@@ -336,6 +337,7 @@ export class AudioEngine {
     if(type==='wlvox')return playWLVocal(ctx,out,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null);
     if(expansionVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null,note))return;
     if(warlikeInstrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null))return;
+    if(hardiInstrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null))return;
     if(type==='origins')return originsVoice(ctx,out,midi,t,duration,params,velocity,live?o=>this.remember(o):null);
     if(['bass','keys','lead','pad','pluck'].includes(type))return instrumentVoice(ctx,out,type,midi,t,duration,params,velocity,scope,live?o=>this.remember(o):null,note);
     if(velocity!==1){const level=node('createGain');level.gain.value=Math.max(0,Math.min(1,velocity));level.connect(out);out=level;}

@@ -16,7 +16,7 @@ function context(){
  return ctx;
 }
 test('phase 3: all 42 instrument definitions have finite MIDI-safe controls',()=>{
- assert.equal(Object.keys(INSTRUMENTS).length,42);
+ assert.equal(Object.keys(INSTRUMENTS).length,54);
  for(const [id,def] of Object.entries(INSTRUMENTS)){
   const keys=new Set();
   for(const control of def.controls){assert.ok(!keys.has(control.key),id+' duplicated '+control.key);keys.add(control.key);assert.ok([control.min,control.max,control.default].every(Number.isFinite),id+' invalid '+control.key);assert.ok(control.default>=control.min&&control.default<=control.max,id+' out-of-range '+control.key);}

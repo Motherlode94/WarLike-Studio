@@ -6,7 +6,7 @@ import {DRUM_VOICES,ensurePlugins} from '../dist/plugins.js';
 import {exportRack,importRack} from '../dist/bundle.js';
 
 test('factory sessions are complete, bounded and independent projects',()=>{
-  assert.deepEqual(contentCounts(),{instruments:42,effects:40,presets:637,grooves:DRUM_GROOVES.length,drums:8,sessions:SESSION_TEMPLATES.length});
+  assert.deepEqual(contentCounts(),{instruments:54,effects:44,presets:685,grooves:DRUM_GROOVES.length,drums:8,sessions:SESSION_TEMPLATES.length});
   for(const template of SESSION_TEMPLATES){
     const project=createFactorySession(template.id),ids=new Set();
     assert.equal(project.bars,16);assert.equal(project.tracks.length,9);

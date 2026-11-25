@@ -1,4 +1,5 @@
 import {EXPANSION_INSTRUMENTS} from './wl-expansion.js';
+import {HARDI_INSTRUMENTS} from './hardi-suite.js';
 import {ORIGINS_INSTRUMENT} from './origins.js';
 import {GUITAR_INSTRUMENTS,SYNTH_INSTRUMENTS} from './wl-instrument-packs.js';
 import {WL_VOCAL_INSTRUMENT} from './wl-vocal-voices.js';
@@ -14,6 +15,7 @@ export const INSTRUMENTS = {
   ...GUITAR_INSTRUMENTS,
   ...SYNTH_INSTRUMENTS,
   ...EXPANSION_INSTRUMENTS,
+  ...HARDI_INSTRUMENTS,
   ...ACOUSTIC_INSTRUMENTS,
   sampler:SAMPLER_INSTRUMENT,
   exo:EXO_INSTRUMENT,
