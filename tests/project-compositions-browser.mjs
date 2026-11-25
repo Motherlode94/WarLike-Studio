@@ -32,16 +32,18 @@ try{
  assert.equal(await page.locator('.project-home-compositions').isVisible(),true);
  assert.equal(await page.locator('.project-short-demos').isVisible(),true);
  const found=[];
- for(let p=0;p<3;p++){
-  phase='catalog page '+p;const current=await ids();assert.equal(current.length,3);found.push(...current);
+ const pageCount=Math.ceil(SESSION_TEMPLATES.length/3);
+ for(let p=0;p<pageCount;p++){
+  phase='catalog page '+p;const current=await ids();assert.equal(current.length,Math.min(3,SESSION_TEMPLATES.length-p*3));found.push(...current);
   for(const id of current){const t=SESSION_TEMPLATES.find(t=>t.id===id),row=root.locator('[data-composition='+id+']');assert.match(await row.textContent(),new RegExp(t.bpm+' BPM'));assert.match(await row.textContent(),new RegExp((t.bars||fullSongBars(t.bpm))+' mesures'));}
-  if(p<2)await root.locator('[data-composition-page=next]').click();
+  if(p<pageCount-1)await root.locator('[data-composition-page=next]').click();
  }
  assert.deepEqual(found,SESSION_TEMPLATES.map(t=>t.id));assert.equal(await root.locator('[data-composition-page=next]').isDisabled(),true);
  phase='modal auditions';await root.locator('[data-session-preview=kin]').press('Enter');await playing('Kin après minuit');
  await page.waitForFunction(()=>document.querySelector('.project-home-compositions progress').value>0);
  await root.locator('[data-session-preview=kin]').press('Space');await idle();
- await root.locator('[data-session-preview=lumiere]').click();await playing('Lumière en ville');await root.locator('[data-composition-page=previous]').click();await idle();
+ await root.locator('[data-session-preview=lumiere]').click();await playing('Lumière en ville');
+ while(!(await ids()).includes('rives'))await root.locator('[data-composition-page=previous]').click();await idle();
  await root.locator('[data-session-preview=rives]').click();await playing('Rives de Kin');
  assert.equal(await page.locator('.project-short-demos').isVisible(),true,'demos remain visible while auditioning full compositions');
  assert.equal(await page.locator('.project-short-demos [data-public-demo]').count(),13);
@@ -62,7 +64,7 @@ try{
  await resizeStudio(page,{width:1116,height:715});
  phase='independent full copies';
  for(let copy=0;copy<2;copy++){
-  await home();await demos();await root.locator('[data-composition-page=next]').click();await root.locator('[data-composition-page=next]').click();
+  await home();await demos();for(let page=1;page<pageCount;page++)await root.locator('[data-composition-page=next]').click();
   await root.locator('[data-factory-project-open=kin]').click();await page.locator('#modal').waitFor({state:'hidden'});assert.equal(await page.locator('#projectName').inputValue(),'Kin après minuit');
   const song=await save();assert.equal(song.project.bars,96);assert.equal(song.project.tracks.length,9);assert.equal(song.masterVolume,-1);assert.equal(song.assets.length,0);
  }
@@ -74,5 +76,5 @@ try{
  await page.locator('[data-project-open="'+original.id+'"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  const restored=await save();assert.deepEqual(restored.project,before.project);assert.deepEqual(restored.assets,before.assets);assert.equal(restored.masterVolume,-18);
  await writeFile(folder+'/report.json',JSON.stringify({catalog:found,independentCopies:copies.length,preservedAudio:true,themes:4},null,2));assert.deepEqual(errors,[]);
- console.log('PASS: project dialog exposes all 9 full compositions, musical previews, modal cancellation, 13 short demos, four responsive themes, independent copies and preserved user MIDI/audio/master');
+ console.log('PASS: project dialog exposes all '+SESSION_TEMPLATES.length+' full compositions, musical previews, modal cancellation, 13 short demos, four responsive themes, independent copies and preserved user MIDI/audio/master');
 }catch(error){console.error('Project compositions failed at',phase,errors);await page?.screenshot({path:folder+'/failure.png',fullPage:true}).catch(()=>{});throw error;}finally{await browser.close();}
