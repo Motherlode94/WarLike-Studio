@@ -33,7 +33,7 @@ try{
   for(let attempt=0;attempt<Math.ceil(SESSION_TEMPLATES.length/3)+1;attempt++){
    const visible=await ids();if(visible.includes(id))return;
    const label=await root.locator('[data-composition-page-status]').textContent();
-   const current=Number(label?.match(/Page (\\d+)/)?.[1]||0)-1;
+   const current=Number(label?.match(/Page (\d+)/)?.[1]||0)-1;
    if(current<0)throw Error('Composition pager state missing');
    await root.locator('[data-composition-page='+(current<target?'next':'previous')+']').click();
   }
