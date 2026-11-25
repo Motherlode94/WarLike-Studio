@@ -10,7 +10,7 @@ test('R08.4 compositions own full forms, diatonic scores and valid native parame
   assert.ok(SESSION_TEMPLATES.some(t=>t.id===template.id));
   const p=createFactorySession(template.id,true);assert.equal(p.bars,template.bars);assert.equal(p.fullSong,true);
   assert.ok(p.bars*240/p.bpm>=180&&p.bars*240/p.bpm<=300);
-  assert.deepEqual(p.sections.map(s=>s.name),['INTRO','COUPLET A','MONTÉE','REFRAIN A',template.id==='kin'?'SEBENE':'PONT','COUPLET B','REFRAIN B','OUTRO']);
+  assert.deepEqual(p.sections.map(s=>s.name),['INTRO','COUPLET A',['rnb-2005','popstar-2008'].includes(template.id)?'PRÉ-REFRAIN':'MONTÉE','REFRAIN A',template.id==='kin'?'SEBENE':'PONT','COUPLET B','REFRAIN B','OUTRO']);
   const ids=new Set();
   for(const track of p.tracks){
    assert.ok(!ids.has(track.id));ids.add(track.id);
