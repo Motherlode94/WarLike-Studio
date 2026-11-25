@@ -109,11 +109,11 @@ try{
   assert.ok(await root.locator('.instrument-control-bank,.expansion-bank').count());await root.screenshot({path:folder+'/'+id+'-mobile.png'});await root.locator('[data-float-close]').click();await page.setViewportSize({width:1440,height:1000});
  }
  current='project roundtrip';await page.locator('#projectMenuBtn').click();const waiting=page.waitForEvent('download');await page.locator('#saveProject').click();const saved=JSON.parse(await readFile(await(await waiting).path(),'utf8'));
- assert.equal(saved.project.tracks.length,43);assert.equal(saved.assets[0].data,wav.toString('base64'));
+ assert.equal(saved.project.tracks.length,defs.length+1);assert.equal(saved.assets[0].data,wav.toString('base64'));
  assert.deepEqual(saved.project.tracks.find(t=>t.id===harpTrack).instrument.brightness,4400);
  for(const t of saved.project.tracks){const original=project.tracks.find(x=>x.id===t.id);assert.deepEqual(t.clips.map(c=>c.notes),original.clips.map(c=>c.notes));assert.deepEqual(t.inserts,original.inserts);}
  await page.locator('#projectInput').setInputFiles({name:'faces-again.chayah',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(saved))});await page.waitForFunction(()=>document.querySelector('#toast').textContent==='Projet importé et sauvegardé.');
  await page.reload();await page.locator('[data-session-tab="open"]').click();await page.locator('[data-project-open]').first().click();await page.locator('#modal').waitFor({state:'hidden'});await page.locator('[data-view="mixer"]').click();await open(harpTrack);
  assert.equal(await win(harpTrack).locator('[data-param="instrument.brightness"]').inputValue(),'4400');
- await writeFile(folder+'/report.json',JSON.stringify(report,null,2)+'\n');assert.deepEqual(errors,[]);console.log('PASS: 42 individual instrument panels, 314 native controls, live readouts, scoped undo/redo, factory presets, sample/EXO tools, 2-panel isolation, effect isolation, mobile and project/audio roundtrip');
+ await writeFile(folder+'/report.json',JSON.stringify(report,null,2)+'\n');assert.deepEqual(errors,[]);console.log('PASS: '+defs.length+' individual instrument panels, native controls, live readouts, scoped undo/redo, factory presets, sample/EXO tools, 2-panel isolation, effect isolation, mobile and project/audio roundtrip');
 }catch(error){console.error('Instrument faces failed at',current,'page errors:',errors);await page?.screenshot({path:folder+'/failure.png',fullPage:true}).catch(()=>{});throw error;}finally{await browser.close();}
