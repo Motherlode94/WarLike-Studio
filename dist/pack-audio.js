@@ -1,5 +1,7 @@
 import {createStudioEffects,syncStudioEffect} from './studio-pack-audio.js?v=0.14.0';
 import {createHardiEffects,syncHardiEffect} from './hardi-audio.js';
+import {createHardiVocalEffects,syncHardiVocalEffect} from './hardi-vocal-audio.js';
+import {HARDI_VOCAL_EFFECTS} from './hardi-vocal.js';
 import {STUDIO_EFFECTS} from './studio-packs.js?v=0.14.0';
 import {createExoEffects,syncExoEffect} from './exo-audio.js?v=0.14.0';
 import {gateControl,deessControl,gain,relayTimes} from './packs.js?v=0.14.0';
@@ -28,12 +30,13 @@ export function createPackProcessors(ctx,cleanInput,creativeInput,{detached=fals
     if(id==='slap'){m.delay=scope.node('createDelay',.5);m.filter=scope.node('createBiquadFilter');m.filter.type='lowpass';m.feedback=scope.node('createGain');m.input.connect(m.delay);m.delay.connect(m.filter);m.filter.connect(m.feedback);m.feedbackConnected=false;m.blend=blend(scope,m.input,m.filter,m.output);}
     if(id==='relay'){m.left=scope.node('createDelay',6);m.right=scope.node('createDelay',6);m.panL=scope.node('createStereoPanner');m.panR=scope.node('createStereoPanner');m.panL.pan.value=-1;m.panR.pan.value=1;m.feedbackL=scope.node('createGain');m.feedbackR=scope.node('createGain');m.toneL=scope.node('createBiquadFilter');m.toneR=scope.node('createBiquadFilter');m.toneL.type=m.toneR.type='lowpass';m.toneL.Q.value=m.toneR.Q.value=.5;m.sum=scope.node('createGain');m.sum.gain.value=.7;m.input.connect(m.left);m.left.connect(m.panL);m.panL.connect(m.sum);m.left.connect(m.feedbackL);m.feedbackL.connect(m.toneR);m.toneR.connect(m.right);m.right.connect(m.panR);m.panR.connect(m.sum);m.right.connect(m.feedbackR);m.feedbackR.connect(m.toneL);m.toneL.connect(m.left);m.blend=blend(scope,m.input,m.sum,m.output);}
   }
-  Object.assign(modules,createExoEffects(ctx,scope,types),createStudioEffects(ctx,scope,types),createHardiEffects(ctx,scope,types));
+  Object.assign(modules,createExoEffects(ctx,scope,types),createStudioEffects(ctx,scope,types),createHardiEffects(ctx,scope,types),createHardiVocalEffects(ctx,scope,types));
   return {modules,cleanOutput,creativeOutput:last,dispose:()=>scope.dispose()};
 }
 export function syncPackProcessors(rack,effects,bpm,now=0,initial=false){
   const set=(p,v)=>initial?p.setValueAtTime(v,now):p.setTargetAtTime(v,now,.02);
   for(const [id,m] of Object.entries(rack.modules)){const state=effects[id],on=state.enabled,signature=JSON.stringify([state,rack.inputChannelsByType?.[id]||rack.inputChannels]);if(signature===m.signature&&m.bpm===bpm)continue;m.signature=signature;m.bpm=bpm;
+    if(Object.hasOwn(HARDI_VOCAL_EFFECTS,id)){syncHardiVocalEffect(id,m,state,now,initial);continue;}
     if(id.startsWith('hardi')){syncHardiEffect(id,m,state,now,initial);continue;}
     if(STUDIO_EFFECTS[id]){syncStudioEffect(m.input.context,id,m,state,bpm,now,initial,rack.inputChannelsByType?.[id]||rack.inputChannels||1);continue;}
     if(id.startsWith('exo')){syncExoEffect(m.input.context,id,m,state,now,initial,rack.inputChannelsByType?.[id]||rack.inputChannels||1);continue;}
