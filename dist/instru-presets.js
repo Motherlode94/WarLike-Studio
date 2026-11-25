@@ -1,5 +1,6 @@
 import {INSTRUMENTS,pluginDefaults} from './plugins.js';
 import {exoArpeggiate} from './exo.js';
+import {HARDI_INSTRUMENT_PRESETS} from './hardi-suite.js';
 // A separate, original sound collection. Factory preset indices and engines stay intact.
 const G='Guitares',K='Claviers & orgues',B='Basses',P='Mallets & cordes pincées',W='Cordes & vents',L='Leads & arpèges',T='Nappes & textures',D='Batteries & percussions',V='Chœurs';
 const banks={
@@ -117,6 +118,12 @@ const guitarExtras={
  wlmuted:[['Mute cliquetant','Funk',15100,.25,.62,.97,.001,.1,.04,.08,.15],['Mute rond','Neo Soul',1500,.96,.1,.62,.035,.65,.15,.02,.2],['Mute stéréo','Afro',8700,.56,.36,.79,.003,.3,.06,0,1],['Mute sale','Rock',5800,.7,.51,.88,.001,.21,.04,.58,.5]]
 };
 for(const [type,rows]of Object.entries(guitarExtras))for(const [name,tags,brightness,body,pickPosition,damping,attack,decay,release,drive,width]of rows)banks[type].push([name,G,'Réglage de corde, position de pincement, amortissement et couleur d’ampli adaptés au jeu '+tags+'.',tags,{brightness,body,pickPosition,damping,attack,decay,release,drive,width,output:drive>.3?-17:-14}]);
+// HARDI factory sounds also appear as selectable, searchable Instru bank patches.
+const hardiGroups={hardiharpa:P,hardimbira:P,hardicelesta:K,hardimallet:P,hardiflute:W,hardireed:W,hardibrass:W,hardistrings:W,hardichoira:V,hardisoul:K,hardipulse:L,hardiambient:T};
+for(const [id,category] of Object.entries(hardiGroups)){
+ const def=HARDI_INSTRUMENT_PRESETS[id]||[];
+ banks[id]=def.map(({name,values})=>[name,category,'HARDI · timbre expressif original et éditable.','Pop · R&B · Cinématique',values]);
+}
 export const INSTRU_PRESETS=Object.freeze(Object.entries(banks).flatMap(([type,rows])=>rows.map(([name,category,description,tags,values],index)=>Object.freeze({id:type+'-'+(index+1),type,name,category,description,tags,values:Object.freeze(values)}))));
 export const INSTRU_CATEGORIES=Object.freeze([...new Set(INSTRU_PRESETS.map(p=>p.category))]);
 const byId=new Map(INSTRU_PRESETS.map(p=>[p.id,p]));
