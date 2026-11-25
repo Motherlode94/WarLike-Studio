@@ -5,7 +5,7 @@ import {SESSION_TEMPLATES,createFactorySession} from '../dist/content.js';
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};};
 const plan=id=>({id,name:id,section:'REFRAIN A',bars:4,seconds:8,project:{name:id},startBar:8,endBar:12});
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
-test('all nine auditions select a bounded four-bar chorus with rhythm and harmony',()=>{
+test('all composition auditions select a bounded four-bar chorus with rhythm and harmony',()=>{
  for(const t of SESSION_TEMPLATES){
   const p=sessionPreviewPlan(t.id),full=createFactorySession(t.id,true);
   assert.equal(p.id,t.id);assert.equal(p.bars,4);assert.match(p.section,/REFRAIN/);
