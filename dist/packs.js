@@ -83,7 +83,7 @@ export const PACK_PRESETS={
   relay:[['Vocal Throw',{beats:.75,feedback:.35,tone:6000,mix:.22}],['Dub Room',{beats:1,feedback:.62,tone:2800,mix:.4}],['Wide Slap',{beats:.125,feedback:.08,tone:11000,mix:.25}],['Floating Dots',{beats:.5,feedback:.5,tone:8500,mix:.3}],['Dark Trails',{beats:1.5,feedback:.55,tone:1800,mix:.35}]]
 };
 
-Object.assign(PACK_PRESETS,EXO_EFFECT_PRESETS,Object.fromEntries(Object.entries({...HARDI_EFFECT_PRESETS,...HARDI_VOCAL_PRESETS}).map(([id,p])=>[id,p.map(([name,values])=>[name,values])])));
+Object.assign(PACK_PRESETS,EXO_EFFECT_PRESETS,Object.fromEntries(Object.entries({...HARDI_EFFECT_PRESETS,...HARDI_VOCAL_PRESETS}).map(([id,p])=>[id,p.map(row=>Array.isArray(row)?row:[row.name,row.values])])));
 export const packPresetBank=()=>Object.fromEntries(Object.entries(PACK_PRESETS).map(([id,list])=>[id,list.map(([name,values])=>({name,values:{...values}}))]));
 export const gain=db=>10**(db/20);
 export function gateControl(x,range){const floor=gain(-range),v=Math.max(0,Math.min(1,(Math.abs(x)-.2)/.3));return floor+(1-floor)*v*v*(3-2*v);}
