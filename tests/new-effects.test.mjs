@@ -28,7 +28,7 @@ test('new effects are discoverable and can be inserted independently',()=>{
   assert.equal(track.inserts[i],names[i]);
   assert.equal(track.effects[names[i]].enabled,true);
  }
- assert.deepEqual(filterPluginChoices(EFFECTS,{query:'TILT EQ'}).map(([id])=>id),['tilteq']);
+ assert.deepEqual(filterPluginChoices(EFFECTS,{query:'TILT EQ'}).map(([id])=>id),['tilteq','harditilt']);
  assert.deepEqual(filterPluginChoices(EFFECTS,{query:'NOTCH'}).map(([id])=>id),['notch']);
  assert.deepEqual(filterPluginChoices(EFFECTS,{query:'SLAP'}).map(([id])=>id),['slap','voxambience']);
 });
