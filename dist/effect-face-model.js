@@ -1,8 +1,8 @@
 // Visual grouping only. No DSP parameters or signal paths are created here.
 const byKind={
- eq:'sculpt prism vectoreq circuiteq voxaireq tilteq notch alterfilter exoair',
- dynamics:'glue vectorcomp vectorlimit circuitbus voxlevel hush sibil exostrip exofocus',
- space:'aura exospace voxambience',
+ eq:'sculpt prism vectoreq circuiteq voxaireq tilteq notch alterfilter exoair elianaveil',
+ dynamics:'glue vectorcomp vectorlimit circuitbus voxlevel hush sibil exostrip exofocus elianaembrace elianaguard',
+ space:'aura exospace voxambience eliananest',
  echo:'echo slap relay alterecho',
  modulation:'orbit sway phase ring alterdouble voxdoubler',
  drive:'color ember circuitcolor voxwarm',
