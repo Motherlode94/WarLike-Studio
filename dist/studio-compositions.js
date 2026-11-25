@@ -118,7 +118,7 @@ function drums(style,kind,cycle){
    if(hook)hit('open',b+14,.23);
   }
   if(bar===3&&!sparse){for(const s of [13,14,15])hit('tom',b+s,(hook?.32:.21)+(s-13)*.05);}
-  if(kind==='bridge'&&!['eclats','kin'].includes(style))rows.kick.fill(0,b,b+16);
+  if(kind==='bridge'&&!['eclats','kin','trap-abyss','trap-enigma'].includes(style))rows.kick.fill(0,b,b+16);
  }
  return rows;
 }
