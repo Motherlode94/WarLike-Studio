@@ -61,7 +61,7 @@ function drums(style,kind,cycle){
  const rows=Object.fromEntries(Object.keys(DRUM_VOICES).map(v=>[v,Array(64).fill(0)]));
  const hit=(voice,step,v)=>{rows[voice][step]=Math.min(1,v);};
  for(let bar=0;bar<4;bar++){
-  const b=bar*16,hook=kind==='hook',sparse=['intro','bridge','outro'].includes(kind),variant=(cycle+bar)%2;
+  const b=bar*16,hook=kind==='hook',intro=kind==='intro',sparse=['intro','bridge','outro'].includes(kind),variant=(cycle+bar)%2;
   if(style==='trap-abyss'||style==='trap-enigma'){
    const abyss=style==='trap-abyss';
    const kicks=abyss?(sparse?[0]:hook?(variant?[0,5,8,11,14]:[0,6,10,14]):variant?[0,7,11]:[0,6,11]):
