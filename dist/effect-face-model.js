@@ -1,11 +1,11 @@
 // Visual grouping only. No DSP parameters or signal paths are created here.
 const byKind={
- eq:'sculpt prism vectoreq circuiteq voxaireq tilteq notch alterfilter exoair elianaveil',
- dynamics:'glue vectorcomp vectorlimit circuitbus voxlevel hush sibil exostrip exofocus elianaembrace elianaguard',
+ eq:'sculpt prism vectoreq circuiteq voxaireq tilteq notch alterfilter exoair harditilt elianaveil',
+ dynamics:'glue vectorcomp vectorlimit circuitbus voxlevel hush sibil exostrip exofocus hardibus elianaembrace elianaguard',
  space:'aura exospace voxambience eliananest',
  echo:'echo slap relay alterecho',
- modulation:'orbit sway phase ring alterdouble voxdoubler',
- drive:'color ember circuitcolor voxwarm',
+ modulation:'orbit sway phase ring alterdouble voxdoubler hardistage',
+ drive:'color ember circuitcolor voxwarm harditape',
  vocal:'voxtune voxclean voxmicmodel'
 };
 const names={eq:'SPECTRE / FILTRES',dynamics:'DYNAMIQUE / CONTRÔLE',space:'ESPACE / RÉVERBÉRATION',echo:'TEMPS / RÉPÉTITIONS',modulation:'MOUVEMENT / STÉRÉO',drive:'HARMONIQUES / GRAIN',vocal:'VOIX / CORRECTION',generic:'TRAITEMENT AUDIO'};

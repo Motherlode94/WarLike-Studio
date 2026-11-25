@@ -11,7 +11,7 @@ test('individual presentation covers all 42 instruments and exactly their 314 or
   assert.ok(face.family&&face.material&&face.layout&&face.motif,id);assert.deepEqual(groups.flat().sort(),keys.slice().sort(),id);
   assert.equal(new Set(groups.flat()).size,keys.length,id+' duplicate controls');assert.equal(face.focus.length,2);assert.ok(face.focus.every(k=>keys.includes(k)),id+' invalid readout');count+=keys.length;
  }
- assert.equal(count,314);assert.ok(new Set(Object.values(INSTRUMENT_FACES).map(f=>f.layout)).size>=14);
+ assert.equal(count,386);assert.ok(new Set(Object.values(INSTRUMENT_FACES).map(f=>f.layout)).size>=14);
  assert.notEqual(instrumentFace('harp').layout,instrumentFace('flute').layout);
  assert.notDeepEqual(instrumentFace('wlsteel'),instrumentFace('wlcrunch'));
 });
@@ -44,7 +44,7 @@ test('all 42 instruments receive unique stable hardware plates without changing 
   assert(first.notches>=2&&first.notches<=6);
   seen.add(first.variant);chassis.add(first.chassis);
  }
- assert.equal(seen.size,42);
+ assert.equal(seen.size,54);
  assert.equal(chassis.size,4);
  assert.equal(JSON.stringify(INSTRUMENTS),before,'visual identities cannot alter the DSP registry');
  assert.throws(()=>instrumentHardwareIdentity('unknown'),/inconnu/);

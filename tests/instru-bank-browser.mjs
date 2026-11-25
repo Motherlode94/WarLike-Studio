@@ -16,7 +16,7 @@ try{
  await page.waitForFunction(()=>document.querySelector('#projectName').value==='Instru QA');await page.locator('#modal').waitFor({state:'hidden'});
  const open=async()=>{await page.locator('#projectMenuBtn').click();await page.locator('#instruBank').click();await page.locator('.instru-bank-intro').waitFor();};
  const save=async()=>{await page.locator('#projectMenuBtn').click();const waiting=page.waitForEvent('download');await page.locator('#saveProject').click();return JSON.parse(await readFile(await(await waiting).path(),'utf8'));};
- await open();assert.equal(await page.locator('.instru-sound-card').count(),12);assert.equal(await page.locator('#bankResults').textContent(),'152 / 152 sons');
+ await open();assert.equal(await page.locator('.instru-sound-card').count(),12);assert.equal(await page.locator('#bankResults').textContent(),INSTRU_PRESETS.length+' / '+INSTRU_PRESETS.length+' sons');
  await page.locator('[data-instru-page="next"]').click();assert.match(await page.locator('.instru-bank-pager').textContent(),/Page 2/);
  await page.locator('#bankSearch').fill('harpe');
  assert.equal(await page.locator('[data-instru-preview="harp-1"]').count(),1);
@@ -27,7 +27,7 @@ try{
  await page.locator('#redo').click();saved=await save();assert.deepEqual(saved.project.tracks[0].instrument,instruValues('harp-1'));
  await open();await page.locator('#bankSearch').fill('flûte');assert.equal(await page.locator('[data-instru-apply="flute-1"]').isDisabled(),true);
  await page.locator('[data-instru-add="flute-1"]').click();saved=await save();assert.equal(saved.project.tracks.length,2);assert.deepEqual(saved.project.tracks[1].instrument,instruValues('flute-1'));assert.equal(saved.project.tracks[1].clips[0].notes.length,6);
- await open();await page.locator('#bankSearch').fill('wl vanguard');assert.equal(await page.locator('.instru-sound-card').count(),12);assert.equal(await page.locator('#bankResults').textContent(),'12 / 152 sons');
+ await open();await page.locator('#bankSearch').fill('wl vanguard');assert.equal(await page.locator('.instru-sound-card').count(),12);assert.equal(await page.locator('#bankResults').textContent(),'12 / '+INSTRU_PRESETS.length+' sons');
  await page.locator('[data-instru-add="wlvirtual-1"]').click();saved=await save();assert.deepEqual(saved.project.tracks[2].instrument,instruValues('wlvirtual-1'));
  // All sound states survive the actual archive importer and a cold local reload.
  await page.locator('#projectInput').setInputFiles({name:'sounds.chayah',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(saved))});await page.waitForFunction(()=>document.querySelector('#toast').textContent==='Projet importé et sauvegardé.');
@@ -80,5 +80,5 @@ try{
  assert.equal(report.results.length,INSTRU_PRESETS.length);for(const example of report.examples)await writeFile(folder+'/'+example.id+'.wav',Buffer.from(example.data,'base64'));
  await writeFile(folder+'/audio-report.json',JSON.stringify(report.results,null,2)+'\n');
  await writeFile(folder+'/listen.html','<!doctype html><meta charset="utf-8"><title>Banque Instru · écoutes sèches</title><h1>Sons Instru · écoutes sèches</h1><p>Une note, sans FX ni mastering. Les registres et le jeu changent le résultat musical.</p>'+report.examples.map(e=>'<p>'+e.id+' <audio controls src="'+e.id+'.wav"></audio></p>').join(''));
- assert.deepEqual(errors,[]);console.log('PASS: 152 new sounds rendered, no silence/clipping, 24-bit WAV; bank pagination, harp/flute/Vanguard audition, apply, undo/redo, add, mobile, export/import and cold reload');
+ assert.deepEqual(errors,[]);console.log('PASS: '+INSTRU_PRESETS.length+' new sounds rendered, no silence/clipping, 24-bit WAV; bank pagination, harp/flute/Vanguard audition, apply, undo/redo, add, mobile, export/import and cold reload');
 }catch(error){await page?.screenshot({path:folder+'/failure.png',fullPage:true}).catch(()=>{});console.error('Page errors',errors);throw error;}finally{await browser.close();}

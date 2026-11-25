@@ -1,4 +1,5 @@
 import {EXPANSION_PACK} from './wl-expansion.js';
+import {HARDI_PACKS,HARDI_EFFECTS,HARDI_EFFECT_PRESETS} from './hardi-suite.js';
 import {HERITAGE_PACK,GUITAR_PACK,SYNTH_PACKS} from './wl-instrument-packs.js';
 import {STUDIO_PACKS,STUDIO_EFFECTS,STUDIO_PRESETS} from './studio-packs.js?v=0.14.0';
 import {EXO_EFFECTS,EXO_EFFECT_PRESETS} from './exo-pack.js?v=0.14.0';
@@ -10,6 +11,7 @@ export const EFFECT_PACKS={
   wlguitars:GUITAR_PACK,
   ...SYNTH_PACKS,
   wlexpansion:EXPANSION_PACK,
+  ...HARDI_PACKS,
   ...STUDIO_PACKS,
   ...DIVINITY_BUNDLES,
   eliana:ELIANA_PACK,
@@ -65,7 +67,7 @@ export const PACK_EFFECTS={
     {key:'tone',name:'Tone',min:800,max:16000,step:100,default:6000,unit:'Hz'},
     {key:'mix',name:'Mix',min:0,max:1,step:.01,default:.25,unit:'%'}]}
 };
-Object.assign(PACK_EFFECTS,EXO_EFFECTS,STUDIO_EFFECTS,ELIANA_EFFECTS);
+Object.assign(PACK_EFFECTS,EXO_EFFECTS,STUDIO_EFFECTS,HARDI_EFFECTS,ELIANA_EFFECTS);
 export const PACK_PRESETS={
   phase:[['Slow Keys',{rate:.15,frequency:500,depth:.5,mix:.5}],['Wide Sweep',{rate:.4,frequency:800,depth:1,mix:.5}],['Gentle Guitar',{rate:.2,frequency:400,depth:.35,mix:.35}],['Fast Motion',{rate:2,frequency:1000,depth:.7,mix:.5}],['Fixed Color',{rate:.05,frequency:1200,depth:0,mix:.5}],['Velvet R&B Keys',{rate:.1,frequency:300,depth:.25,mix:.3}],['Afro Guitar Dance',{rate:1.35,frequency:720,depth:.55,mix:.4}],['Slow Cinematic Pad',{rate:.05,frequency:1100,depth:.9,mix:.5}],['Drum Swirl',{rate:3.5,frequency:1600,depth:.8,mix:.45}],['Soft Vocal Halo',{rate:.25,frequency:1400,depth:.2,mix:.15}]],
   ring:[['Robot Voice',{frequency:70,mix:.45,output:0}],['Metal Bells',{frequency:440,mix:.65,output:-3}],['Bass Texture',{frequency:30,mix:.2,output:0}],['Alien Percussion',{frequency:310,mix:.7,output:-2}],['Radio Edge',{frequency:900,mix:.3,output:-3}],['Subtle Vocal Grain',{frequency:45,mix:.1,output:-2}],['Trap 808 Chrome',{frequency:55,mix:.18,output:-3}],['Broken Music Box',{frequency:660,mix:.55,output:-4}],['Industrial Snare',{frequency:180,mix:.85,output:-5}],['Sci-Fi Transmission',{frequency:1150,mix:1,output:-6}]],
@@ -81,7 +83,7 @@ export const PACK_PRESETS={
   relay:[['Vocal Throw',{beats:.75,feedback:.35,tone:6000,mix:.22}],['Dub Room',{beats:1,feedback:.62,tone:2800,mix:.4}],['Wide Slap',{beats:.125,feedback:.08,tone:11000,mix:.25}],['Floating Dots',{beats:.5,feedback:.5,tone:8500,mix:.3}],['Dark Trails',{beats:1.5,feedback:.55,tone:1800,mix:.35}]]
 };
 
-Object.assign(PACK_PRESETS,EXO_EFFECT_PRESETS,ELIANA_PRESETS);
+Object.assign(PACK_PRESETS,EXO_EFFECT_PRESETS,ELIANA_PRESETS,Object.fromEntries(Object.entries(HARDI_EFFECT_PRESETS).map(([id,p])=>[id,p.map(({name,values})=>[name,values])])));
 export const packPresetBank=()=>Object.fromEntries(Object.entries(PACK_PRESETS).map(([id,list])=>[id,list.map(([name,values])=>({name,values:{...values}}))]));
 export const gain=db=>10**(db/20);
 export function gateControl(x,range){const floor=gain(-range),v=Math.max(0,Math.min(1,(Math.abs(x)-.2)/.3));return floor+(1-floor)*v*v*(3-2*v);}

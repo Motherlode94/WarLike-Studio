@@ -5,7 +5,7 @@ import {effectFace,effectReadout,effectDialFraction,effectHardwareIdentity} from
 
 test('R08.3g.5: every native effect has a deterministic independent panel preserving all its controls',()=>{
  const source=JSON.stringify(EFFECTS),definitions=Object.entries(EFFECTS),kinds=new Set();
- assert.equal(definitions.length,44,'Studio must register 44 effects');
+ assert.equal(definitions.length,48,'Studio must register 48 effects');
  let total=0;
  for(const [id,def] of definitions){
   const panel=effectFace(id,def);assert.ok(panel,id+' missing face');
@@ -45,7 +45,7 @@ test('each of 40 native effects gets a stable individual engraved hardware ident
   assert(!identities.has(a.variant),id+' duplicates a hardware variant');
   identities.set(a.variant,id);housings.add(a.geometry);
  }
- assert.equal(identities.size,44);
+ assert.equal(identities.size,48);
  assert.equal(housings.size,4,'all four native housing styles must be represented');
  assert.equal(JSON.stringify(EFFECTS),before,'visual identities must not modify the DSP registry');
  assert.throws(()=>effectHardwareIdentity('unknown',null),/invalide/);
