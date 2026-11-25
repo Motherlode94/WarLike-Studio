@@ -8,6 +8,11 @@ export const COMPOSITION_TEMPLATES=[
  {id:'trap-enigma',name:'WARLIKE · Le Code des Ombres',style:'Trap énigmatique · instrumental original',bpm:126,swing:4,groove:'enigma-morse',bars:100,description:'Claviers suspendus, synthé spectral interrogatif, flûte en réponse et 808 souple. Silences, indices mélodiques et retournements de tension.'},
  {id:'rnb-2005',name:'WARLIKE · Nos heures secrètes',style:'R&B français 2002–2009 · instrumental original',bpm:94,swing:11,groove:'french-rnb-2005',bars:88,description:'R&B français début 2000 : Rhodes, basse électrique, guitare muted, cordes discrètes et refrains chantables. Batterie percutante, réponses mélodiques et espace pour les voix.'},
  {id:'popstar-2008',name:'WARLIKE · Sous les néons',style:'Pop-star française 2002–2009 · instrumental original',bpm:112,swing:3,groove:'french-popstar-2008',bars:104,description:'Pop/R&B française années 2000 : piano frontal, guitares, basse, synthés brillants en arrière-plan et refrains grandioses. Pont dramatique et véritable montée finale.'},
+ {"id":"etoiles-interdites","name":"WARLIKE · Les étoiles interdites","style":"Pop française cinématographique · chanson instrumentale originale","bpm":96,"swing":5,"bars":92,"groove":"rnb-pocket","description":"Piano mystérieux, cordes en crescendo, guitare délicate et percussions feutrées ; refrain porté par une mélodie ample."},
+ {"id":"derriere-les-murs","name":"WARLIKE · Derrière les murs","style":"Pop orientale cinématographique · chanson instrumentale originale","bpm":102,"swing":7,"bars":96,"groove":"rnb-pocket","description":"Flûte expressive, claviers nocturnes, percussions syncopées et basse profonde ; mystère, mouvement et refrains évocateurs."},
+ {"id":"un-dernier-soleil","name":"WARLIKE · Un dernier soleil","style":"Pop dramatique à grands refrains · chanson instrumentale originale","bpm":112,"swing":2,"bars":104,"groove":"rnb-pocket","description":"Piano et basse en ouverture, guitares claires et synthés panoramiques ; montée vocale et grand final émotionnel."},
+ {"id":"au-bord-du-ciel","name":"WARLIKE · Au bord du ciel","style":"Pop orchestrale et ballade puissante · chanson instrumentale originale","bpm":84,"swing":0,"bars":80,"groove":"rnb-pocket","description":"Ballade portée par un piano sensible, des nappes et cordes en réponse ; pont dépouillé avant un refrain final puissant."},
+ {"id":"promesses-de-pluie","name":"WARLIKE · Promesses de pluie","style":"R&B français mélodique et pop émotionnelle · chanson instrumentale originale","bpm":90,"swing":12,"bars":88,"groove":"rnb-pocket","description":"Groove R&B français, Rhodes, basse électrique, guitare muted et violons ; couplets intimistes, refrains chantables et contrechants."},
  {id:'rives',name:'Rives de Kin',style:'Afro · instrumental original',bpm:106,swing:8,groove:'afro-sun',bars:88,description:'Afro lumineux : guitare étouffée, kora, mbira et flûte dialoguent sur une basse électrique. Deux couplets, deux refrains et un pont allégé.'},
  {id:'pluie',name:'Après la pluie',style:'R&B · instrumental original',bpm:78,swing:22,groove:'rnb-pocket',bars:72,description:'R&B nocturne : accords de neuvième au clavier FM, réponses au piano et vibraphone, orgue discret et basse ronde. De la place pour enregistrer les voix.'},
  {id:'horizon',name:'Horizon de cuivre',style:'Amapiano · instrumental original',bpm:112,swing:12,groove:'horizon-pocket',bars:96,description:'Amapiano : log drum synthétique, clavier FM, mbira et kora se répondent sur des shakers. Introduction progressive, refrains dansants et pont suspendu.'},
@@ -68,6 +73,26 @@ export const COMPOSITION_STYLES={
   layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['MONTÉE',8,'pre'],['REFRAIN A',16,'hook'],['PONT',8,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',24,'hook'],['OUTRO',8,'outro']]}
 
 };
+// Five fully original French pop/R&B scores; classic DAW instruments and native effects only.
+// Related palettes share harmonic vocabulary, not melodies, rhythms or song structure.
+const CINEMATIC_POP_SONGS=[{"id":"etoiles-interdites","base":"popstar-2008","flavor":1,"layout":[8,16,8,16,8,20,12,4]},{"id":"derriere-les-murs","base":"trap-enigma","flavor":2,"layout":[8,16,8,16,8,16,16,8]},{"id":"un-dernier-soleil","base":"popstar-2008","flavor":3,"layout":[8,16,8,16,8,16,24,8]},{"id":"au-bord-du-ciel","base":"pluie","flavor":4,"layout":[8,12,8,12,8,12,12,8]},{"id":"promesses-de-pluie","base":"rnb-2005","flavor":5,"layout":[8,16,8,16,8,16,12,4]}];
+for(const song of CINEMATIC_POP_SONGS){
+ const parent=COMPOSITION_STYLES[song.base];
+ const sections=['INTRO','COUPLET A','MONTÉE','REFRAIN A','PONT','COUPLET B','REFRAIN B','OUTRO'];
+ const kinds=['intro','verse','pre','hook','bridge','verse','hook','outro'];
+ const tracks=parent.tracks.map(([type,name,preset,volume,params],i)=>{
+  const nameParts=['RYTHME','BASSE','HARMONIE','CONTRECHANT','TEXTURE','MÉLODIE'];
+  return [type,'WARLIKE · '+nameParts[i]+' '+song.flavor,preset,volume,structuredClone(params)];
+ });
+ // Give each record distinct orchestrations and entirely different rhythmic/melodic motifs.
+ if(song.flavor===1){tracks[4]=['violin','CORDES · ÉTOILES',0,-28,{}];tracks[5]=['flute','FLÛTE · LUEURS',0,-27,{release:.21}];}
+ if(song.flavor===2){tracks[1]=['wltitan','TITAN · BASSE VOYAGE',0,-20,{brightness:2700,attack:.008,release:.22}];tracks[3]=['wlrompler','ATLAS · CINÉMATIQUE',0,-29,{wave:2,texture:1,layer:.25,cutoff:2200,attack:.35,release:1.3,space:.12,output:-16}];}
+ if(song.flavor===3){tracks[4]=['violin','CORDES · GRAND REFRAIN',0,-28,{}];tracks[5]=['wlvirtual','VANGUARD · ENVELOPPE',0,-30,{detune:4,cutoff:4300,resonance:1.1,attack:.07,release:.44,width:.36,output:-17}];}
+ if(song.flavor===4){tracks[3]=['violin','VIOLONS · HORIZON',0,-28,{}];tracks[5]=['flute','FLÛTE · RESPIRATION',0,-29,{release:.25}];}
+ if(song.flavor===5){tracks[4]=['violin','CORDES · MÉMOIRES',0,-28,{}];}
+ COMPOSITION_STYLES[song.id]={...parent,tracks,flavor:song.flavor,
+  layout:song.layout.map((length,i)=>[sections[i],length,kinds[i]])};
+}
 const introOrQuiet=(kind,bar)=>kind==='intro'&&bar<2;
 function drums(style,kind,cycle){
  const rows=Object.fromEntries(Object.keys(DRUM_VOICES).map(v=>[v,Array(64).fill(0)]));
@@ -92,6 +117,18 @@ function drums(style,kind,cycle){
    for(const step of (sparse?[0,8]:rnb?[0,3,6,8,11,14]:[0,2,4,6,8,10,12,14]))hit('hat',b+step,step%4===0?.24:.15);
    if(!sparse){hit('rim',b+15,rnb?.19:.11);if(hook){hit('open',b+14,.24);hit('shaker',b+7,.2);}}
    if(kind==='pre'&&bar===3)for(const step of [12,14,15])hit('tom',b+step,.18+(step-12)*.045);
+  }
+  const cinematic=COMPOSITION_STYLES[style]?.flavor;
+  if(cinematic){
+   const mode=cinematic,beat=mode===4?[0,8]:mode===2?[0,6,11]:mode===5?[0,6,10,14]:[0,4,8,12];
+   const kicks=sparse?[0]:hook?[...beat,14]:beat;
+   for(const step of kicks)hit('kick',b+step,step===0?.72:.49);
+   if(!introOrQuiet(kind,bar))for(const step of (mode===2?[8]:[4,12]))hit('clap',b+step,hook?.6:.4);
+   for(const step of (sparse?[0,8]:mode===2?[0,3,6,9,12,15]:mode===5?[0,3,6,8,11,14]:[0,2,4,6,8,10,12,14]))hit('hat',b+step,step%4===0?.22:.14);
+   if(!sparse&&mode===2)for(const step of [3,7,11,15])hit('perc',b+step,.17+(step===11?.13:0));
+   if(!sparse&&mode===5)for(const step of [3,7,11,15])hit('shaker',b+step,.16+(step===15?.09:0));
+   if(hook){hit('open',b+14,.22);if(bar===0)hit('open',b,.3);}
+   if(kind==='pre'&&bar===3)for(const step of [12,14,15])hit('tom',b+step,.17+(step-12)*.03);
   }
   if(style==='rives'){
    for(const s of (sparse?[0,10]:variant?[0,3,8,11]:[0,6,10]))hit('kick',b+s,s===0?.82:.61);
@@ -192,6 +229,27 @@ function melody(style,role,kind,cycle){
    if(role===5&&['pre','hook','bridge'].includes(kind)){
     if(rnb){for(const [i,step] of (hook?[2,6,10,14]:[5,12]).entries())add(b+step,c[(i+alt+2)%c.length]+12,1.9,hook?.45:.31);}
     else {chord(b+.1,c.slice(1,4),hook?14.2:10,hook?.3:.2,.04);if(hook)for(const step of [7,15])add(b+step,c[2]+12,.85,.23);}
+   }
+  }
+  const cinema=COMPOSITION_STYLES[style]?.flavor;
+  if(cinema){
+   const seed=cinema,shape=(seed+cycle+bar)%3;
+   if(role===1){
+    const steps=bridge?[0,9]:intro?[0,8]:hook?[[0,5,8,11,14],[0,6,10,14],[0,4,8,12,15]][shape]:[[0,7,10],[0,5,11,14],[0,6,9,13]][shape];
+    for(const [i,step] of steps.entries())add(b+step,root+(hook&&i===steps.length-1?12:i===2?7:0),i===0?4:1.5,hook?.65:.49);
+   }
+   if(role===2){chord(b+.12,c,intro?11:bridge?10:hook?6:8,hook?.55:.4,.07);if(!intro&&!bridge&&seed!==4)chord(b+9.25,[...c.slice(1),c[0]+12],hook?3.5:4.6,.3,.06);}
+   if(role===3&&!intro){
+    const steps=bridge?[3,11]:hook?[[0,3,7,10,13],[2,5,9,12,15],[0,5,8,11,14]][shape]:[[3,9,14],[2,7,12],[4,8,13]][shape];
+    for(const [i,step] of steps.entries())add(b+step,c[(seed+i+shape)%c.length]+12,step===15?.8:1.7,hook?.54:.35);
+   }
+   if(role===4&&!intro&&(hook||kind==='pre'||seed===2)){
+    if(seed===2)for(const step of [3,7,11,15])add(b+step,c[(step+seed)%c.length]+12,1.15,.29);
+    else chord(b+.18,c.slice(0,3),hook?13.7:8.5,hook?.32:.19,.08);
+   }
+   if(role===5&&['pre','hook','bridge'].includes(kind)){
+    const steps=seed===4?[5,12]:seed===2?[2,6,10,14]:hook?[0,4,8,12,15]:[6,13];
+    for(const [i,step] of steps.entries())add(b+step,c[(seed+i+shape+1)%c.length]+12,step===15?.85:1.5,hook?.43:.28);
    }
   }
   if(style==='rives'){
