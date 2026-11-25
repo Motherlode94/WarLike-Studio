@@ -143,14 +143,14 @@ function melody(style,role,kind,cycle){
     for(const [i,step] of steps.entries())add(b+step,root+(i===steps.length-1&&hook?12:0),i===0?4.2:step===14?.7:2.1,i===0?.69:.55);
    }
    if(role===2){chord(b+.08,c,intro||bridge?9:5.9,hook?.44:.35,.04);if(!intro&&!bridge)for(const [i,step] of (hook?[9,11,14]:[11,14]).entries())add(b+step,c[(i+2+alt)%c.length]+12,1.35,.38);}
-   if(role===3&&(!intro||bar%2===0))chord(b+.16,c.slice(0,3),14.1,bridge?.22:.16,.035);
+   if(role===3&&(!intro||bar%2===0)){chord(b+.16,c.slice(0,3),14.1,bridge?.22:hook?.24:.16,.035);if(hook&&bar%2===0)add(b+10,c[2]+12,2,.2);}
    if(role===4&&!intro){const steps=hook?[2,5,7,10,13]:bridge?[7,14]:[3,7,13];for(const [i,step] of steps.entries())add(b+step,c[(i+alt+2)%c.length]+12,step===13?2:.85,hook?.47:.35);}
    if(role===5&&['hook','pre','bridge'].includes(kind)){const steps=hook?[4,11,15]:[6,14];for(const [i,step] of steps.entries())add(b+step,c[(i+1+alt)%c.length]+24,.8,hook?.34:.27);}
   }
   if(style==='trap-enigma'){
    if(role===1){const steps=bridge?[0,11]:intro?[0]:hook?(alt?[0,4,9,14]:[0,6,10,14]):alt?[0,7,12]:[0,6,11];for(const [i,step] of steps.entries())add(b+step,root+(i===steps.length-1&&hook?12:0),i===0?5.1:1.8,i===0?.65:.48);}
    if(role===2){chord(b+.12,c,intro||bridge?10:6.3,hook?.39:.33,.07);if(!intro&&!bridge)for(const [i,step] of (hook?[7,10,14]:[11,14]).entries())add(b+step,c[(i+alt+2)%c.length]+12,1.2,.35);}
-   if(role===3)chord(b+.1,c.slice(1,4),14.1,bridge?.21:.17,.06);
+   if(role===3){chord(b+.1,c.slice(1,4),14.1,bridge?.21:hook?.25:.17,.06);if(hook&&bar%2===1)add(b+9,c[3]+12,2,.2);}
    if(role===4&&!intro){const steps=hook?[1,4,7,10,13]:bridge?[5,11]:[2,7,13];for(const [i,step] of steps.entries())add(b+step,c[(i+alt+(hook?2:1))%c.length]+24,i===steps.length-1?1.8:.95,hook?.42:.31);}
    if(role===5&&['pre','hook','bridge'].includes(kind)){const steps=hook?[3,8,14]:[6,13];for(const [i,step] of steps.entries())add(b+step,c[(i+alt)%c.length]+24,1.25,hook?.37:.29);}
   }
