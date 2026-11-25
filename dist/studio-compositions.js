@@ -355,6 +355,22 @@ export function createStudioComposition(template,makeTrack,full=false){
    ];
    applyNativeChain(t,chains[role],{replace:true});
   }else if(role===5){t.inserts[0]='echo';Object.assign(t.effects.echo,{enabled:true,mix:.065,feedback:.18});}
+  // HARDI adds light, genre-aware coloration without changing the original notes
+  // or hard-limiting the master bus. Available to edit/remove in the normal rack.
+  if(['rnb-2005','popstar-2008','etoiles-interdites','derriere-les-murs','un-dernier-soleil','au-bord-du-ciel','promesses-de-pluie','lumiere'].includes(template.id)){
+   const isRhythm=role===0,isBass=role===1,isMusic=role===2||role===3||role===4;
+   const effect=isRhythm?'hardibus':isBass?null:isMusic?'harditilt':'hardistage';
+   if(effect){
+    const slot=t.inserts.indexOf(null);
+    if(slot>=0&&t.effects[effect]){
+     t.inserts[slot]=effect;
+     const values=effect==='hardibus'?{threshold:-17,ratio:1.7,attack:28,release:170,mix:.24,output:0}
+       :effect==='harditilt'?{tilt:role===2?.85:role===3?1.15:.45,pivot:role===4?1600:2200,mix:.52,output:0}
+       :{width:1.08,mix:.35,output:0};
+     Object.assign(t.effects[effect],values,{enabled:true});
+    }
+   }
+  }
   for(const [section,part] of sections.entries())for(let offset=0;offset<part.length;offset+=4){
    if(full&&((part.kind==='intro'&&offset===0&&role<2)||(part.kind==='outro'&&offset>=4&&role<2)))continue;
    const clip={id:uid(),name:part.name+' / '+name,start:part.start+offset,length:Math.min(4,part.length-offset),patternSteps:Math.min(4,part.length-offset)*16};
