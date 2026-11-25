@@ -39,7 +39,7 @@ try{
   // Demo launch is tested through the retained composition API; the duplicate public-demo UI is intentionally absent.
   await sessionTab(page,'demos');
   assert.equal(await page.locator('#modal .project-public-demos').count(),0);
-  await page.evaluate(async demoKind=>{const {launchPublicDemo}=await import('/app.js');await launchPublicDemo(demoKind);},kind);
+  await page.evaluate(async demoKind=>{const {launchPublicDemo}=await import('/app.js?v=0.15.6-atlanta-baile');await launchPublicDemo(demoKind);},kind);
   await page.locator('#modal').waitFor({state:'hidden'});
   await page.waitForFunction(()=>/voix humaines en anglais|vraies voix enregistrées/.test(document.getElementById('toast')?.textContent||''));
   assert.match(await page.locator('#toast').textContent(),/anglais/);
