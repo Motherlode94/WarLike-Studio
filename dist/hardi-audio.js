@@ -34,18 +34,17 @@ export function hardiInstrumentVoice(ctx,out,type,midi,t,duration,values={},velo
   organ:[['sine',1,.32],['sine',2,.26],['sine',3,.18],['sine',4,.11]],
   pad:[['sawtooth',1,.21],['triangle',1.006,.22],['sine',.5,.18],['sine',2,.11]]
  }[family]||[['sawtooth',1,.3],['triangle',2,.15]];
+ const toneOscillators=[];
  for(const [wave,ratio,volume] of parts){
   const o=node('createOscillator'),g=node('createGain');
-  o.type=wave;o.frequency.setValueAtTime(hz*ratio,t);o.detune.value=(ratio===1?0:p.motion*8);
+  o.type=wave;o.frequency.setValueAtTime(hz*ratio,t);o.detune.value=(ratio===1?0:p.motion*8);toneOscillators.push(o);
   g.gain.value=volume*(.65+.45*p.body);o.connect(g);g.connect(filter);scope.watch(o);remember?.(o);o.start(t);o.stop(stop);
  }
  if(family==='wind'||family==='reed'||family==='strings'||family==='pad'||family==='choir'||family==='brass'){
   const lfo=node('createOscillator'),depth=node('createGain');
-  lfo.frequency.value=4.7+p.motion*1.9;depth.gain.value=p.motion*clamp(hz*.006,1,4);
+  lfo.frequency.value=4.7+p.motion*1.9;depth.gain.value=p.motion*4;
   // Musical vibrato is small and arrives after the attack.
-  lfo.connect(depth);for(const oscillator of scope.nodes.filter(n=>n instanceof OscillatorNode&&n!==lfo)){
-   if(oscillator.frequency&&oscillator.frequency.value>25)depth.connect(oscillator.frequency);
-  }
+  lfo.connect(depth);for(const oscillator of toneOscillators)depth.connect(oscillator.detune);
   scope.watch(lfo);remember?.(lfo);lfo.start(t);lfo.stop(stop);
  }
  return true;
