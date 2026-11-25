@@ -2,6 +2,7 @@
 import {DRUM_VOICES} from './plugins.js';
 import {applyNativeChain} from './native-vocal-chains.js';
 import {demoMasteringSettings} from './demo-mastering.js';
+import {FRENCH_SONG_IDS,produceSongTrack,articulateSongClip} from './song-production.js';
 const uid=()=>crypto.randomUUID().replaceAll('-','');
 export const COMPOSITION_TEMPLATES=[
  {id:'trap-abyss',name:'WARLIKE · Minuit sans étoiles',style:'Trap sombre · instrumental original',bpm:142,swing:0,groove:'abyss-half-time',bars:112,description:'808 profonde, piano mineur menaçant, synthé analogique en contrechant et nappes souterraines. Deux refrains évolutifs, pauses dramatiques et espace pour poser une voix.'},
@@ -342,7 +343,11 @@ export function createStudioComposition(template,makeTrack,full=false){
  const tracks=spec.tracks.map(([type,name,preset,volume,params],role)=>{
   const t=makeTrack(type,preset);Object.assign(t,{name,volume:volume+12,pan:role===2?-.17:role===4?.2:role===3?.1:0,instrument:{...t.instrument,...params}});
   t.inserts=Array(12).fill(null);
-  if(template.id==='trap-abyss'||template.id==='trap-enigma'){
+  if(FRENCH_SONG_IDS.includes(template.id)){
+   produceSongTrack(t,template.id,role);
+   // Preset first, then the musical character programmed for this exact instrument.
+   Object.assign(t.instrument,params);
+  }else if(template.id==='trap-abyss'||template.id==='trap-enigma'){
    // Original WarLike-native FX, deliberately low drive and conservative gains.
    // These are editable processor instances, not external VST binaries.
    const chains=[
@@ -361,6 +366,7 @@ export function createStudioComposition(template,makeTrack,full=false){
    const cycle=section+offset/4;
    if(type==='drums')clip.pattern=drums(template.id,part.kind,cycle);
    else clip.notes=melody(template.id,role,part.kind,cycle);
+   if(FRENCH_SONG_IDS.includes(template.id))articulateSongClip(clip,template.id,role,part.kind,section,cycle);
    if(type==='drums'||clip.notes.length)t.clips.push(clip);
   }
   return t;
