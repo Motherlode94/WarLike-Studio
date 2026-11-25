@@ -7,7 +7,7 @@ import {FACTORY_PRESETS} from '../dist/bundle.js';
 import {createContentTrack} from '../dist/content.js';
 
 test('Instru bank contains 152 original sounds on 41 engines and valid full parameter states',()=>{
- assert.equal(INSTRU_PRESETS.length,152);assert.equal(new Set(INSTRU_PRESETS.map(p=>p.id)).size,152);
+ assert.equal(INSTRU_PRESETS.length,188);assert.equal(new Set(INSTRU_PRESETS.map(p=>p.id)).size,188);
  assert.deepEqual(new Set(INSTRU_PRESETS.map(p=>p.type)),new Set(Object.keys(INSTRUMENTS).filter(t=>t!=='sampler')));
  assert.equal(INSTRU_PRESETS.filter(p=>p.type==='harp').length,8);assert.equal(INSTRU_PRESETS.filter(p=>p.type==='flute').length,8);
  assert.equal(INSTRU_PRESETS.filter(p=>p.type==='wlvirtual').length,12);assert.equal(INSTRU_PRESETS.filter(p=>p.category==='Guitares'&&p.type!=='strum').length,42);
