@@ -1,5 +1,5 @@
 
-async function sessionTab(page,tab){const button=page.locator('[data-session-tab="'+tab+'"]');await button.waitFor({state:'visible'});await button.click();if(tab==='demos')await page.locator('#modal .project-short-demos [data-public-demo]').first().waitFor({state:'visible'});}
+async function sessionTab(page,tab){const button=page.locator('[data-session-tab="'+tab+'"]');await button.waitFor({state:'visible'});await button.click();if(tab==='demos')await page.locator('#modal [data-factory-project-open]').first().waitFor({state:'visible'});}
 import assert from 'node:assert/strict';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
@@ -12,8 +12,9 @@ try{
  await page.goto('http://127.0.0.1:8765/',{waitUntil:'load'});
  await sessionTab(page,'create');await page.locator('#libraryNew').waitFor({state:'visible'});
  await sessionTab(page,'demos');
- const demoButtons=page.locator('.project-public-demos [data-public-demo]');
- assert.equal(await demoButtons.count(),13,'ten musical demos and three vocal mix demos are accessible');
+ const demoButtons=page.locator('#modal [data-factory-project-open]');
+ assert.equal(await page.locator('.project-public-demos [data-public-demo]').count(),0,'the removed public demo buttons must not return');
+ assert.ok(await demoButtons.count()>=9,'complete editable compositions must remain accessible');
  await page.setViewportSize({width:390,height:844});
  for(const button of await demoButtons.all()){
   const box=await button.boundingBox();assert.ok(box&&box.x>=0&&box.x+box.width<=391,'demo button exceeds mobile viewport');
@@ -77,7 +78,9 @@ try{
  }
  // Actual project launch, transport, portable download/import and cold reload.
  for(const [kind,bpm,name] of [['drill',142,'WARLIKE · Drill nocturne'],['trap808',140,'WARLIKE · Atlanta After Dark'],['trap-air',146,'WARLIKE · Atlanta Floating'],['funk',130,'WARLIKE · Baile Tamborzão']]){
-  await sessionTab(page,'demos');await sessionTab(page,'demos');await page.locator('.project-public-demos [data-public-demo="'+kind+'"]').click();
+  await sessionTab(page,'demos');
+  assert.equal(await page.locator('#modal .project-public-demos').count(),0);
+  await page.evaluate(async demoKind=>{const {launchPublicDemo}=await import('/app.js?v=0.15.6-atlanta-baile');await launchPublicDemo(demoKind);},kind);
   await page.locator('#modal').waitFor({state:'hidden'});
   assert.equal(await page.locator('#projectName').inputValue(),name);assert.equal(await page.locator('#bpm').inputValue(),String(bpm));
   await page.locator('#play').click();await page.waitForFunction(()=>document.getElementById('play').getAttribute('aria-label')==='Pause');
