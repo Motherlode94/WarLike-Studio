@@ -4,8 +4,6 @@ import {mountSessionPreview} from './session-preview-ui.js';
 const node=(tag,text,className)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(className)n.className=className;return n;};
 const button=(text)=>{const n=node('button',text,'outline-btn');n.type='button';return n;};
 export function mountProjectCompositions(root,{stop,sync}){
- const short=node('section',null,'project-short-demos');
- while(root.firstChild)short.append(root.firstChild);
  const complete=node('section',null,'project-home-compositions');
  const title=node('h3','Compositions complètes · '+SESSION_TEMPLATES.length+' morceaux');
  const copy=node('p','Écoute un extrait de 4 mesures, puis ouvre une copie indépendante avec toutes ses pistes et sa structure complète.');
@@ -29,7 +27,6 @@ export function mountProjectCompositions(root,{stop,sync}){
   previous.disabled=page===0;next.disabled=page===pages-1;position.textContent='Page '+(page+1)+' / '+pages;sync();
  }
  previous.onclick=()=>{stop();page--;render();};next.onclick=()=>{stop();page++;render();};
- // One catalog in the main project menu. Full compositions and public
- // demonstrations are displayed together, never split into selectable tabs.
- root.append(complete,short);mountSessionPreview(complete,stop);render();sync();
+ // Only editable full compositions appear in the project dialog; short public demos are not duplicated here.
+ root.replaceChildren(complete);mountSessionPreview(complete,stop);render();sync();
 }

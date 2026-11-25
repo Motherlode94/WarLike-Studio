@@ -1,5 +1,5 @@
 
-async function sessionTab(page,tab){const button=page.locator('[data-session-tab="'+tab+'"]');await button.waitFor({state:'visible'});await button.click();if(tab==='demos')await page.locator('#modal .project-short-demos [data-public-demo]').first().waitFor({state:'visible'});}
+async function sessionTab(page,tab){const button=page.locator('[data-session-tab="'+tab+'"]');await button.waitFor({state:'visible'});await button.click();if(tab==='demos')await page.locator('#modal [data-factory-project-open]').first().waitFor({state:'visible'});}
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
@@ -36,7 +36,10 @@ try{
  // persistence, portable export/reimport, and cold reload without source fetches.
  await sessionTab(page,'create');await page.locator('#libraryNew').waitFor({state:'visible'});
  for(const kind of ['trap','afro','rnb','vox-trap','vox-afro','vox-rnb']){
-  await sessionTab(page,'demos');await sessionTab(page,'demos');await page.locator('.project-public-demos [data-public-demo="'+kind+'"]').click();
+  // Demo launch is tested through the retained composition API; the duplicate public-demo UI is intentionally absent.
+  await sessionTab(page,'demos');
+  assert.equal(await page.locator('#modal .project-public-demos').count(),0);
+  await page.evaluate(async demoKind=>{const {launchPublicDemo}=await import('/app.js?v=0.15.6-atlanta-baile');await launchPublicDemo(demoKind);},kind);
   await page.locator('#modal').waitFor({state:'hidden'});
   await page.waitForFunction(()=>/voix humaines en anglais|vraies voix enregistrées/.test(document.getElementById('toast')?.textContent||''));
   assert.match(await page.locator('#toast').textContent(),/anglais/);
@@ -63,5 +66,5 @@ try{
   if(kind!=='vox-rnb'){await page.locator('#projectMenuBtn').click();await page.locator('#myProjects').click();await sessionTab(page,'create');await page.locator('#libraryNew').waitFor({state:'visible'});}
  }
  assert.deepEqual(errors,[]);await writeFile(output+'/report.json',JSON.stringify({result:'PASS',details},null,2));
- console.log('PASS: real human vocals, verse/chorus through FX, audibility versus backing, six launch buttons, portable media and cold reload',JSON.stringify(details));
+ console.log('PASS: real human vocals, verse/chorus through FX, audibility versus backing, six programmatic demo launches, private project catalog UI, portable media and cold reload',JSON.stringify(details));
 }finally{await browser.close();}
