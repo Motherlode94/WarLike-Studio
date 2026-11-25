@@ -25,7 +25,7 @@ export function editHardiAudio(buffer,{start=0,end=buffer.duration,reverse=false
  });
  let peak=0;for(const data of output)for(const v of data)peak=Math.max(peak,Math.abs(v));
  const gain=normalizeDb===null||peak<1e-9?1:10**(normalizeDb/20)/peak;
- const inFrames=Math.floor(fadeIn*buffer.sampleRate),outFrames=Math.floor(fadeOut*buffer.sampleRate);
+ const inFrames=fadeIn>0?Math.max(1,Math.ceil(fadeIn*buffer.sampleRate)):0,outFrames=fadeOut>0?Math.max(1,Math.ceil(fadeOut*buffer.sampleRate)):0;
  for(const data of output)for(let i=0;i<count;i++){
   const a=inFrames?clamp(i/Math.max(1,inFrames),0,1):1;
   const b=outFrames?clamp((count-1-i)/Math.max(1,outFrames),0,1):1;
