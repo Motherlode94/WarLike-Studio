@@ -60,13 +60,13 @@ try{
   if(i===SESSION_TEMPLATES.length-1){await page.waitForFunction(()=>document.querySelector('.session-preview-panel').dataset.state==='idle',null,{timeout:20000});}
   else await stop();
  }
- const metrics=await page.evaluate(()=>window.sessionPreviewQA.metrics);assert.equal(metrics.length,9);
+ const metrics=await page.evaluate(()=>window.sessionPreviewQA.metrics);assert.equal(metrics.length,SESSION_TEMPLATES.length);
  for(const [i,m] of metrics.entries()){
   assert.equal(m.name,SESSION_TEMPLATES[i].name);assert.equal(m.endBar-m.startBar,4);assert.equal(m.channels,2);assert.equal(m.rate,44100);
   assert.ok(Math.abs(m.seconds-4*240/SESSION_TEMPLATES[i].bpm)<.02);assert.ok(m.peak>.02&&m.peak<.999);assert.ok(m.rms>.002);
  }
  // The last two auditions remain in the small PCM cache.
- current='cache and replacement';await button('kin').click();await playing('Kin après minuit');await stop();assert.equal(await page.evaluate(()=>window.sessionPreviewQA.metrics.length),9);
+ current='cache and replacement';await button('kin').click();await playing('Kin après minuit');await stop();assert.equal(await page.evaluate(()=>window.sessionPreviewQA.metrics.length),SESSION_TEMPLATES.length);
  await button('lumiere').click();await playing('Lumière en ville');await button('kin').click();await playing('Kin après minuit');
  await page.waitForFunction(()=>window.sessionPreviewQA.sources.filter(s=>!s.ended).length===1);await stop();
  // Deterministically hold preparation, then cancel before the real renderer resumes.
@@ -100,5 +100,5 @@ try{
  current='project change';await prepare('soleil');const portable=structuredClone(before);portable.project.name='Autre copie du projet';await upload(portable);await release();assert.equal(await page.evaluate(()=>window.sessionPreviewQA.sources.length),await page.evaluate(()=>window.sessionPreviewQA.sources.filter(s=>s.ended).length));
  const reopened=await save();assert.deepEqual(reopened.project.tracks,before.project.tracks);assert.deepEqual(reopened.assets,before.assets);
  await writeFile(folder+'/report.json',JSON.stringify(metrics,null,2)+'\n');assert.deepEqual(errors,[]);
- console.log('PASS: 9 real four-bar stereo auditions, cache, natural end, cancellation races, keyboard, transport/mic guards, 4 mobile themes, unchanged project/history/media and project switch');
+ console.log(`PASS: ${SESSION_TEMPLATES.length} real four-bar stereo auditions, cache, natural end, cancellation races, keyboard, transport/mic guards, 4 mobile themes, unchanged project/history/media and project switch`);
 }catch(error){console.error('Session preview failed at',current,errors);await page?.screenshot({path:folder+'/failure.png',fullPage:true}).catch(()=>{});throw error;}finally{await browser.close();}
