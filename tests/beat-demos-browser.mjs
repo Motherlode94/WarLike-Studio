@@ -14,7 +14,8 @@ try{
  await sessionTab(page,'demos');
  const demoButtons=page.locator('#modal [data-factory-project-open]');
  assert.equal(await page.locator('.project-public-demos [data-public-demo]').count(),0,'the removed public demo buttons must not return');
- assert.ok(await demoButtons.count()>=9,'complete editable compositions must remain accessible');
+ assert.equal(await demoButtons.count(),3,'the project catalog displays three editable compositions per page');
+ assert.match(await page.locator('#modal [data-composition-page-status]').textContent(),/Page 1 \/ \d+/,'composition pagination is available');
  await page.setViewportSize({width:390,height:844});
  for(const button of await demoButtons.all()){
   const box=await button.boundingBox();assert.ok(box&&box.x>=0&&box.x+box.width<=391,'demo button exceeds mobile viewport');
