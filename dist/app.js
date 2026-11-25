@@ -198,7 +198,7 @@ const PUBLIC_DEMOS=Object.freeze({
  ...Object.fromEntries(Object.entries(VOCAL_DEMOS).map(([key,value])=>[key,{...value,vocal:true}]))
 });
 let publicDemoOpening=false;
-async function launchPublicDemo(kind){
+export async function launchPublicDemo(kind){
  const config=Object.hasOwn(PUBLIC_DEMOS,kind)?PUBLIC_DEMOS[kind]:null;
  if(!config){toast('Démo inconnue.');return;}
  if(publicDemoOpening)return;
