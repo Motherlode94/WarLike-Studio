@@ -28,9 +28,11 @@ try{
  const ids=async()=>root.locator('[data-composition]').evaluateAll(nodes=>nodes.map(n=>n.dataset.composition));
  const before=await save();await home();await demos();
  assert.equal(await page.locator('.project-demo-catalogs').count(),0,'main demo catalog must not be split into separate menus');
- assert.equal(await page.locator('.project-short-demos [data-public-demo]').count(),13);
+ assert.equal(await page.locator('.project-short-demos').count(),0);
+ assert.equal(await page.locator('.project-public-demos').count(),0);
+ assert.equal(await page.locator('.project-home-compositions [data-public-demo]').count(),0);
  assert.equal(await page.locator('.project-home-compositions').isVisible(),true);
- assert.equal(await page.locator('.project-short-demos').isVisible(),true);
+ assert.equal(await page.locator('.project-home-compositions').isVisible(),true);
  const found=[];
  const pageCount=Math.ceil(SESSION_TEMPLATES.length/3);
  for(let p=0;p<pageCount;p++){
@@ -45,8 +47,7 @@ try{
  await root.locator('[data-session-preview=lumiere]').click();await playing('Lumière en ville');
  while(!(await ids()).includes('rives'))await root.locator('[data-composition-page=previous]').click();await idle();
  await root.locator('[data-session-preview=rives]').click();await playing('Rives de Kin');
- assert.equal(await page.locator('.project-short-demos').isVisible(),true,'demos remain visible while auditioning full compositions');
- assert.equal(await page.locator('.project-short-demos [data-public-demo]').count(),13);
+ assert.equal(await page.locator('.project-public-demos').count(),0,'public demo duplicates must remain absent while auditioning');
  await page.locator('[data-session-tab=open]').click();await idle();await demos();
  await root.locator('[data-session-preview=rives]').click();await playing('Rives de Kin');await page.locator('#closeModal').click();
  await page.waitForFunction(()=>!document.querySelector('#audioStatus').textContent.includes('Préécoute'));assert.equal(await page.locator('.project-home-compositions').count(),0);
@@ -76,5 +77,5 @@ try{
  await page.locator('[data-project-open="'+original.id+'"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  const restored=await save();assert.deepEqual(restored.project,before.project);assert.deepEqual(restored.assets,before.assets);assert.equal(restored.masterVolume,-18);
  await writeFile(folder+'/report.json',JSON.stringify({catalog:found,independentCopies:copies.length,preservedAudio:true,themes:4},null,2));assert.deepEqual(errors,[]);
- console.log('PASS: project dialog exposes all '+SESSION_TEMPLATES.length+' full compositions, musical previews, modal cancellation, 13 short demos, four responsive themes, independent copies and preserved user MIDI/audio/master');
+ console.log('PASS: project dialog exposes all '+SESSION_TEMPLATES.length+' full compositions, musical previews, modal cancellation, no duplicate public demo section, four responsive themes, independent copies and preserved user MIDI/audio/master');
 }catch(error){console.error('Project compositions failed at',phase,errors);await page?.screenshot({path:folder+'/failure.png',fullPage:true}).catch(()=>{});throw error;}finally{await browser.close();}
