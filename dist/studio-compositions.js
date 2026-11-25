@@ -42,17 +42,17 @@ export const COMPOSITION_STYLES={
  eclats:{key:4,scale:'minor',keyName:'Mi mineur',harmony:'Em9 · Cmaj7 · G · D(add9)',palette:'Guitares crunch, clean, acier et hollow, basse électrique et batterie',
   verse:[[52,55,59,62,66],[48,52,55,59],[55,59,62,67],[50,54,57,64]],roots:[28,24,31,26],
   bridge:[[45,52,55,60],[47,54,57,62],[48,52,55,59,62],[50,54,57,62]],bridgeRoots:[33,35,36,38],
-  tracks:[['drums','ROCK · BACKBEAT',2,-12,{punch:.68,decay:.28,hat:.5}],['wltitan','TITAN · BASSE ÉLECTRIQUE',1,-14,{brightness:2700,release:.14}],['wlcrunch','CRUNCH · RIFF PRINCIPAL',1,-19,{drive:.25,brightness:5700,decay:.8,release:.13}],['wlclean','CLEAN · ARPÈGES',0,-22,{drive:0,brightness:5200,decay:1.25,release:.3}],['wlsteel','STEEL · ACCORDS OUVERTS',1,-23,{brightness:6100,release:.2}],['wljazz','HOLLOW · GUITARE LEAD',1,-22,{drive:.18,brightness:5900,release:.23}]],
+  tracks:[['drums','ROCK · BACKBEAT',2,-12,{kit:1,punch:.68,decay:.28,hat:.5}],['wltitan','TITAN · BASSE ÉLECTRIQUE',1,-16,{brightness:3200,attack:.006,release:.18}],['wlcrunch','CRUNCH · RIFF PRINCIPAL',1,-20,{drive:.34,brightness:6600,pickPosition:.22,damping:.32,decay:.66,release:.13,output:-10}],['wlclean','CLEAN · ARPÈGES',0,-23,{drive:0,brightness:6100,pickPosition:.38,decay:1.4,release:.24,output:-9}],['wlsteel','STEEL · ACCORDS OUVERTS',1,-23,{brightness:6100,release:.2}],['wljazz','HOLLOW · GUITARE LEAD',1,-22,{drive:.18,brightness:5900,release:.23}]],
   layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['MONTÉE',8,'pre'],['REFRAIN A',16,'hook'],['PONT',16,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',24,'hook'],['OUTRO',8,'outro']]},
  kin:{key:7,scale:'major',keyName:'Sol majeur',harmony:'Gmaj7 · D(add9) · Em7 · Cmaj9',palette:'Guitares nylon, clean, muted et acier, basse et percussions',
   verse:[[55,59,62,66],[50,54,57,64],[52,55,59,62],[48,52,55,59,62]],roots:[31,26,28,24],
   bridge:[[48,52,55,59],[47,55,59,62],[45,52,55,60],[50,54,57,59]],bridgeRoots:[24,35,33,26],
-  tracks:[['drums','RUMBA · PERCUSSIONS',3,-12,{decay:.22,hat:.42}],['wltitan','TITAN · BASSE RONDE',2,-15,{brightness:1800,release:.16}],['wlnylon','NYLON · ACCOMPAGNEMENT',0,-18,{brightness:4400,body:.78,drive:0,release:.2}],['wlclean','CLEAN · THÈME SEBENE',0,-18,{brightness:4900,body:.68,drive:0,decay:1.1,release:.18}],['wlmuted','MUTED · CONTRETEMPS',1,-23,{brightness:3700,drive:0,release:.08}],['wlsteel','STEEL · CONTRECHANT',0,-23,{brightness:5100,release:.21}]],
+  tracks:[['drums','RUMBA · PERCUSSIONS',3,-12,{kit:3,decay:.22,hat:.42}],['wltitan','TITAN · BASSE RONDE',2,-16,{brightness:2550,attack:.008,release:.22}],['wlnylon','NYLON · ACCOMPAGNEMENT',0,-18,{brightness:4400,body:.78,drive:0,release:.2}],['wlclean','CLEAN · THÈME SEBENE',0,-19,{brightness:6800,body:.6,pickPosition:.27,drive:0,decay:.82,release:.14,output:-9}],['wlmuted','MUTED · CONTRETEMPS',1,-24,{brightness:4400,damping:.65,drive:0,release:.07,output:-9}],['wlsteel','STEEL · CONTRECHANT',0,-23,{brightness:5100,release:.21}]],
   layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['MONTÉE',8,'pre'],['REFRAIN A',12,'hook'],['SEBENE',16,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',12,'hook'],['OUTRO',8,'outro']]},
  lumiere:{key:2,scale:'major',keyName:'Ré majeur',harmony:'Dmaj9 · Bm7 · G6 · A(add9)',palette:'Piano, guitares clean et acier, nappe ATLAS, basse et batterie',
   verse:[[50,54,57,61,64],[47,54,57,62],[55,59,62,64],[57,61,64,71]],roots:[26,35,31,33],
   bridge:[[52,55,59,62],[55,59,62,66],[50,54,57,64],[57,61,64,67]],bridgeRoots:[28,31,26,33],
-  tracks:[['drums','POP · GROOVE OUVERT',2,-12,{punch:.58,decay:.25,hat:.43}],['wltitan','TITAN · PULSATION',0,-14,{brightness:2300,release:.16}],['piano','GRAND · ACCORDS',1,-15,{brightness:5900,release:.4}],['wlclean','CLEAN · THÈME LUMIÈRE',0,-19,{brightness:5400,drive:0,release:.22}],['wlsteel','STEEL · STRUMS',1,-23,{brightness:5900,release:.19}],['wlrompler','ATLAS · AIR DOUX',2,-26,{cutoff:2600,attack:.35,release:1.1,output:-14}]],
+  tracks:[['drums','POP · GROOVE OUVERT',2,-12,{kit:2,punch:.58,decay:.25,hat:.43}],['wltitan','TITAN · BASSE POP',0,-16,{brightness:3100,attack:.006,release:.2}],['piano','GRAND · ACCORDS',1,-15,{brightness:5900,release:.4}],['wlclean','CLEAN · THÈME LUMIÈRE',0,-20,{brightness:6200,pickPosition:.35,drive:0,release:.2,output:-9}],['wlsteel','STEEL · STRUMS',1,-23,{brightness:6400,pickPosition:.4,release:.17,output:-9}],['wlrompler','ATLAS · AIR DOUX',2,-26,{cutoff:2600,attack:.35,release:1.1,output:-14}]],
   layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['MONTÉE',8,'pre'],['REFRAIN A',16,'hook'],['PONT',8,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',24,'hook'],['OUTRO',8,'outro']]}
 
 };
@@ -97,25 +97,27 @@ function drums(style,kind,cycle){
   if(style==='eclats'){
    const half=kind==='bridge';
    for(const s of (half?[0,10]:sparse?[0,8]:hook?[0,4,8,10,14]:variant?[0,6,8,11]:[0,7,8,10]))hit('kick',b+s,s===0?.78:.63);
-   for(const s of (half?[8]:[4,12]))hit('clap',b+s,sparse?.42:hook?.68:.56);
+   for(const s of (half?[8]:[4,12]))hit('clap',b+s,(sparse?.42:hook?.68:.56)*(bar%2?.92:1));
    for(const s of (sparse?[0,4,8,12]:[0,2,4,6,8,10,12,14]))hit('hat',b+s,s%4===0?.28:.2);
-   if(hook){hit('open',b+6,.26);hit('open',b+14,.29);}
+   if(hook){hit('open',b+6,.26);hit('open',b+14,.29);}if((bar===0&&['hook','pre'].includes(kind))||(bar===3&&!sparse))hit('open',b+(bar===3?15:0),.46);
    if(half)hit('rim',b+15,.23);
   }
   if(style==='kin'){
    for(const step of (kind==='bridge'?[0,6,8,10]:sparse?[0]:[0,8]))hit('kick',b+step,step===0?.68:.48);
-   if(!sparse||kind==='bridge')hit('clap',b+12,.34);
-   for(const step of [2,6,10,14])hit('hat',b+step,.17);
-   for(const step of [1,4,7,9,12,15])hit('shaker',b+step,step%4===3?.28:.19);
+   if(!sparse||kind==='bridge')hit('clap',b+12,bar%2?.29:.37);
+   for(const step of (kind==='bridge'?[2,6,10,14]:[0,4,8,12]))hit('hat',b+step,step===8?.23:.14);
+   for(const step of [1,4,7,9,12,15])hit('shaker',b+step,(step%4===3?.28:.19)*(bar%2?.87:1));
    for(const step of [3,7,11,15])hit('rim',b+step,.27+(step===7?.08:0));
-   for(const step of (kind==='bridge'?[2,5,9,13,14]:[5,13]))hit('perc',b+step,.25);
+   for(const step of (kind==='bridge'?[2,5,9,13,14]:[5,13]))hit('perc',b+step,step===13?.2:.29);
+   // Existing eight-voice kit: open hi-hat is a cymbal accent, not a separate ride/crash sample.
+   if((bar===0&&['hook','bridge'].includes(kind))||(bar===3&&hook))hit('open',b+(bar===3?14:0),hook?.42:.32);
   }
   if(style==='lumiere'){
    for(const step of (sparse?[0,8]:variant?[0,3,8,10]:[0,6,8,12]))hit('kick',b+step,step===0?.72:.56);
-   for(const step of [4,12])hit('clap',b+step,sparse?.3:.48);
+   for(const step of [4,12])hit('clap',b+step,(sparse?.3:.48)*(bar%2?.94:1));
    for(const step of (sparse?[2,10]:[0,2,4,6,8,10,12,14]))hit('hat',b+step,step%4===0?.23:.16);
    for(const step of [3,7,11,15])hit('shaker',b+step,hook?.24:.17);
-   if(hook)hit('open',b+14,.23);
+   if(hook)hit('open',b+14,.23);if(bar===0&&['hook','pre'].includes(kind))hit('open',b,.34);
   }
   if(bar===3&&!sparse){for(const s of [13,14,15])hit('tom',b+s,(hook?.32:.21)+(s-13)*.05);}
   if(kind==='bridge'&&!['eclats','kin','trap-abyss','trap-enigma'].includes(style))rows.kick.fill(0,b,b+16);
@@ -193,10 +195,10 @@ function melody(style,role,kind,cycle){
    if(role===5&&['pre','hook','bridge'].includes(kind))for(const step of (hook?[2,6,10,14]:[5,13]))chord(b+step,c.slice(1,4),.9,hook?.33:.25,.03);
   }
   if(style==='eclats'){
-   if(role===1)for(const [i,step] of (bridge?[0,10]:intro?[0,8]:hook?[0,2,4,6,8,10,12,14]:[0,6,8,10,14]).entries())add(b+step,root+(i%4===3?7:0),bridge?4.5:hook?1.65:2,.72-i%2*.11);
+   if(role===1)for(const [i,step] of (bridge?[0,8,13]:intro?[0,8]:hook?(alt?[0,3,6,8,11,14]:[0,2,5,8,10,13]):alt?[0,5,8,11,14]:[0,6,8,12,15]).entries())add(b+step,root+(i===2?7:i===4&&hook?12:0),bridge?3.5:hook?1.5:1.9,.78-i%3*.09);
    if(role===2){
     const steps=intro?[0,8]:bridge?[0,8]:hook?[0,2,4,7,8,10,12,14]:[0,3,6,8,11,14];
-    for(const step of steps)chord(b+step,[root+12,root+19,root+24],bridge?6.8:intro?5.8:hook?1.65:1.15,hook?.61:bridge?.44:.49,.012);
+    for(const step of steps)chord(b+step,[root+12,root+19,root+24],bridge?6.8:intro?5.8:hook?1.3:1.05,hook?.6:bridge?.44:.49,.04);
    }
    if(role===3){
     const steps=hook?[0,2,5,7,10,12,14]:bridge?[1,5,9,13]:[0,3,7,10,14];
@@ -210,21 +212,21 @@ function melody(style,role,kind,cycle){
   }
 
   if(style==='kin'){
-   if(role===1)for(const [i,step] of (bridge?[0,3,6,8,11,14]:intro?[0,8]:[0,6,8,12,15]).entries())add(b+step,root+(i%4===1?7:i%4===3?12:0),i===0?3:1.05,.7-i%2*.12);
-   if(role===2)for(const step of (intro?[0,8]:[0,4,8,12]))chord(b+step,c.slice(0,3),bridge?2.1:3.15,hook?.48:.39,.055);
+   if(role===1)for(const [i,step] of (bridge?[0,3,6,8,11,14]:intro?[0,8]:alt?[0,3,7,9,12,15]:[0,5,8,10,14]).entries())add(b+step,root+(i%4===1?7:i%4===3?12:0),i===0?2.65:.85,.7-i%2*.1);
+   if(role===2)for(const step of (intro?[0,8]:alt?[1,5,9,13]:[0,4,8,12]))chord(b+step,c.slice(0,3),bridge?2.1:2.65,hook?.48:.39,.11);
    if(role===3){
     const steps=bridge?[0,1.5,3,4.5,6,8,9.5,11,12.5,14]:hook?[0,2,4,7,8,10,12,14]:intro?[0,7,12]:[0,3,6,9,11,14];
     const seq=bridge?[2,1,3,2,0,1]:hook?[2,3,1,2,0,1]:[0,2,1,3];
     for(const [i,step] of steps.entries())add(b+step,c[seq[(i+alt)%seq.length]%c.length]+12,bridge?.95:i===steps.length-1?1.65:1.15,bridge?.58:hook?.56:.46);
    }
-   if(role===4&&!intro)for(const [i,step] of [2,6,10,14].entries())add(b+step,c[(i+alt)%c.length]+12,.65,bridge?.42:.34);
+   if(role===4&&!intro)for(const [i,step] of (alt?[3,7,11,15]:[2,6,10,14]).entries())add(b+step,c[(i+alt)%c.length]+12,.42,bridge?.42:.34);
    if(role===5&&['pre','hook','bridge'].includes(kind)){
     const steps=bridge?[1,4,7,10,13,15]:[3,7,11,14];
     for(const [i,step] of steps.entries())add(b+step,c[(i+alt+1)%c.length]+12,Math.min(1.25,16-step),bridge?.46:.38);
    }
   }
   if(style==='lumiere'){
-   if(role===1)for(const [i,step] of (intro||bridge?[0,8]:hook?[0,4,6,8,12,14]:[0,6,8,14]).entries())add(b+step,root+(i%4===2?7:0),intro||bridge?4.8:i===0?3.2:1.5,.73-i%2*.11);
+   if(role===1)for(const [i,step] of (intro||bridge?[0,8]:hook?(alt?[0,3,6,8,11,14]:[0,4,7,8,12,15]):alt?[0,5,8,13]:[0,6,8,14]).entries())add(b+step,root+(i%4===2?7:0),intro||bridge?4.8:i===0?2.8:1.45,.73-i%2*.11);
    if(role===2)for(const step of (intro||bridge?[0,8]:hook?[0,4,8,12]:[0,8]))chord(b+step,c,hook?3.4:6.8,hook?.53:.42,.045);
    if(role===3){
     const steps=hook?[0,3,6,8,11,14]:intro?[0,8]:bridge?[1,7,12]:[0,5,9,13],seq=hook?[2,3,1,2,0,1]:[0,2,1,3];
