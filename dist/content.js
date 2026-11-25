@@ -15,6 +15,8 @@ export const DRUM_GROOVES=[
   {id:'afro-sun',name:'Afro Sun',style:'Afro',bpm:112,pattern:pattern({kick:[0,3,8,10],clap:[4,12],hat:even,open:[6,14],rim:[7,15],tom:[5,13],shaker:[1,3,5,7,9,11,13,15],perc:[2,10]})},
   {id:'boom-dust',name:'Boom Dust',style:'Hip-hop',bpm:92,pattern:pattern({kick:[0,5,10],clap:[4,12],hat:even,rim:[15]})},
   {id:'rnb-pocket',name:'R&B Pocket',style:'R&B',bpm:84,pattern:pattern({kick:[0,7,10],clap:[4,12],hat:[0,3,6,8,11,14],open:[15],rim:[6]})},
+  {id:'french-rnb-2005',name:'R&B français 2005',style:'R&B français 2002–2009',bpm:94,pattern:pattern({kick:[0,6,10,14],clap:[4,12],hat:[0,3,6,8,11,14],open:[14],rim:[15],shaker:[7,15]})},
+  {id:'french-popstar-2008',name:'Pop-star française 2008',style:'Pop française 2002–2009',bpm:112,pattern:pattern({kick:[0,6,8,12],clap:[4,12],hat:even,open:[14],shaker:[3,7,11,15],tom:[15]})},
   {id:'house-room',name:'House Room',style:'House',bpm:124,pattern:pattern({kick:[0,4,8,12],clap:[4,12],hat:[2,6,10,14],open:[6,14],shaker:[1,3,5,7,9,11,13,15]})},
   {id:'piano-dusk',name:'Piano Dusk',style:'Amapiano',bpm:112,pattern:pattern({kick:[0,6,8],clap:[4,12],hat:even,tom:[3,7,10,14],shaker:all,perc:[5,13]})},
   {id:'percussion-circle',name:'Percussion Circle',style:'Percussions',bpm:106,pattern:pattern({kick:[0,8],rim:[3,6,11,14],tom:[2,10],shaker:even,perc:[1,5,9,13]})},

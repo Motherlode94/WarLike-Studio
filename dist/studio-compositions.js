@@ -6,6 +6,8 @@ const uid=()=>crypto.randomUUID().replaceAll('-','');
 export const COMPOSITION_TEMPLATES=[
  {id:'trap-abyss',name:'WARLIKE · Minuit sans étoiles',style:'Trap sombre · instrumental original',bpm:142,swing:0,groove:'abyss-half-time',bars:112,description:'808 profonde, piano mineur menaçant, synthé analogique en contrechant et nappes souterraines. Deux refrains évolutifs, pauses dramatiques et espace pour poser une voix.'},
  {id:'trap-enigma',name:'WARLIKE · Le Code des Ombres',style:'Trap énigmatique · instrumental original',bpm:126,swing:4,groove:'enigma-morse',bars:100,description:'Claviers suspendus, synthé spectral interrogatif, flûte en réponse et 808 souple. Silences, indices mélodiques et retournements de tension.'},
+ {id:'rnb-2005',name:'WARLIKE · Nos heures secrètes',style:'R&B français 2002–2009 · instrumental original',bpm:94,swing:11,groove:'french-rnb-2005',bars:88,description:'R&B français début 2000 : Rhodes, basse électrique, guitare muted, cordes discrètes et refrains chantables. Batterie percutante, réponses mélodiques et espace pour les voix.'},
+ {id:'popstar-2008',name:'WARLIKE · Sous les néons',style:'Pop-star française 2002–2009 · instrumental original',bpm:112,swing:3,groove:'french-popstar-2008',bars:104,description:'Pop/R&B française années 2000 : piano frontal, guitares, basse, synthés brillants en arrière-plan et refrains grandioses. Pont dramatique et véritable montée finale.'},
  {id:'rives',name:'Rives de Kin',style:'Afro · instrumental original',bpm:106,swing:8,groove:'afro-sun',bars:88,description:'Afro lumineux : guitare étouffée, kora, mbira et flûte dialoguent sur une basse électrique. Deux couplets, deux refrains et un pont allégé.'},
  {id:'pluie',name:'Après la pluie',style:'R&B · instrumental original',bpm:78,swing:22,groove:'rnb-pocket',bars:72,description:'R&B nocturne : accords de neuvième au clavier FM, réponses au piano et vibraphone, orgue discret et basse ronde. De la place pour enregistrer les voix.'},
  {id:'horizon',name:'Horizon de cuivre',style:'Amapiano · instrumental original',bpm:112,swing:12,groove:'horizon-pocket',bars:96,description:'Amapiano : log drum synthétique, clavier FM, mbira et kora se répondent sur des shakers. Introduction progressive, refrains dansants et pont suspendu.'},
@@ -24,6 +26,16 @@ export const COMPOSITION_STYLES={
   bridge:[[53,56,60,65],[44,48,51,56],[46,50,53,58],[48,51,55,60]],bridgeRoots:[29,32,34,24],
   tracks:[['drums','ENIGMA · POCKET CODÉ',0,-23,{kit:0,punch:.75,decay:.14,hat:.28}],['bass','MONO · 808 PHANTOM',0,-25,{body:.83,harmonics:.15,release:.08}],['epiano','FM KEYS · QUESTIONS',0,-24,{brightness:2800,release:.67}],['wlrompler','ATLAS · VOILE MYSTÉRIEUX',0,-33,{wave:2,texture:1,layer:.32,cutoff:1900,attack:.56,release:2.1,space:.18,output:-18}],['wlspectral','NEBULA · SIGNES',0,-31,{fm:.29,harmonics:.39,motion:.25,cutoff:3200,attack:.04,release:.53,width:.52,output:-18}],['flute','FLÛTE · RÉPONSES',0,-31,{brightness:4100,attack:.025,release:.22,output:-3}]],
   layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['MONTÉE',8,'pre'],['REFRAIN A',16,'hook'],['PONT',8,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',16,'hook'],['OUTRO',12,'outro']]},
+ 'rnb-2005':{key:9,scale:'minor',keyName:'La mineur',harmony:'Am9 · Fmaj9 · Cmaj9 · G6',palette:'Rhodes, basse TITAN, muted guitar, violons, piano et batterie R&B',
+  verse:[[57,60,64,67,71],[53,57,60,64,67],[60,64,67,71],[55,59,62,67]],roots:[33,29,36,31],
+  bridge:[[53,57,60,64],[55,59,62,67],[57,60,64,67],[52,55,59,64]],bridgeRoots:[29,31,33,28],
+  tracks:[['drums','2005 · R&B LIVE KICK',2,-17,{kit:2,punch:.72,decay:.25,hat:.4}],['wltitan','TITAN · BASSE SOUL',0,-18,{brightness:2700,attack:.009,release:.2}],['epiano','RHODES · ACCORDS INTIMES',0,-19,{brightness:3900,release:.43}],['wlmuted','MUTED · GUITARE RÉPONSE',1,-21,{brightness:4800,damping:.6,release:.1,output:-9}],['violin','VIOLONS · REFRAIN',0,-27,{}],['piano','PIANO · REFLETS',0,-23,{brightness:4800,release:.46}]],
+  layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['PRÉ-REFRAIN',8,'pre'],['REFRAIN A',16,'hook'],['PONT',8,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',12,'hook'],['OUTRO',4,'outro']]},
+ 'popstar-2008':{key:2,scale:'major',keyName:'Ré majeur',harmony:'Dmaj9 · A(add9) · Bm7 · Gmaj9',palette:'Piano, basse électrique, guitares steel/clean, synthé VANGUARD, violons',
+  verse:[[50,54,57,61,64],[57,61,64,69],[59,62,66,69],[55,59,62,66]],roots:[26,33,35,31],
+  bridge:[[59,62,66,69],[55,59,62,66],[50,54,57,61],[57,61,64,69]],bridgeRoots:[35,31,26,33],
+  tracks:[['drums','2008 · POP LIVE',2,-15,{kit:2,punch:.69,decay:.27,hat:.45}],['wltitan','TITAN · BASSE POP',0,-18,{brightness:3100,attack:.008,release:.21}],['piano','GRAND · PIANO STAR',1,-18,{brightness:5800,release:.39}],['wlclean','CLEAN · GUITARE HOOK',0,-22,{brightness:5900,drive:0,release:.24,output:-9}],['wlsteel','STEEL · STRUMS',1,-24,{brightness:6200,release:.18,output:-9}],['wlvirtual','VANGUARD · REFRAIN ÉCLAT',0,-29,{detune:4,cutoff:4800,resonance:1.2,attack:.045,release:.46,width:.45,output:-17}]],
+  layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['PRÉ-REFRAIN',8,'pre'],['REFRAIN A',16,'hook'],['PONT',8,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',24,'hook'],['OUTRO',8,'outro']]},
  rives:{key:7,scale:'major',keyName:'Sol majeur',harmony:'Em9 · Cmaj9 · G6 · D(add9)',palette:'Guitare muted, kora, mbira, flûte et basse électrique',
   verse:[[52,55,59,62,66],[48,52,55,59,62],[55,59,62,64],[50,54,57,64]],roots:[28,24,31,26],
   bridge:[[48,52,55,59],[50,54,57,64],[52,55,59,62],[55,59,62,66]],bridgeRoots:[24,26,28,31],
@@ -72,6 +84,14 @@ function drums(style,kind,cycle){
    for(const step of hats)hit('hat',b+step,step%4===0?.3:.19);
    if(!sparse&&hook){for(const step of (variant?[13,14,15]:[14,15]))hit('hat',b+step,.24+(step===15?.1:0));hit('open',b+(abyss?6:14),.2);}
    if(!intro&&!sparse){hit('rim',b+(abyss?15:7),.17);if(!abyss)hit('perc',b+11,.16);}
+  }
+  if(style==='rnb-2005'||style==='popstar-2008'){
+   const rnb=style==='rnb-2005';
+   for(const step of (sparse?[0,8]:rnb?(variant?[0,6,10,14]:[0,7,10]):variant?[0,4,8,11,14]:[0,6,8,12]))hit('kick',b+step,step===0?.74:.55);
+   if(!introOrQuiet(kind,bar))for(const step of [4,12])hit('clap',b+step,hook?.65:.51);
+   for(const step of (sparse?[0,8]:rnb?[0,3,6,8,11,14]:[0,2,4,6,8,10,12,14]))hit('hat',b+step,step%4===0?.24:.15);
+   if(!sparse){hit('rim',b+15,rnb?.19:.11);if(hook){hit('open',b+14,.24);hit('shaker',b+7,.2);}}
+   if(kind==='pre'&&bar===3)for(const step of [12,14,15])hit('tom',b+step,.18+(step-12)*.045);
   }
   if(style==='rives'){
    for(const s of (sparse?[0,10]:variant?[0,3,8,11]:[0,6,10]))hit('kick',b+s,s===0?.82:.61);
@@ -155,6 +175,24 @@ function melody(style,role,kind,cycle){
    if(role===3){chord(b+.1,c.slice(1,4),14.1,bridge?.21:hook?.25:.17,.06);if(hook&&bar%2===1)add(b+9,c[3]+12,2,.2);}
    if(role===4&&!intro){const steps=hook?[1,4,7,10,13]:bridge?[5,11]:[2,7,13];for(const [i,step] of steps.entries())add(b+step,c[(i+alt+(hook?2:1))%c.length]+24,i===steps.length-1?1.8:.95,hook?.42:.31);}
    if(role===5&&['pre','hook','bridge'].includes(kind)){const steps=hook?[3,8,14]:[6,13];for(const [i,step] of steps.entries())add(b+step,c[(i+alt)%c.length]+24,1.25,hook?.37:.29);}
+  }
+  if(style==='rnb-2005'||style==='popstar-2008'){
+   const rnb=style==='rnb-2005',loud=hook?1:.82;
+   if(role===1)for(const [i,step] of (intro?[0,8]:bridge?[0,8,13]:rnb?(alt?[0,5,8,11,14]:[0,6,8,12,15]):alt?[0,3,8,11,14]:[0,5,8,12,15]).entries())
+    add(b+step,root+(i===2?7:i===4&&hook?12:0),i===0?3.7:1.4,(i===0?.72:.53)*loud);
+   if(role===2){chord(b+.08,c,bridge?10:intro?9:hook?4.7:6.4,hook?.58:.42,.075);if(!intro&&!bridge)chord(b+9.1,[...c.slice(1),c[0]+12],hook?3.7:5,.36,.065);}
+   if(role===3&&!intro){
+    const steps=hook?(rnb?[2,5,8,11,14]:[0,3,6,9,12,14]):bridge?[4,12]:[3,7,11,14];
+    for(const [i,step] of steps.entries())add(b+step,c[(i+alt+1)%c.length]+12,i===steps.length-1?1.7:.95,(hook?.54:.38)*loud);
+   }
+   if(role===4&&!intro){
+    if(rnb){if(hook||kind==='pre')chord(b+.2,c.slice(0,3),13.5,hook?.34:.24,.085);}
+    else for(const step of (hook?[2,6,10,14]:[2,10]))chord(b+step,c.slice(0,3),hook?1.8:4.4,hook?.42:.28,.08);
+   }
+   if(role===5&&['pre','hook','bridge'].includes(kind)){
+    if(rnb){for(const [i,step] of (hook?[2,6,10,14]:[5,12]).entries())add(b+step,c[(i+alt+2)%c.length]+12,1.9,hook?.45:.31);}
+    else {chord(b+.1,c.slice(1,4),hook?14.2:10,hook?.3:.2,.04);if(hook)for(const step of [7,15])add(b+step,c[2]+12,.85,.23);}
+   }
   }
   if(style==='rives'){
    if(role===2)for(const s of (intro||bridge?[2,10]:[2,5,8,11,14]))chord(b+s,c.slice(0,3),.7,hook?.57:.44,.055);

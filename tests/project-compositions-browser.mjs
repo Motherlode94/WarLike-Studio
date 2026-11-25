@@ -26,6 +26,19 @@ try{
  const playing=async name=>page.waitForFunction(name=>document.querySelector('.project-home-compositions .session-preview-panel')?.dataset.state==='playing'&&document.querySelector('.project-home-compositions [data-session-preview-status]').textContent.includes(name),name,{timeout:60000});
  const idle=async()=>page.waitForFunction(()=>document.querySelector('.project-home-compositions .session-preview-panel')?.dataset.state==='idle');
  const ids=async()=>root.locator('[data-composition]').evaluateAll(nodes=>nodes.map(n=>n.dataset.composition));
+ const jumpTo=async id=>{
+  const index=SESSION_TEMPLATES.findIndex(t=>t.id===id);
+  assert.ok(index>=0,'Missing composition '+id);
+  const target=Math.floor(index/3);
+  for(let attempt=0;attempt<Math.ceil(SESSION_TEMPLATES.length/3)+1;attempt++){
+   const visible=await ids();if(visible.includes(id))return;
+   const label=await root.locator('[data-composition-page-status]').textContent();
+   const current=Number(label?.match(/Page (\d+)/)?.[1]||0)-1;
+   if(current<0)throw Error('Composition pager state missing');
+   await root.locator('[data-composition-page='+(current<target?'next':'previous')+']').click();
+  }
+  throw Error('Composition '+id+' unreachable through pagination');
+ };
  const before=await save();await home();await demos();
  assert.equal(await page.locator('.project-demo-catalogs').count(),0,'main demo catalog must not be split into separate menus');
  assert.equal(await page.locator('.project-short-demos [data-public-demo]').count(),13);
@@ -39,11 +52,11 @@ try{
   if(p<pageCount-1)await root.locator('[data-composition-page=next]').click();
  }
  assert.deepEqual(found,SESSION_TEMPLATES.map(t=>t.id));assert.equal(await root.locator('[data-composition-page=next]').isDisabled(),true);
- phase='modal auditions';await root.locator('[data-session-preview=kin]').press('Enter');await playing('Kin après minuit');
+ phase='modal auditions';await jumpTo('kin');await root.locator('[data-session-preview=kin]').press('Enter');await playing('Kin après minuit');
  await page.waitForFunction(()=>document.querySelector('.project-home-compositions progress').value>0);
  await root.locator('[data-session-preview=kin]').press('Space');await idle();
- await root.locator('[data-session-preview=lumiere]').click();await playing('Lumière en ville');
- while(!(await ids()).includes('rives'))await root.locator('[data-composition-page=previous]').click();await idle();
+ await jumpTo('lumiere');await root.locator('[data-session-preview=lumiere]').click();await playing('Lumière en ville');
+ await jumpTo('rives');await idle();
  await root.locator('[data-session-preview=rives]').click();await playing('Rives de Kin');
  assert.equal(await page.locator('.project-short-demos').isVisible(),true,'demos remain visible while auditioning full compositions');
  assert.equal(await page.locator('.project-short-demos [data-public-demo]').count(),13);
@@ -59,12 +72,12 @@ try{
   for(const button of await root.locator('button').all()){
    if(await button.isDisabled())continue;await button.scrollIntoViewIfNeeded();const r=await button.boundingBox();assert.ok(r&&r.x>=0&&r.x+r.width<=391&&r.y>=0&&r.y+r.height<=845,'modal action must remain reachable');
   }
-  await root.locator('[data-session-preview=nocturne]').scrollIntoViewIfNeeded();await page.screenshot({path:folder+'/mobile-'+theme+'.png'});await page.locator('#closeModal').click();
+  await jumpTo('nocturne');await root.locator('[data-session-preview=nocturne]').scrollIntoViewIfNeeded();await page.screenshot({path:folder+'/mobile-'+theme+'.png'});await page.locator('#closeModal').click();
  }
  await resizeStudio(page,{width:1116,height:715});
  phase='independent full copies';
  for(let copy=0;copy<2;copy++){
-  await home();await demos();for(let page=1;page<pageCount;page++)await root.locator('[data-composition-page=next]').click();
+  await home();await demos();await jumpTo('kin');
   await root.locator('[data-factory-project-open=kin]').click();await page.locator('#modal').waitFor({state:'hidden'});assert.equal(await page.locator('#projectName').inputValue(),'Kin après minuit');
   const song=await save();assert.equal(song.project.bars,96);assert.equal(song.project.tracks.length,9);assert.equal(song.masterVolume,-1);assert.equal(song.assets.length,0);
  }
