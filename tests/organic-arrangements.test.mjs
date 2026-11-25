@@ -12,7 +12,7 @@ test('organic rock, rumba and pop preserve editable song structures and native i
   const p=project(id),spec=COMPOSITION_STYLES[id];
   assert.equal(p.bars,spec.layout.reduce((sum,[,n])=>sum+n,0));
   assert.equal(p.tracks.filter(t=>t.type==='audio').length,3);
-  assert.equal(p.tracks[0].instrument.kit,id==='kin'?3:2);
+  assert.equal(p.tracks[0].instrument.kit,id==='kin'?3:id==='eclats'?1:2);
   assert.ok(p.tracks.some(t=>t.type==='wltitan'));
   assert.ok(p.tracks.some(t=>t.type==='wlclean'));
   for(const t of p.tracks.filter(t=>t.type!=='audio')){
