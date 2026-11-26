@@ -63,6 +63,8 @@ export function auditCompSeams(project,prepared){
    const fadeOut=Number(previous.fadeOut??0),fadeIn=Number(next.fadeIn??0);
    if(!Number.isFinite(fadeOut)||!Number.isFinite(fadeIn)||fadeOut<0||fadeIn<0)
     warnings.push('Fondu de raccord non valide.');
+   else if(fadeOut>previous.length*240/project.bpm||fadeIn>next.length*240/project.bpm)
+    warnings.push('Fondu plus long que le clip : vérifier le raccord.');
    else if(fadeOut<.003&&fadeIn<.003)
     warnings.push('Pas de fondu de sécurité ≥ 3 ms sur ce raccord : risque de clic.');
   }
