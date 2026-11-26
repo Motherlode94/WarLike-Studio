@@ -14,10 +14,25 @@ try{
  await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView').waitFor({state:'visible'});assert.equal(await page.locator('body').getAttribute('data-workspace'),'mix');assert.equal(await page.locator('[data-workspace=compose]').getAttribute('aria-pressed'),'false');
  const mix=await page.evaluate(()=>{const strips=[...document.querySelectorAll('#mixerView .mixer-channel')].map(n=>{const r=n.getBoundingClientRect();return {x:r.x,width:r.width,height:r.height};});const faders=[...document.querySelectorAll('.mixer-fader')].map(n=>n.getBoundingClientRect());const fader=faders[0];return {strips,faderHeight:fader.height,faderTops:faders.map(r=>r.top)};});
  assert.ok(mix.faderHeight>200,'Mix needs usable vertical faders: '+JSON.stringify(mix));assert.ok(Math.max(...mix.faderTops)-Math.min(...mix.faderTops)<2,'all console faders must align');assert.ok(Math.abs(mix.strips[1].x-mix.strips[0].x-mix.strips[0].width)<2,'console strips should be contiguous');await page.screenshot({path:'artifacts/reference-workspaces/studio-mix.png'});
- await page.locator('[data-view="arrange"]').click();await page.locator('#trackRows .track-row').nth(3).locator('[data-clip]').first().dblclick();await page.locator('#prNotes [data-pr-note]').first().waitFor({state:'visible'});
+ await page.locator('[data-view="arrange"]').click();const targetRow=page.locator('#trackRows .track-row').nth(3);
+ const targetTrack=await targetRow.getAttribute('data-track');
+ assert.ok(targetTrack,'Playlist track has stable identity');
+ await targetRow.locator('[data-clip]').first().dblclick();await page.locator('#prNotes [data-pr-note]').first().waitFor({state:'visible'});
  const notes=await page.locator('#prNotes [data-pr-note]').count();const piano=await page.evaluate(()=>({surface:document.body.dataset.studioSurface,height:document.querySelector('.fl-piano').getBoundingClientRect().height,velocity:document.querySelector('#prVelocityScroll').getBoundingClientRect().height,vh:innerHeight}));assert.equal(piano.surface,'piano');assert.ok(piano.height>piano.vh*.7);assert.ok(piano.velocity>=60);
  await page.locator('#prInstrument').selectOption('keys');assert.equal(await page.locator('#prNotes [data-pr-note]').count(),notes,'changing timbre must retain existing notes');await page.screenshot({path:'artifacts/reference-workspaces/studio-piano.png'});
  await page.locator('#prExpand').click();assert.equal(await page.locator('body').getAttribute('data-studio-surface'),'playlist');
+ assert.equal(await targetRow.evaluate(el=>el.classList.contains('selected')),true,'Returning from Piano Roll retains Playlist track selection');
+ await page.locator('[data-view="mixer"]').click();
+ const owner=page.locator('#mixerView [data-mixer-track="'+targetTrack+'"]');
+ assert.equal(await owner.evaluate(el=>el.classList.contains('selected')),true,'Mixer selects the same track edited in Piano Roll');
+ await page.locator('[data-view="arrange"]').click();
+ assert.equal(await targetRow.evaluate(el=>el.classList.contains('selected')),true,'Returning from Mixer retains the selected Playlist track');
+ await targetRow.locator('[data-clip]').first().dblclick();
+ await page.locator('#prNotes [data-pr-note]').first().waitFor({state:'visible'});
+ assert.equal(await page.locator('#prNotes [data-pr-note]').count(),notes,'Round trip preserves MIDI notes');
+ await page.locator('#prExpand').click();
+ console.log('PASS: S01 track identity and MIDI note continuity');
+
  await page.locator('[data-view="library"]').click();assert.equal(await page.locator('body').getAttribute('data-workspace'),'library');await page.locator('#compareInstruments').click();await page.locator('#auditionA').selectOption('pad');await page.locator('#auditionPlayA').click();await page.locator('#auditionStatus').filter({hasText:'A · HALO'}).waitFor();await page.locator('#auditionStop').click();await page.locator('#closeModal').click();
  await page.setViewportSize({width:390,height:844});await page.locator('[data-view="arrange"]').click();await page.locator('[data-mobile-panel="windows"]').click();assert.ok(await page.locator('.reference-window-menu[open] [data-ws="piano"]').isVisible());assert.ok(await page.locator('#play').isVisible());assert.ok(await page.locator('#projectMenuBtn').isVisible());
  assert.deepEqual(errors,[]);console.log('PASS: Edit/Mix/Piano geometry, existing MIDI notes, audible A/B workflow and mobile window access',edit,piano);
