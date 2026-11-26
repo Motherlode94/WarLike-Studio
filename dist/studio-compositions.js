@@ -52,8 +52,8 @@ export const COMPOSITION_STYLES={
   bridge:[[53,56,60,63,67],[58,62,65,67,72],[55,58,62,65],[48,55,58,62,63]],bridgeRoots:[29,34,31,24],
   tracks:[['drums','R&B · POCKET FEUTRÉ',1,-12,{}],['wltitan','TITAN · BASSE RONDE',2,-14,{brightness:1400,release:.22}],['epiano','FM KEYS · ACCORDS',1,-13,{brightness:4300,release:.45}],['piano','GRAND · FILIGRANE',2,-20,{release:.5}],['wltonewheel','TONEWHEEL · SOUFFLE',0,-25,{release:.6}],['vibes','VIBES · MÉLODIE',1,-18,{release:.65}]],
   layout:[['INTRO',8,'intro'],['COUPLET A',12,'verse'],['MONTÉE',4,'pre'],['REFRAIN A',8,'hook'],['PONT',8,'bridge'],['COUPLET B',12,'verse'],['REFRAIN B',12,'hook'],['OUTRO',8,'outro']]},
- horizon:{key:5,scale:'minor',keyName:'Fa mineur',harmony:'Fm9 · D♭maj7 · A♭maj9 · E♭6',palette:'Log drum synthétique NGOMA, clavier FM, mbira, kora et orgue',
-  verse:[[53,56,60,63,67],[49,53,56,60],[56,60,63,67,70],[51,55,58,60]],roots:[29,25,32,27],
+ horizon:{key:5,scale:'minor',keyName:'Fa mineur',harmony:'Fm9 · B♭m9 · D♭maj7 · Cm7',palette:'Log drum synthétique NGOMA, clavier FM, mbira, kora et orgue',
+  verse:[[53,56,60,63,67],[46,49,53,56,60],[49,53,56,60],[48,51,55,58]],roots:[29,34,25,24],
   bridge:[[46,53,56,60],[51,55,58,63],[49,53,56,60],[53,56,60,63]],bridgeRoots:[22,27,25,29],
   tracks:[['drums','AMAPIANO · SHAKERS ET POCKET',3,-11,{decay:.2,hat:.48}],['wlngoma','NGOMA · LOG DRUM SYNTHÉTIQUE',0,-10,{skin:.8,strike:.28,decay:.86,release:.12}],['epiano','FM KEYS · VOICINGS',1,-14,{brightness:3900,release:.4}],['wlmbira','MBIRA · THÈME CUIVRÉ',1,-17,{release:.18}],['wlkora','KORA · CONTRECHANT',1,-22,{release:.21}],['wltonewheel','TONEWHEEL · RÉPONSES',0,-24,{release:.35}]],
   layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['MONTÉE',8,'pre'],['REFRAIN A',16,'hook'],['PONT',8,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',16,'hook'],['OUTRO',8,'outro']]},
@@ -146,7 +146,7 @@ function drums(style,kind,cycle){
    if(hook&&variant)hit('open',b+14,.15);
   }
   if(style==='horizon'){
-   for(const s of (sparse?[0,10]:variant?[0,7,10]:[0,6,10]))hit('kick',b+s,s===0?.73:.5);
+   for(const s of (sparse?[0,8]:hook?[0,4,8,12]:variant?[0,6,12]:[0,8,12]))hit('kick',b+s,s===0?.73:.5);
    if(!sparse)for(const s of [4,12])hit('clap',b+s,.36);
    for(let s=0;s<16;s++)hit('shaker',b+s,s%4===3?.31:s%2?.23:.12);
    for(const s of [3,7,11,15])hit('rim',b+s,.22+(s===15?.07:0));
@@ -281,13 +281,13 @@ function melody(style,role,kind,cycle){
   if(style==='horizon'){
    if(role===1&&!intro){
     // Tuned NGOMA plays a syncopated log-drum figure, not a sustained bass line.
-    const steps=bridge?[3,11]:hook?[0,3,6.5,10,14,15.25]:[0,6.5,10,14.25];
-    for(const [i,step] of steps.entries())add(b+step,root+(i===2||i===5?12:i===3&&alt?7:0),i===0?1.15:.45,i===0?.79:i%2?.6:.69);
+    const steps=bridge?[3,11]:hook?(alt?[1.5,3,6.5,9,11.5,14,15.25]:[2,5.5,8.5,10,13,15]):alt?[2,6.5,10,14.5]:[1.5,5,9,13.5];
+    for(const [i,step] of steps.entries())add(b+step,root+(i===1||i===4?12:i===3?7:0),i===0?1.2:i%2?.65:.9,i===0?.87:i%2?.66:.76);
    }
    if(role===2){chord(b+.12,c,intro||bridge?11:5.4,hook?.53:.43,.065);if(!intro&&!bridge)chord(b+10.15,[...c.slice(1),c[0]+12],4.9,.38,.055);}
    if(role===3){
     const steps=hook?[0,3,6,9,12,14]:bridge?[1,8,12]:[0,5,9,12];
-    const seq=hook?[2,1,3,2,0,1]:[0,2,1,3];
+    const seq=hook?[0,2,3,1,2,0]:[0,2,1,3];
     for(const [i,step] of steps.entries())add(b+step,c[seq[(i+alt)%seq.length]%c.length]+12,i===steps.length-1?2:.95,hook?.6:.45);
    }
    if(role===4&&!intro)for(const [i,step] of (hook?[2,7,11,15]:[7,14]).entries())add(b+step,c[(i+alt+1)%c.length]+12,.75,.39);
