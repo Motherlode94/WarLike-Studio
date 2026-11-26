@@ -187,3 +187,33 @@ export function auditLiveAudioWindows(windows,{silenceThresholdDb=-65,clipThresh
  return {windows:results,peak,clipped,invalid,gaps,longestSilentRun:dropoutRuns,
   status:invalid?'invalid':clipped?'clipping':gaps?'incomplete':'measured'};
 }
+
+/** S03.1: inspect continuous PCM only. Large isolated jumps are candidates,
+ * not proof of audible glitches; legitimate transients can trigger them. */
+export function auditContinuousPCM(buffer,{jumpThreshold=.35,contrast=5,maxCandidates=32}={}){
+ const channels=buffer?.numberOfChannels,length=buffer?.length,rate=buffer?.sampleRate;
+ if(!Number.isInteger(channels)||channels<1||channels>32||!Number.isInteger(length)||length<3||!Number.isFinite(rate)||rate<=0||!Number.isFinite(jumpThreshold)||jumpThreshold<=0||jumpThreshold>2||!Number.isFinite(contrast)||contrast<1||!Number.isInteger(maxCandidates)||maxCandidates<0||maxCandidates>1000)throw Error('Diagnostic PCM invalide.');
+ const results=[];
+ for(let channel=0;channel<channels;channel++){
+  const data=buffer.getChannelData(channel);
+  if(!data||data.length!==length)throw Error('Canal PCM incomplet.');
+  let peak=0,invalid=0,overRange=0,maxJump=0,candidateCount=0;
+  const candidates=[];
+  for(let i=0;i<length;i++){
+   const sample=data[i];
+   if(!Number.isFinite(sample)){invalid++;continue;}
+   const magnitude=Math.abs(sample);peak=Math.max(peak,magnitude);
+   if(magnitude>1)overRange++;
+   if(i===0||!Number.isFinite(data[i-1]))continue;
+   const jump=Math.abs(sample-data[i-1]);maxJump=Math.max(maxJump,jump);
+   if(i<2||i+1>=length||!Number.isFinite(data[i-2])||!Number.isFinite(data[i+1]))continue;
+   const neighbor=Math.max(.01,Math.abs(data[i-1]-data[i-2]),Math.abs(data[i+1]-sample));
+   if(jump>=jumpThreshold&&jump>=neighbor*contrast){
+    candidateCount++;
+    if(candidates.length<maxCandidates)candidates.push({frame:i,seconds:i/rate,jump});
+   }
+  }
+  results.push({channel:channel+1,peak,invalid,overRange,maxJump,candidateCount,candidates});
+ }
+ return {sampleRate:rate,frames:length,channels:results,invalid:results.reduce((s,x)=>s+x.invalid,0),overRange:results.reduce((s,x)=>s+x.overRange,0),candidateCount:results.reduce((s,x)=>s+x.candidateCount,0)};
+}
