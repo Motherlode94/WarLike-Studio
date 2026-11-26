@@ -22,13 +22,13 @@ export const COMPOSITION_TEMPLATES=[
  {id:'lumiere',name:'Lumière en ville',style:'Pop organique · instrumental original',bpm:112,swing:0,groove:'lumiere-pop',bars:104,description:'Pop lumineuse : piano, thème de guitare clean, strums acoustiques et nappe douce. Deux refrains ouverts et un pont plus intime.'}
 ];
 export const COMPOSITION_STYLES={
- 'trap-abyss':{key:6,scale:'minor',keyName:'Fa♯ mineur',harmony:'F♯m · D · A · E',palette:'808 MONO, piano, ATLAS, VANGUARD, clavier FM',
-  verse:[[54,57,61,66],[50,54,57,62],[57,61,64,69],[52,56,59,64]],roots:[30,26,33,28],
+ 'trap-abyss':{key:6,scale:'minor',keyName:'Fa♯ mineur',harmony:'F♯m(add9) · Dmaj7 · Bm7 · C♯m7',palette:'808 MONO, piano, ATLAS, VANGUARD, clavier FM',
+  verse:[[54,57,61,68],[50,54,57,61],[47,50,54,57],[49,52,56,59]],roots:[30,26,23,25],
   bridge:[[49,52,56,61],[47,50,54,59],[50,54,57,62],[52,56,59,64]],bridgeRoots:[25,23,26,28],
   tracks:[['drums','DARK · KICK / CLAP',0,-21,{kit:0,punch:.83,decay:.14,hat:.33}],['bass','MONO · 808 ABYSS',0,-23,{body:.92,harmonics:.19,release:.055}],['piano','GRAND · PIANO NOCTURNE',0,-23,{brightness:3200,release:.48}],['wlrompler','ATLAS · SOUS-TERRE',0,-31,{wave:1,texture:0,layer:.28,cutoff:1700,attack:.45,release:1.65,space:.13,output:-16}],['wlvirtual','VANGUARD · APPEL SOMBRE',0,-30,{detune:5,cutoff:2300,resonance:1.5,attack:.008,release:.2,width:.4,output:-17}],['epiano','FM KEYS · RÉPONSE LOIN',0,-29,{brightness:2800,release:.42}]],
   layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['MONTÉE',8,'pre'],['REFRAIN A',16,'hook'],['PONT',8,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',24,'hook'],['OUTRO',16,'outro']]},
- 'trap-enigma':{key:0,scale:'minor',keyName:'Do mineur',harmony:'Cm · A♭ · E♭ · B♭',palette:'808 MONO, FM keys, ATLAS, NEBULA spectral, flûte',
-  verse:[[48,51,55,60],[44,48,51,56],[51,55,58,63],[46,50,53,58]],roots:[24,32,27,34],
+ 'trap-enigma':{key:0,scale:'minor',keyName:'Do mineur',harmony:'Cm(add9) · Fm7 · A♭maj7 · B♭(add9)',palette:'808 MONO, FM keys, ATLAS, NEBULA spectral, flûte',
+  verse:[[48,51,55,62],[53,56,60,63],[44,48,51,55],[46,50,53,60]],roots:[24,29,32,34],
   bridge:[[53,56,60,65],[44,48,51,56],[46,50,53,58],[48,51,55,60]],bridgeRoots:[29,32,34,24],
   tracks:[['drums','ENIGMA · POCKET CODÉ',0,-23,{kit:0,punch:.75,decay:.14,hat:.28}],['bass','MONO · 808 PHANTOM',0,-25,{body:.83,harmonics:.15,release:.08}],['epiano','FM KEYS · QUESTIONS',0,-24,{brightness:2800,release:.67}],['wlrompler','ATLAS · VOILE MYSTÉRIEUX',0,-33,{wave:2,texture:1,layer:.32,cutoff:1900,attack:.56,release:2.1,space:.18,output:-18}],['wlspectral','NEBULA · SIGNES',0,-31,{fm:.29,harmonics:.39,motion:.25,cutoff:3200,attack:.04,release:.53,width:.52,output:-18}],['flute','FLÛTE · RÉPONSES',0,-31,{brightness:4100,attack:.025,release:.22,output:-3}]],
   layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['MONTÉE',8,'pre'],['REFRAIN A',16,'hook'],['PONT',8,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',16,'hook'],['OUTRO',12,'outro']]},
@@ -102,8 +102,8 @@ function drums(style,kind,cycle){
   const b=bar*16,hook=kind==='hook',intro=kind==='intro',sparse=['intro','bridge','outro'].includes(kind),variant=(cycle+bar)%2;
   if(style==='trap-abyss'||style==='trap-enigma'){
    const abyss=style==='trap-abyss';
-   const kicks=abyss?(sparse?[0]:hook?(variant?[0,5,8,11,14]:[0,6,10,14]):variant?[0,7,11]:[0,6,11]):
-    sparse?[0]:hook?(variant?[0,6,9,13]:[0,5,10,14]):variant?[0,7,13]:[0,5,11];
+   const kicks=abyss?(sparse?[0]:hook?(variant?[0,3,6,10,14]:[0,7,9,12,15]):variant?[0,7,11]:[0,6,11]):
+    sparse?[0]:hook?(variant?[0,5,8,13]:[0,6,10,15]):variant?[0,7,13]:[0,5,11];
    for(const step of kicks)hit('kick',b+step,step===0?.82:.57);
    if(!introOrQuiet(kind,bar))hit('clap',b+(abyss?8:12),hook?.67:.56);
    const hats=sparse?[0,6,12]:abyss?[0,2,4,6,8,10,12,14]:[0,3,6,9,12,14];
@@ -201,17 +201,17 @@ function melody(style,role,kind,cycle){
   }
   if(style==='trap-abyss'){
    if(role===1){
-    const steps=bridge?[0,10]:intro?[0,10]:hook?(alt?[0,5,8,12,14]:[0,6,10,13]):alt?[0,7,11]:[0,6,11];
-    for(const [i,step] of steps.entries())add(b+step,root+(i===steps.length-1&&hook?12:0),i===0?4.2:step===14?.7:2.1,i===0?.69:.55);
+    const steps=bridge?[0,10]:intro?[0,10]:hook?(alt?[0,3,6,10,14]:[0,7,9,12,15]):alt?[0,7,11]:[0,6,11];
+    for(const [i,step] of steps.entries())add(b+step,root+(i===steps.length-1&&hook?12:0),Math.min(i===0?4.2:step>=14?.7:2.1,(steps[i+1]??16)-step),i===0?.69:.55);
    }
-   if(role===2){chord(b+.08,c,intro||bridge?9:5.9,hook?.44:.35,.04);if(!intro&&!bridge)for(const [i,step] of (hook?[9,11,14]:[11,14]).entries())add(b+step,c[(i+2+alt)%c.length]+12,1.35,.38);}
+   if(role===2){chord(b+.08,c,intro||bridge?9:5.9,hook?.44:.35,.04);if(hook){add(b+6,c[3]+12,1.6,.49);add(b+8,c[1]+12,1,.42);}if(!intro&&!bridge)for(const [i,step] of (hook?[9,11,14]:[11,14]).entries())add(b+step,c[(i+2+alt)%c.length]+12,1.35,.38);}
    if(role===3&&(!intro||bar%2===0)){chord(b+.16,c.slice(0,3),14.1,bridge?.22:hook?.24:.16,.035);if(hook&&bar%2===0)add(b+10,c[2]+12,2,.2);}
    if(role===4&&!intro){const steps=hook?[2,5,7,10,13]:bridge?[7,14]:[3,7,13];for(const [i,step] of steps.entries())add(b+step,c[(i+alt+2)%c.length]+12,step===13?2:.85,hook?.47:.35);}
    if(role===5&&['hook','pre','bridge'].includes(kind)){const steps=hook?[4,11,15]:[6,14];for(const [i,step] of steps.entries())add(b+step,c[(i+1+alt)%c.length]+24,.8,hook?.34:.27);}
   }
   if(style==='trap-enigma'){
-   if(role===1){const steps=bridge?[0,11]:intro?[0]:hook?(alt?[0,4,9,14]:[0,6,10,14]):alt?[0,7,12]:[0,6,11];for(const [i,step] of steps.entries())add(b+step,root+(i===steps.length-1&&hook?12:0),i===0?5.1:1.8,i===0?.65:.48);}
-   if(role===2){chord(b+.12,c,intro||bridge?10:6.3,hook?.39:.33,.07);if(!intro&&!bridge)for(const [i,step] of (hook?[7,10,14]:[11,14]).entries())add(b+step,c[(i+alt+2)%c.length]+12,1.2,.35);}
+   if(role===1){const steps=bridge?[0,11]:intro?[0]:hook?(alt?[0,5,8,13]:[0,6,10,15]):alt?[0,7,12]:[0,6,11];for(const [i,step] of steps.entries())add(b+step,root+(i===steps.length-1&&hook?12:0),Math.min(i===0?5.1:1.8,(steps[i+1]??16)-step),i===0?.65:.48);}
+   if(role===2){chord(b+.12,c,intro||bridge?10:6.3,hook?.39:.33,.07);if(hook){add(b+4,c[3]+12,.75,.43);add(b+6,c[0]+12,1.5,.4);}if(!intro&&!bridge)for(const [i,step] of (hook?[7,10,14]:[11,14]).entries())add(b+step,c[(i+alt+2)%c.length]+12,1.2,.35);}
    if(role===3){chord(b+.1,c.slice(1,4),14.1,bridge?.21:hook?.25:.17,.06);if(hook&&bar%2===1)add(b+9,c[3]+12,2,.2);}
    if(role===4&&!intro){const steps=hook?[1,4,7,10,13]:bridge?[5,11]:[2,7,13];for(const [i,step] of steps.entries())add(b+step,c[(i+alt+(hook?2:1))%c.length]+24,i===steps.length-1?1.8:.95,hook?.42:.31);}
    if(role===5&&['pre','hook','bridge'].includes(kind)){const steps=hook?[3,8,14]:[6,13];for(const [i,step] of steps.entries())add(b+step,c[(i+alt)%c.length]+24,1.25,hook?.37:.29);}
