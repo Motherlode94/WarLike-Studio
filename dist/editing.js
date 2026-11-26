@@ -20,7 +20,7 @@ export function splitClip(clip, position, bpm, newId) {
   right.length = clip.length - delta;
   if (clip.audioId) right.sourceOffset = (clip.sourceOffset || 0) + delta * barSeconds(bpm);
   else right.patternOffset = (clip.patternOffset || 0) + delta * 16;
-  const left={...structuredClone(clip),length:delta};if(clip.audioId){left.fadeOut=.005;right.fadeIn=.005;}return [left,right];
+  const left={...structuredClone(clip),length:delta};if(clip.audioId){const a=left.length*barSeconds(bpm),b=right.length*barSeconds(bpm);left.fadeOut=Math.min(.005,a/2);right.fadeIn=Math.min(.005,b/2);if(Number.isFinite(left.fadeIn))left.fadeIn=Math.max(0,Math.min(left.fadeIn,a-left.fadeOut));if(Number.isFinite(right.fadeOut))right.fadeOut=Math.max(0,Math.min(right.fadeOut,b-right.fadeIn));}return [left,right];
 }
 export function trimClip(clip, edge, position, total, bpm, sourceDuration = Infinity) {
   if (!['left','right'].includes(edge) || ![position,total,bpm,clip.start,clip.length].every(Number.isFinite) || bpm <= 0) return {...clip};
