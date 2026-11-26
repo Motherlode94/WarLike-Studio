@@ -4,6 +4,24 @@ try{
  const page=await browser.newPage({viewport:{width:1440,height:960}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8765/');await page.locator('[data-session-tab="demos"]').click();await page.locator('#modal [data-factory-project-open="nocturne"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  await page.locator('.reference-window-menu > summary').click();await page.locator('#studioLayoutProfile').selectOption('fl');
+ const menu=page.locator('.reference-window-menu');
+ const groups=menu.locator('.workspace-menu-group');
+ assert.equal(await groups.count(),3,'Three named workspace submenus are available');
+ const projectTools=groups.filter({has:page.locator('summary',{hasText:'Outils du projet'})});
+ assert.equal(await projectTools.getAttribute('open'),null,'Project tools start collapsed');
+ await projectTools.locator('summary').click();
+ assert.notEqual(await projectTools.getAttribute('open'),null,'Project tools expand with the real summary control');
+ assert.ok(await projectTools.locator('#organiseTracks').isVisible(),'Existing project command remains reachable');
+ await projectTools.locator('summary').click();
+ assert.equal(await projectTools.getAttribute('open'),null,'Project submenu collapses independently');
+ assert.notEqual(await menu.getAttribute('open'),null,'Parent menu stays open');
+ const layoutName=page.locator('#workspaceLayoutName');
+ await layoutName.fill('Shortcut guard QA');
+ await layoutName.press('F6');
+ assert.equal(await page.locator('[data-managed-window="rack"]').isVisible(),false,'F6 does not open Rack while typing in a layout field');
+ assert.equal(await layoutName.inputValue(),'Shortcut guard QA');
+ await layoutName.fill('');
+
  await page.keyboard.press('Escape');await page.evaluate(()=>document.activeElement?.blur());await page.keyboard.press('F6');
  const rack=page.locator('[data-managed-window="rack"]');await rack.waitFor({state:'visible'});
  const box=await rack.boundingBox();const head=await rack.locator('header strong').boundingBox();
