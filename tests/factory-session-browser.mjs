@@ -111,6 +111,7 @@ for(const [kind,name] of selected){
    await page.close();
    const metrics=await deadline(renderPage.evaluate(async p=>{
     const {AudioEngine}=await import('/audio.js');
+    const {measureFactorySectionAudio}=await import('/factory-musicality-qa.js');
     const engine=new AudioEngine(()=>p,()=>new Map());
     const start=performance.now();
     let renderMs=0;const render=engine.renderRange.bind(engine);
@@ -128,7 +129,8 @@ for(const [kind,name] of selected){
       for(let i=0;i<data.length;i++){const x=data[i];if(!Number.isFinite(x))throw Error('Nonfinite PCM');peak=Math.max(peak,Math.abs(x));energy+=x*x;}
       for(const s of sections)for(let i=s.start;i<Math.min(data.length,s.end);i++)s.energy+=data[i]*data[i];
      }
-     return {renderMs,encodeMs,sampleRate:b.sampleRate,channels:b.numberOfChannels,frames:b.length,bits:header.getUint16(34,true),peak,rms:Math.sqrt(energy/(b.length*b.numberOfChannels)),sections:sections.map(s=>({name:s.name,rms:Math.sqrt(s.energy/((s.end-s.start)*b.numberOfChannels))}))};
+     const musicality=measureFactorySectionAudio(b,p);
+     return {renderMs,encodeMs,sampleRate:b.sampleRate,channels:b.numberOfChannels,frames:b.length,bits:header.getUint16(34,true),peak,rms:Math.sqrt(energy/(b.length*b.numberOfChannels)),sections:sections.map(s=>({name:s.name,rms:Math.sqrt(s.energy/((s.end-s.start)*b.numberOfChannels))})),musicality};
     }finally{await decoder.close();}
    },imported.project),540000,kind+' full WAV render');
    if(newComposition){const pending=renderPage.waitForEvent('download');await renderPage.locator('[data-composition-wav]').click();await(await pending).saveAs(dir+'/'+kind+'-full.wav');}
@@ -136,6 +138,8 @@ for(const [kind,name] of selected){
    report.push({kind,seconds,...metrics});
    await writeFile(dir+'/report.json',JSON.stringify(report,null,2)+'\n');
    assert.equal(metrics.channels,2);assert.equal(metrics.bits,24);assert.equal(metrics.sampleRate,44100);
+   assert.equal(metrics.musicality.passed,true,kind+' PCM failures: '+metrics.musicality.problems.join(', '));
+   assert.equal(metrics.musicality.sections.length,before.project.sections.length,kind+' missing section measurements');
    assert.ok(Math.abs(metrics.frames/44100-seconds)<.03,'incorrect WAV duration');
    assert.ok(metrics.peak>.02&&metrics.peak<.999,'silent or clipped WAV');
    assert.ok(metrics.rms>.002,'silent mix');
