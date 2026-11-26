@@ -24,3 +24,10 @@ test('actions dispatch only to the requested editor',()=>{
   assert.deepEqual(calls,['rack']);
   assert.equal(handleWorkspaceAction('unknown',{rack:()=>calls.push('bad')}),false);
 });
+
+test('workspace shortcuts ignore composition, custom text fields and inherited keys',()=>{
+  assert.equal(workspaceAction(event('F7',{isComposing:true})),null);
+  assert.equal(workspaceAction(event('F6',{target:{isContentEditable:false,matches:()=>false,closest:()=>({})}})),null);
+  assert.equal(workspaceAction(event('constructor')),null);
+  assert.equal(workspaceAction(event('toString')),null);
+});
