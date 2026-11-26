@@ -29,7 +29,6 @@ syncPackProcessors(
   0,
   true
 );
- source.start(0);
 try {
   source.start(0);
   const rendered = await ctx.startRendering();
