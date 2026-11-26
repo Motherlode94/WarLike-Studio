@@ -19,6 +19,7 @@ export function recordingWindow(value,{bars,bpm}){
 }
 export function rangePlacement(placement,range,bpm){
  if(!range)return placement;
- const secondsPerBar=240/bpm,start=Math.max(range.start,placement.start),trim=Math.max(0,start-placement.start);
- return {...placement,start,sourceOffset:placement.sourceOffset+trim*secondsPerBar,length:Math.max(0,Math.min(placement.length-trim,range.end-start))};
+ if(![placement.start,placement.length,placement.sourceOffset,range.start,range.end,bpm].every(Number.isFinite)||placement.length<0||placement.sourceOffset<0||range.end<=range.start||bpm<=0)throw Error('Placement de prise invalide.');
+ const secondsPerBar=240/bpm,start=Math.max(range.start,placement.start),trim=Math.min(placement.length,Math.max(0,start-placement.start));
+ return {...placement,start:Math.min(start,range.end),sourceOffset:placement.sourceOffset+trim*secondsPerBar,length:Math.max(0,Math.min(placement.length-trim,range.end-start))};
 }
