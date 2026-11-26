@@ -94,6 +94,10 @@ for(const song of CINEMATIC_POP_SONGS){
  COMPOSITION_STYLES[song.id]={...parent,tracks,flavor:song.flavor,
   layout:song.layout.map((length,i)=>[sections[i],length,kinds[i]])};
 }
+// Dedicated scores, not inherited pop/trap harmonic loops.
+Object.assign(COMPOSITION_STYLES['popstar-2008'],{harmony:'Gmaj7 · Dmaj7 · Em7 · A',verse:[[55,59,62,66],[50,54,57,61],[52,55,59,62],[57,61,64,69]],roots:[31,26,28,33]});
+Object.assign(COMPOSITION_STYLES['etoiles-interdites'],{harmony:'Bm7 · Em7 · Gmaj7 · Dmaj7',verse:[[59,62,66,69],[52,55,59,62],[55,59,62,66],[50,54,57,61]],roots:[35,28,31,26],bridge:[[52,55,59,62],[57,61,64,67],[59,62,66,69],[54,57,61,64]],bridgeRoots:[28,33,35,30]});
+Object.assign(COMPOSITION_STYLES['derriere-les-murs'],{harmony:'Cm · B♭ · Fm · A♭',verse:[[48,51,55,60],[46,50,53,58],[53,56,60,65],[44,48,51,56]],roots:[24,34,29,32],bridge:[[53,56,60,65],[55,58,62,67],[44,48,51,56],[48,51,55,60]],bridgeRoots:[29,31,32,24]});
 const introOrQuiet=(kind,bar)=>kind==='intro'&&bar<2;
 function drums(style,kind,cycle){
  const rows=Object.fromEntries(Object.keys(DRUM_VOICES).map(v=>[v,Array(64).fill(0)]));
@@ -122,7 +126,7 @@ function drums(style,kind,cycle){
   const cinematic=COMPOSITION_STYLES[style]?.flavor;
   if(cinematic){
    const mode=cinematic,beat=mode===4?[0,8]:mode===2?[0,6,11]:mode===5?[0,6,10,14]:[0,4,8,12];
-   const kicks=sparse?[0]:hook?[...beat,14]:beat;
+   const kicks=sparse?[0]:style==='derriere-les-murs'?(hook?[0,3,6,10,13]:[0,6,11]):style==='etoiles-interdites'?(hook?[0,6,8,12]:[0,8]):hook?[...beat,14]:beat;
    for(const step of kicks)hit('kick',b+step,step===0?.72:.49);
    if(!introOrQuiet(kind,bar))for(const step of (mode===2?[8]:[4,12]))hit('clap',b+step,hook?.6:.4);
    for(const step of (sparse?[0,8]:mode===2?[0,3,6,9,12,15]:mode===5?[0,3,6,8,11,14]:[0,2,4,6,8,10,12,14]))hit('hat',b+step,step%4===0?.22:.14);
@@ -235,7 +239,19 @@ function melody(style,role,kind,cycle){
    }
   }
   const cinema=COMPOSITION_STYLES[style]?.flavor;
-  if(cinema){
+  if(style==='etoiles-interdites'){
+   if(role===1)for(const [i,x] of (hook?[0,6,8,12]:[0,8]).entries())add(b+x,root+(i===2?12:0),hook?2.5:5,.57);
+   if(role===2)for(const [i,x] of (hook?[0,4,8,12]:[0,5,9,13]).entries())add(b+x,c[i%c.length],hook?2.8:2.2,.54);
+   if(role===3&&!intro)for(const [i,x] of (hook?[0,6,9,13]:[4,11]).entries())add(b+x,c[[3,2,1,2][i]%c.length]+12,hook?2.7:2,.49);
+   if(role===4&&!intro)chord(b+.18,c.slice(1,4),13.5,hook?.37:.24);
+   if(role===5&&['pre','hook','bridge'].includes(kind))for(const [i,x] of [4,11].entries())add(b+x,c[2-i]+12,2.8,.4);
+  }else if(style==='derriere-les-murs'){
+   if(role===1)for(const [i,x] of (hook?[0,3,6,10,13]:[0,6,11]).entries())add(b+x,root+(i===2?7:0),i===0?2.6:1.5,.65);
+   if(role===2)for(const x of [0,6,11])chord(b+x,c.slice(0,3),2.2,.45);
+   if(role===3&&!intro)chord(b+.1,c.slice(1),13.5,.24);
+   if(role===4&&!intro)for(const [i,x] of [3,7,11,15].entries())add(b+x,c[i%c.length]+12,.65,.36);
+   if(role===5&&['pre','hook','bridge'].includes(kind))for(const [i,x] of (hook?[0,3,4,7,8,13]:[2,6,11]).entries())add(b+x,c[[0,1,2,1,0,3][i]%c.length]+12,i%2?.7:1.8,.51);
+  }else if(cinema){
    const seed=cinema,shape=(seed+cycle+bar)%3;
    if(role===1){
     const steps=bridge?[0,9]:intro?[0,8]:hook?[[0,5,8,11,14],[0,6,10,14],[0,4,8,12,15]][shape]:[[0,7,10],[0,5,11,14],[0,6,9,13]][shape];
