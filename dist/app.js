@@ -1639,7 +1639,7 @@ $('channelRack').onclick=()=>piano.rack();
  }
  document.querySelectorAll('[data-ws]').forEach(node=>node.addEventListener('click',()=>openWorkspace(node.dataset.ws)));
  document.addEventListener('keydown',event=>{
-   const action=workspaceAction(event,{modalOpen:$('modal').open,recording:!!recording||!!recordFinalizing});
+   const action=workspaceAction(event,{modalOpen:$('modal').open,recording:!!recording||!!recordFinalizing||!!micPending});
    if(!action)return;
    event.preventDefault();event.stopImmediatePropagation();openWorkspace(action);
  },true);

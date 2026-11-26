@@ -8,11 +8,11 @@ export const WORKSPACE_SHORTCUTS = Object.freeze({
 });
 export function workspaceAction(event,options={}){
   const {modalOpen=false,recording=false}=options;
-  if(modalOpen || recording || event.defaultPrevented || event.repeat || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey)return null;
+  if(modalOpen || recording || event.defaultPrevented || event.isComposing || event.repeat || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey)return null;
   const active=event.target;
-  if(active?.isContentEditable || active?.closest?.('[contenteditable="true"]'))return null;
+  if(active?.isContentEditable || active?.closest?.('[contenteditable]:not([contenteditable="false"]),[role="textbox"]'))return null;
   if(active?.matches?.('input,textarea,select'))return null;
-  return WORKSPACE_SHORTCUTS[event.key]||null;
+  return Object.hasOwn(WORKSPACE_SHORTCUTS,event.key)?WORKSPACE_SHORTCUTS[event.key]:null;
 }
 export function handleWorkspaceAction(action,handlers={}){
   const invoke={playlist:handlers.playlist,rack:handlers.rack,piano:handlers.piano,mixer:handlers.mixer}[action];
