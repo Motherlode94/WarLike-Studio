@@ -18,3 +18,13 @@ test('failed saves, incomplete capture and manual stops cannot restart capture',
 test('Stop during an awaited save wins over its later successful resolution',async()=>{
  const s=createRecordingSeries(2);let commit;const saving=new Promise(resolve=>{commit=resolve;}).then(()=>s.advance({persisted:true,complete:true,automatic:true}));s.cancel();s.cancel();commit();assert.equal(await saving,false);assert.equal(s.state.current,1);assert.equal(s.state.active,false);
 });
+
+import {rangePlacement} from '../dist/recording-range.js';
+test('punch placement clips both ends without modifying the original capture',()=>{
+ const original={start:1,length:4,sourceOffset:.25};
+ assert.deepEqual(rangePlacement(original,{start:2,end:4},120),{start:2,length:2,sourceOffset:2.25});
+ assert.deepEqual(original,{start:1,length:4,sourceOffset:.25});
+ assert.deepEqual(rangePlacement({start:0,length:1,sourceOffset:0},{start:4,end:5},120),{start:4,length:0,sourceOffset:2});
+ assert.deepEqual(rangePlacement({start:6,length:1,sourceOffset:0},{start:4,end:5},120),{start:5,length:0,sourceOffset:0});
+ assert.throws(()=>rangePlacement({...original,sourceOffset:NaN},{start:2,end:4},120),/invalide/);
+});
