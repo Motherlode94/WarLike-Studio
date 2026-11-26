@@ -38,6 +38,19 @@ export function installReferenceWorkspace({bar,onView,setDetailOpen,setView,show
  const layouts=document.createElement('section');layouts.className='workspace-layout-controls';
  layouts.innerHTML='<label>Disposition enregistrée<select id="savedWorkspaceLayout" aria-label="Disposition enregistrée"><option value="">Choisir…</option></select></label><label>Nom<input id="workspaceLayoutName" maxlength="60" placeholder="Ex. Composition"></label><div class="workspace-layout-actions"><button type="button" id="saveWorkspaceLayout">Enregistrer</button><button type="button" id="loadWorkspaceLayout">Appliquer</button><button type="button" id="deleteWorkspaceLayout">Supprimer</button></div><label>Fenêtre ouverte<select id="focusWorkspaceWindow" aria-label="Fenêtre ouverte"><option value="">Choisir…</option></select></label><button type="button" id="closeAllWorkspaceWindows">Fermer les fenêtres flottantes</button><button type="button" id="resetWorkspaceWindows">Réinitialiser les positions</button><small>Les dispositions sont locales à ce navigateur. Aucun contenu musical n’est modifié.</small>';
  panel.append(layouts);
+ // Keep the original controls and listeners; only reorganize their containers.
+ const group=(label,nodes,expanded=false)=>{
+  const section=document.createElement('details');
+  section.className='workspace-menu-group';section.open=expanded;
+  const heading=document.createElement('summary');heading.textContent=label;
+  section.append(heading);panel.append(section);
+  for(const node of nodes)if(node)section.append(node);
+  return section;
+ };
+ group('Composition et fenêtres',[windows,editor],true);
+ group('Outils du projet',['organiseTracks','openVariants','openLyrics','mixCompare','referenceCompare'].map(id=>document.getElementById(id)).concat([library,mastering]));
+ group('Dispositions enregistrées',[layouts],true);
+
  const find=id=>layouts.querySelector('#'+id),list=find('savedWorkspaceLayout'),windowList=find('focusWorkspaceWindow');
  const refresh=()=>{const selected=list.value;list.replaceChildren(new Option('Choisir…',''),...readLayouts(localStorage).map(x=>new Option(x.name,x.name)));list.value=selected;windowList.replaceChildren(new Option('Choisir…',''),...openManagedWindows().map(id=>new Option(managedWindowLabel(id),id)));};
  const guard=fn=>{try{if(busy())return toast('Termine la prise avant de changer de disposition.');fn();}catch(error){toast(error.message);}};
