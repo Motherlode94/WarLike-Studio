@@ -42,8 +42,8 @@ export const COMPOSITION_STYLES={
   bridge:[[59,62,66,69],[55,59,62,66],[50,54,57,61],[57,61,64,69]],bridgeRoots:[35,31,26,33],
   tracks:[['drums','2008 · POP LIVE',2,-15,{kit:2,punch:.69,decay:.27,hat:.45}],['wltitan','TITAN · BASSE POP',0,-18,{brightness:3100,attack:.008,release:.21}],['piano','GRAND · PIANO STAR',1,-18,{brightness:5800,release:.39}],['wlclean','CLEAN · GUITARE HOOK',0,-22,{brightness:5900,drive:0,release:.24,output:-9}],['wlsteel','STEEL · STRUMS',1,-24,{brightness:6200,release:.18,output:-9}],['wlvirtual','VANGUARD · REFRAIN ÉCLAT',0,-29,{detune:4,cutoff:4800,resonance:1.2,attack:.045,release:.46,width:.45,output:-17}]],
   layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['PRÉ-REFRAIN',8,'pre'],['REFRAIN A',16,'hook'],['PONT',8,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',24,'hook'],['OUTRO',8,'outro']]},
- rives:{key:7,scale:'major',keyName:'Sol majeur',harmony:'Em9 · Cmaj9 · G6 · D(add9)',palette:'Guitare muted, kora, mbira, flûte et basse électrique',
-  verse:[[52,55,59,62,66],[48,52,55,59,62],[55,59,62,64],[50,54,57,64]],roots:[28,24,31,26],
+ rives:{key:7,scale:'major',keyName:'Sol majeur',harmony:'Gmaj7 · Am7 · Bm7 · Cmaj7',palette:'Guitare muted, kora, mbira, flûte et basse électrique',
+  verse:[[55,59,62,66],[57,60,64,67],[59,62,66,69],[48,52,55,59]],roots:[31,33,35,24],
   bridge:[[48,52,55,59],[50,54,57,64],[52,55,59,62],[55,59,62,66]],bridgeRoots:[24,26,28,31],
   tracks:[['drums','AFRO · PERCUSSIONS',3,-10,{}],['wltitan','TITAN · BASSE DANSANTE',0,-13,{brightness:1800,release:.13}],['wlmuted','MUTED · CONTRETEMPS',1,-17,{brightness:4200,release:.1}],['wlkora','KORA · THÈME',0,-15,{release:.23}],['wlmbira','MBIRA · RÉPONSES',0,-19,{release:.17}],['flute','FLÛTE · ÉCHAPPÉE',0,-19,{release:.15}]],
   layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['MONTÉE',8,'pre'],['REFRAIN A',12,'hook'],['PONT',8,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',12,'hook'],['OUTRO',8,'outro']]},
@@ -132,7 +132,7 @@ function drums(style,kind,cycle){
    if(kind==='pre'&&bar===3)for(const step of [12,14,15])hit('tom',b+step,.17+(step-12)*.03);
   }
   if(style==='rives'){
-   for(const s of (sparse?[0,10]:variant?[0,3,8,11]:[0,6,10]))hit('kick',b+s,s===0?.82:.61);
+   for(const s of (sparse?[0,10]:hook?(variant?[0,5,8,12]:[0,3,7,10,14]):variant?[0,4,9,14]:[0,7,10]))hit('kick',b+s,s===0?.82:.61);
    for(const s of [3,7,11,15])hit('rim',b+s,s===7?.48:.29);
    for(let s=0;s<16;s++)if(!sparse||s%2)hit('shaker',b+s,s%4===3?.27:.15);
    if(!sparse)for(const s of [4,12])hit('clap',b+s,.4);
@@ -195,8 +195,9 @@ function melody(style,role,kind,cycle){
  for(let bar=0;bar<4;bar++){
   const b=bar*16,c=chords[bar],root=roots[bar],alt=(cycle+bar)%2;
   if(role===1&&['rives','pluie'].includes(style)){
-   const steps=style==='rives'?[0,3,6,10,14]:[0,6.18,10.12,14.1];
+   const steps=style==='rives'?(intro?[0,10]:hook?(alt?[0,5,8,10,13]:[0,3,7,10,14]):alt?[0,4,9,14]:[0,7,10,14]):[0,6.18,10.12,14.1];
    if(bridge&&bar%2)continue;
+   if(style==='rives'){for(const [i,x] of steps.entries()){const offset=i===0?0:i===steps.length-1?12:i===2?7:0;add(b+x,root+offset,Math.min(i===0?2.7:1.45,16-x),i===0?.84:.66);}continue;}
    for(const [i,s] of steps.entries())if(!intro||i===0||i===3)add(b+s,root+(i===2?7:i===4?12:0),style==='rives'?(i===0?2.2:1.2):(i===0?4.5:1.6),i===0?.78:.59);
   }
   if(style==='trap-abyss'){
@@ -258,8 +259,8 @@ function melody(style,role,kind,cycle){
   if(style==='rives'){
    if(role===2)for(const s of (intro||bridge?[2,10]:[2,5,8,11,14]))chord(b+s,c.slice(0,3),.7,hook?.57:.44,.055);
    if(role===3){
-    const sequence=hook?[2,4,2,1,0,2]:bridge?[1,2,0]:[0,2,1,2];
-    const steps=hook?[0,3,6,9,12,14]:bridge?[1,7,12]:[0,3,7,12];
+    const sequence=hook?[0,2,3,1,2,0]:bridge?[1,2,0]:[0,3,1,2];
+    const steps=hook?(alt?[0,4,7,11,14]:[0,3,6,10,12,14]):bridge?[1,7,12]:alt?[1,5,9,14]:[0,4,7,11];
     for(const [i,s] of steps.entries())add(b+s,c[Math.min(sequence[(i+alt)%sequence.length],c.length-1)]+12,i===steps.length-1?2:1.1,hook?.63:.53);
    }
    if(role===4&&!intro)for(const [i,s] of (hook?[1,5,8,11,15]:[6,14]).entries())add(b+s,c[(i+cycle)%c.length]+12,.8,.43+i%2*.06);
