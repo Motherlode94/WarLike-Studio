@@ -29,7 +29,11 @@ try{
  const strip=id=>page.locator('#mixerView [data-mixer-track="'+id+'"]');
  const open=async(id,plugin)=>strip(id).locator('[data-plugin-open="'+plugin+'"],[data-insert-open="'+plugin+'"]').first().click({force:true});
  const win=(id,plugin)=>page.locator('.floating-plugin').filter({has:page.locator('[data-plugin-control="suiteTrack"] option[value="'+id+'"][selected]')}).filter({has:page.locator(plugin==='instrument'?'[data-param^="instrument."]':'[data-param^="'+plugin+'."]')});
- await open('windowtrack0','instrument');await open('windowtrack0','glue');await open('windowtrack1','glue');
+ await open('windowtrack0','instrument');await open('windowtrack0','glue');
+ assert.equal(await strip('windowtrack0').evaluate(el=>el.classList.contains('selected')),true,'Opening Mixer insert selects its owner');
+ await open('windowtrack1','glue');
+ assert.equal(await strip('windowtrack1').evaluate(el=>el.classList.contains('selected')),true,'Mixer selection follows the second insert owner');
+ assert.equal(await strip('windowtrack0').evaluate(el=>el.classList.contains('selected')),false,'Previous strip is no longer selected');
  const windows=page.locator('.floating-plugin');assert.equal(await windows.count(),3);
  assert.equal(await page.locator('.floating-plugin .plugin-rack-drawer').count(),0,
   'Every plugin editor must be fully individual, not an embedded rack drawer');
