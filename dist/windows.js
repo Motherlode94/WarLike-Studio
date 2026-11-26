@@ -43,22 +43,22 @@ export function installFloatingWindow(panel,header,{onClose=()=>{},onFocus=()=>{
     const r=panel.getBoundingClientRect();drag={id:event.pointerId,x:event.clientX,y:event.clientY,left:r.left,top:r.top,width:r.width,height:r.height,resize,moved:false};
     header.setPointerCapture(event.pointerId);header.classList.add('moving');event.preventDefault();
   };
-  header.addEventListener('pointerdown',event=>begin(event,!!event.target.closest('[data-float-resize]')));
-  header.addEventListener('pointermove',event=>{if(!drag||drag.id!==event.pointerId)return;const dx=event.clientX-drag.x,dy=event.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)<2&&!drag.moved)return;drag.moved=true;
+  listen(header,'pointerdown',event=>begin(event,!!event.target.closest('[data-float-resize]')));
+  listen(header,'pointermove',event=>{if(!drag||drag.id!==event.pointerId)return;const dx=event.clientX-drag.x,dy=event.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)<2&&!drag.moved)return;drag.moved=true;
     if(drag.resize){panel.style.width=Math.max(Math.min(300,innerWidth-16),Math.min(innerWidth-drag.left-8,drag.width+dx))+'px';panel.style.height=Math.max(85,Math.min(innerHeight-drag.top-8,drag.height+dy))+'px';reposition(drag.left,drag.top);}else reposition(drag.left+dx,drag.top+dy);
   });
   const finish=()=>{const moved=drag?.moved;drag=null;header.classList.remove('moving');if(moved)persist();};
-  header.addEventListener('pointerup',finish);header.addEventListener('pointercancel',finish);header.addEventListener('lostpointercapture',finish);listen(window,'blur',finish);
+  listen(header,'pointerup',finish);listen(header,'pointercancel',finish);listen(header,'lostpointercapture',finish);listen(window,'blur',finish);
   // Native resize remains supported; only actual user pointer interaction persists geometry.
   let nativeStart=null;
-  panel.addEventListener('pointerdown',e=>{if(e.button===0&&!header.contains(e.target)){const g=geometry();if(g&&e.clientX>=g.x+g.width-24&&e.clientY>=g.y+g.height-24)nativeStart=g;}},true);
+  listen(panel,'pointerdown',e=>{if(e.button===0&&!header.contains(e.target)){const g=geometry();if(g&&e.clientX>=g.x+g.width-24&&e.clientY>=g.y+g.height-24)nativeStart=g;}},{capture:true});
   listen(window,'pointerup',()=>{if(nativeStart){const g=geometry();if(g&&(g.width!==nativeStart.width||g.height!==nativeStart.height))persist();nativeStart=null;}},{capture:true});
   listen(window,'pointercancel',()=>nativeStart=null,{capture:true});
   listen(window,'resize',()=>{if(!panel.hidden)place();});
   const resizeButton=document.createElement('button');resizeButton.type='button';resizeButton.className='outline-btn';resizeButton.dataset.floatResize='';resizeButton.textContent='↘';resizeButton.title='Glisser pour redimensionner · flèches au clavier';resizeButton.setAttribute('aria-label','Redimensionner la fenêtre');toggle.before(resizeButton);
-  resizeButton.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)||panel.classList.contains('collapsed'))return;e.preventDefault();e.stopPropagation();const r=panel.getBoundingClientRect();apply({x:r.left,y:r.top,width:Math.max(300,r.width+(e.key==='ArrowRight'?24:e.key==='ArrowLeft'?-24:0)),height:Math.max(85,r.height+(e.key==='ArrowDown'?24:e.key==='ArrowUp'?-24:0))});persist();});
-  panel.querySelector('[data-float-close]').addEventListener('click',onClose);
-  toggle.addEventListener('click',event=>{const collapsed=panel.classList.toggle('collapsed');event.currentTarget.setAttribute('aria-expanded',!collapsed);event.currentTarget.title=collapsed?'Déployer la fenêtre':'Réduire la fenêtre';event.currentTarget.setAttribute('aria-label',collapsed?'Déployer la fenêtre du plugin':'Réduire la fenêtre du plugin');resizeButton.disabled=collapsed;if(!collapsed)place();});
+  listen(resizeButton,'keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)||panel.classList.contains('collapsed'))return;e.preventDefault();e.stopPropagation();const r=panel.getBoundingClientRect();apply({x:r.left,y:r.top,width:Math.max(300,r.width+(e.key==='ArrowRight'?24:e.key==='ArrowLeft'?-24:0)),height:Math.max(85,r.height+(e.key==='ArrowDown'?24:e.key==='ArrowUp'?-24:0))});persist();});
+  listen(panel.querySelector('[data-float-close]'),'click',onClose);
+  listen(toggle,'click',event=>{const collapsed=panel.classList.toggle('collapsed');event.currentTarget.setAttribute('aria-expanded',!collapsed);event.currentTarget.title=collapsed?'Déployer la fenêtre':'Réduire la fenêtre';event.currentTarget.setAttribute('aria-label',collapsed?'Déployer la fenêtre du plugin':'Réduire la fenêtre du plugin');resizeButton.disabled=collapsed;if(!collapsed)place();});
   const controller={panel,geometry,restore,requestClose:onClose,focus:activate,show(){panel.hidden=false;activate();panel.classList.remove('collapsed');resizeButton.disabled=false;toggle.setAttribute('aria-expanded','true');toggle.title='Réduire la fenêtre';toggle.setAttribute('aria-label','Réduire la fenêtre du plugin');place();if(!desired)persist();},close(){panel.hidden=true;const index=windowStack.indexOf(panel);if(index>=0)windowStack.splice(index,1);windowStack.forEach((item,i)=>{item.style.zIndex=String(80+i);});finish();},dispose(){this.close();events.abort();resizeButton.remove();if(managed.get(key)===this)managed.delete(key);}};
   if(key){managed.set(key,controller);panel.dataset.managedWindow=key;}return controller;
 }
