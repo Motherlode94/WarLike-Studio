@@ -39,3 +39,12 @@ test('before can compare an empty, out of range or muted target with the unchang
   await assert.rejects(()=>h.a.listen(null,{start:2,end:3},{clips,comparison:'after'}),/ne contient pas/);assert.throws(()=>takeAuditionProject(h.p,'vox','a',{start:8,end:9}),/ne contient pas/);h.a.dispose();
  }
 });
+
+test('S04.3 cropped audition retains remaining authored fades and caps short cuts',()=>{
+ const p=project(),clips=[{start:1,length:2,audioId:'a',fadeIn:.1,fadeOut:.1}];
+ const out=takeAuditionProject(p,'vox',null,{start:1.01,end:2.99},clips).tracks[0].clips[0];
+ assert.ok(Math.abs(out.fadeIn-.08)<1e-8);assert.ok(Math.abs(out.fadeOut-.08)<1e-8);
+ const short=takeAuditionProject(p,'vox',null,{start:2,end:2.001},clips).tracks[0].clips[0];
+ assert.ok(short.fadeIn<=.00100001&&short.fadeOut<=.00100001);
+ assert.equal(clips[0].fadeIn,.1);
+});
