@@ -1,0 +1,1 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {COMPOSITION_STYLES} from '../dist/studio-compositions.js';test('French R&B songs have independent harmonies',()=>{const a=COMPOSITION_STYLES['rnb-2005'],b=COMPOSITION_STYLES['promesses-de-pluie'];assert.notDeepEqual(a.verse,b.verse);assert.notDeepEqual(a.roots,b.roots);});

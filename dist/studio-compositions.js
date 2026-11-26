@@ -32,8 +32,8 @@ export const COMPOSITION_STYLES={
   bridge:[[53,56,60,65],[44,48,51,56],[46,50,53,58],[48,51,55,60]],bridgeRoots:[29,32,34,24],
   tracks:[['drums','ENIGMA · POCKET CODÉ',0,-23,{kit:0,punch:.75,decay:.14,hat:.28}],['bass','MONO · 808 PHANTOM',0,-25,{body:.83,harmonics:.15,release:.08}],['epiano','FM KEYS · QUESTIONS',0,-24,{brightness:2800,release:.67}],['wlrompler','ATLAS · VOILE MYSTÉRIEUX',0,-33,{wave:2,texture:1,layer:.32,cutoff:1900,attack:.56,release:2.1,space:.18,output:-18}],['wlspectral','NEBULA · SIGNES',0,-31,{fm:.29,harmonics:.39,motion:.25,cutoff:3200,attack:.04,release:.53,width:.52,output:-18}],['flute','FLÛTE · RÉPONSES',0,-31,{brightness:4100,attack:.025,release:.22,output:-3}]],
   layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['MONTÉE',8,'pre'],['REFRAIN A',16,'hook'],['PONT',8,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',16,'hook'],['OUTRO',12,'outro']]},
- 'rnb-2005':{key:9,scale:'minor',keyName:'La mineur',harmony:'Am9 · Fmaj9 · Cmaj9 · G6',palette:'Rhodes, basse TITAN, muted guitar, violons, piano et batterie R&B',
-  verse:[[57,60,64,67,71],[53,57,60,64,67],[60,64,67,71],[55,59,62,67]],roots:[33,29,36,31],
+ 'rnb-2005':{key:9,scale:'minor',keyName:'La mineur',harmony:'Am9 · G6 · Fmaj9 · Dm9',palette:'Rhodes, basse TITAN, muted guitar, violons, piano et batterie R&B',
+  verse:[[57,60,64,67,71],[55,59,62,64],[53,57,60,64,67],[50,53,57,60,64]],roots:[33,31,29,26],
   bridge:[[53,57,60,64],[55,59,62,67],[57,60,64,67],[52,55,59,64]],bridgeRoots:[29,31,33,28],
   tracks:[['drums','2005 · R&B LIVE KICK',2,-17,{kit:2,punch:.72,decay:.25,hat:.4}],['wltitan','TITAN · BASSE SOUL',0,-18,{brightness:2700,attack:.009,release:.2}],['epiano','RHODES · ACCORDS INTIMES',0,-19,{brightness:3900,release:.43}],['wlmuted','MUTED · GUITARE RÉPONSE',1,-21,{brightness:4800,damping:.6,release:.1,output:-9}],['violin','VIOLONS · REFRAIN',0,-27,{}],['piano','PIANO · REFLETS',0,-23,{brightness:4800,release:.46}]],
   layout:[['INTRO',8,'intro'],['COUPLET A',16,'verse'],['PRÉ-REFRAIN',8,'pre'],['REFRAIN A',16,'hook'],['PONT',8,'bridge'],['COUPLET B',16,'verse'],['REFRAIN B',12,'hook'],['OUTRO',4,'outro']]},
@@ -94,6 +94,7 @@ for(const song of CINEMATIC_POP_SONGS){
  COMPOSITION_STYLES[song.id]={...parent,tracks,flavor:song.flavor,
   layout:song.layout.map((length,i)=>[sections[i],length,kinds[i]])};
 }
+Object.assign(COMPOSITION_STYLES['promesses-de-pluie'],{harmony:'Cmaj9 · Em7 · Fmaj7 · Am7',verse:[[48,55,59,62,64],[52,55,59,62],[53,57,60,64],[57,60,64,67]],roots:[36,28,29,33],bridge:[[50,53,57,60],[53,57,60,64],[55,59,62,67],[57,60,64,67]],bridgeRoots:[26,29,31,33]});
 const introOrQuiet=(kind,bar)=>kind==='intro'&&bar<2;
 function drums(style,kind,cycle){
  const rows=Object.fromEntries(Object.keys(DRUM_VOICES).map(v=>[v,Array(64).fill(0)]));
@@ -113,7 +114,7 @@ function drums(style,kind,cycle){
   }
   if(style==='rnb-2005'||style==='popstar-2008'){
    const rnb=style==='rnb-2005';
-   for(const step of (sparse?[0,8]:rnb?(variant?[0,6,10,14]:[0,7,10]):variant?[0,4,8,11,14]:[0,6,8,12]))hit('kick',b+step,step===0?.74:.55);
+   for(const step of (sparse?[0,8]:rnb?(hook?(variant?[0,3,8,11,14]:[0,6,10,13]):variant?[0,6,10,14]:[0,7,10]):variant?[0,4,8,11,14]:[0,6,8,12]))hit('kick',b+step,step===0?.74:.55);
    if(!introOrQuiet(kind,bar))for(const step of [4,12])hit('clap',b+step,hook?.65:.51);
    for(const step of (sparse?[0,8]:rnb?[0,3,6,8,11,14]:[0,2,4,6,8,10,12,14]))hit('hat',b+step,step%4===0?.24:.15);
    if(!sparse){hit('rim',b+15,rnb?.19:.11);if(hook){hit('open',b+14,.24);hit('shaker',b+7,.2);}}
@@ -218,7 +219,7 @@ function melody(style,role,kind,cycle){
   }
   if(style==='rnb-2005'||style==='popstar-2008'){
    const rnb=style==='rnb-2005',loud=hook?1:.82;
-   if(role===1)for(const [i,step] of (intro?[0,8]:bridge?[0,8,13]:rnb?(alt?[0,5,8,11,14]:[0,6,8,12,15]):alt?[0,3,8,11,14]:[0,5,8,12,15]).entries())
+   if(role===1)for(const [i,step] of (intro?[0,8]:bridge?[0,8,13]:rnb?(hook?(alt?[0,3,8,11,14]:[0,6,10,13]):alt?[0,6,10,14]:[0,7,10]):alt?[0,3,8,11,14]:[0,5,8,12,15]).entries())
     add(b+step,root+(i===2?7:i===4&&hook?12:0),i===0?3.7:1.4,(i===0?.72:.53)*loud);
    if(role===2){chord(b+.08,c,bridge?10:intro?9:hook?4.7:6.4,hook?.58:.42,.075);if(!intro&&!bridge)chord(b+9.1,[...c.slice(1),c[0]+12],hook?3.7:5,.36,.065);}
    if(role===3&&!intro){
@@ -235,7 +236,13 @@ function melody(style,role,kind,cycle){
    }
   }
   const cinema=COMPOSITION_STYLES[style]?.flavor;
-  if(cinema){
+  if(style==='promesses-de-pluie'){
+   if(role===1)for(const [i,x] of (intro?[0,8]:hook?[0,4,8,11]:[0,7,10]).entries())add(b+x,root+(i===2?12:0),i===0?3.5:2,.65);
+   if(role===2){chord(b+.12,c,7,.49,.06);if(!intro)chord(b+10,c.slice(1),4.5,.37,.05);}
+   if(role===3&&!intro)for(const [i,x] of (hook?[1,6,11]:[4,12]).entries())add(b+x,c[(i+2)%c.length]+12,hook?3:1.4,.48);
+   if(role===4&&!intro)chord(b+.2,c.slice(0,3),13,.28);
+   if(role===5&&['pre','hook','bridge'].includes(kind))for(const [i,x] of [4,10,14].entries())add(b+x,c[(i+1)%c.length]+12,1.4,.38);
+  }else if(cinema){
    const seed=cinema,shape=(seed+cycle+bar)%3;
    if(role===1){
     const steps=bridge?[0,9]:intro?[0,8]:hook?[[0,5,8,11,14],[0,6,10,14],[0,4,8,12,15]][shape]:[[0,7,10],[0,5,11,14],[0,6,9,13]][shape];
