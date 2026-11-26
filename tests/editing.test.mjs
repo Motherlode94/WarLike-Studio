@@ -55,3 +55,5 @@ test('split audio keeps outer fades within the new clip boundaries',()=>{
  assert.ok(left.fadeIn+left.fadeOut<=.5+1e-10);assert.ok(right.fadeIn+right.fadeOut<=1.5+1e-10);
  assert.equal(right.sourceOffset,.5);assert.equal(original.fadeIn,1);assert.equal(original.length,1);
 });
+
+test('trim preserves source and bounds fade envelopes to shortened audio',()=>{const clip={id:'a',audioId:'source',start:0,length:2,sourceOffset:0,fadeIn:1,fadeOut:1};const next=trimClip(clip,'right',.25,8,120,10);assert.equal(next.length,.25);assert.ok(next.fadeIn+next.fadeOut<=.5+1e-10);assert.equal(next.audioId,'source');assert.equal(clip.length,2);assert.equal(clip.fadeIn,1);});

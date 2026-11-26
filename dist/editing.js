@@ -36,5 +36,6 @@ export function trimClip(clip, edge, position, total, bpm, sourceDuration = Infi
     const available = clip.audioId ? Math.max(MIN_CLIP_LENGTH, (sourceDuration - (clip.sourceOffset || 0)) / barSeconds(bpm)) : Infinity;
     next.length = Math.max(MIN_CLIP_LENGTH, Math.min(total - clip.start, available, position - clip.start));
   }
+  if(clip.audioId){const duration=next.length*barSeconds(bpm);for(const key of ['fadeIn','fadeOut'])if(Number.isFinite(next[key]))next[key]=Math.max(0,Math.min(duration,next[key]));const sum=(next.fadeIn||0)+(next.fadeOut||0);if(sum>duration&&Number.isFinite(sum)){if(Number.isFinite(next.fadeIn))next.fadeIn*=duration/sum;if(Number.isFinite(next.fadeOut))next.fadeOut*=duration/sum;}}
   return next;
 }
