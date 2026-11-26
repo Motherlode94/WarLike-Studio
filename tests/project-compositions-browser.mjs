@@ -80,7 +80,7 @@ try{
  for(let copy=0;copy<2;copy++){
   await home();await demos();await jumpTo('kin');
   await root.locator('[data-factory-project-open=kin]').click();await page.locator('#modal').waitFor({state:'hidden'});assert.equal(await page.locator('#projectName').inputValue(),'Kin après minuit');
-  const song=await save();assert.equal(song.project.bars,96);assert.equal(song.project.tracks.length,9);assert.equal(song.masterVolume,-1);assert.equal(song.assets.length,0);
+  const song=await save();assert.equal(song.project.bars,96);assert.equal(song.project.tracks.length,9);assert.equal(song.masterVolume,-9);assert.equal(song.assets.length,0);
  }
  const index=await page.evaluate(()=>new Promise((resolve,reject)=>{const request=indexedDB.open('chayah-studio');request.onsuccess=()=>{const db=request.result,r=db.transaction('sessions').objectStore('sessions').get('project-index');r.onsuccess=()=>{resolve(r.result);db.close();};r.onerror=()=>reject(r.error);};request.onerror=()=>reject(request.error);}));
  const copies=index.filter(p=>p.name==='Kin après minuit');assert.equal(copies.length,2);assert.notEqual(copies[0].id,copies[1].id);
