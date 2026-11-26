@@ -1,3 +1,4 @@
+import {mountRackBrowser} from './war-rack-browser.js';
 import {mountSessionPreview,updateSessionPreview} from './session-preview-ui.js';
 import {mountProjectCompositions} from './project-compositions-ui.js';
 import {GAME_SOUNDS,GAME_SOUND_CATEGORIES,gameSound,renderGameSound,gameSoundWav,gameSoundPack} from './game-sounds.js';
@@ -511,6 +512,7 @@ function applyExtensionMaster(index){
  const preset=extensionMasterPresets()[index];if(!preset)return toast('Installe un preset depuis Extensions.');
  checkpoint();project.mastering=masteringSettings(preset.settings);changed();renderMastering();toast(preset.name+' appliqué à la chaîne master.');
 }
+function openWarRackBrowser(trackId=null){const tr=trackId===null?null:project.tracks.find(t=>t.id===trackId);if(trackId!==null&&!tr)return toast('Piste introuvable.');modal('WAR STUDIORACKS · '+(tr?.name||'Master'),'<div id="warRackHost"></div>','WARLIKE / RACKS');mountRackBrowser($('warRackHost'),{track:tr,project,apply:async(r,mode,applyRack)=>{if(recording||recordFinalizing||micPending)throw Error('Termine la prise avant de modifier le rack.');if(mode==='replace'&&!confirm('Remplacer les inserts par '+r.name+' ? Annuler reste disponible.'))return false;const owner=project;if(r.stages?.some(s=>s.id==='voxtune'))await engine.init();if(project!==owner||tr&&!project.tracks.includes(tr)||recording||recordFinalizing||micPending)throw Error('Session modifiée pendant la préparation.');const draft=tr?structuredClone(tr):{mastering:structuredClone(project.mastering)};applyRack(r,{track:tr?draft:null,project:tr?null:draft,mode});checkpoint();if(tr){tr.inserts=draft.inserts;tr.effects=draft.effects;}else project.mastering=draft.mastering;$('modal').close();changed(true);toast(r.name+' appliqué.');return true;}});}
 function openMixMasterTemplates(kind,trackId=null){
  const master=kind==='master',track=master?null:project.tracks.find(t=>t.id===trackId);
  if(!master&&!track)return toast('Piste introuvable.');
@@ -520,7 +522,7 @@ function openMixMasterTemplates(kind,trackId=null){
  const initial=collection[0];
  modal(master?'Templates Master':'Templates Mix · '+track.name,
   '<div class="mix-master-template-picker">'+
-  '<p>'+esc(subtitle)+'</p>'+
+  '<p>'+esc(subtitle)+'</p><button type="button" class="outline-btn" id="openUniversalRack">WAR STUDIORACKS · Presets par source et étape</button>'+
   '<div class="mix-master-template-filters"><label>GENRE<select id="templateGenre"><option value="all">Tous les genres</option>'+genreOptions.map(g=>'<option value="'+esc(g)+'">'+esc(g)+'</option>').join('')+'</select></label>'+
   '<label>RECHERCHE<input id="templateSearch" type="search" placeholder="Trap, R&B, Afrobeat, rock…"></label></div>'+
   '<div class="mix-master-template-content"><div id="templateList" class="mix-master-template-list" role="listbox" aria-label="Templates disponibles"></div>'+
@@ -529,6 +531,7 @@ function openMixMasterTemplates(kind,trackId=null){
   '<p class="template-safety">Un seul point d’annulation. Les clips, instruments, faders, panoramiques et routages ne sont pas remplacés.</p>'+
   '<button type="button" id="applyMixMasterTemplate" class="primary-btn">Appliquer ce template</button></section></div></div>',
   master?'WARLIKE / MASTER TEMPLATES':'WARLIKE / MIX TEMPLATES');
+ $('openUniversalRack').onclick=()=>openWarRackBrowser(master?null:track.id);
  let selected=initial.id;
  const byId=id=>collection.find(t=>t.id===id);
  const render=()=>{
@@ -1258,7 +1261,7 @@ function openVoxStudioRacks(trackId=selectedTrack){
   <p>Choisis un genre musical ou un template Mix/Master. Le rack installe les plugins natifs et leurs paramètres; il ne remplace pas les fenêtres individuelles des effets. Les traitements fonctionnent dans Play et l’export WAV.</p>
   <div class="vox-rack-apply"><label>PRESET / TYPE DE MIX <select id="voxStudioPreset">${choices}</select></label>
   <button class="primary-btn" id="voxStudioApply">Ajouter aux inserts libres</button></div>
-  <nav class="vox-rack-template-navigation" aria-label="Presets par genre et usage">
+  <nav class="vox-rack-template-navigation" aria-label="Presets par genre et usage"><button type="button" class="outline-btn" id="voxUniversalRack">WAR STUDIORACKS</button>
    <button type="button" class="outline-btn" id="voxRackInstrumentTemplates">Instruments par genre</button>
    <button type="button" class="outline-btn" id="voxRackMasterTemplates">Master par genre</button>
   </nav>
@@ -1268,6 +1271,7 @@ function openVoxStudioRacks(trackId=selectedTrack){
   </section>`,'CHAYAH SUITE / DSP');
  const root=document.querySelector('#modalBody .vox-studioracks');
  const presetSelect=root.querySelector('#voxStudioPreset'),preview=root.querySelector('#voxStudioPreview');
+ root.querySelector('#voxUniversalRack').onclick=()=>openWarRackBrowser(tr.id);
  root.querySelector('#voxRackInstrumentTemplates').onclick=()=>openMixMasterTemplates('mix',tr.id);
  root.querySelector('#voxRackMasterTemplates').onclick=()=>openMixMasterTemplates('master');
  const refreshRackPreview=()=>{preview.innerHTML=rackSummary(presetSelect.value);};
