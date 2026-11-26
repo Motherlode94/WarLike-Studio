@@ -168,7 +168,7 @@ function drums(style,kind,cycle){
  for(let step=0;step<16;step++)hit('shaker',b+step,(step%4===2?.32:step%2?.17:.23)*(intro?.72:1));
  for(const step of (variant?[0,3,6,10,12]:[0,3,7,10,13]))hit('perc',b+step,step===0?.39:.26);
  for(const step of (dance?[2,6,10,14]:[2,10]))hit('hat',b+step,.21);
- if(dance&&bar%2)hit('open',b+14,.26);
+ if(dance&&bar%2)hit('open',b+14,bar===3?.42:.26);
  if(dance&&bar===3){hit('tom',b+13,.29);hit('perc',b+15,.42);}
  }
   if(style==='lumiere'){
@@ -399,7 +399,7 @@ export function createStudioComposition(template,makeTrack,full=false){
  const isDarkTrap=['trap-abyss','trap-enigma'].includes(template.id);
  const trapMaster=isDarkTrap?demoMasteringSettings('trap'):null;
  if(trapMaster){trapMaster.circuitcolor.mix=0;trapMaster.circuitcolor.drive=0;trapMaster.peak.drive=0;trapMaster.peak.ceiling=-1.5;}
- return {version:1,demo:true,demoRevision:['kin','lumiere'].includes(template.id)?7:full?6:4,fullSong:full,name:template.name,bpm:template.bpm,bars:cursor,swing:template.swing,masterVolume:['kin','lumiere'].includes(template.id)?-9:-1,
+ return {version:1,demo:true,demoRevision:full?(['kin','lumiere'].includes(template.id)?7:6):4,fullSong:full,name:template.name,bpm:template.bpm,bars:cursor,swing:template.swing,masterVolume:['kin','lumiere'].includes(template.id)?-9:-1,
   mastering:trapMaster||{inserts:['peak'],peak:{enabled:true,drive:0,ceiling:-1.5,release:140}},recording:{gainDb:0,autoLevel:true},
   pianoKey:spec.key,pianoScale:spec.scale,keyName:spec.keyName,sections:sections.map(({kind,...part})=>part),tracks};
 }
