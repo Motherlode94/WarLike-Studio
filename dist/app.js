@@ -313,7 +313,7 @@ const divinityUI=createDivinityUI({getProject:()=>project,getTrack:()=>currentTr
 engine.onSampleStatus=({type,done,total,error})=>toast(error||((done===total?'Sons prêts : ':'Chargement des sons : ')+(ACOUSTIC_INSTRUMENTS[type]?.name||INSTRUMENTS[type]?.name||'Instruments')));
 let piano=null,signature=null;
 const currentTrack=()=>project.tracks.find(t=>t.id===selectedTrack)||project.tracks[0];
-const currentClip=()=>currentTrack()?.clips.find(c=>c.id===selectedClip)||piano?.draft(selectedTrack);
+const currentClip=()=>selectedClip===null?piano?.draft(selectedTrack):currentTrack()?.clips.find(c=>c.id===selectedClip);
 const clone=v=>JSON.parse(JSON.stringify(v));
 function parameterTrack(element){const owner=element.closest('[data-plugin-track]');return owner?project.tracks.find(t=>t.id===owner.dataset.pluginTrack):currentTrack();}
 
