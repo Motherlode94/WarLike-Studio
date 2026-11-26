@@ -48,3 +48,10 @@ test('musical positions, grid placement and free placement use explicit units',(
   assert.equal(musicalPosition(0),'001 | 1 | 000');assert.equal(musicalPosition(1.25),'002 | 2 | 000');
   assert.equal(snapBar(.3,'grid',.25),.25);assert.equal(snapBar(.3,'slip',.25),.3);
 });
+
+test('split audio keeps outer fades within the new clip boundaries',()=>{
+ const original={id:'a',audioId:'audio',start:0,length:1,sourceOffset:0,fadeIn:1,fadeOut:1};
+ const [left,right]=splitClip(original,.25,120,'b');
+ assert.ok(left.fadeIn+left.fadeOut<=.5+1e-10);assert.ok(right.fadeIn+right.fadeOut<=1.5+1e-10);
+ assert.equal(right.sourceOffset,.5);assert.equal(original.fadeIn,1);assert.equal(original.length,1);
+});
