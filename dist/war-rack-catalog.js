@@ -1,2 +1,3 @@
 import {BASE_RACKS} from './war-rack-core.js';
-export const WAR_RACKS=Object.freeze([...BASE_RACKS]);
+import {PREMIX_RACKS} from './war-rack03.js';
+export const WAR_RACKS=Object.freeze([...BASE_RACKS,...PREMIX_RACKS]);
