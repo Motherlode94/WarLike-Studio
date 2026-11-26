@@ -1,6 +1,7 @@
 import {COMPOSITION_TEMPLATES,COMPOSITION_STYLES,createStudioComposition} from './studio-compositions.js';
 import {EXPANSION_INSTRUMENTS} from './wl-expansion.js';
 import {expandFactorySong} from './full-song.js';
+import {finishFactorySong,articulateLegacyFactorySong} from './factory-song-finish.js';
 import {createFactoryArrangement,FACTORY_STYLES as LEGACY_FACTORY_STYLES} from './factory-arrangements.js?v=0.14.0';
 import {INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins} from './plugins.js?v=0.14.0';
 import {FACTORY_PRESETS,applyFactoryPreset} from './bundle.js?v=0.14.0';
@@ -55,8 +56,17 @@ export function createContentClip(type,name,start=0,length=2,grooveId='trap-nigh
 }
 export function createFactorySession(templateId='nocturne',full=false){
   const template=SESSION_TEMPLATES.find(t=>t.id===templateId);if(!template)throw new Error('Session inconnue.');
-  if(COMPOSITION_STYLES[templateId]){const project=createStudioComposition(template,createContentTrack,full);project.tracks.forEach(ensurePlugins);return project;}
-  const project=createFactoryArrangement(template,createContentTrack);project.tracks.forEach(ensurePlugins);return full?expandFactorySong(project):project;
+  if(COMPOSITION_STYLES[templateId]){
+   const project=createStudioComposition(template,createContentTrack,full);
+   project.tracks.forEach(ensurePlugins);
+   return full?finishFactorySong(project,templateId):project;
+  }
+  const project=createFactoryArrangement(template,createContentTrack);
+  project.tracks.forEach(ensurePlugins);
+  if(!full)return project;
+  expandFactorySong(project);
+  articulateLegacyFactorySong(project,templateId);
+  return finishFactorySong(project,templateId);
 }
 
 export const FACTORY_STYLES={...LEGACY_FACTORY_STYLES,...COMPOSITION_STYLES};
