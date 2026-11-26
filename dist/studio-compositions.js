@@ -94,6 +94,8 @@ for(const song of CINEMATIC_POP_SONGS){
  COMPOSITION_STYLES[song.id]={...parent,tracks,flavor:song.flavor,
   layout:song.layout.map((length,i)=>[sections[i],length,kinds[i]])};
 }
+Object.assign(COMPOSITION_STYLES['un-dernier-soleil'],{harmony:'Em7 · Gmaj7 · Dmaj7 · A7',verse:[[52,55,59,62],[55,59,62,66],[50,54,57,61],[57,61,64,67]],roots:[28,31,26,33],bridge:[[59,62,66,69],[52,55,59,62],[55,59,62,66],[57,61,64,67]],bridgeRoots:[35,28,31,33]});
+Object.assign(COMPOSITION_STYLES['au-bord-du-ciel'],{harmony:'E♭maj9 · Fm7 · Gm7 · A♭maj7',verse:[[51,55,58,62,65],[53,56,60,63],[55,58,62,65],[56,60,63,67]],roots:[27,29,31,32],bridge:[[48,51,55,58],[56,60,63,67],[53,56,60,63],[58,62,65,68]],bridgeRoots:[24,32,29,34]});
 const introOrQuiet=(kind,bar)=>kind==='intro'&&bar<2;
 function drums(style,kind,cycle){
  const rows=Object.fromEntries(Object.keys(DRUM_VOICES).map(v=>[v,Array(64).fill(0)]));
@@ -122,7 +124,7 @@ function drums(style,kind,cycle){
   const cinematic=COMPOSITION_STYLES[style]?.flavor;
   if(cinematic){
    const mode=cinematic,beat=mode===4?[0,8]:mode===2?[0,6,11]:mode===5?[0,6,10,14]:[0,4,8,12];
-   const kicks=sparse?[0]:hook?[...beat,14]:beat;
+   const kicks=sparse?[0]:style==='un-dernier-soleil'?(hook?[0,4,8,10,12]:[0,8,11]):style==='au-bord-du-ciel'?(hook?[0,6,8]:[0,10]):hook?[...beat,14]:beat;
    for(const step of kicks)hit('kick',b+step,step===0?.72:.49);
    if(!introOrQuiet(kind,bar))for(const step of (mode===2?[8]:[4,12]))hit('clap',b+step,hook?.6:.4);
    for(const step of (sparse?[0,8]:mode===2?[0,3,6,9,12,15]:mode===5?[0,3,6,8,11,14]:[0,2,4,6,8,10,12,14]))hit('hat',b+step,step%4===0?.22:.14);
@@ -235,7 +237,19 @@ function melody(style,role,kind,cycle){
    }
   }
   const cinema=COMPOSITION_STYLES[style]?.flavor;
-  if(cinema){
+  if(style==='un-dernier-soleil'){
+   if(role===1)for(const [i,x] of (hook?[0,4,8,12]:[0,8]).entries())add(b+x,root+(i===2?7:i===3?12:0),hook?3.2:5.5,.63);
+   if(role===2){if(hook){for(const x of [0,4,8,12])chord(b+x,c,3.1,.56,.04);}else for(const [i,x] of [0,3,7,11,14].entries())add(b+x,c[i%c.length],1.9,.43);}
+   if(role===3&&!intro)for(const [i,x] of (hook?[0,5,9,13]:[3,11]).entries())add(b+x,c[[1,2,3,2][i]%c.length]+12,hook?Math.min(3.6,16-x):2.1,.51);
+   if(role===4&&!intro)chord(b+.15,c.slice(1,4),14,hook?.37:.24,.06);
+   if(role===5&&['pre','hook','bridge'].includes(kind))for(const [i,x] of [3,11].entries())add(b+x,c[i]+12,2.8,.35);
+  }else if(style==='au-bord-du-ciel'){
+   if(role===1)for(const [i,x] of (hook?[0,6,8,13]:[0,8]).entries())add(b+x,root+(i===1&&hook?7:i===3?12:0),hook?Math.min(4.5,16-x):6,.57);
+   if(role===2)for(const [i,x] of (hook?[0,3,6,9,12,14]:[0,4,8,12]).entries())add(b+x,c[i%c.length],Math.min(3,16-x),hook?.56:.43);
+   if(role===3&&!intro)for(const [i,x] of (hook?[0,7,11]:[4,12]).entries())add(b+x,c[[2,3,1][i]%c.length]+12,hook?Math.min(5.8,16-x):3,.48);
+   if(role===4&&!intro)chord(b+.2,c.slice(0,3),13.8,.24,.05);
+   if(role===5&&['pre','hook','bridge'].includes(kind))for(const [i,x] of [4,12].entries())add(b+x,c[i+1]+12,2.8,.36);
+  }else if(cinema){
    const seed=cinema,shape=(seed+cycle+bar)%3;
    if(role===1){
     const steps=bridge?[0,9]:intro?[0,8]:hook?[[0,5,8,11,14],[0,6,10,14],[0,4,8,12,15]][shape]:[[0,7,10],[0,5,11,14],[0,6,9,13]][shape];
