@@ -1,6 +1,7 @@
 import {ACCOUNT_HEADER,validAccount,getToken,forwardServer,guardOrigin,secureHeaders,privateJson,readLimitedBody,StudioRequestError} from '../../_studio-session.js';
 const uuid='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
 const routes=[
+ {pattern:/^publish$/,verbs:['POST']},
  {pattern:/^me$/,verbs:['GET']},
  {pattern:/^projects$/,verbs:['GET','POST']},
  {pattern:new RegExp('^projects/'+uuid+'$'),verbs:['GET','PUT','DELETE']},

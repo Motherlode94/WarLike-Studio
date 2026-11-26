@@ -147,7 +147,20 @@ async function uploadActiveProject(){
 async function listCloudProjects(){
  const cloud=getStudioCloud();studioCloudIdentity=await cloud.connect();updateCloudAccount();
  const projects=await cloud.list();
- modal('Mes projets cloud','<p class="modal-body-copy">Projets privés du compte connecté. Ouvre un morceau pour le copier localement, médias compris.</p>'+(projects.map(p=>'<div class="project-home-card"><strong>'+esc(p.name)+'</strong><button class="primary-btn" data-cloud-open="'+esc(p.id)+'">Télécharger et ouvrir</button></div>').join('')||'<p>Aucun projet cloud.</p>'),'WARLIKE / CLOUD');
+ modal('Mes projets cloud','<p class="modal-body-copy">Projets privés du compte connecté. Chaque morceau appartient exclusivement à ton compte WarLike. Les fiches publiées ne contiennent pas les pistes sources.</p>'+(projects.map(p=>'<div class="project-home-card"><strong>'+esc(p.name)+'</strong><div class="project-home-card-actions"><button class="primary-btn" data-cloud-open="'+esc(p.id)+'">Télécharger et ouvrir</button><button class="outline-btn" data-cloud-publish="'+esc(p.id)+'">Publier la fiche</button></div></div>').join('')||'<p>Aucun projet cloud.</p>'),'WARLIKE / CLOUD');
+ document.querySelectorAll('[data-cloud-publish]').forEach(b=>b.onclick=async()=>{
+  if(!studioCloudIdentity?.userId)return toast('Connecte ton compte WarLike.');
+  const item=projects.find(p=>p.id===b.dataset.cloudPublish);
+  if(!item)return toast('Projet cloud introuvable.');
+  if(!confirm('Publier une fiche publique de « '+item.name+' » ? Les pistes et les fichiers audio restent privés. La lecture publique demande encore un export distinct.'))return;
+  b.disabled=true;
+  try{
+   const response=await fetch('/api/studio/publish',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json','X-Warlike-Studio-Account':studioCloudIdentity.userId},body:JSON.stringify({sourceId:item.id,title:item.name,description:''})});
+   const result=await response.json();
+   if(!response.ok)throw Error(result.error||'Publication impossible.');
+   toast('Fiche publiée · morceau source toujours privé.');
+  }catch(error){toast(error.message);}finally{b.disabled=false;}
+ });
  document.querySelectorAll('[data-cloud-open]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{
   const remote=await cloud.fetchProject(b.dataset.cloudOpen);
   const id=await createProjectLocal(remote.project.name,remote.project,remote.media);
