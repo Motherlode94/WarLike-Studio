@@ -33,7 +33,7 @@ const score=p=>({name:p.name,bpm:p.bpm,bars:p.bars,sections:p.sections,fullSong:
  notes:c.notes?.map(n=>[n.id,n.step,n.midi,n.len,n.velocity,!!n.muted]),
  pattern:c.pattern?Object.fromEntries(Object.entries(c.pattern).filter(([,row])=>row.some(Boolean))):undefined}))}))});
 for(const [kind,name] of selected){
- const newComposition=COMPOSITION_TEMPLATES.some(t=>t.id===kind),expectedMaster=newComposition?-1:-9;
+ const newComposition=COMPOSITION_TEMPLATES.some(t=>t.id===kind),expectedMaster=newComposition&&!['kin','lumiere'].includes(kind)?-1:-9;
  stage(kind,'Launching isolated Chromium');
  const browser=await chromium.launch({headless:true});
  try{
@@ -119,7 +119,7 @@ for(const [kind,name] of selected){
     engine.renderRange=async options=>{const pcm=await render(options);renderMs=performance.now()-start;return pcm;};
     const wav=await engine.exportWav({sampleRate:44100,bits:24,tail:false});
     const encodeMs=performance.now()-start-renderMs;
-    if(p.demoRevision===6){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([wav],{type:'audio/wav'}));a.download='composition.wav';a.dataset.compositionWav='';a.textContent='WAV complet';document.body.append(a);}
+    if(p.fullSong&&[6,7].includes(p.demoRevision)){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([wav],{type:'audio/wav'}));a.download='composition.wav';a.dataset.compositionWav='';a.textContent='WAV complet';document.body.append(a);}
     const header=new DataView(wav),decoder=new AudioContext({sampleRate:44100});
     try{
      const b=await decoder.decodeAudioData(wav.slice(0));

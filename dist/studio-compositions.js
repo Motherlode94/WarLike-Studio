@@ -18,8 +18,8 @@ export const COMPOSITION_TEMPLATES=[
  {id:'pluie',name:'Après la pluie',style:'R&B · instrumental original',bpm:78,swing:22,groove:'rnb-pocket',bars:72,description:'R&B nocturne : accords de neuvième au clavier FM, réponses au piano et vibraphone, orgue discret et basse ronde. De la place pour enregistrer les voix.'},
  {id:'horizon',name:'Horizon de cuivre',style:'Amapiano · instrumental original',bpm:112,swing:12,groove:'horizon-pocket',bars:96,description:'Amapiano : log drum synthétique, clavier FM, mbira et kora se répondent sur des shakers. Introduction progressive, refrains dansants et pont suspendu.'},
  {id:'eclats',name:"Éclats d’asphalte",style:'Rock alternatif · instrumental original',bpm:124,swing:0,groove:'eclats-backbeat',bars:112,description:'Rock alternatif : riffs de guitare crunch, arpèges clean, cordes acier et basse électrique. Refrains ouverts, pont en half-time et guitare lead originale.'},
- {id:'kin',name:'Kin après minuit',style:'Rumba congolaise · instrumental original',bpm:104,swing:8,groove:'kin-sebene',bars:96,bridgeLabel:'SEBENE',description:'Rumba : guitare nylon, solo clean et contrechants acier se croisent autour d’une basse ronde. Le sebene développe les échanges entre guitares.'},
- {id:'lumiere',name:'Lumière en ville',style:'Pop organique · instrumental original',bpm:116,swing:2,groove:'lumiere-pop',bars:104,description:'Pop lumineuse : piano, thème de guitare clean, strums acoustiques et nappe douce. Deux refrains ouverts et un pont plus intime.'}
+ {id:'kin',name:'Kin après minuit',style:'Rumba congolaise · instrumental original',bpm:108,swing:3,groove:'kin-sebene',bars:96,bridgeLabel:'SEBENE',description:'Rumba : guitare nylon, solo clean et contrechants acier se croisent autour d’une basse ronde. Le sebene développe les échanges entre guitares.'},
+ {id:'lumiere',name:'Lumière en ville',style:'Pop organique · instrumental original',bpm:112,swing:0,groove:'lumiere-pop',bars:104,description:'Pop lumineuse : piano, thème de guitare clean, strums acoustiques et nappe douce. Deux refrains ouverts et un pont plus intime.'}
 ];
 export const COMPOSITION_STYLES={
  'trap-abyss':{key:6,scale:'minor',keyName:'Fa♯ mineur',harmony:'F♯m · D · A · E',palette:'808 MONO, piano, ATLAS, VANGUARD, clavier FM',
@@ -161,22 +161,24 @@ function drums(style,kind,cycle){
    if(half)hit('rim',b+15,.23);
   }
   if(style==='kin'){
-   for(const step of (kind==='bridge'?[0,6,8,10]:sparse?[0]:[0,8]))hit('kick',b+step,step===0?.68:.48);
-   if(!sparse||kind==='bridge')hit('clap',b+12,bar%2?.29:.37);
-   for(const step of (kind==='bridge'?[2,6,10,14]:[0,4,8,12]))hit('hat',b+step,step===8?.23:.14);
-   for(const step of [1,4,7,9,12,15])hit('shaker',b+step,(step%4===3?.28:.19)*(bar%2?.87:1));
-   for(const step of [3,7,11,15])hit('rim',b+step,.27+(step===7?.08:0));
-   for(const step of (kind==='bridge'?[2,5,9,13,14]:[5,13]))hit('perc',b+step,step===13?.2:.29);
-   // Existing eight-voice kit: open hi-hat is a cymbal accent, not a separate ride/crash sample.
-   if((bar===0&&['hook','bridge'].includes(kind))||(bar===3&&hook))hit('open',b+(bar===3?14:0),hook?.42:.32);
-  }
+ const dance=kind==='bridge'||hook;
+ for(const step of (intro?[0,8]:dance?(variant?[0,4,8,11,14]:[0,4,7,8,12]):variant?[0,6,8,14]:[0,7,8,12]))hit('kick',b+step,step%8===0?.72:.42);
+ for(const step of [4,12])hit('rim',b+step,dance?.53:.39);
+ if(dance)hit('clap',b+12,.36);
+ for(let step=0;step<16;step++)hit('shaker',b+step,(step%4===2?.32:step%2?.17:.23)*(intro?.72:1));
+ for(const step of (variant?[0,3,6,10,12]:[0,3,7,10,13]))hit('perc',b+step,step===0?.39:.26);
+ for(const step of (dance?[2,6,10,14]:[2,10]))hit('hat',b+step,.21);
+ if(dance&&bar%2)hit('open',b+14,bar===3?.42:.26);
+ if(dance&&bar===3){hit('tom',b+13,.29);hit('perc',b+15,.42);}
+ }
   if(style==='lumiere'){
-   for(const step of (sparse?[0,8]:variant?[0,3,8,10]:[0,6,8,12]))hit('kick',b+step,step===0?.72:.56);
-   for(const step of [4,12])hit('clap',b+step,(sparse?.3:.48)*(bar%2?.94:1));
-   for(const step of (sparse?[2,10]:[0,2,4,6,8,10,12,14]))hit('hat',b+step,step%4===0?.23:.16);
-   for(const step of [3,7,11,15])hit('shaker',b+step,hook?.24:.17);
-   if(hook)hit('open',b+14,.23);if(bar===0&&['hook','pre'].includes(kind))hit('open',b,.34);
-  }
+ const quiet=kind==='bridge'||kind==='intro'||kind==='outro';
+ for(const step of (quiet?[0,8]:hook?(variant?[0,3,6,8,11,14]:[0,4,7,8,12,14]):variant?[0,6,8,11]:[0,3,8,10]))hit('kick',b+step,step%8===0?.83:.58);
+ for(const step of [4,12])hit('clap',b+step,quiet?.32:hook?.79:.65);
+ for(const step of (quiet?[0,4,8,12]:[0,2,4,6,8,10,12,14]))hit('hat',b+step,step%4===0?.36:.22);
+ if(!quiet)for(const step of [3,7,11,15])hit('shaker',b+step,hook?.28:.16);
+ if(hook){hit('open',b+14,.35);if(bar===0)hit('open',b,.48);}
+ }
   if(bar===3&&!sparse){for(const s of [13,14,15])hit('tom',b+s,(hook?.32:.21)+(s-13)*.05);}
   if(kind==='bridge'&&!['eclats','kin','trap-abyss','trap-enigma'].includes(style))rows.kick.fill(0,b,b+16);
  }
@@ -309,29 +311,24 @@ function melody(style,role,kind,cycle){
   }
 
   if(style==='kin'){
-   if(role===1)for(const [i,step] of (bridge?[0,3,6,8,11,14]:intro?[0,8]:alt?[0,3,7,9,12,15]:[0,5,8,10,14]).entries())add(b+step,root+(i%4===1?7:i%4===3?12:0),i===0?2.65:.85,.7-i%2*.1);
-   if(role===2)for(const step of (intro?[0,8]:alt?[1,5,9,13]:[0,4,8,12]))chord(b+step,c.slice(0,3),bridge?2.1:2.65,hook?.48:.39,.11);
-   if(role===3){
-    const steps=bridge?[0,1.5,3,4.5,6,8,9.5,11,12.5,14]:hook?[0,2,4,7,8,10,12,14]:intro?[0,7,12]:[0,3,6,9,11,14];
-    const seq=bridge?[2,1,3,2,0,1]:hook?[2,3,1,2,0,1]:[0,2,1,3];
-    for(const [i,step] of steps.entries())add(b+step,c[seq[(i+alt)%seq.length]%c.length]+12,bridge?.95:i===steps.length-1?1.65:1.15,bridge?.58:hook?.56:.46);
-   }
-   if(role===4&&!intro)for(const [i,step] of (alt?[3,7,11,15]:[2,6,10,14]).entries())add(b+step,c[(i+alt)%c.length]+12,.42,bridge?.42:.34);
-   if(role===5&&['pre','hook','bridge'].includes(kind)){
-    const steps=bridge?[1,4,7,10,13,15]:[3,7,11,14];
-    for(const [i,step] of steps.entries())add(b+step,c[(i+alt+1)%c.length]+12,Math.min(1.25,16-step),bridge?.46:.38);
-   }
-  }
+ const dance=bridge||hook,next=roots[(bar+1)%4],fifth=c[2]%12,lowFifth=root+((fifth-root%12+12)%12),approach=next+2;
+ if(role===1){
+ const line=intro?[[0,root,5],[8,lowFifth,3],[12,root+12,2]]:bridge?(alt?[[0,root,2.8],[3,lowFifth,1.2],[6,root+12,1.5],[8,root,2.5],[11,lowFifth,1.2],[14,next,1.4]]:[[0,root,3],[4,root+12,1.8],[7,lowFifth,.8],[8,root,2.5],[12,lowFifth,1.4],[15,next,.8]]):alt?[[0,root,4.5],[6,lowFifth,1.4],[8,root,3],[12,root+12,1.7],[15,next,.8]]:[[0,root,5],[7,lowFifth,.8],[8,root,3],[12,lowFifth,2],[15,next,.8]];
+ for(const [i,[step,pitch,len]] of line.entries())add(b+step,pitch,len,i===0?.84:.68-i%2*.06);
+ }
+ if(role===2){const pattern=dance?[0,3,6,8,11,14]:[0,3,7,8,11,14];for(const [i,step] of pattern.entries())add(b+step+.035,c[[0,2,1,0,2,1][i]],i%3===0?2.2:1.25,.48+i%2*.09);}
+ if(role===3){const motifs=bridge?[[0,2,3,5,6,8,10,11,13,14],[0,1,3,4,6,8,9,11,12,14]]:hook?[[0,2,5,7,10,12,14],[0,3,5,8,11,13]]:intro?[[0,4,7,12],[0,3,8,14]]:[[0,3,6,10],[2,5,8,12]];const seq=bridge?[2,1,3,2,1,0,2,3,1,2]:hook?[2,3,2,1,0,2,1]:[2,1,0,2];for(const [i,step] of motifs[alt].entries())add(b+step,c[seq[i%seq.length]%c.length]+12,bridge?.78:i===0?2.4:1.2,bridge?.67:hook?.62:.52);}
+ if(role===4&&!intro)for(const [i,step] of [2,5,9,13].entries())add(b+step+.06,c[(i+1)%3]+12,.55,dance?.43:.32);
+ if(role===5&&(dance||kind==='pre'||!intro&&alt))for(const [i,step] of (bridge?[1,4,7,9,12,15]:alt?[3,7,11,15]:[7,13]).entries())add(b+step,c[[1,2,0,2,1,0][i]%c.length],Math.min(1.65,16-step),dance?.48:.35);
+ }
   if(style==='lumiere'){
-   if(role===1)for(const [i,step] of (intro||bridge?[0,8]:hook?(alt?[0,3,6,8,11,14]:[0,4,7,8,12,15]):alt?[0,5,8,13]:[0,6,8,14]).entries())add(b+step,root+(i%4===2?7:0),intro||bridge?4.8:i===0?2.8:1.45,.73-i%2*.11);
-   if(role===2)for(const step of (intro||bridge?[0,8]:hook?[0,4,8,12]:[0,8]))chord(b+step,c,hook?3.4:6.8,hook?.53:.42,.045);
-   if(role===3){
-    const steps=hook?[0,3,6,8,11,14]:intro?[0,8]:bridge?[1,7,12]:[0,5,9,13],seq=hook?[2,3,1,2,0,1]:[0,2,1,3];
-    for(const [i,step] of steps.entries())add(b+step,c[seq[(i+alt)%seq.length]%c.length]+12,i===steps.length-1?1.8:1.4,hook?.56:.42);
-   }
-   if(role===4)for(const step of (intro||bridge?[2,10]:[2,6,10,14]))chord(b+step,c.slice(0,3),intro||bridge?3.2:1.35,hook?.43:.31,.065);
-   if(role===5&&['pre','hook','bridge'].includes(kind))chord(b+.1,c.slice(1,4),14.7,hook?.25:.18,.04);
-  }
+ const next=roots[(bar+1)%4],fifth=root+7;
+ if(role===1){const line=intro||bridge?[[0,root,6],[8,root,5]]:hook?(alt?[[0,root,2.7],[3,root,2],[6,fifth,1.6],[8,root,2.5],[11,root+12,1.6],[14,next,1.6]]:[[0,root,3],[4,root,2],[7,fifth,.8],[8,root,3.3],[12,root+12,1.5],[14,next,1.7]]):alt?[[0,root,5],[6,root,1.5],[8,root,2.6],[11,fifth,2],[15,next,.8]]:[[0,root,2.8],[3,root,3],[8,root,1.8],[10,fifth,3],[15,next,.8]];for(const [i,[step,pitch,len]] of line.entries())add(b+step,pitch,len,i===0?.86:.68);}
+ if(role===2){if(intro||bridge){for(const [i,step] of [0,4,8,12].entries())add(b+step,c[[0,2,1,3][i]%c.length],3.4,.48);}else for(const step of (hook?[0,4,8,12]:[0,8]))chord(b+step,c,hook?3.25:6.5,hook?.65:.45,.035);}
+ if(role===3){const theme=hook?(alt?[[0,2,2.6],[3,3,1.7],[6,2,1.3],[8,1,3],[12,2,2],[15,0,.8]]:[[0,2,3.2],[4,1,1.6],[6,0,1.5],[8,2,3],[12,3,1.7],[14,2,1.8]]):intro?[[0,2,3.2],[8,1,3]]:bridge?[[3,1,2],[11,2,2]]:alt?[[2,2,2],[8,1,3],[13,0,1.8]]:[[0,2,3],[6,1,2],[12,2,2.6]];for(const [step,degree,len] of theme)add(b+step,c[degree%c.length]+12,len,hook?.66:.48);}
+ if(role===4){for(const [i,step] of (intro||bridge?[2,10]:hook?[0,2,4,6,8,10,12,14]:[2,6,10,14]).entries())chord(b+step,c.slice(0,3).map(p=>p+12),hook?1.55:1.25,hook?(i%2?.4:.52):.33,.055);}
+ if(role===5&&['pre','hook','bridge'].includes(kind)){chord(b+.12,c.slice(1,4),hook?14.4:10,hook?.27:.18,.035);if(hook&&alt)add(b+12,c[2]+12,2.8,.28);}
+ }
 
  }
  return out;
@@ -359,7 +356,16 @@ export function createStudioComposition(template,makeTrack,full=false){
     [{id:'sculpt',params:{highpass:170,cutoff:11000}},{id:'alterecho',params:{mix:.08,feedback:.2}},{id:'exospace',params:{mix:.1}}]
    ];
    applyNativeChain(t,chains[role],{replace:true});
-  }else if(role===5){t.inserts[0]='echo';Object.assign(t.effects.echo,{enabled:true,mix:.065,feedback:.18});}
+  }else if(['kin','lumiere'].includes(template.id)){
+ const chains=[
+ [{id:'vectorcomp',params:{threshold:-18,ratio:1.8,attack:28,release:150,mix:.32}}],
+ [{id:'sculpt',params:{highpass:25,cutoff:8500}},{id:'vectorcomp',params:{threshold:-18,ratio:2,attack:25,release:170,mix:.48}}],
+ [{id:'circuiteq',params:{body:-.5,presence:.5}}],
+ [{id:'sculpt',params:{highpass:110,cutoff:10000}},{id:'exospace',params:{mix:.11}}],
+ [{id:'sculpt',params:{highpass:140,cutoff:11000}}],
+ [{id:'circuiteq',params:{body:-1,presence:.5}},{id:'alterecho',params:{mix:.08,feedback:.18}}]
+ ];applyNativeChain(t,chains[role],{replace:true});
+ }else if(role===5){t.inserts[0]='echo';Object.assign(t.effects.echo,{enabled:true,mix:.065,feedback:.18});}
   // HARDI adds light, genre-aware coloration without changing the original notes
   // or hard-limiting the master bus. Available to edit/remove in the normal rack.
   if(['rnb-2005','popstar-2008','etoiles-interdites','derriere-les-murs','un-dernier-soleil','au-bord-du-ciel','promesses-de-pluie','lumiere'].includes(template.id)){
@@ -393,7 +399,7 @@ export function createStudioComposition(template,makeTrack,full=false){
  const isDarkTrap=['trap-abyss','trap-enigma'].includes(template.id);
  const trapMaster=isDarkTrap?demoMasteringSettings('trap'):null;
  if(trapMaster){trapMaster.circuitcolor.mix=0;trapMaster.circuitcolor.drive=0;trapMaster.peak.drive=0;trapMaster.peak.ceiling=-1.5;}
- return {version:1,demo:true,demoRevision:full?6:4,fullSong:full,name:template.name,bpm:template.bpm,bars:cursor,swing:template.swing,masterVolume:-1,
+ return {version:1,demo:true,demoRevision:full?(['kin','lumiere'].includes(template.id)?7:6):4,fullSong:full,name:template.name,bpm:template.bpm,bars:cursor,swing:template.swing,masterVolume:['kin','lumiere'].includes(template.id)?-9:-1,
   mastering:trapMaster||{inserts:['peak'],peak:{enabled:true,drive:0,ceiling:-1.5,release:140}},recording:{gainDb:0,autoLevel:true},
   pianoKey:spec.key,pianoScale:spec.scale,keyName:spec.keyName,sections:sections.map(({kind,...part})=>part),tracks};
 }
