@@ -112,3 +112,8 @@ test('R08.16 validates range and flags an excerpt without audio at a boundary',(
  assert(auditCompSeams(p,plan).warnings.some(w=>w.includes('sans audio')));
  assert.throws(()=>auditCompSeams(p,{...plan,range:{start:5,end:5}}),/plage de montage valide/);
 });
+
+test('comp seam audit flags fades longer than their clips',()=>{
+ const p=project(),plan=prepareComp(p,'vox','A',{start:4,end:5},uid);plan.clips.find(c=>c.start===4).fadeIn=3;
+ assert.ok(auditCompSeams(p,plan).warnings.some(w=>w.includes('plus long')));
+});
