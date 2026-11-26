@@ -1614,7 +1614,7 @@ document.addEventListener('contextmenu',e=>{
   show('Timeline',[A('timeline-seek','Placer le curseur ici',()=>{engine.seek(at*16);updateTransport();}),A('timeline-fit','Afficher toute la session',fitTimeline),A('timeline-loop','Définir la zone de boucle…',()=>$('loop').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true})))],ruler);
  }
 });
-piano=installPianoRoll({busy:()=>recording||recordFinalizing||micPending,getProject:()=>project,getEngine:()=>engine,currentTrack,currentClip,checkpoint,changed,save,addTrack,toast,modal,drawClips,updateTransport,openPlugin:openPluginWindow,openEditor:(id,clipId)=>{detail='editor';document.body.dataset.studioSurface='piano';signature?.select('compose',false);selectTrack(id,clipId);setDetailOpen(true);}});
+piano=installPianoRoll({busy:()=>recording||recordFinalizing||micPending,getProject:()=>project,getEngine:()=>engine,currentTrack,currentClip,checkpoint,changed,save,addTrack,toast,modal,drawClips,updateTransport,openPlugin:openPluginWindow,selectRackTrack:id=>{if(currentTrack()?.id!==id)selectTrack(id);},openEditor:(id,clipId)=>{detail='editor';document.body.dataset.studioSurface='piano';signature?.select('compose',false);selectTrack(id,clipId);setDetailOpen(true);}});
 $('channelRack').onclick=()=>piano.rack();
 
  function openWorkspace(kind){
