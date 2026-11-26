@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {auditRouting,measureAudio,verifyWav32,measureCompRenderedSeams,measureStudioCompRender,compareRenderedWav,auditLiveAudioWindows} from '../dist/audio-certification.js';
+import {auditRouting,measureAudio,verifyWav32,measureCompRenderedSeams,measureStudioCompRender,compareRenderedWav,auditLiveAudioWindows,auditContinuousPCM} from '../dist/audio-certification.js';
 import {encodeWav} from '../dist/wav.js';
 const buffer=(...channels)=>({numberOfChannels:channels.length,length:channels[0].length,sampleRate:44100,getChannelData:i=>Float32Array.from(channels[i])});
 test('known peak RMS and float WAV roundtrip',()=>{const b=buffer([.5,-.5],[.5,-.5]);const m=measureAudio(b);assert.ok(Math.abs(m.peakDb+6.0206)<.001);assert.equal(m.peakDb,m.rmsDb);const wav=encodeWav(b,{bits:32});assert.ok(verifyWav32(wav,b));new DataView(wav).setFloat32(44,0,true);assert.equal(verifyWav32(wav,b),false);});
@@ -158,4 +158,18 @@ test('R08.20 refuses non-monotonic timestamps, absent channels and malformed cal
   assert.throws(()=>auditLiveAudioWindows(windows),/invalide|vide/);
  }
  assert.throws(()=>auditLiveAudioWindows([window],{clipThreshold:0}),/invalides/);
+});
+
+test('S03.1 continuous PCM distinguishes clean tones and isolated discontinuities',()=>{
+ const clean=Array.from({length:4410},(_,i)=>Math.sin(i*2*Math.PI*440/44100)*.2);
+ assert.equal(auditContinuousPCM(buffer(clean)).candidateCount,0);
+ const stepped=[0,0,-.01,.8,.81,.81,NaN,1.2,1.2];
+ const original=stepped.slice();
+ const report=auditContinuousPCM(buffer(clean.slice(0,stepped.length),stepped));
+ assert.equal(report.invalid,1);assert.equal(report.overRange,2);
+ assert.equal(report.channels[1].candidateCount,1);
+ assert.equal(report.channels[1].candidates[0].frame,3);
+ assert.deepEqual(stepped,original);
+ assert.equal(auditContinuousPCM(buffer(stepped),{maxCandidates:0}).channels[0].candidates.length,0);
+ assert.throws(()=>auditContinuousPCM(buffer([0,1])),/invalide/);
 });
