@@ -57,3 +57,5 @@ test('split audio keeps outer fades within the new clip boundaries',()=>{
 });
 
 test('trim preserves source and bounds fade envelopes to shortened audio',()=>{const clip={id:'a',audioId:'source',start:0,length:2,sourceOffset:0,fadeIn:1,fadeOut:1};const next=trimClip(clip,'right',.25,8,120,10);assert.equal(next.length,.25);assert.ok(next.fadeIn+next.fadeOut<=.5+1e-10);assert.equal(next.audioId,'source');assert.equal(clip.length,2);assert.equal(clip.fadeIn,1);});
+
+test('edited audio retains source identity and offsets through session serialization',()=>{const original={id:'a',start:1,length:4,audioId:'source',sourceOffset:1,gainDb:3,fadeIn:.1,fadeOut:.2};const [left,right]=splitClip(original,3,120,'b');const shortened=trimClip(right,'left',3.5,8,120,12);const restored=JSON.parse(JSON.stringify([left,shortened]));assert.equal(restored[0].audioId,'source');assert.equal(restored[1].audioId,'source');assert.equal(restored[1].sourceOffset,6);assert.equal(restored[1].length,1.5);assert.equal(restored[1].gainDb,3);assert.equal(original.length,4);assert.ok(restored[1].fadeIn+restored[1].fadeOut<=3);});
