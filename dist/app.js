@@ -1568,7 +1568,7 @@ document.addEventListener('contextmenu',e=>{
   const remove=()=>{checkpoint();if(master){slots[index]=null;state[id].enabled=false;}else placeInsert(tr,index,null);changed(true);};
   show('Insert '+String.fromCharCode(65+index),[
    A('insert-choose',id?'Remplacer / gérer…':'Choisir un plugin…',open),
-   A('insert-open','Ouvrir le plugin',()=>master?setView('mastering'):openPluginWindow(id,owner),!id),
+   A('insert-open','Ouvrir le plugin',()=>{if(master)return setView('mastering');if(!project.tracks.some(t=>t.id===owner))return;if(currentTrack()?.id!==owner)selectTrack(owner);openPluginWindow(id,owner);},!id),
    A('insert-bypass',state?.[id]?.enabled?'Bypasser':'Réactiver',()=>{checkpoint();state[id].enabled=!state[id].enabled;changed(true);},!id),
    G('insert-organize','Organisation',[A('insert-move','Déplacer / échanger…',open,!id),A('insert-copy','Copier vers un insert…',open,!id||master)]),
    A('insert-remove','Retirer le plugin',remove,!id)
@@ -1603,9 +1603,9 @@ document.addEventListener('contextmenu',e=>{
   const id=trackNode.dataset.selectTrack||trackNode.dataset.trackDrag||trackNode.dataset.mixerTrack||trackNode.closest('[data-track]')?.dataset.track;
   const tr=project.tracks.find(t=>t.id===id);if(!tr)return;
   show(tr.name,[
-   A('track-properties','Propriétés / renommer…',()=>trackSettings(id)),
+   A('track-properties','Propriétés / renommer…',()=>{if(currentTrack()?.id!==id)selectTrack(id);trackSettings(id);}),
    G('track-mix','Mixage',[A('track-mute',tr.mute?'Réactiver la piste':'Mute',()=>{checkpoint();tr.mute=!tr.mute;changed(true);}),A('track-solo',tr.solo?'Désactiver Solo':'Solo',()=>{checkpoint();tr.solo=!tr.solo;changed(true);}),A('track-volume','Volume à 0 dB',()=>setTrackVolume(id,0,true),tr.volume===0),A('track-pan','Panoramique au centre',()=>{checkpoint();setTrackPan(id,0);},tr.pan===0)]),
-   A('track-instrument','Ouvrir l’instrument',()=>openPluginWindow('instrument',id),!instrumentDefinition(tr.type)),
+   A('track-instrument','Ouvrir l’instrument',()=>{if(currentTrack()?.id!==id)selectTrack(id);openPluginWindow('instrument',id);},!instrumentDefinition(tr.type)),
    A('track-delete','Supprimer la piste…',()=>deleteTrackWithConfirmation(id),project.tracks.length<=1)
   ],trackNode);return;
  }
