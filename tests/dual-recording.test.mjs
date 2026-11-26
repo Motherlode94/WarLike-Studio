@@ -51,3 +51,11 @@ test('missing hardware second channel is rejected rather than recording silence'
  assert.throws(()=>validateRecordingInputChannels({channelCount:1},[{channel:'1'},{channel:'2'}]),/Entrée 2 indisponible/);
  assert.equal(validateRecordingInputChannels({channelCount:1},[{channel:'1'}]),'1');
 });
+
+test('S04.1 malformed or incomplete capture fails before allocating a mono take',()=>{
+ const ctx={createBuffer(){throw Error('unexpected allocation');}};
+ const buffer={numberOfChannels:2,length:3,sampleRate:48000,getChannelData:()=>new Float32Array(2)};
+ assert.throws(()=>extractRecordedChannel(ctx,buffer,'3'),/invalide/);
+ assert.throws(()=>extractRecordedChannel(ctx,buffer,'2'),/incomplet/);
+ assert.throws(()=>extractRecordedChannel(ctx,{...buffer,sampleRate:NaN},'1'),/invalide/);
+});

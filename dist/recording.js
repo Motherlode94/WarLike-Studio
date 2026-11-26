@@ -88,10 +88,14 @@ export function captureChannelMode(assignments,fallback='1') {
   return assignments.length>1?'stereo':assignments[0].channel;
 }
 export function extractRecordedChannel(ctx,buffer,channel) {
+  if(!['1','2'].includes(channel))throw Error('Entrée audio invalide.');
   const index=channel==='2'?1:0;
-  if(index>=buffer.numberOfChannels)throw Error('Entrée audio '+channel+' indisponible dans la prise.');
+  if(!buffer||!Number.isInteger(buffer.numberOfChannels)||index>=buffer.numberOfChannels)throw Error('Entrée audio '+channel+' indisponible dans la prise.');
+  if(!Number.isInteger(buffer.length)||buffer.length<1||!Number.isFinite(buffer.sampleRate)||buffer.sampleRate<=0)throw Error('Format de prise invalide.');
+  const data=buffer.getChannelData(index);
+  if(!data||data.length!==buffer.length)throw Error('Canal PCM incomplet.');
   const mono=ctx.createBuffer(1,buffer.length,buffer.sampleRate);
-  mono.getChannelData(0).set(buffer.getChannelData(index));
+  mono.getChannelData(0).set(data);
   return mono;
 }
 
