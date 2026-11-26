@@ -5,7 +5,7 @@ export function putPoint(track,key,bar,value,base){track.automation??={mode:'off
 export function automateParam(param,points,{startBar,endBar,when,secondsPerBar,map=x=>x,exponential=false}){
   param.cancelScheduledValues(when);const initial=map(pointValue(points,startBar,0));param.setValueAtTime(initial,when);
   const relevant=points.filter(p=>p.bar>startBar&&p.bar<=endBar);if(points.some(p=>p.bar>endBar))relevant.push({bar:endBar,value:pointValue(points,endBar,0)});
-  for(const p of relevant){const time=when+(p.bar-startBar)*secondsPerBar,value=map(p.value);if(exponential&&value>0&&initial>0)param.exponentialRampToValueAtTime(value,time);else param.linearRampToValueAtTime(value,time);}
+  let previous=initial;for(const p of relevant){const time=when+(p.bar-startBar)*secondsPerBar,value=map(p.value);if(exponential&&value>0&&previous>0)param.exponentialRampToValueAtTime(value,time);else param.linearRampToValueAtTime(value,time);previous=value;}
 }
 const db=x=>10**(x/20);
 export function bindings(ch,track,definitions){
