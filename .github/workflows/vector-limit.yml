@@ -12,7 +12,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,6 +32,8 @@ jobs:
           done
           curl -fsS http://127.0.0.1:8765/ -o /dev/null
           node tests/vector-limit-browser.mjs
+          node tests/vector-limit-dsp-browser.mjs
+          node tests/demo-playback-level-browser.mjs
 
       - name: VECTOR LIMIT screenshots
         if: always()
@@ -39,4 +41,12 @@ jobs:
         with:
           name: vector-limit-hardware
           path: artifacts/vector-limit/
+          if-no-files-found: ignore
+
+      - name: Demo playback level measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: studio-demo-playback-levels
+          path: artifacts/demo-levels/
           if-no-files-found: ignore

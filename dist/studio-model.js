@@ -1,3 +1,4 @@
+import {limiterLatency} from './vector-limit-dsp.js';
 import {fadeShape} from './clip-tools.js?v=0.14.0';
 // Session, routing and audio playlists. Musical note creation is intentionally unchanged.
 export const MAX_BARS=2048;
@@ -19,10 +20,10 @@ export function audibleIds(tracks){
   const solos=tracks.filter(t=>t.solo);if(!solos.length)return new Set(tracks.map(t=>t.id));
   const set=new Set();for(const t of tracks)if(solos.some(s=>reaches(tracks,s.id,t.id)||reaches(tracks,t.id,s.id)))set.add(t.id);return set;
 }
-export function trackLatency(track){return (track.inserts||[]).reduce((sum,id)=>sum+(id&&track.effects?.[id]?.enabled&&(['glue','exostrip','circuitbus','vectorcomp','vectorlimit'].includes(id.split('__')[0])?.006:id.split('__')[0]==='voxlevel'?.012:id.split('__')[0]==='voxtune'?.04:0)),0);}
-export function compensationDelays(tracks){
+export function trackLatency(track,rate=48000){return (track.inserts||[]).reduce((sum,id)=>sum+(id&&track.effects?.[id]?.enabled&&(id.split('__')[0]==='vectorlimit'?limiterLatency(rate):['glue','exostrip','circuitbus','vectorcomp'].includes(id.split('__')[0])?.006:id.split('__')[0]==='voxlevel'?.012:id.split('__')[0]==='voxtune'?.04:0)),0);}
+export function compensationDelays(tracks,rate=48000){
   const incoming=id=>tracks.filter(t=>edges(t).includes(id)),memo=new Map();
-  const arrival=(t,seen=new Set())=>{if(memo.has(t.id))return memo.get(t.id);if(seen.has(t.id))return 0;const next=new Set([...seen,t.id]);const value=(t.type==='bus'?Math.max(0,...incoming(t.id).map(s=>arrival(s,next))):0)+trackLatency(t);memo.set(t.id,value);return value;};
+  const arrival=(t,seen=new Set())=>{if(memo.has(t.id))return memo.get(t.id);if(seen.has(t.id))return 0;const next=new Set([...seen,t.id]);const value=(t.type==='bus'?Math.max(0,...incoming(t.id).map(s=>arrival(s,next))):0)+trackLatency(t,rate);memo.set(t.id,value);return value;};
   const max=Math.max(0,...tracks.map(t=>arrival(t)));const delays=new Map();for(const t of tracks){const own=arrival(t),target=t.output&&t.output!=='master'?tracks.find(x=>x.id===t.output):null;const at=target?Math.max(0,...incoming(target.id).map(s=>arrival(s))):max;delays.set(t.id,Math.max(0,at-own));for(const s of t.sends||[]){const target=tracks.find(n=>n.id===s.target);if(target){const atSend=Math.max(0,...incoming(target.id).map(n=>arrival(n)));delays.set(t.id+':send:'+s.id,Math.max(0,atSend-own));}}}return delays;
 }
 export function ensurePlaylists(track,idFactory){

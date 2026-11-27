@@ -96,7 +96,7 @@ export class AudioEngine {
     for(const send of ch.sendNodes?.values()||[])for(const node of [send.gain,send.delay])try{node.disconnect();}catch{}
     for(const node of Object.values(ch))if(node&&typeof node.disconnect==='function')try{node.disconnect();}catch{}
   }
-  resetSession(){this.stop();this.stopPreview();this.patternMode=null;this.clipPreview=null;this.takePreview=null;this.exoPatternCache?.clear();if(this.graph){for(const ch of this.channels.values())this.disposeChannel(ch);this.channels.clear();this.graph.routeSignature=null;}}
+  resetSession(){this.stop();this.stopPreview();this.patternMode=null;this.clipPreview=null;this.takePreview=null;this.exoPatternCache?.clear();if(this.graph){for(const ch of this.channels.values())this.disposeChannel(ch);this.channels.clear();const master=this.graph.mastering;if(master?.peakProcessor){master.drive.disconnect(master.peakProcessor.input);master.peakProcessor.dispose();master.peakProcessor=null;}this.graph.routeSignature=null;}}
   voiceScope(ctx){const nodes=[],sources=[];let remaining=0;return {node(kind){const node=ctx[kind]();nodes.push(node);return node;},watch(source){if(sources.includes(source))return;sources.push(source);remaining++;source.addEventListener('ended',()=>{if(--remaining===0)for(const node of nodes)try{node.disconnect();}catch{}});}};}
   buildGraph(ctx,{captureId=null,preFader=false}={}) {
     normaliseRouting(this.getProject());
@@ -164,7 +164,7 @@ export class AudioEngine {
   }
   audible(tr) {return !tr.mute&&audibleIds(this.getProject().tracks).has(tr.id);}
   routeGraph(ctx,graph,initial=false){
-    const p=this.getProject(),delays=compensationDelays(p.tracks),signature=JSON.stringify(p.tracks.map(t=>[t.id,t.output,(t.sends||[]).map(s=>[s.id,s.target,s.pre])]).sort((a,b)=>a[0].localeCompare(b[0])));
+    const p=this.getProject(),delays=compensationDelays(p.tracks,ctx.sampleRate),signature=JSON.stringify(p.tracks.map(t=>[t.id,t.output,(t.sends||[]).map(s=>[s.id,s.target,s.pre])]).sort((a,b)=>a[0].localeCompare(b[0])));
     for(const tr of p.tracks){const ch=graph.channels.get(tr.id);if(!ch)continue;
       if(graph.routeSignature!==signature){ch.analyser.disconnect();ch.routeDelay.disconnect();for(const n of ch.sendNodes.values()){n.source.disconnect(n.gain);n.gain.disconnect();n.delay.disconnect();}ch.sendNodes.clear();
         const captured=graph.captureId===tr.id,dest=captured?ctx.destination:graph.channels.get(tr.output)?.input||graph.master;if(captured&&graph.preFader)ch.effectsOutput.connect(ctx.destination);else{ch.analyser.connect(ch.routeDelay);ch.routeDelay.connect(dest);}
@@ -371,7 +371,7 @@ export class AudioEngine {
     const ctx=new OfflineAudioContext(2,Math.ceil(duration*sampleRate),sampleRate);await renderer.prepareInstruments(ctx,p);await prepareStudioContext(ctx);const graph=renderer.buildGraph(ctx,{captureId,preFader});
     for(const tr of p.tracks)for(const clip of tr.clips)if(clip.audioId&&!clip.muted&&clip.start*16<start&&(clip.start+clip.length)*16>start){const a=getAssets().get(clip.audioId);if(a)renderer.audioVoice(ctx,graph.channels.get(tr.id).input,a.buffer,.01,(clip.sourceOffset||0)+(start-clip.start*16)*sd,Math.min((clip.start+clip.length)*16-start,end-start)*sd,false,clip.gainDb,clip.id,{...clip,total:clip.length*16*sd,elapsed:(start-clip.start*16)*sd});}
     renderer.scheduleAutomation(ctx,graph,startBar,endBar,.01);
-    try{const buffer=await renderScheduled(ctx,{start,end,stepSeconds:sd,signal,schedule:i=>renderer.scheduleStep(ctx,graph.channels,i,.01+(i-start)*sd,false,.01)});signal?.throwIfAborted();return buffer;}finally{for(const ch of graph.channels.values())renderer.disposeChannel(ch);for(const split of graph.mastering.splitNodes.values())split.dispose();for(const stage of graph.mastering.effects.values())stage.dispose();}
+    try{const buffer=await renderScheduled(ctx,{start,end,stepSeconds:sd,signal,schedule:i=>renderer.scheduleStep(ctx,graph.channels,i,.01+(i-start)*sd,false,.01)});signal?.throwIfAborted();return buffer;}finally{for(const ch of graph.channels.values())renderer.disposeChannel(ch);for(const split of graph.mastering.splitNodes.values())split.dispose();for(const stage of graph.mastering.effects.values())stage.dispose();graph.mastering.peakProcessor?.dispose();}
   }
   async exportWav(options={}){
     const buffer=await this.renderRange(options);

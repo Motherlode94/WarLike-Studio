@@ -99,7 +99,7 @@ try{
   assert.equal(buses.length,4,'complete demos require drums, bass, music and vocal group buses');
   assert.deepEqual(buses.map(t=>t.id).sort(),['demobusbass','demobusdrums','demobusmusic','demobusvocals']);
   for(const bus of buses){assert.equal(bus.output,'master');assert.equal(bus.volume,0);assert.ok(saved.project.tracks.some(t=>t.type!=='bus'&&t.output===bus.id),'group bus must receive a source');}
-  for(const t of saved.project.tracks.filter(t=>t.type!=='bus'&&t.clips.length))assert.ok(buses.some(b=>b.id===t.output),'source must route to its group bus');assert.equal(saved.masterVolume,-9);
+  for(const t of saved.project.tracks.filter(t=>t.type!=='bus'&&t.clips.length))assert.ok(buses.some(b=>b.id===t.output),'source must route to its group bus');assert.equal(saved.masterVolume,0);
   const bass=saved.project.tracks.find(t=>t.type==='bass');
   if(kind==='trap808'){
    assert.equal(saved.project.bars,112,'Atlanta After Dark must have 112 editable bars');

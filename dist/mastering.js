@@ -1,3 +1,4 @@
+import {createVectorLimiter,syncVectorLimiter} from './vector-limit-audio.js';
 import {routeMasterRack} from './master-rack-dsp.js';
 import {normalizeRack,rackType,rackLeaves,rackIsSplit} from './master-rack-model.js';
 import {EFFECTS} from './plugins.js?v=0.14.0';
@@ -14,8 +15,8 @@ export const MASTER_BASE_MODULES={
     {key:'attack',name:'Attack',min:1,max:100,step:1,default:30,unit:'ms'},
     {key:'release',name:'Release',min:50,max:1000,step:10,default:250,unit:'ms'},
     {key:'makeup',name:'Make-up',min:0,max:9,step:.25,default:0,unit:'dB'}]},
-  peak:{name:'PEAK',subtitle:'OUTPUT LIMITER',description:'Contrôle les crêtes et fixe un plafond de sortie sur les échantillons.',controls:[
-    {key:'drive',name:'Input gain',min:0,max:18,step:.25,default:0,unit:'dB'},
+  peak:{name:'PEAK',subtitle:'OUTPUT LIMITER',description:'Limiteur à anticipation 6 ms et gain stéréo lié, partagé avec VECTOR LIMIT. Plafond sur les échantillons.',controls:[
+    {key:'drive',name:'Input gain',min:0,max:24,step:.25,default:0,unit:'dB'},
     {key:'ceiling',name:'Ceiling',min:-12,max:-.1,step:.1,default:-1,unit:'dB'},
     {key:'release',name:'Release',min:20,max:500,step:10,default:120,unit:'ms'}]}
 };
@@ -46,15 +47,12 @@ export function importMasterRack(project,data){
 }
 const gain=db=>10**(db/20);
 export function createMasterChain(ctx,input,{createEffect=null}={}){
-  const cut=ctx.createBiquadFilter(),low=ctx.createBiquadFilter(),mid=ctx.createBiquadFilter(),high=ctx.createBiquadFilter(),press=ctx.createDynamicsCompressor(),makeup=ctx.createGain(),drive=ctx.createGain(),limiter=ctx.createDynamicsCompressor(),scaleIn=ctx.createGain(),guard=ctx.createWaveShaper(),scaleOut=ctx.createGain(),wet=ctx.createGain(),dry=ctx.createGain(),output=ctx.createGain();
+  const cut=ctx.createBiquadFilter(),low=ctx.createBiquadFilter(),mid=ctx.createBiquadFilter(),high=ctx.createBiquadFilter(),press=ctx.createDynamicsCompressor(),makeup=ctx.createGain(),drive=ctx.createGain(),scaleOut=ctx.createGain(),wet=ctx.createGain(),dry=ctx.createGain(),output=ctx.createGain();
   cut.type='highpass';cut.Q.value=.5;low.type='lowshelf';low.frequency.value=100;mid.type='peaking';mid.frequency.value=2500;mid.Q.value=.65;high.type='highshelf';high.frequency.value=10000;press.knee.value=6;
-  // Fixed identity curve clips values outside ±1; separate gains set the ceiling.
-  guard.curve=new Float32Array([-1,0,1]);guard.oversample='none';
-  cut.connect(low);low.connect(mid);mid.connect(high);press.connect(makeup);drive.connect(limiter);
-  limiter.connect(scaleIn);scaleIn.connect(guard);guard.connect(scaleOut);
+  cut.connect(low);low.connect(mid);mid.connect(high);press.connect(makeup);
   const rackInput=ctx.createGain(),rackOutput=ctx.createGain(),dryDelay=ctx.createDelay(4),splitNodes=new Map();const inputSplitter=ctx.createChannelSplitter(2),inputMeters=[ctx.createAnalyser(),ctx.createAnalyser()];inputMeters.forEach((m,i)=>{m.fftSize=512;inputSplitter.connect(m,i);});
   const splitter=ctx.createChannelSplitter(2),meters=[ctx.createAnalyser(),ctx.createAnalyser()];output.connect(splitter);meters.forEach((m,i)=>{m.fftSize=2048;splitter.connect(m,i);});
-  return {input,inputSplitter,inputMeters,rackInput,rackOutput,dryDelay,splitNodes,createEffect,effects:new Map(),stages:{balance:{input:cut,output:high},press:{input:press,output:makeup},peak:{input:drive,output:scaleOut}},cut,low,mid,high,press,makeup,drive,limiter,scaleIn,guard,scaleOut,wet,dry,output,splitter,meters};
+  return {input,inputSplitter,inputMeters,rackInput,rackOutput,dryDelay,splitNodes,createEffect,effects:new Map(),stages:{balance:{input:cut,output:high},press:{input:press,output:makeup},peak:{input:drive,output:scaleOut}},cut,low,mid,high,press,makeup,drive,peakProcessor:null,scaleOut,wet,dry,output,splitter,meters};
 }
 export function syncMasterChain(nodes,value,now=0,initial=false){
   const state=masteringSettings(value),eq=!state.bypass&&state.balance.enabled,bus=!state.bypass&&state.press.enabled,peak=!state.bypass&&state.peak.enabled;
@@ -62,15 +60,15 @@ export function syncMasterChain(nodes,value,now=0,initial=false){
   set(nodes.cut.frequency,eq?state.balance.cut:0);for(const key of ['low','mid','high'])set(nodes[key].gain,eq?state.balance[key]:0);
   for(const key of ['threshold','ratio','attack','release'])set(nodes.press[key],key==='threshold'?(bus?state.press.threshold:0):key==='ratio'?(bus?state.press.ratio:1):state.press[key]/1000);
   set(nodes.makeup.gain,gain(bus?state.press.makeup:0));set(nodes.drive.gain,gain(peak?state.peak.drive:0));
-  // Empty or bypassed master inserts have a direct, unprocessed signal path.
-  set(nodes.limiter.threshold,peak?state.peak.ceiling:-2);set(nodes.limiter.knee,peak?0:2);set(nodes.limiter.ratio,peak?20:16);set(nodes.limiter.attack,peak?.001:.003);set(nodes.limiter.release,peak?state.peak.release/1000:.1);
-  const ceiling=gain(state.peak.ceiling);nodes.scaleIn.gain.setValueAtTime(1/ceiling,now);nodes.scaleOut.gain.setValueAtTime(ceiling,now);
+  if(!peak&&nodes.peakProcessor){nodes.drive.disconnect(nodes.peakProcessor.input);nodes.peakProcessor.dispose();nodes.peakProcessor=null;}
+  let firstPeak=initial;if(peak&&!nodes.peakProcessor){nodes.peakProcessor=createVectorLimiter(nodes.input.context);nodes.drive.connect(nodes.peakProcessor.input);nodes.peakProcessor.output.connect(nodes.scaleOut);firstPeak=true;}
+  if(nodes.peakProcessor)syncVectorLimiter(nodes.peakProcessor,{...state.peak,drive:0},now,firstPeak);
   const leaves=rackLeaves(state);
   for(const [id,stage] of nodes.effects)if(!leaves.includes(id)){stage.dispose();nodes.effects.delete(id);delete nodes.stages[id];nodes.routeSignature=null;}
   for(const id of leaves){const type=rackType(id);if(!EFFECTS[type]&&id===type)continue;let stage=nodes.effects.get(id);
     if(!stage){
       if(EFFECTS[type]){if(!nodes.createEffect)throw Error('Le moteur doit préparer les effets du master.');stage=nodes.createEffect(type,state[id]);}
-      else{const input=nodes.input.context.createGain(),child=createMasterChain(nodes.input.context,input,{createEffect:nodes.createEffect});stage={input,output:child.output,processor:child,update:(value,at=nodes.input.context.currentTime,first=false)=>syncMasterChain(child,{inserts:[type],[type]:value},at,first),dispose:()=>{input.disconnect();for(const s of Object.values(child.stages))s.output.disconnect();child.output.disconnect();}};stage.update(state[id],now,initial);}
+      else{const input=nodes.input.context.createGain(),child=createMasterChain(nodes.input.context,input,{createEffect:nodes.createEffect});stage={input,output:child.output,processor:child,update:(value,at=nodes.input.context.currentTime,first=false)=>syncMasterChain(child,{inserts:[type],[type]:value},at,first),dispose:()=>{input.disconnect();for(const s of Object.values(child.stages))s.output.disconnect();child.peakProcessor?.dispose();child.output.disconnect();}};stage.update(state[id],now,initial);}
       nodes.effects.set(id,stage);nodes.stages[id]=stage;nodes.routeSignature=null;
     }else stage.update(state[id],now,initial);
   }

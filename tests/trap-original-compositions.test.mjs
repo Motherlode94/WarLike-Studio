@@ -68,7 +68,7 @@ test('both songs use available WarLike native effects with conservative headroom
   const master=masteringSettings(p.mastering);
   assert.equal(master.bypass,false);
   assert.equal(master.peak.enabled,true);
-  assert.equal(master.peak.drive,0);
+  assert.ok(master.peak.drive>0&&master.peak.drive<=24);
   assert.equal(master.peak.ceiling,-1.5);
   assert.equal(master.circuitcolor.mix,0);
   assert.equal(master.circuitcolor.drive,0);

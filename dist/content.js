@@ -1,3 +1,4 @@
+import {setDemoPlaybackLevel} from './demo-playback-level.js';
 import {COMPOSITION_TEMPLATES,COMPOSITION_STYLES,createStudioComposition} from './studio-compositions.js';
 import {EXPANSION_INSTRUMENTS} from './wl-expansion.js';
 import {expandFactorySong} from './full-song.js';
@@ -59,14 +60,14 @@ export function createFactorySession(templateId='nocturne',full=false){
   if(COMPOSITION_STYLES[templateId]){
    const project=createStudioComposition(template,createContentTrack,full);
    project.tracks.forEach(ensurePlugins);
-   return full?finishFactorySong(project,templateId):project;
+   return full?setDemoPlaybackLevel(finishFactorySong(project,templateId),templateId):project;
   }
   const project=createFactoryArrangement(template,createContentTrack);
   project.tracks.forEach(ensurePlugins);
   if(!full)return project;
   expandFactorySong(project);
   articulateLegacyFactorySong(project,templateId);
-  return finishFactorySong(project,templateId);
+  return setDemoPlaybackLevel(finishFactorySong(project,templateId),templateId);
 }
 
 export const FACTORY_STYLES={...LEGACY_FACTORY_STYLES,...COMPOSITION_STYLES};

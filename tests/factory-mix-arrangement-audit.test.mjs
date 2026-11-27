@@ -31,7 +31,8 @@ test('all eighteen full factory songs have complete structure, usable mix racks 
   const master=project.mastering,enabled=(master.inserts||[]).filter(fx=>fx&&master[fx]?.enabled);
   assert(enabled.includes('balance')&&enabled.includes('press')&&enabled.includes('peak'),id+' only has a limiter rather than a master chain');
   assert(master.peak.ceiling<=-1,id+' peak output too hot');
-  assert(master.peak.drive===0,id+' master should not maximise without listening');
+  assert(master.peak.drive>=0&&master.peak.drive<=18,id+' measured demo gain outside the limiter range');
+  assert.equal(project.masterVolume,0);assert.equal(project.demoLevelProfile,'factory:'+id);
  }
 });
 test('production pass is idempotent and only acts on new full factory copies',()=>{

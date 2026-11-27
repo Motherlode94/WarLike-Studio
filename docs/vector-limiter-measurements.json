@@ -1,0 +1,664 @@
+{
+  "referenceBase": "8a7a5eaaf3dc93a623bf7047ec292f4fd21817f7",
+  "measurement": "Four-bar chorus excerpts at 48 kHz; production Chromium Web Audio; K-weighted loudness estimates; not whole-song or normative certification.",
+  "oldEngineBeforeGainCorrection": [
+    {
+      "id": "nocturne",
+      "mode": "original",
+      "masterVolume": -9,
+      "integrated": -26.04105148653628,
+      "shortMax": -25.582713197597453,
+      "samplePeak": -12.14387526451388,
+      "estimatedPeak": -12.14387526451388,
+      "duration": 6.966541666666667,
+      "windows": 66
+    },
+    {
+      "id": "nocturne",
+      "mode": "unity",
+      "masterVolume": 0,
+      "integrated": -17.57657199939091,
+      "shortMax": -17.154564228587592,
+      "samplePeak": -4.455510643761114,
+      "estimatedPeak": -4.438036623237201,
+      "duration": 6.966541666666667,
+      "windows": 66
+    },
+    {
+      "id": "soleil",
+      "mode": "original",
+      "masterVolume": -9,
+      "integrated": -31.596637920883477,
+      "shortMax": -31.17858287618215,
+      "samplePeak": -17.552579095335265,
+      "estimatedPeak": -17.552579095335265,
+      "duration": 8.898895833333333,
+      "windows": 85
+    },
+    {
+      "id": "soleil",
+      "mode": "unity",
+      "masterVolume": 0,
+      "integrated": -22.604947314364306,
+      "shortMax": -22.196906560036712,
+      "samplePeak": -8.680288738479586,
+      "estimatedPeak": -8.680288738479586,
+      "duration": 8.898895833333333,
+      "windows": 85
+    },
+    {
+      "id": "brume",
+      "mode": "original",
+      "masterVolume": -9,
+      "integrated": -33.945217753330994,
+      "shortMax": -33.47796332410106,
+      "samplePeak": -22.014673217288237,
+      "estimatedPeak": -22.014673217288237,
+      "duration": 11.438583333333334,
+      "windows": 111
+    },
+    {
+      "id": "brume",
+      "mode": "unity",
+      "masterVolume": 0,
+      "integrated": -24.94159484755604,
+      "shortMax": -24.47355296396432,
+      "samplePeak": -13.015295623665256,
+      "estimatedPeak": -13.015295623665256,
+      "duration": 11.438583333333334,
+      "windows": 111
+    },
+    {
+      "id": "trap-abyss",
+      "mode": "original",
+      "masterVolume": -1,
+      "integrated": -22.563572006195688,
+      "shortMax": -22.136047648080943,
+      "samplePeak": -8.648482941619255,
+      "estimatedPeak": -8.648482941619255,
+      "duration": 6.770583333333334,
+      "windows": 64
+    },
+    {
+      "id": "trap-abyss",
+      "mode": "unity",
+      "masterVolume": 0,
+      "integrated": -21.59083915769936,
+      "shortMax": -21.16352133532044,
+      "samplePeak": -7.710872052512293,
+      "estimatedPeak": -7.710872052512293,
+      "duration": 6.770583333333334,
+      "windows": 64
+    },
+    {
+      "id": "trap-enigma",
+      "mode": "original",
+      "masterVolume": -1,
+      "integrated": -25.303465057486928,
+      "shortMax": -24.11237654445482,
+      "samplePeak": -10.79189152776219,
+      "estimatedPeak": -10.788320461514502,
+      "duration": 7.6290625,
+      "windows": 73
+    },
+    {
+      "id": "trap-enigma",
+      "mode": "unity",
+      "masterVolume": 0,
+      "integrated": -24.30340800006781,
+      "shortMax": -23.115248288371248,
+      "samplePeak": -9.867173827430442,
+      "estimatedPeak": -9.86261145420942,
+      "duration": 7.6290625,
+      "windows": 73
+    },
+    {
+      "id": "trap808",
+      "mode": "original",
+      "masterVolume": -9,
+      "integrated": -31.380971858709767,
+      "shortMax": -30.21408572484497,
+      "samplePeak": -17.96437393136214,
+      "estimatedPeak": -17.96437393136214,
+      "duration": 6.867145833333334,
+      "windows": 65
+    },
+    {
+      "id": "trap808",
+      "mode": "unity",
+      "masterVolume": 0,
+      "integrated": -22.38320630368524,
+      "shortMax": -21.216048979743555,
+      "samplePeak": -8.970312774914253,
+      "estimatedPeak": -8.970312774914253,
+      "duration": 6.867145833333334,
+      "windows": 65
+    },
+    {
+      "id": "drill",
+      "mode": "original",
+      "masterVolume": -9,
+      "integrated": -32.48727785941263,
+      "shortMax": -32.12809731490982,
+      "samplePeak": -19.34171905032651,
+      "estimatedPeak": -19.335704937163975,
+      "duration": 6.770583333333334,
+      "windows": 64
+    },
+    {
+      "id": "drill",
+      "mode": "unity",
+      "masterVolume": 0,
+      "integrated": -23.4854541733134,
+      "shortMax": -23.126672440352017,
+      "samplePeak": -10.298336191667294,
+      "estimatedPeak": -10.298336191667294,
+      "duration": 6.770583333333334,
+      "windows": 64
+    }
+  ],
+  "newEngineAndDemoProfiles": [
+    {
+      "family": "factory",
+      "id": "nocturne",
+      "masterVolume": 0,
+      "drive": 2.5,
+      "start": 28,
+      "integrated": -15.909095068100424,
+      "shortMax": -15.506420206305624,
+      "samplePeak": -2.804404500207962,
+      "estimatedPeak": -2.7732461363950627,
+      "duration": 6.966541666666667,
+      "windows": 66
+    },
+    {
+      "family": "factory",
+      "id": "soleil",
+      "masterVolume": 0,
+      "drive": 7.5,
+      "start": 28,
+      "integrated": -15.949409494739113,
+      "shortMax": -15.555414816068902,
+      "samplePeak": -2.058048804186029,
+      "estimatedPeak": -2.058048804186029,
+      "duration": 8.898895833333333,
+      "windows": 85
+    },
+    {
+      "family": "factory",
+      "id": "brume",
+      "masterVolume": 0,
+      "drive": 9.75,
+      "start": 28,
+      "integrated": -16.049336318087796,
+      "shortMax": -15.592411442033288,
+      "samplePeak": -4.119660823758141,
+      "estimatedPeak": -4.118633219603987,
+      "duration": 11.438583333333334,
+      "windows": 111
+    },
+    {
+      "family": "factory",
+      "id": "trap-abyss",
+      "masterVolume": 0,
+      "drive": 6.5,
+      "start": 32,
+      "integrated": -15.9312707269649,
+      "shortMax": -15.492448161408237,
+      "samplePeak": -2.065797998624605,
+      "estimatedPeak": -2.065797998624605,
+      "duration": 6.770583333333334,
+      "windows": 64
+    },
+    {
+      "family": "factory",
+      "id": "trap-enigma",
+      "masterVolume": 0,
+      "drive": 9.25,
+      "start": 32,
+      "integrated": -15.902929906030112,
+      "shortMax": -14.728730748554296,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4999777199660749,
+      "duration": 7.6290625,
+      "windows": 73
+    },
+    {
+      "family": "factory",
+      "id": "rnb-2005",
+      "masterVolume": 0,
+      "drive": 10,
+      "start": 32,
+      "integrated": -16.051999999799843,
+      "shortMax": -15.24589067372251,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4176147689338796,
+      "duration": 10.222770833333334,
+      "windows": 99
+    },
+    {
+      "family": "factory",
+      "id": "popstar-2008",
+      "masterVolume": 0,
+      "drive": 9.75,
+      "start": 32,
+      "integrated": -16.81821342500971,
+      "shortMax": -16.08634214778955,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2726905206169343,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "factory",
+      "id": "etoiles-interdites",
+      "masterVolume": 0,
+      "drive": 12.25,
+      "start": 32,
+      "integrated": -17.705324780107688,
+      "shortMax": -17.131035560046026,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2450249722096451,
+      "duration": 10.01,
+      "windows": 97
+    },
+    {
+      "family": "factory",
+      "id": "derriere-les-murs",
+      "masterVolume": 0,
+      "drive": 15.5,
+      "start": 32,
+      "integrated": -16.134617091745923,
+      "shortMax": -15.674979120390125,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4909576241872422,
+      "duration": 9.421770833333333,
+      "windows": 91
+    },
+    {
+      "family": "factory",
+      "id": "un-dernier-soleil",
+      "masterVolume": 0,
+      "drive": 10,
+      "start": 32,
+      "integrated": -17.14689249132037,
+      "shortMax": -16.707061912982248,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3371259156381226,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "factory",
+      "id": "au-bord-du-ciel",
+      "masterVolume": 0,
+      "drive": 7,
+      "start": 28,
+      "integrated": -16.150300347944587,
+      "shortMax": -15.627300472305773,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.491606543471395,
+      "duration": 11.438583333333334,
+      "windows": 111
+    },
+    {
+      "family": "factory",
+      "id": "promesses-de-pluie",
+      "masterVolume": 0,
+      "drive": 11,
+      "start": 32,
+      "integrated": -16.109120221793273,
+      "shortMax": -15.251066854758044,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3024401535652672,
+      "duration": 10.676666666666666,
+      "windows": 103
+    },
+    {
+      "family": "factory",
+      "id": "rives",
+      "masterVolume": 0,
+      "drive": 2.75,
+      "start": 32,
+      "integrated": -16.97116973840982,
+      "shortMax": -16.49103396534483,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4193884604266072,
+      "duration": 9.066604166666666,
+      "windows": 87
+    },
+    {
+      "family": "factory",
+      "id": "pluie",
+      "masterVolume": 0,
+      "drive": 4.75,
+      "start": 24,
+      "integrated": -16.107804555660508,
+      "shortMax": -15.530804648144537,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4752321186179282,
+      "duration": 12.317708333333334,
+      "windows": 120
+    },
+    {
+      "family": "factory",
+      "id": "horizon",
+      "masterVolume": 0,
+      "drive": 5,
+      "start": 32,
+      "integrated": -16.947793099380544,
+      "shortMax": -15.984180914628785,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2377364963582866,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "factory",
+      "id": "eclats",
+      "masterVolume": 0,
+      "drive": 1.75,
+      "start": 32,
+      "integrated": -16.52351231973376,
+      "shortMax": -16.06361503491238,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.282954076973644,
+      "duration": 7.7519375,
+      "windows": 74
+    },
+    {
+      "family": "factory",
+      "id": "kin",
+      "masterVolume": 0,
+      "drive": 8.75,
+      "start": 32,
+      "integrated": -17.416192426341862,
+      "shortMax": -16.897550178582005,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4479826719378512,
+      "duration": 8.898895833333333,
+      "windows": 85
+    },
+    {
+      "family": "factory",
+      "id": "lumiere",
+      "masterVolume": 0,
+      "drive": 3,
+      "start": 32,
+      "integrated": -16.342549520706484,
+      "shortMax": -15.89224451423476,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3405117385001162,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "public",
+      "id": "drill",
+      "masterVolume": 0,
+      "drive": 0.75,
+      "start": 12,
+      "integrated": -16.00243738147562,
+      "shortMax": -15.691847207427676,
+      "samplePeak": -5.377047140621906,
+      "estimatedPeak": -5.372601817353894,
+      "duration": 6.770583333333334,
+      "windows": 64
+    },
+    {
+      "family": "public",
+      "id": "trap808",
+      "masterVolume": 0,
+      "drive": 0,
+      "start": 32,
+      "integrated": -15.9214794834026,
+      "shortMax": -14.950609158579208,
+      "samplePeak": -4.759633057712549,
+      "estimatedPeak": -4.759633057712549,
+      "duration": 6.867145833333334,
+      "windows": 65
+    },
+    {
+      "family": "public",
+      "id": "trap-air",
+      "masterVolume": 0,
+      "drive": 0,
+      "start": 12,
+      "integrated": -14.773142687548512,
+      "shortMax": -14.476628979900156,
+      "samplePeak": -2.4629569263749866,
+      "estimatedPeak": -2.4170128979415715,
+      "duration": 6.585354166666667,
+      "windows": 62
+    },
+    {
+      "family": "public",
+      "id": "funk",
+      "masterVolume": 0,
+      "drive": 4.5,
+      "start": 12,
+      "integrated": -16.06991606977519,
+      "shortMax": -15.901580691759298,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.498642938407141,
+      "duration": 7.394625,
+      "windows": 70
+    },
+    {
+      "family": "public",
+      "id": "rock",
+      "masterVolume": 0,
+      "drive": 7.25,
+      "start": 12,
+      "integrated": -16.297866020015334,
+      "shortMax": -15.920346028969387,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.383659384797717,
+      "duration": 7.6290625,
+      "windows": 73
+    },
+    {
+      "family": "public",
+      "id": "pop",
+      "masterVolume": 0,
+      "drive": 15.5,
+      "start": 12,
+      "integrated": -16.09321634753705,
+      "shortMax": -15.636999308878872,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3759851716234828,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "public",
+      "id": "rumba",
+      "masterVolume": 0,
+      "drive": 22.25,
+      "start": 12,
+      "integrated": -16.16641440040152,
+      "shortMax": -15.740036024229825,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4859735925283246,
+      "duration": 9.421770833333333,
+      "windows": 91
+    },
+    {
+      "family": "public",
+      "id": "trap",
+      "masterVolume": 0,
+      "drive": 4.75,
+      "start": 24,
+      "integrated": -16.099266616813154,
+      "shortMax": -15.785229493629922,
+      "samplePeak": -3.0555116576438754,
+      "estimatedPeak": -3.052116254283562,
+      "duration": 6.966541666666667,
+      "windows": 66
+    },
+    {
+      "family": "public",
+      "id": "afro",
+      "masterVolume": 0,
+      "drive": 1.75,
+      "start": 12,
+      "integrated": -16.114130885490724,
+      "shortMax": -15.292866782581413,
+      "samplePeak": -3.65378454479388,
+      "estimatedPeak": -3.65378454479388,
+      "duration": 8.898895833333333,
+      "windows": 85
+    },
+    {
+      "family": "public",
+      "id": "rnb",
+      "masterVolume": 0,
+      "drive": 2.75,
+      "start": 12,
+      "integrated": -16.052626056680012,
+      "shortMax": -15.493433552937619,
+      "samplePeak": -5.420700814001905,
+      "estimatedPeak": -5.407039046350773,
+      "duration": 11.438583333333334,
+      "windows": 111
+    },
+    {
+      "family": "public",
+      "id": "vox-trap",
+      "masterVolume": 0,
+      "drive": 0.5,
+      "start": 12,
+      "integrated": -15.952538006623184,
+      "shortMax": -15.798061736849816,
+      "samplePeak": -3.881675773177111,
+      "estimatedPeak": -3.875824808670625,
+      "duration": 6.966541666666667,
+      "windows": 66
+    },
+    {
+      "family": "public",
+      "id": "vox-afro",
+      "masterVolume": 0,
+      "drive": 1.75,
+      "start": 12,
+      "integrated": -16.113180715392545,
+      "shortMax": -15.2896042054139,
+      "samplePeak": -3.6566613495367593,
+      "estimatedPeak": -3.6566613495367593,
+      "duration": 8.898895833333333,
+      "windows": 85
+    },
+    {
+      "family": "public",
+      "id": "vox-rnb",
+      "masterVolume": 0,
+      "drive": 2.75,
+      "start": 12,
+      "integrated": -16.053635103191755,
+      "shortMax": -15.494990131438891,
+      "samplePeak": -5.420519144193053,
+      "estimatedPeak": -5.406857345482178,
+      "duration": 11.438583333333334,
+      "windows": 111
+    }
+  ],
+  "workletChecks": [
+    {
+      "name": "unity below ceiling 44100",
+      "error": 0,
+      "rms": 0.07071067799086461
+    },
+    {
+      "name": "drive adds the requested gain 44100",
+      "error": 1.2163734075532062e-08,
+      "rms": 0.14108634722715915
+    },
+    {
+      "name": "overload stays under sample ceiling 44100",
+      "peak": 0.5011872053146362
+    },
+    {
+      "name": "linked stereo ratio 44100",
+      "error": 0
+    },
+    {
+      "name": "limited steady sine residual below -70 dB 44100",
+      "residualDb": -129.31349384936877
+    },
+    {
+      "name": "transient and exact anticipation 44100",
+      "frame": 365,
+      "peak": 0.5011872053146362
+    },
+    {
+      "name": "unity below ceiling 48000",
+      "error": 0,
+      "rms": 0.07071067825957461
+    },
+    {
+      "name": "drive adds the requested gain 48000",
+      "error": 7.921628714102624e-09,
+      "rms": 0.1410863499553756
+    },
+    {
+      "name": "overload stays under sample ceiling 48000",
+      "peak": 0.5011872053146362
+    },
+    {
+      "name": "linked stereo ratio 48000",
+      "error": 0
+    },
+    {
+      "name": "limited steady sine residual below -70 dB 48000",
+      "residualDb": -134.12581711137136
+    },
+    {
+      "name": "transient and exact anticipation 48000",
+      "frame": 388,
+      "peak": 0.5011872053146362
+    },
+    {
+      "name": "unity below ceiling 96000",
+      "error": 0,
+      "rms": 0.07071067814907471
+    },
+    {
+      "name": "drive adds the requested gain 96000",
+      "error": 1.1462273546980484e-08,
+      "rms": 0.1410863490859442
+    },
+    {
+      "name": "overload stays under sample ceiling 96000",
+      "peak": 0.5011872053146362
+    },
+    {
+      "name": "linked stereo ratio 96000",
+      "error": 0
+    },
+    {
+      "name": "limited steady sine residual below -70 dB 96000",
+      "residualDb": -127.94085345712531
+    },
+    {
+      "name": "transient and exact anticipation 96000",
+      "frame": 676,
+      "peak": 0.5011872053146362
+    },
+    {
+      "name": "PEAK and VECTOR LIMIT use the same DSP",
+      "difference": 0
+    },
+    {
+      "name": "falling automated ceiling remains bounded",
+      "peak": 0.25118863582611084
+    },
+    {
+      "name": "WAV retains rendered samples",
+      "wavError": 0
+    },
+    {
+      "name": "parallel rack and dry-wet stay aligned at 44.1 kHz",
+      "error": 0
+    }
+  ]
+}

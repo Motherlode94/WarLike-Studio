@@ -1,3 +1,4 @@
+import {setDemoPlaybackLevel} from './demo-playback-level.js';
 import {createMasterRackUI} from './master-rack-ui.js?v=2';
 import {rackType,rackLeaves,rackIsSplit,rackDefinition,rackLocation,placeRackModule,removeRackItem,insertRackSplit} from './master-rack-model.js';
 import {mountSidebarBrowser} from './sidebar-browser.js';
@@ -239,6 +240,7 @@ export async function launchPublicDemo(kind){
    routeVocalSubgroups(demo);
    routeVocalFX(demo);
    masterPublicDemo(demo,kind);
+   setDemoPlaybackLevel(demo,kind,'public');
    if(db){
      await createProjectLocal(demo.name,demo,demoMedia);
      engine.masterVolume=Number.isFinite(demo.masterVolume)?demo.masterVolume:0;
@@ -571,7 +573,7 @@ function openMixMasterTemplates(kind,trackId=null){
   }catch(error){toast(error.message);}
  };
 }
-function getMasterRack(){return masterRackUI??=createMasterRackUI({registry:MASTER_MODULES,getProject:()=>project,normalize:masteringSettings,checkpoint,changed,toast,render:()=>{renderMastering();if(view==='mixer'||floatingMixerOpen())renderMixer();},closed:()=>{if(view==='mixer'||floatingMixerOpen())renderMixer();},reduction:id=>{if(!id||project.mastering?.bypass||!project.mastering?.[id]?.enabled)return null;const type=rackType(id),host=engine.graph?.mastering,fx=host?.effects.get(id),child=fx?.processor||host,stage=fx?.channel?.stages[type];const comp=type==='press'?child?.press:type==='peak'?child?.limiter:type==='glue'?fx?.channel?.compressor:stage?.comp||stage?.compressor;if(!comp)return null;return (comp.reduction||0)+(stage?.second?.reduction||0);},pick:openMasterRackInsert,format:formatParam,busy:()=>!!(recording||recordFinalizing||micPending)});}
+function getMasterRack(){return masterRackUI??=createMasterRackUI({registry:MASTER_MODULES,getProject:()=>project,normalize:masteringSettings,checkpoint,changed,toast,render:()=>{renderMastering();if(view==='mixer'||floatingMixerOpen())renderMixer();},closed:()=>{if(view==='mixer'||floatingMixerOpen())renderMixer();},reduction:id=>{if(!id||project.mastering?.bypass||!project.mastering?.[id]?.enabled)return null;const type=rackType(id),host=engine.graph?.mastering,fx=host?.effects.get(id),child=fx?.processor||host,stage=fx?.channel?.stages[type];if(type==='vectorlimit')return stage?.reduction??null;if(type==='peak')return child?.peakProcessor?.reduction??null;const comp=type==='press'?child?.press:type==='glue'?fx?.channel?.compressor:stage?.comp||stage?.compressor;if(!comp)return null;return (comp.reduction||0)+(stage?.second?.reduction||0);},pick:openMasterRackInsert,format:formatParam,busy:()=>!!(recording||recordFinalizing||micPending)});}
 function openMasterRackInsert(location,preferred=null){
  const state=masteringSettings(project.mastering),{list,index}=rackLocation(state,location),current=list[index];getMasterRack().open();
  modal('Module du rack · '+String.fromCharCode(65+index),'<div id="masterRackPicker"></div><div id="masterRackSlotActions" class="master-rack-picker-actions"></div>','CHAYAH / MASTER RACK');
@@ -647,7 +649,7 @@ function updateMasterMeters(){
   for(let c=0;c<2;c++){const data=masterMeterSamples[c];if(chain)chain.meters[c].getFloatTimeDomainData(data);else data.fill(0);let peak=0;for(const sample of data){peak=Math.max(peak,Math.abs(sample));sum+=sample*sample;count++;}levels.push(peak);const db=peak>0?20*Math.log10(peak):-Infinity;const bar=document.querySelector(`[data-master-meter="${c}"]`),label=document.querySelector(`[data-master-level="${c}"]`);if(bar){const level=Math.max(0,Math.min(100,(db+60)/60*100))+'%';bar.style.width=level;bar.style.setProperty('--level',level);bar.setAttribute('aria-label',(c?'Droite':'Gauche')+' · '+(Number.isFinite(db)?db.toFixed(1):'−∞')+' dBFS');}if(label)label.textContent=Number.isFinite(db)?db.toFixed(1):'−∞';}
   const peak=Math.max(...levels),peakDb=peak>0?20*Math.log10(peak):-Infinity,rmsDb=sum>0?20*Math.log10(Math.sqrt(sum/count)):-Infinity;masterPeakHold=Math.max(masterPeakHold,peakDb);
   for(const [key,value] of [['peak',peakDb],['rms',rmsDb],['hold',masterPeakHold]]){const node=document.querySelector(`[data-master-${key}]`);if(node){node.textContent=Number.isFinite(value)?value.toFixed(1):'−∞';node.classList.toggle('hot',value>=-.1);}}
-  for(const id of ['press','peak','circuitbus','vectorcomp','voxlevel','vectorlimit']){const node=document.querySelector(`[data-master-gr="${id}"]`);if(node){const m=chain?.effects?.get(id)?.channel.pack.modules[id],reduction=id==='press'?chain?.press.reduction:id==='peak'?chain?.limiter.reduction:(m?.comp?.reduction||0)+(m?.second?.reduction||0);node.textContent=(!project.mastering.bypass&&project.mastering[id].enabled?(reduction||0):0).toFixed(1)+' dB';}}
+  for(const id of ['press','peak','circuitbus','vectorcomp','voxlevel','vectorlimit']){const node=document.querySelector(`[data-master-gr="${id}"]`);if(node){const m=chain?.effects?.get(id)?.channel.pack.modules[id],reduction=id==='press'?chain?.press.reduction:id==='peak'?chain?.peakProcessor?.reduction:id==='vectorlimit'?m?.reduction:(m?.comp?.reduction||0)+(m?.second?.reduction||0);node.textContent=(!project.mastering.bypass&&project.mastering[id].enabled?(reduction||0):0).toFixed(1)+' dB';}}
 }
 let floatingMixerPanel=null,floatingMixerWindow=null,mixerHome=null,mixerNext=null;
 function floatingMixerOpen(){return !!floatingMixerPanel&&!floatingMixerPanel.hidden;}
