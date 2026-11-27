@@ -797,3 +797,9 @@ Rouvrir un plugin ramène sa fenêtre au premier plan ; Échap ferme le plugin
 actif. Fermer la fenêtre conserve le traitement audio et les réglages.
 La liste **Fenêtres & outils** permet de retrouver chaque processeur ouvert.
 Voir [le fonctionnement et la suite R08.3g.3–R08.4](docs/plugin-windows.md).
+
+### WAR RACKS — reprise du navigateur et des chaînes sur main
+
+Le bouton **WAR RACKS** du mixeur ouvre le navigateur par source, genre et étape. Le lot de reprise récupère les changements RACK02–RACK10 restés sur leurs branches intermédiaires après fusion et les réintègre vers main : voix, instruments, WAR 808, bus/master, presets JSON et huit profils d'export WAV. Le catalogue complet regroupe 235 racks, dont les presets historiques. Les sept familles de plugins et leurs fenêtres individuelles restent utilisables pour modifier chaque effet de la chaîne.
+
+Voir [le parcours des racks et sa validation](docs/war-studioracks.md). Les presets sont des points de départ réglables ; leur présence et les tests de traitement ne remplacent pas une écoute sur le morceau de l'utilisateur.

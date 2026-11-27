@@ -375,6 +375,8 @@ export class AudioEngine {
   }
   async exportWav(options={}){
     const buffer=await this.renderRange(options);
+    if(options.inspectRender)await options.inspectRender(buffer);
+    options.signal?.throwIfAborted();
     if(options.writer)return writeWav(buffer,options.writer,options);
     if(options.asBlob)return encodeWavBlob(buffer,options);
     return encodeWav(buffer,options);
