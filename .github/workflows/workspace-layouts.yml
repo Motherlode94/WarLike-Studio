@@ -177,3 +177,31 @@ jobs:
           name: master-rack
           path: artifacts/master-rack/
           if-no-files-found: warn
+
+  plugin-mouse-matrix:
+    name: Mouse behavior — ${{ matrix.family }} plugins
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [effect, instrument]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run build
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install chromium
+      - name: Every native editor through actual pointer gestures
+        env:
+          STUDIO_MOUSE_FAMILY: ${{ matrix.family }}
+        run: node tests/plugin-mouse-matrix-browser.mjs
+      - name: Per-plugin mouse report and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-mouse-${{ matrix.family }}
+          path: artifacts/plugin-mouse-matrix/
+          if-no-files-found: warn

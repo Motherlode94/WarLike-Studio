@@ -113,3 +113,23 @@ d'effets/instruments :
 pointeur sur les fenêtres de production, contrôle les huit directions, le focus,
 les paramètres, les fenêtres imbriquées et la réouverture. Il complète les
 essais existants du gestionnaire, des presets et des espaces de travail.
+
+### Couverture des autres effets et instruments
+
+`node tests/plugin-mouse-matrix-browser.mjs` parcourt les 52 effets et les 54
+instruments du registre natif. Deux sessions séparées respectent la limite de
+64 pistes de l'application. Pour chaque éditeur, le test utilise le clic
+sur son insert réel, le glissement du titre, le bord droit et le coin, puis
+un réglage rotatif à la souris, Annuler, Réduire, Fermer et Rouvrir. Il vérifie
+le focus, les dimensions conservées, le paramètre restauré et la préservation
+du projet exporté. Le test commun des huit directions et des fenêtres imbriquées
+reste complémentaire.
+
+La CI exécute séparément les familles `effect` et `instrument` via
+`STUDIO_MOUSE_FAMILY`. Les rapports listent chaque identifiant réellement testé.
+Cette couverture concerne le comportement des fenêtres et des commandes ;
+elle ne constitue pas une certification sonore de tous les processeurs.
+
+Le badge d'information « Mises à jour en cours » est placé sous les fenêtres
+flottantes : il ne peut plus intercepter le coin de redimensionnement d'un
+éditeur situé en bas à droite.
