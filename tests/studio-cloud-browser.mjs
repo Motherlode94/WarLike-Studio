@@ -41,7 +41,9 @@ async function service(input){
  const method=typeof input==='string'?'GET':input.method,headers=typeof input==='string'?{}:Object.fromEntries(input.headers);
  headers.cookie??=''; // Never share APIRequestContext cookies across independent browser profiles.
  const data=typeof input==='string'||['GET','HEAD'].includes(method)?undefined:Buffer.from(await input.arrayBuffer());
- const reply=await api.fetch(local+url.pathname+url.search,{method,headers,data,maxRedirects:0});
+ // Only retry connection resets on idempotent reads of the isolated runtime.
+ // Writes and HTTP error responses retain their original failure semantics.
+ const reply=await api.fetch(local+url.pathname+url.search,{method,headers,data,maxRedirects:0,maxRetries:['GET','HEAD'].includes(method)?2:0});
  const resultHeaders=new Headers(reply.headers());resultHeaders.delete('content-encoding');resultHeaders.delete('content-length');
  return new Response([204,205,304].includes(reply.status())?null:await reply.body(),{status:reply.status(),headers:resultHeaders});
 }

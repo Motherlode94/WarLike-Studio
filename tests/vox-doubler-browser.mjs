@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import {chooseFolderPreset} from './preset-picker-helpers.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/vox-doubler',{recursive:true});const browser=await chromium.launch({headless:true});try{
@@ -23,6 +24,6 @@ await mkdir('artifacts/vox-doubler',{recursive:true});const browser=await chromi
  assert.equal(await master.locator('.vox-master-presets optgroup[label="Usine"] option').count(),5);
  await master.locator('.vox-master-presets select').selectOption('1');await master.locator('.vox-master-presets input').fill('QA vox-doubler');await master.locator('[data-vox-save]').click();
  assert.ok((await master.locator('.vox-master-presets select').innerText()).includes('QA vox-doubler'));
- await page.screenshot({path:'artifacts/vox-doubler/master.png'});await page.setViewportSize({width:390,height:844});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/vox-doubler/mobile.png'});assert.deepEqual(errors,[]);
+ await page.screenshot({path:'artifacts/vox-doubler/master.png'});await resizeStudio(page,{width:390,height:844});await master.waitFor({state:'visible'});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/vox-doubler/mobile.png'});assert.deepEqual(errors,[]);
  console.log('PASS VOX DOUBLER: native controls, reactive display, master presets and mobile');
 }finally{await browser.close();}
