@@ -33,3 +33,59 @@
 
 .rack-plugin-surface .master-insert-rack .insert-slot.empty{min-height:25px;padding:1px 3px}.rack-plugin-surface .master-insert-rack .insert-slot.empty>button{min-height:20px;padding:2px 5px}
 .rack-lane-slot{min-height:19px;padding-bottom:2px}.rack-lane-slot>button{min-height:20px;padding:2px 4px}.rack-lane-slot:has(>button:only-child){grid-template-columns:1fr}.rack-lane>meter{width:100%;height:8px;accent-color:#b5c973}.rack-macro-target{display:flex;flex-wrap:wrap;align-items:end;gap:5px}.rack-macro-target label{display:flex;flex-direction:column;flex:1;min-width:55px}.rack-macro-target input{width:100%}
+/* Layout follows StudioRack v2: input/main chainer left, splits center,
+   output fader + L/R and assignable GR right. Host IO remains in every view. */
+.master-rack-window{background:#161b1d;border-color:#687479}
+#masteringView.rack-plugin-surface{background:#171d1f;color:#e3e8e6}
+.master-rack-window-header{background:#101516;color:#d0d9d8;border-color:#424f54}
+.master-rack-board{grid-template-columns:205px minmax(220px,1fr) 230px;align-items:stretch}
+.master-rack-main{grid-column:1;grid-row:1}.master-rack-lanes,.master-rack-macros,.master-rack-analysis{grid-column:2;grid-row:1;min-width:0;overflow:auto}.master-rack-io{grid-column:3;grid-row:1}
+.master-rack-main,.master-rack-lanes,.master-rack-io{background:#1b2224;border-color:#536168}
+.master-rack-toolbar button,.master-rack-presets summary,.rack-lane button,.rack-plugin-surface .insert-slot>button,.rack-start button,.rack-split-heading button{background:#293336;color:#dce4e2;border-color:#536165}
+.master-rack-toolbar [aria-pressed=true],.rack-lane-switches [aria-pressed=true],.rack-input-section [aria-pressed=true]{background:#6bafbd;color:#0f2023}
+.rack-selected{outline-color:#75b6c4}.rack-lane{background:#252f31;border-color:#64757a;flex-basis:150px;min-width:150px}
+.rack-lane input,.rack-lane select,.rack-crossovers input{background:#151e20;border-color:#64757a;color:#e3e8e6}
+.rack-plugin-surface .master-insert-rack .insert-slot{background:#12191b;border-color:#48585c}.rack-plugin-surface .insert-slot>button{background:#273134}
+.rack-plugin-surface .master-insert-rack .insert-slot.empty{min-height:24px}.rack-lane-slot>button{min-height:21px}
+.rack-show-slots{font:10px Arial,sans-serif;color:#9dcbc9;padding:5px;border:0;background:transparent;cursor:pointer}
+.rack-slot-tools{opacity:.65}.insert-slot:hover .rack-slot-tools,.insert-slot:focus-within .rack-slot-tools,.rack-lane-slot:hover .rack-slot-tools,.rack-lane-slot:focus-within .rack-slot-tools{opacity:1}
+.rack-input-section{display:flex;gap:10px;align-items:center;margin:0 0 15px;padding:4px 0 12px;border-bottom:1px solid #48575c}
+.rack-global-control{min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;color:#d7e1df}
+.rack-global-control>label{font:10px Arial,sans-serif;letter-spacing:.06em}.rack-global-control>output,.rack-global-control>.param-value{font:12px monospace;color:#d9e8db;white-space:nowrap;background:none;border:0}
+.rack-global-control .knob{width:42px;height:42px;flex:none;background:conic-gradient(from 220deg,#70aab6 var(--angle,0deg),#38464c 0deg,#38464c 280deg,transparent 280deg)}
+.rack-global-control .knob:before{width:33px;height:33px;background:linear-gradient(110deg,#586164,#202629);border-color:#718088}.rack-global-control .knob:after{left:20px;top:5px;transform-origin:1px 15px;background:#d8e5e4}
+.rack-global-mix{flex-direction:row;flex-wrap:wrap;justify-content:center;margin-top:12px;padding:10px 0;border-top:1px solid #48575c}.rack-global-mix>label{width:100%;text-align:center}
+.master-rack-io{display:flex;flex-direction:column;gap:12px;padding:12px;background:#151b1d}
+.master-rack-io>h3{margin:0;color:#cbd7d8;font:11px Arial,sans-serif;letter-spacing:.12em;border-bottom:1px solid #4c5c61;padding-bottom:9px}
+.rack-output-bridge{display:grid;grid-template-columns:49px minmax(0,1fr) 30px;gap:9px;align-items:stretch;min-height:290px;padding:10px 0}
+.rack-output-fader{height:290px;display:grid;grid-template-rows:18px 1fr 24px;justify-items:center;gap:8px}
+.rack-output-fader input[type=range]{writing-mode:vertical-lr;direction:rtl;appearance:none;width:5px;height:100%;min-height:225px;margin:0;background:linear-gradient(90deg,#070b0c,#526066,#090d0e);border:1px solid #515f64;outline-offset:7px;cursor:ns-resize}
+.rack-output-fader input::-webkit-slider-thumb{appearance:none;width:28px;height:18px;border:1px solid #a6b2b7;border-radius:2px;background:linear-gradient(#b9c2c6,#536269 44%,#151b1d 46%,#151b1d 54%,#afbcc1 56%,#747f85);box-shadow:0 2px 4px #0009}
+.rack-output-fader input::-moz-range-thumb{width:28px;height:18px;border:1px solid #b9c2c6;border-radius:2px;background:linear-gradient(#bdc5c8,#59666c,#bdc5c8)}
+.rack-plugin-surface .master-rack-io .master-stereo-bars{flex:none;display:grid;grid-template-columns:1fr 1fr 24px;gap:5px;width:100%;min-width:0;height:290px;padding:0;box-sizing:border-box}
+.rack-plugin-surface .master-rack-io .master-stereo-bars>div:not(.rack-meter-scale){display:grid;grid-template-rows:18px 1fr 24px;gap:8px;height:100%;min-width:0;margin:0;justify-items:center}
+.rack-plugin-surface .master-rack-io .master-stereo-bars b{font:10px monospace;color:#bbcacb}
+.rack-plugin-surface .master-rack-io .master-stereo-bars>div:not(.rack-meter-scale)>div{width:18px;min-width:0;height:100%;position:relative;background:#0a1112;border:1px solid #3e4d50;border-radius:2px;overflow:hidden}
+.rack-plugin-surface .master-rack-io [data-master-meter]{position:absolute;display:block;left:0;bottom:0;top:auto;width:100%!important;height:100%;background:linear-gradient(to top,#7fbd85 0%,#d6c75b 82%,#e7b15c 94%,#ed665b 99%);clip-path:inset(calc(100% - var(--level,0%)) 0 0);transition:clip-path 70ms linear}
+.rack-plugin-surface .master-rack-io .master-stereo-bars strong{font:11px monospace;color:#dae5dc;width:auto;min-width:0;text-align:center;line-height:24px}
+.rack-plugin-surface .rack-meter-scale{display:flex;flex-direction:column;justify-content:space-between;margin:26px 0 32px;height:auto;font:9px monospace;color:#a9b6b8;min-width:0}
+.rack-plugin-surface .rack-meter-scale>span{display:block;width:auto;height:auto;background:none;line-height:12px;flex:none}
+.rack-gr-meter{display:grid;grid-template-rows:18px 1fr 24px;gap:8px;justify-items:center;font:10px monospace;color:#b6c8cb;height:290px}
+.rack-gr-meter>div{height:100%;width:14px;background:#0b1112;position:relative;border:1px solid #3e4d50}.rack-gr-meter i{display:block;width:100%;height:0;background:#d2b969;position:absolute;top:0}.rack-gr-meter>output{font:11px monospace;color:#e1d49f;line-height:24px}
+.master-rack-io>select{max-width:100%;min-width:0;color:#c4d5d8;font-size:10px;background:#1d292c;border:1px solid #536268;padding:5px}
+.rack-output-track{margin-top:auto;text-align:center;border-top:1px solid #495c61;padding-top:12px;font:11px Arial,sans-serif;color:#9fced3;letter-spacing:.06em}
+.rack-analysis-meters{display:flex!important;flex-wrap:wrap!important;gap:14px!important;padding:12px!important;margin:12px 0!important}.rack-analysis-meters .master-number{flex:1;min-width:95px}.rack-analysis-meters .master-number>span{font-size:10px}.rack-analysis-meters .master-number strong{font-size:19px}.rack-analysis-meters .master-input-gain{width:100%;border-left:0;padding:10px 0 0}.rack-analysis-meters .master-input-gain label{font-size:10px;flex-wrap:wrap}.rack-analysis-meters input{width:100%;box-sizing:border-box;min-width:0}
+@media(max-width:760px){.master-rack-board{display:flex}.master-rack-main,.master-rack-lanes,.master-rack-macros,.master-rack-analysis,.master-rack-io{flex:none}.rack-input-section{justify-content:center}.master-rack-io{width:auto}.rack-output-bridge{max-width:210px;width:100%;margin:auto}.master-rack-main .insert-slots{max-height:240px;overflow:auto}.master-rack-macros{display:block}.rack-input-section~.rack-global-mix{margin-top:8px}}
+.rack-input-meter{display:flex;gap:3px;height:42px;margin-left:5px}.rack-input-meter>div{width:5px;height:100%;position:relative;overflow:hidden;background:#0c1414;border:1px solid #445951}.rack-input-meter span{display:block;position:absolute;bottom:0;width:100%;height:0;background:#70bd8a}
+/* Insert actions belong to the selected/hovered slot, not permanent extra rows. */
+.rack-plugin-surface .rack-slot-tools{display:none;position:absolute;top:calc(100% - 1px);left:-1px;right:-1px;z-index:5;gap:2px;padding:3px;background:#172125;border:1px solid #6b848d;border-radius:0 0 4px 4px;box-shadow:0 4px 7px #0008;opacity:1}
+.rack-plugin-surface .insert-slot:hover>.rack-slot-tools,.rack-plugin-surface .insert-slot:focus-within>.rack-slot-tools,.rack-plugin-surface .rack-lane-slot:hover>.rack-slot-tools,.rack-plugin-surface .rack-lane-slot:focus-within>.rack-slot-tools{display:flex}
+.rack-lane-slot{position:relative}.rack-lane-console{display:grid;grid-template-columns:1fr 43px;gap:8px;height:129px;padding:7px 0 2px;border-top:1px solid #526268;margin-top:4px}
+.rack-lane-console>.rack-lane-level{grid-column:2;grid-row:1;display:flex;align-items:center;justify-content:space-between;gap:5px;font-size:9px}
+.rack-lane-console>.rack-lane-pan{grid-column:1;grid-row:1;display:flex;align-items:center;justify-content:center;gap:8px;font-size:9px;text-align:center}
+.rack-lane-level input[type=range]{writing-mode:vertical-lr;direction:rtl;appearance:none;width:4px;height:88px;margin:0;background:#0b1113;border:1px solid #53676d;cursor:ns-resize}
+.rack-lane-level input::-webkit-slider-thumb{appearance:none;width:22px;height:13px;border:1px solid #a6b2b7;border-radius:2px;background:linear-gradient(#c0c9cc,#59666c 44%,#10191c 46%,#10191c 54%,#b2bec3 56%,#78888f)}
+.rack-lane-pan .knob{width:34px;height:34px;background:conic-gradient(from 220deg,#70aab6 var(--angle,0deg),#394b51 0deg,#394b51 280deg,transparent 280deg);flex:none}.rack-lane-pan .knob:before{width:27px;height:27px;background:linear-gradient(#56666b,#273236);border-color:#71878d}.rack-lane-pan .knob:after{left:16px;top:5px;transform-origin:1px 12px;height:8px}
+.rack-lane-pan input[type=range]{width:100%;height:100%;padding:0;background:transparent;border:0}
+.rack-output-fader{position:relative}.rack-output-scale{position:absolute;top:26px;bottom:32px;left:-6px;width:20px;pointer-events:none;font:8px monospace;color:#849ca2}.rack-output-scale>span{position:absolute;right:0;transform:translateY(-50%)}
+.master-rack-presets{position:relative}.master-rack-presets[open]{flex:initial;margin:0 0 0 auto}.rack-preset-popup{position:absolute;right:0;top:calc(100% + 8px);z-index:20;width:min(540px,calc(100vw - 40px));max-height:60dvh;overflow:auto;padding:12px;background:#1b2529;border:1px solid #71858c;border-radius:5px;box-shadow:0 10px 24px #0009;box-sizing:border-box}.rack-preset-popup>.mastering-tools{display:flex;flex-wrap:wrap;gap:10px;padding:9px 0}.rack-preset-popup .mastering-bottom{display:flex;flex-direction:column;align-items:start;gap:10px}

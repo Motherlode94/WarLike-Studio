@@ -52,9 +52,9 @@ export function createMasterChain(ctx,input,{createEffect=null}={}){
   guard.curve=new Float32Array([-1,0,1]);guard.oversample='none';
   cut.connect(low);low.connect(mid);mid.connect(high);press.connect(makeup);drive.connect(limiter);
   limiter.connect(scaleIn);scaleIn.connect(guard);guard.connect(scaleOut);
-  const rackInput=ctx.createGain(),rackOutput=ctx.createGain(),dryDelay=ctx.createDelay(4),splitNodes=new Map();
+  const rackInput=ctx.createGain(),rackOutput=ctx.createGain(),dryDelay=ctx.createDelay(4),splitNodes=new Map();const inputSplitter=ctx.createChannelSplitter(2),inputMeters=[ctx.createAnalyser(),ctx.createAnalyser()];inputMeters.forEach((m,i)=>{m.fftSize=512;inputSplitter.connect(m,i);});
   const splitter=ctx.createChannelSplitter(2),meters=[ctx.createAnalyser(),ctx.createAnalyser()];output.connect(splitter);meters.forEach((m,i)=>{m.fftSize=2048;splitter.connect(m,i);});
-  return {input,rackInput,rackOutput,dryDelay,splitNodes,createEffect,effects:new Map(),stages:{balance:{input:cut,output:high},press:{input:press,output:makeup},peak:{input:drive,output:scaleOut}},cut,low,mid,high,press,makeup,drive,limiter,scaleIn,guard,scaleOut,wet,dry,output,splitter,meters};
+  return {input,inputSplitter,inputMeters,rackInput,rackOutput,dryDelay,splitNodes,createEffect,effects:new Map(),stages:{balance:{input:cut,output:high},press:{input:press,output:makeup},peak:{input:drive,output:scaleOut}},cut,low,mid,high,press,makeup,drive,limiter,scaleIn,guard,scaleOut,wet,dry,output,splitter,meters};
 }
 export function syncMasterChain(nodes,value,now=0,initial=false){
   const state=masteringSettings(value),eq=!state.bypass&&state.balance.enabled,bus=!state.bypass&&state.press.enabled,peak=!state.bypass&&state.peak.enabled;
@@ -70,7 +70,7 @@ export function syncMasterChain(nodes,value,now=0,initial=false){
   for(const id of leaves){const type=rackType(id);if(!EFFECTS[type]&&id===type)continue;let stage=nodes.effects.get(id);
     if(!stage){
       if(EFFECTS[type]){if(!nodes.createEffect)throw Error('Le moteur doit préparer les effets du master.');stage=nodes.createEffect(type,state[id]);}
-      else{const input=nodes.input.context.createGain(),child=createMasterChain(nodes.input.context,input,{createEffect:nodes.createEffect});stage={input,output:child.output,update:(value,at=nodes.input.context.currentTime,first=false)=>syncMasterChain(child,{inserts:[type],[type]:value},at,first),dispose:()=>{input.disconnect();for(const s of Object.values(child.stages))s.output.disconnect();child.output.disconnect();}};stage.update(state[id],now,initial);}
+      else{const input=nodes.input.context.createGain(),child=createMasterChain(nodes.input.context,input,{createEffect:nodes.createEffect});stage={input,output:child.output,processor:child,update:(value,at=nodes.input.context.currentTime,first=false)=>syncMasterChain(child,{inserts:[type],[type]:value},at,first),dispose:()=>{input.disconnect();for(const s of Object.values(child.stages))s.output.disconnect();child.output.disconnect();}};stage.update(state[id],now,initial);}
       nodes.effects.set(id,stage);nodes.stages[id]=stage;nodes.routeSignature=null;
     }else stage.update(state[id],now,initial);
   }

@@ -39,9 +39,9 @@ export function routeMasterRack(nodes,state,now,initial){
    for(const id of order){let stage=nodes.stages[id];if(rackIsSplit(id)){stage=createRackSplit(nodes.input.context,state.splits[id],state,nodes.stages);nodes.splitNodes.set(id,stage);}last.connect(stage.input);last=stage.output;}
    last.connect(nodes.wet);nodes.rackInput.connect(nodes.dryDelay);nodes.dryDelay.connect(nodes.dry);nodes.dry.connect(nodes.rackOutput);nodes.wet.connect(nodes.rackOutput);nodes.rackOutput.connect(nodes.output);
   }
-  nodes.routeSignature=signature;
+  (state.bypass||!state.rackVersion&&!order.length?nodes.input:nodes.rackInput).connect(nodes.inputSplitter);nodes.routeSignature=signature;
  }
  const set=(p,v)=>initial?p.setValueAtTime(v,now):p.setTargetAtTime(v,now,.02);
- set(nodes.rackInput.gain,gain(state.inputDb||0));set(nodes.rackOutput.gain,gain(state.outputDb||0));set(nodes.wet.gain,state.mix??1);set(nodes.dry.gain,1-(state.mix??1));set(nodes.dryDelay.delayTime,masterRackLatency(state));
+ set(nodes.rackInput.gain,gain(state.inputDb||0)*(state.polarity?-1:1));set(nodes.rackOutput.gain,state.outputDb<=-60?0:gain(state.outputDb||0));set(nodes.wet.gain,state.mix??1);set(nodes.dry.gain,1-(state.mix??1));set(nodes.dryDelay.delayTime,masterRackLatency(state));
  for(const [id,split] of nodes.splitNodes)split.update(state.splits[id],state,now,initial);
 }

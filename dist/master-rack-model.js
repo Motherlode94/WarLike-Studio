@@ -25,7 +25,7 @@ export function normalizeRack(value,registry){
  const result={inserts,bypass:v.bypass===true,...Object.fromEntries(Object.entries(registry).map(([id,def])=>[id,rackModuleSettings(def,v[id],seen.has(id))]))};
  for(const id of seen)if(!own(registry,id))result[id]=rackModuleSettings(rackDefinition(registry,id),v[id],true);
  if(modern){const targets=new Set();const macros=(Array.isArray(v.macros)?v.macros:[]);if(macros.length>8)throw Error('Maximum huit macros.');
-  result.rackVersion=2;result.inputDb=clamp(Number.isFinite(v.inputDb)?v.inputDb:0,-24,24);result.outputDb=clamp(Number.isFinite(v.outputDb)?v.outputDb:0,-24,12);result.mix=clamp(Number.isFinite(v.mix)?v.mix:1,0,1);result.splits=splits;
+  result.rackVersion=2;result.polarity=v.polarity===true;result.inputDb=clamp(Number.isFinite(v.inputDb)?v.inputDb:0,-24,24);result.outputDb=clamp(Number.isFinite(v.outputDb)?v.outputDb:0,-60,12);result.mix=clamp(Number.isFinite(v.mix)?v.mix:1,0,1);result.splits=splits;
   result.macros=macros.map((m,i)=>{if(!m||!Array.isArray(m.targets)||m.targets.length>8)throw Error('Macro invalide.');return {name:String(m.name||'Macro '+(i+1)).slice(0,30),value:clamp(Number.isFinite(m.value)?m.value:0,0,1),targets:m.targets.map(t=>{const def=rackDefinition(registry,t.moduleId),c=def?.controls.find(c=>c.key===t.key),key=t.moduleId+'.'+t.key;if(!seen.has(t.moduleId)||!c||targets.has(key)||!Number.isFinite(t.min)||!Number.isFinite(t.max)||t.min<c.min||t.min>c.max||t.max<c.min||t.max>c.max)throw Error('Affectation de macro incompatible ou déjà utilisée.');targets.add(key);return {moduleId:t.moduleId,key:t.key,min:t.min,max:t.max};})};});
  }
  return result;

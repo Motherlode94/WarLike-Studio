@@ -1,3 +1,4 @@
+import {selectMasterModule,closeMasterRack} from './master-rack-helpers.mjs';
 
 async function sessionTab(page,tab){const button=page.locator('[data-session-tab="'+tab+'"]');await button.waitFor({state:'visible'});await button.click();}
 import assert from 'node:assert/strict';
@@ -117,14 +118,12 @@ try {
  await page.locator('[data-picker-load="notch"]').click();
  await page.locator('#modal').waitFor({state:'hidden'});
  await page.locator('[data-master-power="notch"]').waitFor({state:'visible'});
- await page.locator('[data-view="mixer"]').click();
+ await closeMasterRack(page);await page.locator('[data-view="mixer"]').click();
  await page.locator('#mixerView .mixer-master [data-insert-open="notch"]').waitFor({state:'visible'});
  await page.locator('#mixerView .mixer-master .insert-slot.empty [data-insert-slot]').first().click();
- assert.ok(await page.locator('[data-picker-load="notch"]').isDisabled(),'Master should block duplicate inserts');
- await page.locator('#closeModal').click();
+ assert.equal(await page.locator('[data-picker-load="notch"]').isDisabled(),false,'Master permits independent copies of an effect');await page.locator('[data-picker-load="notch"]').click();await page.locator('#modal').waitFor({state:'hidden'});await page.locator('[data-managed-window="plugin:master-rack-module"] [data-rack-param^="notch__"]').first().waitFor({state:'visible'});assert.equal(await page.locator('#mixerView .mixer-master .insert-slot.occupied').count(),2);await closeMasterRack(page);
  await page.locator('#openMastering').click();
- await page.locator('[data-master-power="notch"]').waitFor({state:'visible'});
- assert.ok(await page.locator('#masteringView [data-add-insert-track="master"]').isVisible(),'Mastering needs an add-plugin control');
+ assert.ok(await page.locator('#masteringView [data-add-insert-track="master"]').isVisible(),'Mastering needs an add-plugin control');await selectMasterModule(page,'notch');await page.locator('[data-master-power="notch"]').waitFor({state:'visible'});await closeMasterRack(page);
  // REAPER RPP must not import silently without media; supplied WAV restores the clip.
  const reaperText='<REAPER_PROJECT 0.1 "7.5" 1700000000\n TEMPO 120 4 4\n <TRACK {AAA}\n NAME "VOICE"\n <ITEM\n POSITION 0\n LENGTH 0.1\n <SOURCE WAVE\n FILE "Voice.wav"\n >\n >\n >\n>';
  const wav=Buffer.alloc(44+8820);

@@ -73,3 +73,20 @@ inserts, les copies et déplacements, Annuler, A/B, macros et plages, coupures,
 ajout de voie, export portable et réouverture à froid. Captures bureau/mobile
 et mesures sont déposées dans `artifacts/master-rack/` par la CI.
 Les cinq suites matérielles ouvrent désormais chaque processeur séparément.
+
+## Référence de l'organisation
+
+Référence vérifiée : [Waves StudioRack v2, vues et contrôles d'entrée/sortie](https://assets.wavescdn.com/pdf/plugins/studiorack-v2.pdf), pages 9–12 et 21–22.
+
+| Élément de la référence | Implémentation native |
+| --- | --- |
+| Entrée rotative et inverseur de polarité à gauche | Contrôleur rotatif existant, Ø réellement appliqué au DSP, indicateurs d'entrée après gain |
+| Chaîne principale à gauche, divisions au centre | Huit emplacements visibles ; I–L accessibles pour conserver les douze emplacements des sessions WarLike |
+| Fader de sortie vertical et L/R à droite | Niveau de sortie réel, extinction exacte en bas, crêtes stéréo mesurées et valeurs sous les rails |
+| Vumètre GR | Source explicitement assignable parmi les compresseurs natifs ; lecture du processeur choisi, sans déduction fictive à partir des niveaux d'entrée/sortie |
+| Entrée/sortie présentes dans les différentes vues | Commandes et vumètres restent visibles dans Rack, Macros et Mesures |
+| Contrôles pan/niveau en bas de chaque voie | Panoramique rotatif et fader vertical reliés aux paramètres de la voie |
+
+Les marques et ressources graphiques Waves ne sont pas incorporées. Les quatre
+emplacements supplémentaires et les limites du graphe sont documentés ; le rack
+n'est pas présenté comme un hôte VST3 universel.

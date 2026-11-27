@@ -17,7 +17,7 @@ try{
  await page.waitForFunction(()=>/Projet importé et sauvegardé|Ouverture impossible/.test(document.querySelector('#toast').textContent));assert.equal(await page.locator('#toast').textContent(),'Projet importé et sauvegardé.');await page.locator('#modal').waitFor({state:'hidden'});
  await page.evaluate(async()=>{
   const qa=window.seriesQA={starts:[],plays:[],sources:[],calls:0,commits:[],events:[]};
-  const {AudioEngine}=await import('/audio.js?v=0.14.0'),init=AudioEngine.prototype.init,play=AudioEngine.prototype.play;
+  const {AudioEngine}=await import('/audio.js?v=0.15.12'),init=AudioEngine.prototype.init,play=AudioEngine.prototype.play;
   AudioEngine.prototype.init=async function(){qa.engine=this;return init.call(this);};AudioEngine.prototype.play=async function(options){await play.call(this,options);qa.plays.push({when:this.playStartAt,position:this.position,requested:options?.startAt??null});};
   const send=MessagePort.prototype.postMessage;MessagePort.prototype.postMessage=function(data,...args){if(data?.type==='start'&&Number.isFinite(data.time))qa.starts.push({time:data.time,endTime:data.endTime??null,rate:qa.engine.ctx.sampleRate,commits:qa.commits.length});return send.call(this,data,...args);};
   navigator.mediaDevices.getUserMedia=async()=>{
