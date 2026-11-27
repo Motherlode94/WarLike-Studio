@@ -1,4 +1,4 @@
-import {masteringSettings} from './mastering.js';
+import {masteringSettings} from './mastering.js?v=0.15.12';
 // Conservative starting points, not measured loudness targets.
 const profiles={
  trap:[25,.25,.25,.75,-18,1.8,30,150,.5,2,.12,1,-1.5,120],

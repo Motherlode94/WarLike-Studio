@@ -1,7 +1,7 @@
 // CHAYAH AI Mix & Master: explainable, local DSP assistant.
 // "AI" here denotes intelligent recommendations, not a trained neural network.
 // Never uploads audio or silently modifies a project.
-import {masteringSettings} from './mastering.js';
+import {masteringSettings} from './mastering.js?v=0.15.12';
 
 const clamp=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));
 const round=(x,n=2)=>Number(x.toFixed(n));

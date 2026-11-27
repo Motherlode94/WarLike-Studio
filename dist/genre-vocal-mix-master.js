@@ -2,7 +2,7 @@
 // These are applied to the actual insert graph and to BALANCE -> PRESS -> PEAK.
 // Conservative factory values only; they are not LUFS or true-peak certifications.
 import {EFFECTS} from './plugins.js';
-import {MASTER_BASE_MODULES,masteringSettings} from './mastering.js';
+import {MASTER_BASE_MODULES,masteringSettings} from './mastering.js?v=0.15.12';
 const config={
  rock:{
   lead:{voxclean:{highpass:100,frequency:6300,range:3.5,air:.5},voxlevel:{peakThreshold:-17,levelThreshold:-25,ratio:2.8,mix:.9},voxambience:{slap:91,feedback:.09,room:.18,mix:.13}},

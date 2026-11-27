@@ -25,7 +25,7 @@ import {packTail} from './packs.js?v=0.14.0';
 import {ensurePlugins,DRUM_VOICES,EFFECTS,pluginDefaults,effectType} from './plugins.js?v=0.14.0';
 import {clampClipGain} from './recording.js?v=0.14.0';
 import {createFactorySession,DRUM_GROOVES} from './content.js?v=0.14.0';
-import {createMasterChain,syncMasterChain} from './mastering.js?v=0.14.0';
+import {createMasterChain,syncMasterChain} from './mastering.js?v=0.15.12';
 import {renderScheduled} from './offline-schedule.js';
 export const uid = () => Math.random().toString(36).slice(2, 11);
 export const dbGain = db => Math.pow(10, db / 20);
@@ -371,7 +371,7 @@ export class AudioEngine {
     const ctx=new OfflineAudioContext(2,Math.ceil(duration*sampleRate),sampleRate);await renderer.prepareInstruments(ctx,p);await prepareStudioContext(ctx);const graph=renderer.buildGraph(ctx,{captureId,preFader});
     for(const tr of p.tracks)for(const clip of tr.clips)if(clip.audioId&&!clip.muted&&clip.start*16<start&&(clip.start+clip.length)*16>start){const a=getAssets().get(clip.audioId);if(a)renderer.audioVoice(ctx,graph.channels.get(tr.id).input,a.buffer,.01,(clip.sourceOffset||0)+(start-clip.start*16)*sd,Math.min((clip.start+clip.length)*16-start,end-start)*sd,false,clip.gainDb,clip.id,{...clip,total:clip.length*16*sd,elapsed:(start-clip.start*16)*sd});}
     renderer.scheduleAutomation(ctx,graph,startBar,endBar,.01);
-    try{const buffer=await renderScheduled(ctx,{start,end,stepSeconds:sd,signal,schedule:i=>renderer.scheduleStep(ctx,graph.channels,i,.01+(i-start)*sd,false,.01)});signal?.throwIfAborted();return buffer;}finally{for(const ch of graph.channels.values())renderer.disposeChannel(ch);for(const stage of graph.mastering.effects.values())stage.dispose();}
+    try{const buffer=await renderScheduled(ctx,{start,end,stepSeconds:sd,signal,schedule:i=>renderer.scheduleStep(ctx,graph.channels,i,.01+(i-start)*sd,false,.01)});signal?.throwIfAborted();return buffer;}finally{for(const ch of graph.channels.values())renderer.disposeChannel(ch);for(const split of graph.mastering.splitNodes.values())split.dispose();for(const stage of graph.mastering.effects.values())stage.dispose();}
   }
   async exportWav(options={}){
     const buffer=await this.renderRange(options);

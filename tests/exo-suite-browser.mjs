@@ -1,3 +1,4 @@
+import {selectMasterModule,closeMasterRack} from './master-rack-helpers.mjs';
 import {chooseFolderPreset} from './preset-picker-helpers.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/exo-suite',{recursive:true});const browser=await chromium.launch({headless:true});
@@ -12,6 +13,7 @@ try{
  }
  const master=page.locator('#masteringView');
  for(const [id,count] of [['exostrip',10],['exofocus',7],['exoair',4],['exospace',6]]){
+  await selectMasterModule(page,id);
   const module=master.locator('.master-module').filter({has:page.locator('[data-master-power="'+id+'"]')});
   assert.equal(await module.locator('[data-master-param]').count(),count);assert.ok(await module.locator('.exo-suite-presets').isVisible());
  }
@@ -39,7 +41,7 @@ try{
  assert.equal(await ambience.locator('[data-master-param="exospace.predelay"]').inputValue(),'45');
  await page.screenshot({path:'artifacts/exo-suite/mobile.png'});
  await page.setViewportSize({width:1440,height:960});
- await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('.insert-slot.empty [data-insert-slot]').first().click();
+ await closeMasterRack(page);await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('.insert-slot.empty [data-insert-slot]').first().click();
  await page.locator('#pickerBundle').selectOption('EXO');await page.locator('#pickerMode').selectOption('presets');await page.locator('#pluginSearch').fill('Suite QA');
  await chooseFolderPreset(page.locator('[data-picker-preset="exospace"]'));await page.locator('#modal').waitFor({state:'hidden'});
  const track=page.locator('#pluginFloat .exo-space-hardware');await track.waitFor();assert.equal(await track.locator('[data-param="exospace.predelay"]').inputValue(),'45');

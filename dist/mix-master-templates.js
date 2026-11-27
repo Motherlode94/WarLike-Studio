@@ -1,7 +1,7 @@
 import {STUDIORACK_MIX_PRESETS} from './studiorack-mix-presets.js';
 import {GENRE_INSTRUMENT_TEMPLATES,GENRE_MASTER_TEMPLATES} from './genre-instrument-master-templates.js';
 import {EFFECTS,ensurePlugins,placeInsert,INSERT_COUNT,effectType} from './plugins.js';
-import {MASTER_PRESETS,MASTER_MODULES,masteringSettings} from './mastering.js';
+import {MASTER_PRESETS,MASTER_MODULES,masteringSettings} from './mastering.js?v=0.15.12';
 
 const template=(id,name,genre,category,description,stages)=>({id,name,genre,category,description,stages:stages.map(([effect,values])=>({id:effect,values}))});
 const additions=[
