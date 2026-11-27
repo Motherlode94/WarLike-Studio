@@ -1,0 +1,4 @@
+import {makeRack} from './war-rack-core.js';
+const profiles=[['Streaming',-1,1.8,32,180,.7,0],['Radio',-1,1.5,40,220,.65,0],['Club',-1,2,30,140,.8,1],['Warm Analog',-1,1.6,35,210,.7,.5],['Dynamic Master',-1,1.3,45,260,.6,0]];
+export const DELIVERY_MASTER_RACKS=profiles.map(([name,ceiling,ratio,attack,release,mix,drive],i)=>makeRack('delivery-master-'+i,'MASTER / '+name,'Tous','Master','master',[['vectoreq',{g1:-.25,g5:.25}],['circuitbus',{threshold:-14,ratio,attack,release,mix}],...(i===3?[['circuitcolor',{drive:1,mix:.08}]]:[]),['vectorlimit',{ceiling,drive}]],'Starting chain; measure actual loudness and true peak before delivery.'));
+DELIVERY_MASTER_RACKS.push(makeRack('delivery-premaster','MASTER / Premaster','Tous','Master','master',[['vectoreq',{g1:0,g5:0}]],'Neutral starting EQ, no limiter or target loudness.'));
