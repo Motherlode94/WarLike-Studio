@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 const browser=await chromium.launch({headless:true});await mkdir('artifacts/circuit-color',{recursive:true});
 try{
@@ -15,6 +16,6 @@ try{
  await page.locator('#mixerView .mixer-master .insert-slot.empty [data-insert-slot]').first().click();await page.locator('#pluginSearch').fill('CIRCUIT COLOR');await page.locator('[data-picker-load="circuitcolor"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  const master=page.locator('#masteringView .circuit-color-hardware');await master.waitFor();assert.equal(await master.locator('[data-master-param]').count(),5);
  await master.locator('[data-master-param="circuitcolor.mix"]').evaluate(el=>{el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));});await page.waitForFunction(()=>document.querySelector('#masteringView [data-color-status]').textContent==='DRY');
- await page.screenshot({path:'artifacts/circuit-color/master.png'});await page.setViewportSize({width:390,height:844});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/circuit-color/mobile.png'});
+ await page.screenshot({path:'artifacts/circuit-color/master.png'});await resizeStudio(page,{width:390,height:844});await master.waitFor({state:'visible'});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/circuit-color/mobile.png'});
  assert.deepEqual(errors,[]);console.log('PASS: CIRCUIT COLOR native controls, reactive transfer and bias, dry status, master and mobile');
 }finally{await browser.close();}

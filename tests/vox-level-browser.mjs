@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/vox-level',{recursive:true});const browser=await chromium.launch({headless:true});
 try{
@@ -27,6 +28,6 @@ try{
   root.remove();tone.stop();await ctx.close();return result;
  });
  assert.ok(metrics.peak<-.1&&metrics.phrase<-.1,JSON.stringify(metrics));assert.ok(Math.abs(metrics.peak-metrics.nativePeak)<.2);assert.ok(Math.abs(metrics.phrase-metrics.nativePhrase)<.2);assert.ok(Math.abs(metrics.total-metrics.peak-metrics.phrase)<.16);assert.equal(metrics.bypass,'BYPASS');assert.equal(metrics.bypassPeak,0);assert.equal(metrics.bypassPhrase,0);
- await page.screenshot({path:'artifacts/vox-level/master.png'});await page.setViewportSize({width:390,height:844});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/vox-level/mobile.png'});
+ await page.screenshot({path:'artifacts/vox-level/master.png'});await resizeStudio(page,{width:390,height:844});await master.waitFor({state:'visible'});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/vox-level/mobile.png'});
  assert.deepEqual(errors,[]);console.log('PASS: six native controls and two actual compressor stages, bypass, master and mobile',metrics);
 }finally{await browser.close();}

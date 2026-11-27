@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import {chooseFolderPreset} from './preset-picker-helpers.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/alter-filter',{recursive:true});const browser=await chromium.launch({headless:true});try{
@@ -23,6 +24,6 @@ await mkdir('artifacts/alter-filter',{recursive:true});const browser=await chrom
  assert.equal(await master.locator('.alter-pro-presets optgroup[label="Usine"] option').count(),5);
  await master.locator('.alter-pro-presets select').selectOption('1');await master.locator('.alter-pro-presets input').fill('QA alter-filter');await master.locator('[data-alter-save]').click();
  assert.ok((await master.locator('.alter-pro-presets select').innerText()).includes('QA alter-filter'));
- await page.screenshot({path:'artifacts/alter-filter/master.png'});await page.setViewportSize({width:390,height:844});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/alter-filter/mobile.png'});assert.deepEqual(errors,[]);
+ await page.screenshot({path:'artifacts/alter-filter/master.png'});await resizeStudio(page,{width:390,height:844});await master.waitFor({state:'visible'});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/alter-filter/mobile.png'});assert.deepEqual(errors,[]);
  console.log('PASS ALTER FILTER: native controls, reactive display, master presets and mobile');
 }finally{await browser.close();}
