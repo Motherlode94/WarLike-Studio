@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 const browser=await chromium.launch({headless:true});await mkdir('artifacts/circuit-bus',{recursive:true});
 try{
@@ -23,6 +24,6 @@ try{
   root.remove();tone.stop();await ctx.close();return result;
  });
  assert.ok(measured.gr<-.1,JSON.stringify(measured));assert.ok(Math.abs(measured.gr-measured.native)<.15);assert.equal(measured.active,'COMPRESSING');assert.equal(measured.bypass,'BYPASS');assert.equal(measured.bypassGr,'0.0 dB');
- await page.setViewportSize({width:390,height:844});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);
+ await resizeStudio(page,{width:390,height:844});await master.waitFor({state:'visible'});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);
  await page.screenshot({path:'artifacts/circuit-bus/mobile.png'});assert.deepEqual(errors,[]);console.log('PASS: CIRCUIT BUS native controls, blend, live compressor reduction, bypass and mobile',measured);
 }finally{await browser.close();}

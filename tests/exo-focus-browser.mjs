@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import {chooseFolderPreset} from './preset-picker-helpers.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/exo-focus',{recursive:true});const browser=await chromium.launch({headless:true});try{
@@ -22,6 +23,6 @@ await mkdir('artifacts/exo-focus',{recursive:true});const browser=await chromium
  assert.equal(await master.locator('.exo-focus-presets optgroup[label="Usine"] option').count(),5);
  await master.locator('.exo-focus-presets select').selectOption('1');await master.locator('.exo-focus-presets input').fill('QA exo-focus');await master.locator('[data-exo-focus-save]').click();
  assert.ok((await master.locator('.exo-focus-presets select').innerText()).includes('QA exo-focus'));
- await page.screenshot({path:'artifacts/exo-focus/master.png'});await page.setViewportSize({width:390,height:844});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/exo-focus/mobile.png'});assert.deepEqual(errors,[]);
+ await page.screenshot({path:'artifacts/exo-focus/master.png'});await resizeStudio(page,{width:390,height:844});await master.waitFor({state:'visible'});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/exo-focus/mobile.png'});assert.deepEqual(errors,[]);
  console.log('PASS EXO FOCUS: native controls, reactive display, master presets and mobile');
 }finally{await browser.close();}

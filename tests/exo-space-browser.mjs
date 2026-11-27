@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import {chooseFolderPreset} from './preset-picker-helpers.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/exo-space',{recursive:true});const browser=await chromium.launch({headless:true});try{
@@ -17,6 +18,6 @@ await mkdir('artifacts/exo-space',{recursive:true});const browser=await chromium
  assert.equal(await master.locator('.exo-space-presets optgroup[label="Usine"] option').count(),5);
  await master.locator('.exo-space-presets select').selectOption('1');await master.locator('.exo-space-presets input').fill('QA exo-space');await master.locator('[data-exo-space-save]').click();
  assert.ok((await master.locator('.exo-space-presets select').innerText()).includes('QA exo-space'));
- await page.screenshot({path:'artifacts/exo-space/master.png'});await page.setViewportSize({width:390,height:844});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/exo-space/mobile.png'});assert.deepEqual(errors,[]);
+ await page.screenshot({path:'artifacts/exo-space/master.png'});await resizeStudio(page,{width:390,height:844});await master.waitFor({state:'visible'});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/exo-space/mobile.png'});assert.deepEqual(errors,[]);
  console.log('PASS EXO SPACE: native controls, reactive display, master presets and mobile');
 }finally{await browser.close();}
