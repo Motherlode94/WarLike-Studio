@@ -49,6 +49,7 @@ jobs:
           node tests/vocal-audio-browser.mjs
           node tests/beat-demos-browser.mjs
           node tests/export-browser.mjs
+          node tests/rack-recovery-browser.mjs
       - name: Recording count-in evidence
         if: always()
         uses: actions/upload-artifact@v4

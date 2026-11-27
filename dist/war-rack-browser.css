@@ -12,3 +12,6 @@
 #warRackHost [data-list]:empty:after{content:'Aucun rack pour ces filtres.';padding:12px}
 #warRackHost :is(button,select,input):focus-visible{outline:2px solid var(--wl-accent,#daa15a);outline-offset:2px}
 @media(max-width:640px){#warRackHost .mix-master-template-content{grid-template-columns:1fr}#warRackHost .mix-master-template-list{max-height:25vh}#warRackHost .mix-master-template-filters{grid-template-columns:1fr}#warRackHost .mix-master-template-filters label:last-child{grid-column:auto}}
+#warRackHost .war-rack-file-actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:10px 0 16px}
+#warRackHost .war-rack-file-actions label{min-width:0;max-width:100%}
+#warRackHost [data-apply],#warRackHost [data-measure]{margin-top:10px}
