@@ -1,0 +1,4 @@
+import {makeRack} from './war-rack-core.js';
+const profiles=[['Guitar',70,-1,1.5,2,.10],['Bass',25,.5,.5,2.5,0],['Keys',45,-1,.7,1.8,.15],['Synth',35,-.5,.8,1.6,.18],['Strings',60,-.5,.5,1.5,.20],['Wind',70,-.5,1,1.7,.13]];
+const genres=[['Trap',-.5,.2],['Drill',-.7,.35],['R&B',.5,-.15],['Pop',0,.2],['Afrobeat',-.2,.1],['Rumba',-.3,.05],['Rock',-.5,.5],['Gospel',.5,-.2],['Amapiano',0,-.1]];
+export const INSTRUMENT_RACKS=profiles.flatMap(([source,h,body,presence,ratio,space],i)=>genres.map(([genre,b,r],j)=>makeRack('instrument-'+i+'-'+j,genre.toUpperCase()+' / '+source,genre,source,'mix',[['sculpt',{highpass:h,cutoff:20000}],['circuiteq',{body:body+b,presence}],['vectorcomp',{threshold:-20,ratio:ratio+r,attack:32,release:190,mix:.7}],['circuitcolor',{drive:2,mix:.1}],...(space?[['exospace',{mix:space}]]:[])],'Specific source treatment; no automatic volume changes.')));
