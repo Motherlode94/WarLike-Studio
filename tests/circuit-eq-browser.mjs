@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 const browser=await chromium.launch({headless:true});await mkdir('artifacts/circuit-eq',{recursive:true});
 try{
@@ -23,6 +24,6 @@ try{
  const master=page.locator('#masteringView .circuit-eq-hardware');await master.waitFor();assert.equal(await master.locator('[data-master-param]').count(),9);
  const masterBefore=await master.locator('.eq-response').getAttribute('points');await master.locator('[data-master-param="circuiteq.low"]').evaluate(el=>{el.value='-4';el.dispatchEvent(new Event('input',{bubbles:true}));});
  await page.waitForFunction(p=>document.querySelector('#masteringView .eq-response').getAttribute('points')!==p,masterBefore);
- await page.screenshot({path:'artifacts/circuit-eq/master.png'});await page.setViewportSize({width:390,height:844});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);
+ await page.screenshot({path:'artifacts/circuit-eq/master.png'});await resizeStudio(page,{width:390,height:844});await master.waitFor({state:'visible'});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);
  await page.screenshot({path:'artifacts/circuit-eq/mobile.png'});assert.deepEqual(errors,[]);console.log('PASS: 9 original controls, four banks, graph/knob synchronization, keyboard and master/mobile');
 }finally{await browser.close();}

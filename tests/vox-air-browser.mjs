@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/vox-air',{recursive:true});const browser=await chromium.launch({headless:true});
 try{
@@ -35,6 +36,6 @@ try{
   }return results;
  });
  for(const result of measured)assert.ok(Math.abs(result.expected-result.actual)<.2,JSON.stringify(result));
- await page.screenshot({path:'artifacts/vox-air/master.png'});await page.setViewportSize({width:390,height:844});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/vox-air/mobile.png'});
+ await page.screenshot({path:'artifacts/vox-air/master.png'});await resizeStudio(page,{width:390,height:844});await master.waitFor({state:'visible'});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/vox-air/mobile.png'});
  assert.deepEqual(errors,[]);console.log('PASS: seven controls, native offline response, mix, master and mobile',measured);
 }finally{await browser.close();}

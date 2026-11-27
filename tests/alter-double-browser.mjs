@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import {chooseFolderPreset} from './preset-picker-helpers.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/alter-double',{recursive:true});const browser=await chromium.launch({headless:true});try{
@@ -19,6 +20,6 @@ await mkdir('artifacts/alter-double',{recursive:true});const browser=await chrom
  assert.equal(await master.locator('.alter-pro-presets optgroup[label="Usine"] option').count(),5);
  await master.locator('.alter-pro-presets select').selectOption('1');await master.locator('.alter-pro-presets input').fill('QA alter-double');await master.locator('[data-alter-save]').click();
  assert.ok((await master.locator('.alter-pro-presets select').innerText()).includes('QA alter-double'));
- await page.screenshot({path:'artifacts/alter-double/master.png'});await page.setViewportSize({width:390,height:844});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/alter-double/mobile.png'});assert.deepEqual(errors,[]);
+ await page.screenshot({path:'artifacts/alter-double/master.png'});await resizeStudio(page,{width:390,height:844});await master.waitFor({state:'visible'});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/alter-double/mobile.png'});assert.deepEqual(errors,[]);
  console.log('PASS ALTER DOUBLE: native controls, reactive display, master presets and mobile');
 }finally{await browser.close();}

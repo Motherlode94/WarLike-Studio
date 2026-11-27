@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 const browser=await chromium.launch({headless:true});await mkdir('artifacts/vector-limit',{recursive:true});
 try{
@@ -30,6 +31,6 @@ try{
   root.remove();updateVectorLimitFaces();tone.stop();await ctx.close();return result;
  });
  assert.ok(metrics.input>-6,JSON.stringify(metrics));assert.ok(metrics.output<=-5.8&&metrics.output>-40,JSON.stringify(metrics));assert.ok(metrics.gr<-.1,JSON.stringify(metrics));assert.equal(metrics.bypass,'BYPASS');
- await page.setViewportSize({width:390,height:844});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/vector-limit/mobile.png'});
+ await resizeStudio(page,{width:390,height:844});await master.waitFor({state:'visible'});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/vector-limit/mobile.png'});
  assert.deepEqual(errors,[]);console.log('PASS: native limiter controls and sampled input/output, reduction, bypass, master and mobile',metrics);
 }finally{await browser.close();}
