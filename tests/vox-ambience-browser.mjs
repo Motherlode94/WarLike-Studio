@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/vox-ambience',{recursive:true});const browser=await chromium.launch({headless:true});
 try{
@@ -31,6 +32,6 @@ try{
  assert.ok(Math.abs(metrics.slap.dry-1)<1e-5);assert.ok(metrics.slap.pre<1e-6);assert.ok(metrics.slap.slap>.01);
  assert.ok(metrics.room.early>.01&&metrics.room.stereo>.01);assert.equal(metrics.room.ir,5520);assert.ok(metrics.room.tail<1e-5);
  for(const v of [metrics.bypass,metrics.dry]){assert.ok(Math.abs(v.dry-1)<1e-5);assert.ok(Math.max(v.pre,v.slap,v.tail)<1e-6);}
- await page.screenshot({path:'artifacts/vox-ambience/master.png'});await page.setViewportSize({width:390,height:844});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/vox-ambience/mobile.png'});
+ await page.screenshot({path:'artifacts/vox-ambience/master.png'});await resizeStudio(page,{width:390,height:844});await master.waitFor({state:'visible'});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/vox-ambience/mobile.png'});
  assert.deepEqual(errors,[]);console.log('PASS: native impulse, direct path, slapback timing, stereo room, bypass and mobile',metrics);
 }finally{await browser.close();}

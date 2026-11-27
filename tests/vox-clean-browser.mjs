@@ -1,3 +1,4 @@
+import {resizeStudio} from './browser-viewport.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/vox-clean',{recursive:true});const browser=await chromium.launch({headless:true});
 try{
@@ -23,6 +24,6 @@ try{
   root.remove();updateVoxCleanFaces();tone.stop();await ctx.close();return result;
  });
  assert.ok(metrics.gr<-.1&&metrics.gr>=-12.1,JSON.stringify(metrics));assert.equal(metrics.status,'DE-ESSING');assert.equal(metrics.bypass,0);assert.equal(metrics.bypassStatus,'BYPASS');
- await page.screenshot({path:'artifacts/vox-clean/master.png'});await page.setViewportSize({width:390,height:844});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/vox-clean/mobile.png'});
+ await page.screenshot({path:'artifacts/vox-clean/master.png'});await resizeStudio(page,{width:390,height:844});await master.waitFor({state:'visible'});await master.scrollIntoViewIfNeeded();assert.ok((await master.boundingBox()).width<=390);await page.screenshot({path:'artifacts/vox-clean/mobile.png'});
  assert.deepEqual(errors,[]);console.log('PASS: VOX CLEAN native controls, detector signal, bypass, master and mobile',metrics);
 }finally{await browser.close();}
