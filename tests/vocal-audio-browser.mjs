@@ -1,3 +1,4 @@
+import {launchLoadedPublicDemo} from './browser-app-module.mjs';
 
 async function sessionTab(page,tab){const button=page.locator('[data-session-tab="'+tab+'"]');await button.waitFor({state:'visible'});await button.click();if(tab==='demos')await page.locator('#modal [data-factory-project-open]').first().waitFor({state:'visible'});}
 import assert from 'node:assert/strict';
@@ -39,7 +40,7 @@ try{
   // Demo launch is tested through the retained composition API; the duplicate public-demo UI is intentionally absent.
   await sessionTab(page,'demos');
   assert.equal(await page.locator('#modal .project-public-demos').count(),0);
-  await page.evaluate(async demoKind=>{const {launchPublicDemo}=await import('/app.js?v=0.15.6-atlanta-baile');await launchPublicDemo(demoKind);},kind);
+  await launchLoadedPublicDemo(page,kind);
   await page.locator('#modal').waitFor({state:'hidden'});
   await page.waitForFunction(()=>/voix humaines en anglais|vraies voix enregistrées/.test(document.getElementById('toast')?.textContent||''));
   assert.match(await page.locator('#toast').textContent(),/anglais/);
