@@ -161,6 +161,15 @@ jobs:
         run: node tests/master-rack-dsp-browser.mjs
       - name: Floating rack, editing, comparison and cold reopen
         run: node tests/master-rack-browser.mjs
+      - name: Window mouse behavior
+        run: node tests/window-mouse-browser.mjs
+      - name: Window mouse evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: window-mouse
+          path: artifacts/window-mouse/
+          if-no-files-found: warn
       - name: Master rack evidence
         if: always()
         uses: actions/upload-artifact@v4

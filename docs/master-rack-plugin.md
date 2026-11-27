@@ -90,3 +90,26 @@ Référence vérifiée : [Waves StudioRack v2, vues et contrôles d'entrée/sort
 Les marques et ressources graphiques Waves ne sont pas incorporées. Les quatre
 emplacements supplémentaires et les limites du graphe sont documentés ; le rack
 n'est pas présenté comme un hôte VST3 universel.
+
+## Comportement des fenêtres à la souris
+
+Le gestionnaire commun sert au rack, à ses modules et aux fenêtres individuelles
+d'effets/instruments :
+
+- Glissement par la barre de titre ; les boutons du bandeau et les paramètres
+  ne déclenchent pas ce déplacement.
+- Redimensionnement par les quatre bords et les quatre coins, avec curseurs
+  directionnels, tailles minimales et bord opposé conservé.
+- Clic pour donner le focus et passer devant ; le focus d'un module imbriqué
+  ne remonte pas son rack propriétaire au-dessus de lui.
+- Position et dimensions conservées après réduction et réouverture.
+- Défilement du contenu à l'intérieur de la fenêtre, titre accessible ; une
+  rotation de bouton ou un mouvement de fader ne déplace pas la fenêtre.
+- Réglages rotatifs relatifs, Maj pour affiner, double-clic pour le défaut,
+  molette sur les boutons et faders. Les gestes concernent l'instance visée.
+- Capture de pointeur relâchée à la fin ou lors d'une interruption du geste.
+
+`node tests/window-mouse-browser.mjs` exécute les mouvements et clics réels du
+pointeur sur les fenêtres de production, contrôle les huit directions, le focus,
+les paramètres, les fenêtres imbriquées et la réouverture. Il complète les
+essais existants du gestionnaire, des presets et des espaces de travail.

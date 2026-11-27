@@ -95,7 +95,7 @@ import {createDivinityUI} from './divinity-ui.js';
 import {AudioEngine,emptyProject,uid,noteName,bufferToWav} from './audio.js?v=0.15.12';
 import {personalEffectPresets,saveEffectPreset,applyPersonalEffectPreset,nextPresetIndex,compareInsert,copyInsertComparison,INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins,formatParam,placeInsert,moveInsert,INSERT_COUNT,effectDefinition,effectType,copyInsert,changeInstrument,instrumentDefinition} from './plugins.js?v=0.14.0';
 import {recordingSettings,createRecordingGraph,measureBuffer,normalisationGain,clampClipGain} from './recording.js?v=0.14.0';
-import {installKnobControls} from './controls.js?v=0.14.0';
+import {installKnobControls} from './controls.js?v=0.15.13';
 import {PluginInstances} from './plugin-instances.js?v=1';
 import {PluginWindowManager} from './plugin-window-manager.js';
 import {findPluginControl,scopePluginWindowIds} from './plugin-window-dom.js';

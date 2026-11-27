@@ -7,7 +7,7 @@ export function dragRangeValue(start,dx,dy,min,max,step,fine=false) {
   return clampRangeValue(start+(dx*.5-dy)/180*(max-min)*(fine?.1:1),min,max,step);
 }
 export function installKnobControls({onStart=()=>{}}={}) {
-  let drag=null,wheelTimer=0;
+  let drag=null,wheelTimer=0,wheelInput=null;
   const limits=input=>[Number(input.min),Number(input.max),Number(input.step)||1];
   const change=(input,value,commit=false)=>{input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));if(commit)input.dispatchEvent(new Event('change',{bubbles:true}));};
   document.addEventListener('pointerdown',event=>{
@@ -20,8 +20,8 @@ export function installKnobControls({onStart=()=>{}}={}) {
   const finish=event=>{if(!drag||event.pointerId!==drag.id)return;const {input}=drag;drag=null;input.closest('.knob')?.classList.remove('dragging');input.dispatchEvent(new Event('change',{bubbles:true}));};
   document.addEventListener('pointerup',finish);document.addEventListener('pointercancel',finish);
   document.addEventListener('wheel',event=>{
-    const input=event.target.closest('.knob')?.querySelector('input[type="range"]');if(!input)return;event.preventDefault();
-    if(!wheelTimer)onStart();clearTimeout(wheelTimer);wheelTimer=setTimeout(()=>wheelTimer=0,350);
+    const input=event.target.closest('.knob')?.querySelector('input[type="range"]')||event.target.closest('input[type="range"]');if(!input||input.disabled)return;event.preventDefault();
+    if(!wheelTimer||wheelInput!==input)onStart();wheelInput=input;clearTimeout(wheelTimer);wheelTimer=setTimeout(()=>{wheelTimer=0;wheelInput=null;},350);
     const [min,max,step]=limits(input),delta=Math.max(step,(max-min)/100*(event.shiftKey?.1:1));
     change(input,clampRangeValue(Number(input.value)-Math.sign(event.deltaY)*delta,min,max,step),true);
   },{passive:false});
