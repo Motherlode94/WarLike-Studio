@@ -24,7 +24,7 @@ try{
  const before=await save(),undoBefore=await page.locator('#undo').isEnabled(),cursorBefore=await page.locator('#positionDisplay').textContent();
  // Observe the actual production renderer and buffer sources, while retaining its DSP.
  await page.evaluate(async()=>{
-  const {AudioEngine}=await import('/audio.js?v=0.14.0'),render=AudioEngine.prototype.renderRange,start=AudioBufferSourceNode.prototype.start;
+  const {AudioEngine}=await import('/audio.js?v=0.15.12'),render=AudioEngine.prototype.renderRange,start=AudioBufferSourceNode.prototype.start;
   window.sessionPreviewQA={metrics:[],attempts:0,completed:0,sources:[],hold:false,fail:false};
   AudioEngine.prototype.renderRange=async function(options){
    const q=window.sessionPreviewQA;if(!options.project?.demo)return render.call(this,options);q.attempts++;
@@ -101,4 +101,4 @@ try{
  const reopened=await save();assert.deepEqual(reopened.project.tracks,before.project.tracks);assert.deepEqual(reopened.assets,before.assets);
  await writeFile(folder+'/report.json',JSON.stringify(metrics,null,2)+'\n');assert.deepEqual(errors,[]);
  console.log(`PASS: ${SESSION_TEMPLATES.length} real four-bar stereo auditions, cache, natural end, cancellation races, keyboard, transport/mic guards, 4 mobile themes, unchanged project/history/media and project switch`);
-}catch(error){console.error('Session preview failed at',current,errors);await page?.screenshot({path:folder+'/failure.png',fullPage:true}).catch(()=>{});throw error;}finally{await browser.close();}
+}catch(error){console.error('Session preview failed at',current,errors,await page?.evaluate(()=>({state:document.querySelector('.session-preview-panel')?.dataset.state,status:document.querySelector('[data-session-preview-status]')?.textContent,attempts:window.sessionPreviewQA?.attempts,completed:window.sessionPreviewQA?.completed,metrics:window.sessionPreviewQA?.metrics.map(m=>m.name)})).catch(()=>null));await page?.screenshot({path:folder+'/failure.png',fullPage:true}).catch(()=>{});throw error;}finally{await browser.close();}

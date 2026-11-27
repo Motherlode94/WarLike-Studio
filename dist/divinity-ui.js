@@ -2,7 +2,7 @@
 import {DIVINITY_BUNDLES,divinityBundlePreview,applyDivinityBundle} from './divinity-bundles.js';
 import {AI_MASTER_STYLES,analyzeAudioBuffer,recommendMastering,applyAIMasterRecommendation} from './ai-mix-master.js';
 import {EFFECTS} from './plugins.js';
-import {MASTER_MODULES,masteringSettings} from './mastering.js';
+import {MASTER_MODULES,masteringSettings} from './mastering.js?v=0.15.12';
 
 const safe = s => String(s).replace(/[&<>"']/g, x => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
 const short = x => Number.isFinite(x) ? x.toFixed(1) : '—';

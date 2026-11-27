@@ -2,7 +2,7 @@
 // no shared chord progression, chord-index melody or transposed genre template.
 import {createContentTrack} from './content.js';
 import {DRUM_VOICES,placeInsert} from './plugins.js';
-import {masteringSettings} from './mastering.js';
+import {masteringSettings} from './mastering.js?v=0.15.12';
 const uid=()=>Math.random().toString(36).slice(2,12);
 const styles={
  drill:{label:'Drill',name:'WARLIKE · Drill nocturne',bpm:142,swing:0,keyName:'Fa mineur',key:5,scale:'minor',

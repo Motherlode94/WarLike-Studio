@@ -1,3 +1,4 @@
+import {selectMasterModule,closeMasterRack} from './master-rack-helpers.mjs';
 import {resizeStudio} from './browser-viewport.mjs';
 import {chooseFolderPreset} from './preset-picker-helpers.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
@@ -13,6 +14,7 @@ try{
  }
  const master=page.locator('#masteringView');
  for(const [id,count] of [['vectoreq',19],['vectorcomp',7],['vectorlimit',3]]){
+  await selectMasterModule(page,id);
   const module=master.locator('.master-module').filter({has:page.locator('[data-master-power="'+id+'"]')});
   assert.equal(await module.locator('[data-master-param]').count(),count);assert.ok(await module.locator('.vector-master-presets').isVisible());
  }

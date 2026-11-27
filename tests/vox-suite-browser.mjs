@@ -1,3 +1,4 @@
+import {selectMasterModule,closeMasterRack} from './master-rack-helpers.mjs';
 import {chooseFolderPreset} from './preset-picker-helpers.mjs';
 import assert from 'node:assert/strict';import {mkdir} from 'node:fs/promises';import {chromium} from 'playwright';
 await mkdir('artifacts/vox-suite',{recursive:true});const browser=await chromium.launch({headless:true});
@@ -12,6 +13,7 @@ try{
  }
  const master=page.locator('#masteringView');
  for(const [id,count] of [['voxtune',5],['voxclean',6],['voxlevel',6],['voxaireq',7],['voxambience',6]]){
+  await selectMasterModule(page,id);
   const module=master.locator('.master-module').filter({has:page.locator('[data-master-power="'+id+'"]')});
   assert.equal(await module.locator('[data-master-param]').count(),count);assert.ok(await module.locator('.vox-master-presets').isVisible());
  }
@@ -35,7 +37,7 @@ try{
  assert.equal(await ambience.locator('[data-master-param="voxambience.slap"]').inputValue(),'118');
  await page.screenshot({path:'artifacts/vox-suite/mobile.png'});
  await page.setViewportSize({width:1440,height:960});
- await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('.insert-slot.empty [data-insert-slot]').first().click();
+ await closeMasterRack(page);await page.locator('[data-view="mixer"]').click();await page.locator('#mixerView [data-mixer-track]').first().locator('.insert-slot.empty [data-insert-slot]').first().click();
  await page.locator('#pickerBundle').selectOption('VOX LAB');await page.locator('#pickerMode').selectOption('presets');await page.locator('#pluginSearch').fill('Suite QA');
  await chooseFolderPreset(page.locator('[data-picker-preset="voxambience"]'));await page.locator('#modal').waitFor({state:'hidden'});
  const track=page.locator('#pluginFloat .vox-ambience-hardware');await track.waitFor();assert.equal(await track.locator('[data-param="voxambience.slap"]').inputValue(),'118');

@@ -19,7 +19,7 @@ try{
  // worklet start message and transport while retaining production capture DSP.
  await page.evaluate(async()=>{
   const qa=window.countInQA={plays:[],starts:[],sources:[],events:[]};
-  const {AudioEngine}=await import('/audio.js?v=0.14.0'),play=AudioEngine.prototype.play;
+  const {AudioEngine}=await import('/audio.js?v=0.15.12'),play=AudioEngine.prototype.play;
   AudioEngine.prototype.play=async function(options){qa.engine=this;await play.call(this,options);qa.plays.push({requested:options?.startAt??null,when:this.playStartAt,position:this.position,rate:this.ctx.sampleRate});};
   const send=MessagePort.prototype.postMessage;MessagePort.prototype.postMessage=function(data,...args){if(data?.type==='start'&&Number.isFinite(data.time))qa.starts.push({time:data.time,postedAt:qa.engine?.ctx.currentTime});return send.call(this,data,...args);};
   navigator.mediaDevices.getUserMedia=async()=>{

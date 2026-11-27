@@ -1,7 +1,7 @@
 import {MIX_TEMPLATES,MASTER_TEMPLATES,validateTemplate,applyMixTemplate,applyMasterTemplate} from './mix-master-templates.js';
 import {VOX_STUDIORACKS} from './vox-studioracks.js';
 import {EFFECTS,INSERT_COUNT,ensurePlugins} from './plugins.js';
-import {MASTER_MODULES} from './mastering.js';
+import {MASTER_MODULES} from './mastering.js?v=0.15.12';
 export const STAGES=['premix','mix','master','export'];
 export const SOURCES=['Lead Vocal','Backing Vocal','Adlibs','Baby Voice','Guitar','Bass','808','Keys','Synth','Strings','Wind','Drums','Percussion','Log Drum','Bus','Master','Other'];
 export const makeRack=(id,name,genre,source,stage,chain,description=name)=>({id,name,genre,source,stage,category:source,description,stages:chain.map(([id,values])=>({id,values}))});
