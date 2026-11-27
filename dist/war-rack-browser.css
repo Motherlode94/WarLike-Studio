@@ -1,0 +1,14 @@
+/* Rack browser scoped to the existing Studio modal and shared theme. */
+#warRackHost{min-width:0}
+#warRackHost .mix-master-template-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#warRackHost .mix-master-template-filters label:last-child{grid-column:1/-1}
+#warRackHost :is(select,input){min-width:0;width:100%}
+#warRackHost .mix-master-template-content{display:grid;grid-template-columns:minmax(190px,.85fr) minmax(0,1.25fr);gap:16px}
+#warRackHost .mix-master-template-list{max-height:48vh;overflow:auto;display:flex;flex-direction:column;gap:6px}
+#warRackHost .mix-master-template-option{text-align:left;white-space:normal;overflow-wrap:anywhere;padding:10px 12px;min-height:42px}
+#warRackHost .mix-master-template-option[aria-pressed=true]{border-color:var(--wl-accent,#daa15a);box-shadow:inset 3px 0 var(--wl-accent,#daa15a)}
+#warRackHost [data-chain]{padding-left:22px;line-height:1.6;overflow-wrap:anywhere}
+#warRackHost [role=status]{min-height:1.5em;overflow-wrap:anywhere}
+#warRackHost [data-list]:empty:after{content:'Aucun rack pour ces filtres.';padding:12px}
+#warRackHost :is(button,select,input):focus-visible{outline:2px solid var(--wl-accent,#daa15a);outline-offset:2px}
+@media(max-width:640px){#warRackHost .mix-master-template-content{grid-template-columns:1fr}#warRackHost .mix-master-template-list{max-height:25vh}#warRackHost .mix-master-template-filters{grid-template-columns:1fr}#warRackHost .mix-master-template-filters label:last-child{grid-column:auto}}
