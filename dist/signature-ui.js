@@ -1,5 +1,5 @@
 import {installInstrumentAudition} from './instrument-audition.js';
-import {installReferenceWorkspace} from './reference-workspace.js';
+import {installReferenceWorkspace} from './reference-workspace.js?v=0.15.11';
 import {openReference} from './reference-ui.js?v=0.14.0';
 import {normaliseFolders,groupTracks,musicalVariant,channelSnapshot,restoreChannelSnapshot} from './signature-model.js?v=0.14.0';
 import {ensurePlugins} from './plugins.js?v=0.14.0';

@@ -803,3 +803,9 @@ Voir [le fonctionnement et la suite R08.3g.3–R08.4](docs/plugin-windows.md).
 Le bouton **WAR RACKS** du mixeur ouvre le navigateur par source, genre et étape. Le lot de reprise récupère les changements RACK02–RACK10 restés sur leurs branches intermédiaires après fusion et les réintègre vers main : voix, instruments, WAR 808, bus/master, presets JSON et huit profils d'export WAV. Le catalogue complet regroupe 235 racks, dont les presets historiques. Les sept familles de plugins et leurs fenêtres individuelles restent utilisables pour modifier chaque effet de la chaîne.
 
 Voir [le parcours des racks et sa validation](docs/war-studioracks.md). Les presets sont des points de départ réglables ; leur présence et les tests de traitement ne remplacent pas une écoute sur le morceau de l'utilisateur.
+
+### Interface — fidélité aux références FL Studio / Pro Tools
+
+Le mixeur FL garde ses niveaux, noms, instruments et sorties visibles sans défilement vertical. Le Browser latéral classe modules et presets par collection, famille et source (usine/projet/appareil). F6/F7/F9 ouvrent ou masquent les fenêtres FL ; F5 revient à la Playlist intégrée. Les commandes de montage propres au profil Pro Tools restent dans les outils avancés en FL. Le Piano Roll flottant libère l’éditeur inférieur.
+
+Les parcours rendus vérifient aussi l’annulation des presets, la conservation des clips et la réouverture du projet. Détails, limites et commande du test dans [docs/reference-interface-fidelity.md](docs/reference-interface-fidelity.md).

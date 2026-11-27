@@ -1,3 +1,4 @@
+import {mountSidebarBrowser} from './sidebar-browser.js';
 import {mountMusicIndustry} from './music-industry-ui.js';
 import {mountRackBrowser} from './war-rack-browser.js';
 import {mountSessionPreview,updateSessionPreview} from './session-preview-ui.js';
@@ -66,10 +67,10 @@ import {fadeOverlay,installFadeHandles} from './clip-tools.js?v=0.14.0';
 import {mountEqCurve} from './eq-curve.js?v=0.14.0';
 import {installAppMenus} from './app-menus.js?v=0.14.0';
 import {openContextMenu,action as contextAction,group as contextGroup} from './context-menus.js';
-import {installSignature} from './signature-ui.js?v=0.14.0';
+import {installSignature} from './signature-ui.js?v=0.15.11';
 import {normaliseFolders} from './signature-model.js?v=0.14.0';
 import {mountSampler,sliceSettings} from './sampler.js?v=0.14.0';
-import {mountPluginPicker} from './plugin-picker.js?v=0.14.0';
+import {mountPluginPicker} from './plugin-picker.js?v=0.15.11';
 import {capturePreset,userPresets,storePreset,removePreset,applyUserPreset} from './user-plugin-presets.js';
 const pickerPresetBanks=registry=>Object.fromEntries(Object.entries(registry).map(([id,def])=>[id,[...(FACTORY_PRESETS[id]||[]).map((p,index)=>({...p,index,source:'factory'})),...userPresets(localStorage,id,def).map(p=>({...p,source:'user'}))]]));
 function applyPickerPreset(track,id,preset){if(!preset)return;if(preset.source==='factory')applyFactoryPreset(track,id,preset.index);else{const type=id==='instrument'?track.type:effectType(id),def=id==='instrument'?instrumentDefinition(type):effectDefinition(id);applyUserPreset(id==='instrument'?track.instrument:track.effects[id],preset,type,def);}}
@@ -80,7 +81,7 @@ import {mountExoSpace,updateExoSpaceFaces} from './exo-space-face.js';
 import {mountExoFocus,updateExoFocusFaces} from './exo-focus-face.js';
 import {mountExoAir,updateExoAirFaces} from './exo-air-face.js';
 import {mountExoStrip,updateExoStripFaces} from './exo-strip-face.js';
-import {installPianoRoll} from './piano-roll.js?v=0.14.0';
+import {installPianoRoll} from './piano-roll.js?v=0.15.11';
 import {normalizeNotes,resolvePatternClip,writePatternChannel,resizePattern,patternBarOptions,MAX_PATTERN_BARS,MAX_PATTERN_STEPS} from './piano-model.js?v=0.14.0';
 import {installStudioWorkflow,automationParameters} from './studio-workflow.js?v=0.14.0';
 import {MAX_BARS,sessionBars,fitSession,normaliseRouting,audioAssetIds,saveActivePlaylist,changeAudioTempo} from './studio-model.js?v=0.14.0';
@@ -115,6 +116,7 @@ const paths={play:'<path d="m6 3 11 7-11 7Z"/>',pause:'<path d="M7 4v12M13 4v12"
 const icon=n=>`<svg viewBox="0 0 20 20" aria-hidden="true">${paths[n]||paths.wave}</svg>`;
 function icons(root=document){root.querySelectorAll('[data-icon]').forEach(el=>el.innerHTML=icon(el.dataset.icon));}
 icons();
+let sidebarBrowser=null;
 let project=emptyProject(),assets=new Map(),selectedTrack=project.tracks[0].id,selectedClip=project.tracks[0].clips[0]?.id,view='arrange',detail='plugins',editingTool='select',timelineZoom=1,suppressClipClickUntil=0,editMode='grid',editGrid=1/16,clipClipboard=null,suppressTrackClickUntil=0,quickTrackId=null,multiClips=new Set();
 let history=[],future=[],saveTimer,recording=null,db=null,dragState=null,toastTimer,loaded=false,tuneBusy=false,micPreview=null,recordFinalizing=false,micPending=false,pluginWindow=null,bankState={tab:'sounds',filter:'all',search:''},backupAvailable=false;
 let activeProjectId=null,projectIndex=[];
@@ -642,6 +644,7 @@ function renderInspector(){
 }
 
 function renderLibrary(){
+  sidebarBrowser?.refresh();
   const count=contentCounts();$('instrumentCount').textContent=String(count.instruments).padStart(2,'0');$('effectCount').textContent=String(count.effects+1).padStart(2,'0');$('pluginsTab').querySelector('span').textContent=Object.keys(INSTRUMENTS).length+Object.keys(EFFECTS).length+4;document.querySelector('[data-bank-tab=effects] span').textContent=Object.keys(EFFECTS).reduce((n,id)=>n+FACTORY_PRESETS[id].length,0);$('contentStats').textContent=`${count.presets+INSTRU_PRESETS.length} presets · ${count.grooves} grooves · ${count.drums} percussions · ${count.sessions} sessions complètes`;
   document.querySelector('[data-bank-tab=sounds] span').textContent=Object.keys(INSTRUMENTS).reduce((n,id)=>n+FACTORY_PRESETS[id].length,0);document.querySelector('[data-bank-tab=packs] span').textContent=Object.keys(EFFECT_PACKS).length;document.querySelector('[data-bank-tab=instru] span').textContent=INSTRU_PRESETS.length;
   document.querySelector('[data-bank-tab=acoustic] span').textContent=Object.keys(ACOUSTIC_INSTRUMENTS).reduce((n,id)=>n+FACTORY_PRESETS[id].length,0);
@@ -980,7 +983,7 @@ $('closeModal').onclick=()=>$('modal').close();$('modal').addEventListener('clic
 $('modal').addEventListener('close',()=>{if($('modal').open)return;engine.stopPreview();if($('modalBody').querySelector('.project-home'))$('modalBody').replaceChildren();});
 document.querySelectorAll('[data-view]').forEach(el=>el.onclick=()=>setView(el.dataset.view));
 $('libraryEffects').innerHTML=Object.entries(EFFECTS).map(([id,d])=>`<button class="fx-library-item" data-open-fx="${id}"><span></span>${d.name[0]+d.name.slice(1).toLowerCase()}<small>${d.subtitle.toLowerCase()}</small></button>`).join('');
-$('librarySearch').oninput=e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('.library-item,.fx-library-item,.sample-row').forEach(el=>el.hidden=!el.textContent.toLowerCase().includes(q));};
+
 
 // Delegation keeps clip and plugin rendering independent from event lifetime.
 document.addEventListener('click',async e=>{
@@ -1400,11 +1403,11 @@ function renderPluginView(instance){
   personal.innerHTML='<label>MES PRESETS · CET APPAREIL<select id="userPluginPreset" aria-label="Preset personnel appareil"><option value="">Choisir…</option></select></label><label>NOM<input id="userPluginName" maxlength="60" placeholder="Nom du preset"></label><button type="button" class="outline-btn" id="userPluginSave">Enregistrer</button><button type="button" class="outline-btn" id="userPluginDelete">Supprimer</button><button type="button" class="outline-btn" id="userPluginExport">Exporter</button><label>Importer .wlpreset<input id="userPluginImport" type="file" accept=".wlpreset,.json"></label><small>Bibliothèque locale à ce navigateur, disponible dans tous les projets locaux. Aucun fichier audio inclus.</small>';
   panel.append(personal);const pick=local('userPluginPreset');bank.forEach((p,i)=>pick.add(new Option(p.name,String(i))));
   const busy=()=>recording||recordFinalizing||micPending,guard=fn=>{try{if(!pluginWindows.entries.some(e=>e.instance===instance)||project.tracks.find(t=>t.id===trackId)!==tr)return;if(busy())return toast('Termine la prise avant cette action.');fn();}catch(error){toast(error.message);}};
-  local('userPluginSave').onclick=()=>guard(()=>{const name=local('userPluginName').value.trim();if(bank.some(p=>p.name===name)&&!confirm('Remplacer le preset '+name+' ?'))return;storePreset(localStorage,capturePreset(type,def,state,name),type,def);renderFloatingPlugin();toast('Preset enregistré sur cet appareil.');});
+  local('userPluginSave').onclick=()=>guard(()=>{const name=local('userPluginName').value.trim();if(bank.some(p=>p.name===name)&&!confirm('Remplacer le preset '+name+' ?'))return;storePreset(localStorage,capturePreset(type,def,state,name),type,def);renderFloatingPlugin();document.dispatchEvent(new Event('warlike-sidebar-refresh'));toast('Preset enregistré sur cet appareil.');});
   pick.onchange=()=>guard(()=>{if(pick.value==='')return;const preset=bank[Number(pick.value)];checkpoint();applyUserPreset(state,preset,type,def);changed(true);toast('Preset '+preset.name+' chargé.');});
   local('userPluginDelete').onclick=()=>guard(()=>{const preset=bank.find(p=>p.name===local('userPluginName').value.trim())||(pick.value!==''?bank[Number(pick.value)]:null);if(!preset)return toast('Choisis ou saisis le nom du preset.');if(!confirm('Supprimer '+preset.name+' ?'))return;removePreset(localStorage,type,preset.name);renderFloatingPlugin();toast('Preset supprimé.');});
   local('userPluginExport').onclick=()=>guard(()=>{const preset=pick.value!==''?bank[Number(pick.value)]:capturePreset(type,def,state,local('userPluginName').value.trim()||def.name);download(JSON.stringify(preset,null,2),preset.name.replace(/[^a-z0-9_-]/gi,'_')+'.wlpreset','application/json');});
-  local('userPluginImport').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>65536)throw Error('Fichier preset trop volumineux.');const preset=JSON.parse(await file.text());guard(()=>{if(bank.some(p=>p.name===preset.name)&&!confirm('Remplacer le preset '+preset.name+' ?'))return;storePreset(localStorage,preset,type,def);renderFloatingPlugin();toast('Preset importé.');});}catch(error){toast(error.message);}};
+  local('userPluginImport').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>65536)throw Error('Fichier preset trop volumineux.');const preset=JSON.parse(await file.text());guard(()=>{if(bank.some(p=>p.name===preset.name)&&!confirm('Remplacer le preset '+preset.name+' ?'))return;storePreset(localStorage,preset,type,def);renderFloatingPlugin();document.dispatchEvent(new Event('warlike-sidebar-refresh'));toast('Preset importé.');});}catch(error){toast(error.message);}};
   panel.insertAdjacentHTML('beforeend','<div class="suite-rack-actions"><span>RACK DE LA PISTE</span><button id="importRack" class="text-btn">Charger un rack</button><button id="exportRack" class="outline-btn">Exporter le rack</button></div>');
   local('suiteTrack').onchange=e=>{const destination=e.target.value;e.target.value=trackId;openPluginWindow(id,destination);};
   local('suitePreset').onchange=e=>{const index=Number(e.target.value);if(index<0)return;checkpoint();const name=applyFactoryPreset(tr,id,index);changed(true);toast('Preset '+name+' appliqué à '+tr.name+'.');};
@@ -1478,6 +1481,23 @@ async function applyTune(){
 $('libraryEffects').insertAdjacentHTML('afterbegin','<button class="fx-library-item tune-library" data-open-tune><span></span>Tune<small>Pitch correction</small></button>');
 $('libraryInstruments').innerHTML=Object.entries(INSTRUMENTS).map(([type,d])=>`<button class="library-item" data-instrument="${type}"><span class="preset-icon" style="color:${d.color};border-color:${d.color}55;background:${d.color}11">${icon(type==='drums'?'drums':type==='keys'?'piano':'wave')}</span><span><strong>${d.name}${type==='bass'?' 808':''}</strong><small>${d.subtitle.toLowerCase()}</small></span>${icon('chevron-right')}</button>`).join('');
 document.querySelector('.samples').innerHTML='<div class="section-label">KIT PULSE <span>08</span></div>'+Object.entries(DRUM_VOICES).map(([voice,name])=>`<div class="sample-row"><button data-preview="${voice}">${icon('play')}${name}</button><button data-drum-download="${voice}" aria-label="Télécharger ${name}" title="Télécharger en WAV">${icon('download')}</button></div>`).join('');
+function sidebarPresetEntries(kind,id){return [...(FACTORY_PRESETS[id]||[]).map((p,index)=>({...p,index,source:'factory'})),...userPresets(localStorage,id,kind==='instrument'?INSTRUMENTS[id]:EFFECTS[id]).map(p=>({...p,source:'user'})),...(kind==='effect'?personalEffectPresets(project,id).map((p,index)=>({...p,index,source:'project'})):[])];}
+sidebarBrowser=mountSidebarBrowser({instruments:INSTRUMENTS,effects:EFFECTS,readPresets:sidebarPresetEntries,revision:()=>{try{return localStorage.getItem('warlike.plugin.user-presets.v1')+'|'+JSON.stringify(project.pluginPresets||{});}catch{return '';}} ,
+ onPreset:(kind,id,preset)=>{
+  if(recording||recordFinalizing||micPending)return toast('Termine la prise avant de charger un preset.');
+  try{
+   const fresh=sidebarPresetEntries(kind,id).find(p=>p.source===preset.source&&p.name===preset.name&&(p.source==='user'||p.index===preset.index));if(!fresh)throw Error('La bibliothèque a changé. Relance la recherche.');preset=fresh;
+   const original=kind==='instrument'?(currentTrack()?.type===id?currentTrack():project.tracks.find(t=>t.type===id)):currentTrack();
+   if(!original&&project.tracks.length>=64)throw Error('La session est limitée à 64 pistes.');
+   const candidate=original?clone(original):{type:id,inserts:[]};ensurePlugins(candidate);const plugin=kind==='instrument'?'instrument':id;
+   if(kind==='effect'&&!candidate.inserts.includes(id)&&!candidate.inserts.includes(null))throw Error('Tous les inserts sont occupés. Retire un effet avant de charger ce preset.');
+   if(preset.source==='project'){if(!candidate.inserts.includes(id))placeInsert(candidate,candidate.inserts.indexOf(null),id);if(!applyPersonalEffectPreset(project,candidate,id,preset.index))throw Error('Preset du projet invalide.');}
+   else{if(kind==='effect'&&!candidate.inserts.includes(id))placeInsert(candidate,candidate.inserts.indexOf(null),id);applyPickerPreset(candidate,plugin,preset);}
+   checkpoint();const target=original||addTrack(id,false);if(kind==='instrument')target.instrument=candidate.instrument;else{target.effects=candidate.effects;target.inserts=candidate.inserts;}
+   selectedTrack=target.id;selectedClip=null;changed(true);openPluginWindow(plugin,target.id);toast(preset.name+' appliqué à '+target.name+'.');
+  }catch(error){toast(error.message);}
+ }
+});
 $('bankSearch').oninput=event=>{engine.stopPreview();bankState.search=event.target.value;renderContentCards();};$('bankFilter').onchange=event=>{engine.stopPreview();bankState.filter=event.target.value;renderContentCards();};
 document.querySelectorAll('[data-bank-tab]').forEach(button=>button.onclick=()=>setBankTab(button.dataset.bankTab));
 $('gameSoundBank').onclick=()=>{$('projectMenu').hidden=true;setBankTab('game');};$('instruBank').onclick=()=>{$('projectMenu').hidden=true;setBankTab('instru');};$('factorySessions').onclick=()=>{$('projectMenu').hidden=true;setBankTab('sessions');};$('openSessions').onclick=()=>setBankTab('sessions');
@@ -1539,7 +1559,7 @@ function openSpotDialog(tr,clip){
 function nudgeClip(direction){const c=currentClip();if(!c||recording)return;const amount=editMode==='slip'?1/(engine.stepDuration*16*100):editGrid;checkpoint();const items=c.audioId?selectedAudioClips().map(a=>a.clip):[c],min=Math.min(...items.map(c=>c.start)),max=Math.max(...items.map(c=>c.start+c.length)),{shift,bars}=arrangementShift(items,direction*amount,project.bars);for(const item of items)item.start+=shift;project.bars=bars;changed(true);}
 function pasteClip(){if(!clipClipboard||recording)return;if(clipClipboard.group){const at=snapBar(engine.getPosition()/16,editMode,editGrid),shift=at-clipClipboard.origin;if(clipClipboard.group.some(a=>a.clip.start+shift+a.clip.length>MAX_BARS))return;checkpoint();multiClips.clear();const groups=new Map();for(const item of clipClipboard.group){const t=project.tracks.find(t=>t.id===item.trackId)||currentTrack();if(t.type!=='audio')continue;const c={...clone(item.clip),id:uid(),start:item.clip.start+shift};if(c.groupId){if(!groups.has(c.groupId))groups.set(c.groupId,uid());c.groupId=groups.get(c.groupId);}t.clips.push(c);multiClips.add(c.id);project.bars=fitSession(project.bars,c.start+c.length);selectedTrack=t.id;selectedClip=c.id;}changed(true);return;}const tr=currentTrack();if(tr.type!==clipClipboard.type){toast('Choisis une piste du même type pour coller ce clip.');return;}const c=clone(clipClipboard.clip);c.id=uid();c.start=snapBar(engine.getPosition()/16,editMode,editGrid);if(c.start+c.length>MAX_BARS){toast('Le clip dépasse la session maximale.');return;}checkpoint();project.bars=fitSession(project.bars,c.start+c.length);tr.clips.push(c);selectedClip=c.id;changed(true);toast('Clip collé au curseur.');}
 $('showTrackList').onclick=()=>{document.querySelector('.library').classList.remove('sounds-open');};
-$('showSoundList').onclick=()=>{document.querySelector('.library').classList.add('sounds-open');};
+$('showSoundList').onclick=()=>{document.querySelector('.library').classList.add('sounds-open');sidebarBrowser.refresh();};
 $('toggleDetail').onclick=()=>setDetailOpen(document.body.classList.contains('detail-collapsed'));
 $('splitAtCursor').onclick=()=>performSplit(engine.getPosition()/16);
 $('nudgeLeft').onclick=()=>nudgeClip(-1);$('nudgeRight').onclick=()=>nudgeClip(1);
@@ -1636,12 +1656,16 @@ document.addEventListener('contextmenu',e=>{
   show('Timeline',[A('timeline-seek','Placer le curseur ici',()=>{engine.seek(at*16);updateTransport();}),A('timeline-fit','Afficher toute la session',fitTimeline),A('timeline-loop','Définir la zone de boucle…',()=>$('loop').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true})))],ruler);
  }
 });
-piano=installPianoRoll({busy:()=>recording||recordFinalizing||micPending,getProject:()=>project,getEngine:()=>engine,currentTrack,currentClip,checkpoint,changed,save,addTrack,toast,modal,drawClips,updateTransport,openPlugin:openPluginWindow,selectRackTrack:id=>{if(currentTrack()?.id!==id)selectTrack(id);},openEditor:(id,clipId)=>{detail='editor';document.body.dataset.studioSurface='piano';signature?.select('compose',false);selectTrack(id,clipId);setDetailOpen(true);}});
+piano=installPianoRoll({onFloating:()=>setDetailOpen(false),busy:()=>recording||recordFinalizing||micPending,getProject:()=>project,getEngine:()=>engine,currentTrack,currentClip,checkpoint,changed,save,addTrack,toast,modal,drawClips,updateTransport,openPlugin:openPluginWindow,selectRackTrack:id=>{if(currentTrack()?.id!==id)selectTrack(id);},openEditor:(id,clipId)=>{detail='editor';document.body.dataset.studioSurface='piano';signature?.select('compose',false);selectTrack(id,clipId);setDetailOpen(!(document.body.dataset.layoutProfile==='fl'&&innerWidth>760));}});
 $('channelRack').onclick=()=>piano.rack();
 
+ function closeWorkspaceWindow(id){const panel=document.querySelector('[data-managed-window="'+id+'"]');if(!panel||panel.hidden)return false;panel.querySelector('[data-float-close]')?.click();return true;}
  function openWorkspace(kind){
+   if(recording||recordFinalizing||micPending)return toast('Termine la prise avant de changer de fenêtre.');
+   const floating=document.body.dataset.layoutProfile==='fl'&&innerWidth>760;
+   if(floating&&['rack','piano','mixer'].includes(kind)&&closeWorkspaceWindow(kind)){$('workspaceHint').textContent=({rack:'Channel Rack',piano:'Piano Roll',mixer:'Mixer'})[kind]+' masqué';return;}
    const actions={
-     playlist:()=>setView('arrange'),
+     playlist:()=>{if(floating)for(const id of ['rack','piano','mixer'])closeWorkspaceWindow(id);setView('arrange');setDetailOpen(false);},
      rack:()=>piano.rack(),
      piano:()=>{
        const track=currentTrack();

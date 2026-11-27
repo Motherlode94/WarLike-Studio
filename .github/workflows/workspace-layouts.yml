@@ -31,6 +31,7 @@ jobs:
             sleep 1
           done
           curl -fsS http://127.0.0.1:8765/ -o /dev/null
+          node tests/reference-fidelity-browser.mjs
           node tests/workspace-layout-browser.mjs
           node tests/plugin-windows-browser.mjs
           node tests/preset-folders-browser.mjs
@@ -41,6 +42,14 @@ jobs:
           node tests/instru-bank-browser.mjs
           node tests/instrument-faces-browser.mjs
           node tests/effect-faces-browser.mjs
+      - name: Reference interface evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reference-fidelity
+          path: artifacts/reference-fidelity/
+          if-no-files-found: warn
+
       - name: Common plugin commands evidence
         if: always()
         uses: actions/upload-artifact@v4
