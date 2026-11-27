@@ -1,0 +1,1 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {COMPOSITION_STYLES} from '../dist/studio-compositions.js';test('three pop scores have distinct chord sequences',()=>{const ids=['popstar-2008','etoiles-interdites','derriere-les-murs'];assert.equal(new Set(ids.map(id=>JSON.stringify(COMPOSITION_STYLES[id].verse))).size,3);});

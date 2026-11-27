@@ -1,0 +1,2 @@
+# MI-INT01
+Native read-only integration in Mastering. A&R engines vendored from WAR-A-R commit 97747c57b15ad8d43a7ad3cea4cfb889e3492501; stereo/spectrum and profile engines from WAR-MASTER-LAB commit f7a3a4e3e090b45f11c7a556d61b96fd86f5943f. Existing Studio loudness, PCM and offline rendering are reused. No network calls, no executable extension download, no session modifications, no automatic mastering. Vendored versions must be updated explicitly; browser acceptance pending.
