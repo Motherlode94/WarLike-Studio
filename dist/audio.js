@@ -21,6 +21,7 @@ import {exoArpeggiate,exoChannelMap} from './exo.js?v=0.14.0';
 import {resolvePatternClip,patternPlaybackProject} from './piano-model.js?v=0.14.0';
 import {normaliseRouting,audibleIds,compensationDelays,routingLatency,fadeValue} from './studio-model.js?v=0.14.0';
 import {bindings,automateParam} from './automation.js?v=0.14.0';
+import {READS_CURVES,holdKey} from './automation-modes.js';
 import {encodeWav} from './wav.js?v=0.14.0';
 import {encodeWavBlob,writeWav} from './wav-export.js';
 import {createPackProcessors,syncPackProcessors} from './pack-audio.js?v=0.14.0';
@@ -201,10 +202,19 @@ export class AudioEngine {
       for(const send of tr.sends||[]){const n=ch.sendNodes.get(send.id);if(n){n.delay.delayTime.setValueAtTime(p.delayCompensation===false?0:delays.get(tr.id+':send:'+send.id)||0,ctx.currentTime);n.gain.gain.setValueAtTime(send.enabled&&(!send.pre||this.audible(tr))?dbGain(send.level):0,ctx.currentTime);}}
     }graph.routeSignature=signature;
   }
+  // Touch / Latch / Write: while the hand is on a control, its curve stops driving the parameter.
+  holdAutomation(trackId,key,on){
+    this.automationHolds??=new Set();const id=holdKey(trackId,key);
+    if(on){if(this.automationHolds.has(id))return;this.automationHolds.add(id);}else if(!this.automationHolds.delete(id))return;
+    const tr=this.getProject().tracks.find(t=>t.id===trackId),ch=this.channels?.get(trackId);
+    if(on&&tr&&ch&&this.ctx){const def=bindings(ch,tr,EFFECTS).get(key);for(const target of def?.targets||[]){target.param.cancelScheduledValues(this.ctx.currentTime);target.param.setValueAtTime(target.param.value,this.ctx.currentTime);}}
+    if(this.playing&&this.graph)this.scheduleAutomation(this.ctx,this.graph,this.getPosition()/16,this.getProject().bars,this.ctx.currentTime);
+  }
+  releaseAllAutomationHolds(){if(!this.automationHolds?.size)return;this.automationHolds.clear();if(this.playing&&this.graph)this.scheduleAutomation(this.ctx,this.graph,this.getPosition()/16,this.getProject().bars,this.ctx.currentTime);}
   clearAutomation(graph,now){for(const ch of graph.channels.values())for(const param of ch.automatedParams||[])param.cancelScheduledValues(now);}
   scheduleAutomation(ctx,graph,startBar,endBar,when){
-    for(const tr of this.getProject().tracks){const ch=graph.channels.get(tr.id);if(!ch||!['read','write'].includes(tr.automation?.mode))continue;const defs=bindings(ch,tr,EFFECTS);ch.automatedParams=new Set();
-      for(const [key,points] of Object.entries(tr.automation.curves||{})){const def=defs.get(key);if(!def||!points.length||key==='volume'&&!this.audible(tr))continue;for(const target of def.targets){ch.automatedParams.add(target.param);automateParam(target.param,points,{startBar,endBar,when,secondsPerBar:this.stepDuration*16,map:key.startsWith('send:')&&!this.audible(tr)?()=>0:target.map,exponential:target.exponential});}}
+    for(const tr of this.getProject().tracks){const ch=graph.channels.get(tr.id);if(!ch||!READS_CURVES.has(tr.automation?.mode))continue;const defs=bindings(ch,tr,EFFECTS);ch.automatedParams=new Set();
+      for(const [key,points] of Object.entries(tr.automation.curves||{})){const def=defs.get(key);if(!def||!points.length||key==='volume'&&!this.audible(tr))continue;if(this.automationHolds?.has(holdKey(tr.id,key)))continue;for(const target of def.targets){ch.automatedParams.add(target.param);automateParam(target.param,points,{startBar,endBar,when,secondsPerBar:this.stepDuration*16,map:key.startsWith('send:')&&!this.audible(tr)?()=>0:target.map,exponential:target.exponential});}}
     }
   }
   sync() {
