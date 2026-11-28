@@ -1,4 +1,5 @@
 import {setDemoPlaybackLevel} from './demo-playback-level.js';
+import {installSidechainUI} from './sidechain-ui.js';
 import {createMasterRackUI} from './master-rack-ui.js?v=2';
 import {rackType,rackLeaves,rackIsSplit,rackDefinition,rackLocation,placeRackModule,removeRackItem,insertRackSplit} from './master-rack-model.js';
 import {mountSidebarBrowser} from './sidebar-browser.js';
@@ -319,6 +320,7 @@ function showProjectLibrary(){
 }
 
 const engine=new AudioEngine(()=>project,()=>assets);
+const sidechainUI=installSidechainUI({getProject:()=>project,checkpoint,changed});
 const divinityUI=createDivinityUI({getProject:()=>project,getTrack:()=>currentTrack(),engine,checkpoint,changed,toast,renderMastering,renderLibrary});
 engine.onSampleStatus=({type,done,total,error})=>toast(error||((done===total?'Sons prêts : ':'Chargement des sons : ')+(ACOUSTIC_INSTRUMENTS[type]?.name||INSTRUMENTS[type]?.name||'Instruments')));
 let piano=null,signature=null;

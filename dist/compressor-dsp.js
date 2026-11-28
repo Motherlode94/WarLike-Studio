@@ -22,7 +22,10 @@ export class StereoCompressor {
   left=Number.isFinite(left)?left:0;right=Number.isFinite(right)?right:0;
   if(attack!==this.attack){this.attack=attack;this.attackCoefficient=Math.exp(-1/(Math.max(.0001,attack)*this.rate));}
   if(release!==this.release){this.release=release;this.releaseCoefficient=Math.exp(-1/(Math.max(.005,release)*this.rate));}
-  const level=20*Math.log10(Math.max(1e-12,Math.abs(left),Math.abs(right)));
+  // External side-chain: when a key sample is supplied the detector follows the key (mono peak),
+  // the audio path is unchanged. Without a key the detector follows the input as before.
+  const key=this.key;this.key=undefined;
+  const level=20*Math.log10(Math.max(1e-12,key===undefined?Math.max(Math.abs(left),Math.abs(right)):Math.abs(key)));
   const requested=Math.max(0,level-compressorCurve(level,threshold,ratio,knee));
   this.released=Math.max(requested,this.releaseCoefficient*this.released+(1-this.releaseCoefficient)*requested);
   this.envelope=this.attackCoefficient*this.envelope+(1-this.attackCoefficient)*this.released;

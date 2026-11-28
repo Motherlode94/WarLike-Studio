@@ -22,6 +22,7 @@ import {resolvePatternClip,patternPlaybackProject} from './piano-model.js?v=0.14
 import {normaliseRouting,audibleIds,compensationDelays,routingLatency,fadeValue} from './studio-model.js?v=0.14.0';
 import {bindings,automateParam} from './automation.js?v=0.14.0';
 import {READS_CURVES,holdKey} from './automation-modes.js';
+import {reaches} from './studio-model.js';
 import {encodeWav} from './wav.js?v=0.14.0';
 import {encodeWavBlob,writeWav} from './wav-export.js';
 import {createPackProcessors,syncPackProcessors} from './pack-audio.js?v=0.14.0';
@@ -137,7 +138,9 @@ export class AudioEngine {
     echoInput.connect(echoOutput);echoInput.connect(send);send.connect(delay);delay.connect(echoTone);echoTone.connect(feedback);feedback.connect(delay);echoTone.connect(echoOutput);
     auraInput.connect(auraOutput);auraInput.connect(space);space.connect(auraPreDelay);auraPreDelay.connect(reverb);reverb.connect(auraTone);auraTone.connect(auraOutput);
     delay.delayTime.value=60/this.getProject().bpm*(tr.effects?.echo?.division??.75); send.gain.value=tr.delay||0; feedback.gain.value=.3; analyser.fftSize=128;
-    const ch={auraDecay:1.8,colorTone,echoTone,auraPreDelay,auraTone,reverb,input,filter,pan,gain,analyser,meterSplitter,meterLeft,meterRight,send,delay,feedback,drive,highpass,space,eqLow,eqMid,eqHigh,compressor,makeup,colorDry,colorWet,colorOut,compressDry,compressWet,compressDelay,pack,packSignature:packTypes(tr).join(','),instanceChannels:new Map(),sendNodes:new Map(),routeDelay:ctx.createDelay(1),stages:{...pack.modules,color:{input:colorInput,output:colorOut},sculpt:{input:highpass,output:filter},prism:{input:eqLow,output:eqHigh},glue:{input:compInput,output:makeup},echo:{input:echoInput,output:echoOutput},aura:{input:auraInput,output:auraOutput}}};this.syncEffects(ch,tr,ctx.currentTime,true);return ch;
+    // GLUE external side-chain (Pro Tools Key Input): source → Key HPF → Key LPF → compressor input 1.
+    const keyHP=ctx.createBiquadFilter(),keyLP=ctx.createBiquadFilter(),keyListen=ctx.createGain();keyHP.type='highpass';keyHP.frequency.value=0;keyHP.Q.value=Math.SQRT1_2;keyLP.type='lowpass';keyLP.frequency.value=ctx.sampleRate/2;keyLP.Q.value=Math.SQRT1_2;keyListen.gain.value=0;keyHP.connect(keyLP);keyLP.connect(keyListen);keyListen.connect(makeup);
+    const ch={keyHP,keyLP,keyListen,keySource:null,auraDecay:1.8,colorTone,echoTone,auraPreDelay,auraTone,reverb,input,filter,pan,gain,analyser,meterSplitter,meterLeft,meterRight,send,delay,feedback,drive,highpass,space,eqLow,eqMid,eqHigh,compressor,makeup,colorDry,colorWet,colorOut,compressDry,compressWet,compressDelay,pack,packSignature:packTypes(tr).join(','),instanceChannels:new Map(),sendNodes:new Map(),routeDelay:ctx.createDelay(1),stages:{...pack.modules,color:{input:colorInput,output:colorOut},sculpt:{input:highpass,output:filter},prism:{input:eqLow,output:eqHigh},glue:{input:compInput,output:makeup},echo:{input:echoInput,output:echoOutput},aura:{input:auraInput,output:auraOutput}}};this.syncEffects(ch,tr,ctx.currentTime,true);return ch;
   }
   impulse(ctx,decay=1.8) {
     // One cached impulse per context and decay (0.1 s steps). 1.8 s is the historical AURA tail.
@@ -168,9 +171,12 @@ export class AudioEngine {
     set(ch.eqLow.frequency,e.prism.lowFreq);set(ch.eqMid.frequency,e.prism.midFreq);set(ch.eqHigh.frequency,e.prism.highFreq);set(ch.eqMid.Q,e.prism.q);
     set(ch.colorWet.gain,e.color.enabled?e.color.mix:1);set(ch.colorDry.gain,e.color.enabled?1-e.color.mix:0);set(ch.colorOut.gain,dbGain(e.color.enabled?e.color.output:0));
     const needsCompressor=tr.inserts.includes('glue'),newCompressor=needsCompressor&&!ch.compressor;
-    if(newCompressor){ch.compressor=createCompressor(ch.input.context);ch.stages.glue.input.connect(ch.compressor);ch.compressor.connect(ch.compressWet);}
+    if(newCompressor){ch.compressor=createCompressor(ch.input.context);ch.stages.glue.input.connect(ch.compressor);ch.compressor.connect(ch.compressWet);if(ch.keySource)ch.keyLP.connect(ch.compressor,0,1);}
     if(!needsCompressor&&ch.compressor){ch.stages.glue.input.disconnect(ch.compressor);ch.compressor.dispose();ch.compressor=null;}
-    set(ch.compressWet.gain,e.glue.enabled?e.glue.mix:1);set(ch.compressDry.gain,e.glue.enabled?1-e.glue.mix:0);
+    // Key Listen: hear only the filtered key signal (setup aid, like Pro Tools Side-Chain Listen).
+    const listen=!!(e.glue.enabled&&e.glue.keyExternal&&e.glue.keySource&&e.glue.keyListen);
+    set(ch.compressWet.gain,listen?0:e.glue.enabled?e.glue.mix:1);set(ch.compressDry.gain,listen?0:e.glue.enabled?1-e.glue.mix:0);
+    if(ch.keyHP){set(ch.keyListen.gain,listen?1:0);set(ch.keyHP.frequency,(e.glue.keyHpf??20)<=20?0:e.glue.keyHpf);set(ch.keyLP.frequency,(e.glue.keyLpf??20000)>=19950?ch.input.context.sampleRate/2:e.glue.keyLpf);}
     if(ch.compressor){const setComp=(param,value)=>initial||newCompressor?param.setValueAtTime(value,now):param.setTargetAtTime(value,now,.02);
       setComp(ch.compressor.knee,e.glue.knee);setComp(ch.compressor.threshold,e.glue.threshold);setComp(ch.compressor.ratio,e.glue.ratio);setComp(ch.compressor.attack,e.glue.attack/1000);setComp(ch.compressor.release,e.glue.release/1000);}
     set(ch.makeup.gain,dbGain(e.glue.enabled?e.glue.makeup:0));
@@ -201,6 +207,13 @@ export class AudioEngine {
       ch.routeDelay.delayTime.setValueAtTime(required,ctx.currentTime);
       for(const send of tr.sends||[]){const n=ch.sendNodes.get(send.id);if(n){n.delay.delayTime.setValueAtTime(p.delayCompensation===false?0:delays.get(tr.id+':send:'+send.id)||0,ctx.currentTime);n.gain.gain.setValueAtTime(send.enabled&&(!send.pre||this.audible(tr))?dbGain(send.level):0,ctx.currentTime);}}
     }graph.routeSignature=signature;
+    // Key inputs: post-fader signal of the chosen track. A source that already receives this
+    // track's output (feedback loop) is refused, as Pro Tools refuses a key that feeds itself.
+    for(const tr of p.tracks){const ch=graph.channels.get(tr.id);if(!ch?.keyHP)continue;const g=tr.effects?.glue,id=g?.enabled&&g.keyExternal&&tr.inserts?.includes('glue')?g.keySource:null;
+      const source=id&&id!==tr.id&&!reaches(p.tracks,tr.id,id)?graph.channels.get(id):null;
+      // The key path is only wired while a source exists: an idle filter still emits a silent channel,
+      // which the detector would read as a muted key.
+      if(ch.keySource!==source){if(ch.keySource){try{ch.keySource.gain.disconnect(ch.keyHP);}catch{}try{ch.keyLP.disconnect(ch.compressor);}catch{}}if(source){source.gain.connect(ch.keyHP);if(ch.compressor)ch.keyLP.connect(ch.compressor,0,1);}ch.keySource=source;}}
   }
   // Touch / Latch / Write: while the hand is on a control, its curve stops driving the parameter.
   holdAutomation(trackId,key,on){
