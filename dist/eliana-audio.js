@@ -30,6 +30,9 @@ export function createElianaEffects(ctx,scope,types=null){
    m.tone.type='lowpass';m.delay.connect(m.tone);m.tone.connect(m.feedback);
    m.feedback.connect(m.delay);m.input.connect(m.delay);m.tone.connect(m.wet);
   }
+  if(id==='elianaveil')m.bindings={lowcut:[m.hp.frequency],warmth:[m.low.gain],air:[m.high.gain],mix:[[m.dry.gain,x=>1-x],m.wet.gain]};
+  if(id==='eliananest')m.bindings={size:[[m.delay.delayTime,x=>x/1000]],feedback:[m.feedback.gain],tone:[m.tone.frequency],mix:[[m.dry.gain,x=>1-x],m.wet.gain]};
+
  }
  return modules;
 }

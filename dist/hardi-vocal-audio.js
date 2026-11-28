@@ -31,6 +31,9 @@ export function createHardiVocalEffects(ctx,scope,types=null){
     m.voices.push({delay,tone,pan,sign});
    }
   }
+  if(id==='hardivoice')m.bindings={highpass:[m.hp.frequency],body:[m.body.gain],presence:[m.presence.gain],air:[m.air.gain],mix:[[m.dry.gain,x=>1-x],m.wet.gain]};
+  if(id==='hardidoubler')m.bindings={delay:m.voices.map(v=>[v.delay.delayTime,x=>(x+v.sign*2)/1000]),width:m.voices.map(v=>[v.pan.pan,x=>x*v.sign]),tone:m.voices.map(v=>v.tone.frequency),mix:[[m.dry.gain,x=>1-x],m.wet.gain]};
+
  }
  return modules;
 }

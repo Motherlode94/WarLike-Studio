@@ -24,11 +24,17 @@ export function trackLatency(track,rate=48000){return (track.inserts||[]).reduce
  if(!id||!track.effects?.[id]?.enabled)return sum;
  return sum+effectLatency(id,rate);
 },0);}
-export function compensationDelays(tracks,rate=48000){
-  const incoming=id=>tracks.filter(t=>edges(t).includes(id)),memo=new Map();
-  const arrival=(t,seen=new Set())=>{if(memo.has(t.id))return memo.get(t.id);if(seen.has(t.id))return 0;const next=new Set([...seen,t.id]);const value=(t.type==='bus'?Math.max(0,...incoming(t.id).map(s=>arrival(s,next))):0)+trackLatency(t,rate);memo.set(t.id,value);return value;};
-  const max=Math.max(0,...tracks.map(t=>arrival(t)));const delays=new Map();for(const t of tracks){const own=arrival(t),target=t.output&&t.output!=='master'?tracks.find(x=>x.id===t.output):null;const at=target?Math.max(0,...incoming(target.id).map(s=>arrival(s))):max;delays.set(t.id,Math.max(0,at-own));for(const s of t.sends||[]){const target=tracks.find(n=>n.id===s.target);if(target){const atSend=Math.max(0,...incoming(target.id).map(n=>arrival(n)));delays.set(t.id+':send:'+s.id,Math.max(0,atSend-own));}}}return delays;
+function routingArrivalTimes(tracks,rate){
+ const incoming=id=>tracks.filter(t=>edges(t).includes(id)),memo=new Map();
+ const arrival=(t,seen=new Set())=>{if(memo.has(t.id))return memo.get(t.id);if(seen.has(t.id))return 0;const next=new Set([...seen,t.id]);const value=(t.type==='bus'?Math.max(0,...incoming(t.id).map(s=>arrival(s,next))):0)+trackLatency(t,rate);memo.set(t.id,value);return value;};
+ for(const t of tracks)arrival(t);return memo;
 }
+export const routingLatency=(tracks,rate=48000)=>Math.max(0,...routingArrivalTimes(tracks,rate).values());
+export function compensationDelays(tracks,rate=48000){
+ const times=routingArrivalTimes(tracks,rate),incoming=id=>tracks.filter(t=>edges(t).includes(id)),arrival=t=>times.get(t.id)||0,max=Math.max(0,...times.values());
+ const delays=new Map();for(const t of tracks){const own=arrival(t),target=t.output&&t.output!=='master'?tracks.find(x=>x.id===t.output):null;const at=target?Math.max(0,...incoming(target.id).map(arrival)):max;delays.set(t.id,Math.max(0,at-own));for(const s of t.sends||[]){const target=tracks.find(n=>n.id===s.target);if(target){const atSend=Math.max(0,...incoming(target.id).map(arrival));delays.set(t.id+':send:'+s.id,Math.max(0,atSend-own));}}}return delays;
+}
+
 export function ensurePlaylists(track,idFactory){
   if(track.type!=='audio')return;track.playlists=Array.isArray(track.playlists)?track.playlists:[];
   if(!track.playlists.length){const id=idFactory();track.playlists=[{id,name:'Principale',clips:copy(track.clips)}];track.activePlaylist=id;}

@@ -70,7 +70,7 @@ navigateur et son gain implicite n'est pas recherchée. Les projets sauvegardés
 ne reçoivent pas une normalisation automatique. Le nouveau sens de Ceiling
 GUARD s'applique aussi aux projets anciens.
 
-Vérifications locales :
+Mesures initiales de #301 (commit f3ea978), avant le complément [latence et automation](studio-alignment.md) :
 
 - 717 tests Node, vérification syntaxique et build.
 - 171 contrôles avec les vrais AudioWorklet sur les six modules à 44,1/48/96 kHz.

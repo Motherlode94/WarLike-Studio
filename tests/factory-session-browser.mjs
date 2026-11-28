@@ -1,3 +1,6 @@
+import {routingLatency} from '../dist/studio-model.js';
+import {masterRackLatency} from '../dist/master-rack-model.js';
+import {masteringSettings} from '../dist/mastering.js';
 import {resizeStudio} from './browser-viewport.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
@@ -137,7 +140,8 @@ for(const [kind,name] of selected){
    },imported.project),540000,kind+' full WAV render');
    if(newComposition){const pending=renderPage.waitForEvent('download');await renderPage.locator('[data-composition-wav]').click();await(await pending).saveAs(dir+'/'+kind+'-full.wav');}
    stage(kind,'WAV decoded; checking metrics');
-   report.push({kind,seconds,...metrics});
+   const processingLatency=routingLatency(imported.project.tracks,44100)+masterRackLatency(masteringSettings(imported.project.mastering),44100);
+   report.push({kind,seconds,processingLatency,...metrics});
    await writeFile(dir+'/report.json',JSON.stringify(report,null,2)+'\n');
    assert.equal(metrics.pcmDiagnostics.invalid,0,kind+' invalid PCM');
    assert.equal(metrics.pcmDiagnostics.overRange,0,kind+' over-range PCM');
@@ -145,7 +149,7 @@ for(const [kind,name] of selected){
    assert.equal(metrics.channels,2);assert.equal(metrics.bits,24);assert.equal(metrics.sampleRate,44100);
    assert.equal(metrics.musicality.passed,true,kind+' PCM failures: '+metrics.musicality.problems.join(', '));
    assert.equal(metrics.musicality.sections.length,before.project.sections.length,kind+' missing section measurements');
-   assert.ok(Math.abs(metrics.frames/44100-seconds)<.03,'incorrect WAV duration');
+   assert.ok(Math.abs(metrics.frames/44100-(seconds+.01+processingLatency))<2/44100,'incorrect WAV duration including processing latency');
    assert.ok(metrics.peak>.02&&metrics.peak<.999,'silent or clipped WAV');
    assert.ok(metrics.rms>.002,'silent mix');
    if(newComposition){

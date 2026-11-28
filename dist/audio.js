@@ -1,3 +1,4 @@
+import {masterRackLatency} from './master-rack-model.js';
 import {createCompressor} from './compressor-audio.js';
 import {dynamicsLatency} from './dynamics-timing.js';
 import {SessionPreview} from './session-preview.js';
@@ -18,7 +19,7 @@ import {loadAcousticBank,acousticVoice} from './acoustic-audio.js?v=0.14.0';
 import {exoVoice} from './exo-audio.js?v=0.14.0';
 import {exoArpeggiate,exoChannelMap} from './exo.js?v=0.14.0';
 import {resolvePatternClip,patternPlaybackProject} from './piano-model.js?v=0.14.0';
-import {normaliseRouting,audibleIds,compensationDelays,fadeValue} from './studio-model.js?v=0.14.0';
+import {normaliseRouting,audibleIds,compensationDelays,routingLatency,fadeValue} from './studio-model.js?v=0.14.0';
 import {bindings,automateParam} from './automation.js?v=0.14.0';
 import {encodeWav} from './wav.js?v=0.14.0';
 import {encodeWavBlob,writeWav} from './wav-export.js';
@@ -27,7 +28,7 @@ import {packTail} from './packs.js?v=0.14.0';
 import {ensurePlugins,DRUM_VOICES,EFFECTS,pluginDefaults,effectType} from './plugins.js?v=0.14.0';
 import {clampClipGain} from './recording.js?v=0.14.0';
 import {createFactorySession,DRUM_GROOVES} from './content.js?v=0.14.0';
-import {createMasterChain,syncMasterChain} from './mastering.js?v=0.15.12';
+import {createMasterChain,syncMasterChain,masteringSettings} from './mastering.js?v=0.15.12';
 import {renderScheduled} from './offline-schedule.js';
 export const uid = () => Math.random().toString(36).slice(2, 11);
 export const dbGain = db => Math.pow(10, db / 20);
@@ -173,11 +174,14 @@ export class AudioEngine {
   routeGraph(ctx,graph,initial=false){
     const p=this.getProject(),delays=compensationDelays(p.tracks,ctx.sampleRate),signature=JSON.stringify(p.tracks.map(t=>[t.id,t.output,(t.sends||[]).map(s=>[s.id,s.target,s.pre])]).sort((a,b)=>a[0].localeCompare(b[0])));
     for(const tr of p.tracks){const ch=graph.channels.get(tr.id);if(!ch)continue;
+      const required=p.delayCompensation===false?0:delays.get(tr.id)||0;
+      if(required>ch.routeDelay.delayTime.maxValue){ch.analyser.disconnect();ch.routeDelay.disconnect();ch.routeDelay=ctx.createDelay(required+.001);graph.routeSignature=null;}
+      if((tr.sends||[]).some(s=>(delays.get(tr.id+':send:'+s.id)||0)>(ch.sendNodes.get(s.id)?.delay.delayTime.maxValue??Infinity)))graph.routeSignature=null;
       if(graph.routeSignature!==signature){ch.analyser.disconnect();ch.routeDelay.disconnect();for(const n of ch.sendNodes.values()){n.source.disconnect(n.gain);n.gain.disconnect();n.delay.disconnect();}ch.sendNodes.clear();
         const captured=graph.captureId===tr.id,dest=captured?ctx.destination:graph.channels.get(tr.output)?.input||graph.master;if(captured&&graph.preFader)ch.effectsOutput.connect(ctx.destination);else{ch.analyser.connect(ch.routeDelay);ch.routeDelay.connect(dest);}
-        for(const send of tr.sends||[]){const target=graph.channels.get(send.target);if(!target)continue;const gain=ctx.createGain(),delay=ctx.createDelay(1),source=send.pre?ch.pan:ch.gain;source.connect(gain);gain.connect(delay);delay.connect(target.input);ch.sendNodes.set(send.id,{gain,delay,source});}
+        for(const send of tr.sends||[]){const target=graph.channels.get(send.target);if(!target)continue;const gain=ctx.createGain(),delay=ctx.createDelay(Math.max(1,(delays.get(tr.id+':send:'+send.id)||0)+.001)),source=send.pre?ch.pan:ch.gain;source.connect(gain);gain.connect(delay);delay.connect(target.input);ch.sendNodes.set(send.id,{gain,delay,source});}
       }
-      ch.routeDelay.delayTime.setValueAtTime(p.delayCompensation===false?0:delays.get(tr.id)||0,ctx.currentTime);
+      ch.routeDelay.delayTime.setValueAtTime(required,ctx.currentTime);
       for(const send of tr.sends||[]){const n=ch.sendNodes.get(send.id);if(n){n.delay.delayTime.setValueAtTime(p.delayCompensation===false?0:delays.get(tr.id+':send:'+send.id)||0,ctx.currentTime);n.gain.gain.setValueAtTime(send.enabled&&(!send.pre||this.audible(tr))?dbGain(send.level):0,ctx.currentTime);}}
     }graph.routeSignature=signature;
   }
@@ -371,7 +375,7 @@ export class AudioEngine {
   async renderRange({sampleRate=44100,startBar=0,endBar=this.getProject().bars,tail=true,captureId=null,preFader=false,clean=false,project=null,assets=null,signal}={}){
     signal?.throwIfAborted();
     const p=structuredClone(project||this.getProject());if(clean){for(const t of p.tracks)for(const e of Object.values(t.effects||{}))e.enabled=false;p.mastering={bypass:true};}
-    const getAssets=assets?()=>assets:this.getAssets,renderer=new AudioEngine(()=>p,getAssets),sd=60/p.bpm/4,start=startBar*16,end=endBar*16,duration=(end-start)*sd+(tail?packTail(p):0)+.01;
+    const getAssets=assets?()=>assets:this.getAssets,renderer=new AudioEngine(()=>p,getAssets),sd=60/p.bpm/4,start=startBar*16,end=endBar*16,duration=(end-start)*sd+(tail?packTail(p):0)+.01+routingLatency(p.tracks,sampleRate)+masterRackLatency(masteringSettings(p.mastering),sampleRate);
     if(![44100,48000,96000].includes(sampleRate)||![startBar,endBar,duration].every(Number.isFinite)||startBar<0||end<=start||duration<=0)throw Error('Plage ou fréquence de rendu invalide.');
     if(duration*sampleRate*2*8>768*1024*1024)throw Error('Rendu trop volumineux : exporte une plage plus courte ou choisis une fréquence plus basse.');
     for(const tr of p.tracks)for(const clip of tr.clips)if(clip.audioId&&!clip.muted&&clip.start<endBar&&clip.start+clip.length>startBar&&!getAssets().get(clip.audioId)?.buffer)throw Error('Un fichier audio est manquant : '+(clip.name||tr.name||clip.audioId)+'. Réimporte-le avant l’export.');

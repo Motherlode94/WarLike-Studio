@@ -74,6 +74,11 @@ export function createHardiEffects(ctx,scope,types=null){
    m.drive=node('createGain');m.shape=node('createWaveShaper');m.shape.oversample='2x';m.tone=node('createBiquadFilter');
    m.tone.type='lowpass';m.input.connect(m.drive);m.drive.connect(m.shape);m.shape.connect(m.tone);m.tone.connect(m.wet);
   }
+  if(id==='harditilt')m.bindings={pivot:[m.low.frequency,m.high.frequency],tilt:[[m.low.gain,x=>-x],m.high.gain]};
+  if(id==='hardistage')m.bindings={width:[[m.ll.gain,x=>(1+x)/2],[m.rr.gain,x=>(1+x)/2],[m.lr.gain,x=>(1-x)/2],[m.rl.gain,x=>(1-x)/2]]};
+  if(id==='harditape')m.bindings={tone:[m.tone.frequency]};
+  m.bindings={...m.bindings,mix:[[m.dry.gain,x=>1-x],m.wet.gain],output:[[m.level.gain,db,true]]};
+
  }
  return modules;
 }

@@ -1,13 +1,12 @@
 import {EXPORT_RACKS,inspectExportRender} from './war-rack09.js';
 import {transformAudioChannels} from './clip-tools.js?v=0.14.0';
-import {STUDIO_EFFECTS} from './studio-packs.js?v=0.14.0';
 import {mountAutomationEditor} from './curve-editor.js?v=0.14.0';
 import {mountTakeLanes} from './take-lanes.js?v=0.14.0';
 import {prepareComp,compContext,commitComp,canContinueComp,auditCompSeams} from './comp-preview.js';
 import {measureStudioCompRender} from './audio-certification.js';
 import {MAX_BARS,fitSession,routeAllowed,addAuxSend,normaliseRouting,ensurePlaylists,saveActivePlaylist,switchPlaylist,newPlaylist,recordTake,compPlaylist,applyCrossfade,audioAssetIds} from './studio-model.js?v=0.14.0';
 import {EFFECTS,effectDefinition,effectType,ensurePlugins} from './plugins.js?v=0.14.0';
-import {normaliseCurve,putPoint,pointValue} from './automation.js?v=0.14.0';
+import {normaliseCurve,putPoint,pointValue,isAutomatableControl} from './automation.js?v=0.14.0';
 import {createPcmCapture,recordingPlacement} from './pcm-capture.js?v=0.14.0';
 import {emitRecordingTelemetry} from './recording-telemetry.js';
 import {createRecordingSignalDiagnostics} from './recording-signal-diagnostics.js';
@@ -22,8 +21,7 @@ import {createRecordingGraph,recordingSettings,measureBuffer,normalisationGain,a
 import {encodeWav} from './wav.js?v=0.14.0';
 import {zipWavBlobs} from './wav-export.js';
 const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),clone=v=>structuredClone(v),safe=s=>String(s).replace(/[^\p{L}\p{N}_-]/gu,'_').slice(0,70),uid=()=>Math.random().toString(36).slice(2,11);
-const SUPPORTED={color:['mix','output'],sculpt:['cutoff','highpass'],prism:['low','mid','high','lowFreq','midFreq','highFreq','q'],glue:['threshold','ratio','attack','release','makeup','knee','mix'],echo:['mix','feedback'],aura:['mix'],hush:['threshold'],sibil:['threshold','frequency'],ember:['mix','tone','output'],orbit:['rate','depth','width','mix'],sway:['rate','depth','pan','mix'],relay:['feedback','tone','mix']};
-export function automationParameters(track){const list=[{key:'volume',name:'Volume',min:-48,max:12,value:track.volume},{key:'pan',name:'Panoramique',min:-1,max:1,value:track.pan}];for(const s of track.sends||[])list.push({key:'send:'+s.id,name:'Envoi '+s.target,min:-60,max:12,value:s.level});for(const id of track.inserts||[])if(id){const d=effectDefinition(id);for(const c of d.controls)if(SUPPORTED[effectType(id)]?.includes(c.key)||STUDIO_EFFECTS[effectType(id)]&& !['drive','bias','duck','range','beats','peakThreshold','levelThreshold'].includes(c.key))list.push({key:id+':'+c.key,name:d.name+' · '+c.name,min:c.min,max:c.max,value:track.effects[id][c.key]});}return list;}
+export function automationParameters(track){const list=[{key:'volume',name:'Volume',min:-48,max:12,value:track.volume},{key:'pan',name:'Panoramique',min:-1,max:1,value:track.pan}];for(const s of track.sends||[])list.push({key:'send:'+s.id,name:'Envoi '+s.target,min:-60,max:12,value:s.level});for(const id of track.inserts||[])if(id){const d=effectDefinition(id);for(const c of d.controls)if(isAutomatableControl(effectType(id),c.key))list.push({key:id+':'+c.key,name:d.name+' · '+c.name,min:c.min,max:c.max,value:track.effects[id][c.key]});}return list;}
 export function installStudioWorkflow(d){
   let pendingRecord=null,recordingSeries=null,takeLanesDispose=null;
   function cancelRecordingSeries(){recordingSeries?.cancel();}
