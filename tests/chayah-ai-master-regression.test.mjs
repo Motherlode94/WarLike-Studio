@@ -30,7 +30,7 @@ test('CHAYAH UI analysis renders only pre-master project and reports errors in t
  const ui=readFileSync(new URL('../dist/divinity-ui.js',import.meta.url),'utf8');
  assert.ok(ui.includes('mastering:{...source.mastering,bypass:true}'));
  assert.ok(ui.includes('project:dryMasterProject'));
- assert.ok(ui.includes('endBar:Math.min(4,bars)'));
+ assert.ok(ui.includes('endBar:Math.min(32,bars)'));assert.ok(ui.includes('refineMasteringForTarget'));
  assert.ok(ui.includes('role="alert"'));
  assert.ok(ui.includes('chosenStyle'));
  assert.ok(ui.includes('button.disabled=true'));

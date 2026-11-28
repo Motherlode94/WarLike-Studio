@@ -1,6 +1,7 @@
 // Interaction layer for CHAYAH DIVINITÉS — no network uploads or background automation.
 import {DIVINITY_BUNDLES,divinityBundlePreview,applyDivinityBundle} from './divinity-bundles.js';
-import {AI_MASTER_STYLES,analyzeAudioBuffer,recommendMastering,applyAIMasterRecommendation} from './ai-mix-master.js';
+import {AI_MASTER_STYLES,LOUDNESS_TARGETS,analyzeAudioBuffer,recommendMastering,refineMasteringForTarget,applyAIMasterRecommendation} from './ai-mix-master.js';
+import {measureLoudness} from './audio-loudness.js';
 import {EFFECTS} from './plugins.js';
 import {MASTER_MODULES,masteringSettings} from './mastering.js?v=0.15.12';
 
@@ -8,7 +9,7 @@ const safe = s => String(s).replace(/[&<>"']/g, x => ({'&':'&amp;','<':'&lt;','>
 const short = x => Number.isFinite(x) ? x.toFixed(1) : '—';
 
 export function createDivinityUI({getProject,getTrack,engine,checkpoint,changed,toast,renderMastering,renderLibrary}) {
-  let proposal = null, activeProject = null, busy = false, analysisError = null, chosenStyle = 'transparent';
+  let proposal = null, activeProject = null, busy = false, analysisError = null, chosenStyle = 'transparent', chosenTarget = 'streaming';
   const css = `
   .divinity-action{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 2px}
   .divinity-action button,.chayah-ai-panel button{cursor:pointer;min-height:34px}
@@ -64,6 +65,7 @@ export function createDivinityUI({getProject,getTrack,engine,checkpoint,changed,
     const source=getProject();
     if(!source)return;
     const style=document.getElementById('chayah-ai-style')?.value||chosenStyle;
+    const targetId=document.getElementById('chayah-ai-target')?.value||chosenTarget;chosenTarget=Object.hasOwn(LOUDNESS_TARGETS,targetId)?targetId:'streaming';const target=LOUDNESS_TARGETS[chosenTarget];
     chosenStyle=Object.hasOwn(AI_MASTER_STYLES,style)?style:'transparent';
     const bars=Number(source.bars);
     if(!Number.isFinite(bars)||bars<=0){analysisError='Aucune plage musicale valide à analyser.';drawProposal();return;}
@@ -79,12 +81,23 @@ export function createDivinityUI({getProject,getTrack,engine,checkpoint,changed,
       // Keep track FX, sends, arrangement and automation exactly as in the project.
       const dryMasterProject={...source,mastering:{...source.mastering,bypass:true}};
       const buffer=await engine.renderRange({
-        startBar:0,endBar:Math.min(4,bars),tail:false,sampleRate:44100,
+        startBar:0,endBar:Math.min(32,bars),tail:false,sampleRate:44100,
         project:dryMasterProject
       });
+      const range={startBar:0,endBar:Math.min(32,bars),tail:false,sampleRate:44100};
       if(source!==getProject())throw Error('La session a changé pendant l’analyse. Relance-la sur le projet actif.');
-      const metrics=analyzeAudioBuffer(buffer,{maxSeconds:45});
-      proposal=recommendMastering(metrics,{style:chosenStyle});
+      const before=measureLoudness(buffer);
+      const metrics={...analyzeAudioBuffer(buffer,{maxSeconds:90}),integratedLufs:before.integrated};
+      proposal=recommendMastering(metrics,{style:chosenStyle,target});
+      // Verify on a real render of the proposed master and correct up to three times.
+      if(proposal.target)for(let pass=0;pass<3;pass++){
+        button.textContent='Vérification du master… '+(pass+1)+'/3';
+        const mastered=await engine.renderRange({...range,project:{...source,mastering:proposal.mastering}});
+        if(source!==getProject())throw Error('La session a changé pendant l’analyse. Relance-la sur le projet actif.');
+        const after=measureLoudness(mastered);proposal={...proposal,after:{integrated:Math.round(after.integrated*10)/10,truePeakDb:Math.round(after.truePeakDb*100)/100}};
+        if(Math.abs(after.integrated-proposal.target.lufs)<=.5&&after.truePeakDb<=proposal.target.truePeak)break;
+        proposal=refineMasteringForTarget(proposal,after);
+      }
       activeProject=source;
       toast('Analyse locale terminée : vérifie la proposition avant de l’appliquer.');
     }catch(error){
@@ -104,7 +117,7 @@ export function createDivinityUI({getProject,getTrack,engine,checkpoint,changed,
     if(!proposal||activeProject!==getProject()){root.innerHTML='<p>Aucune analyse effectuée pour cette session.</p>';return;}
     const m=proposal.metrics;
     root.innerHTML=`<div class="chayah-ai-result" role="status"><strong>${safe(proposal.label)}</strong> · crête ${short(m.samplePeakDbfs)} dBFS · RMS ${short(m.rmsDbfs)} dBFS · dynamique ${short(m.crestDb)} dB
-      <p>Analyse d'un extrait du mix existant, avec ses traitements actuels. Pas de mesure LUFS intégrée ni de true peak.</p>
+      ${proposal.target?`<p><strong>Niveau avant : ${short(m.integratedLufs)} LUFS</strong> → cible ${short(proposal.target.lufs)} LUFS · true peak ≤ ${short(proposal.target.truePeak)} dBTP</p>${proposal.after?`<p><strong>Mesuré après mastering : ${short(proposal.after.integrated)} LUFS · true peak ${short(proposal.after.truePeakDb)} dBTP</strong>${Math.abs(proposal.after.integrated-proposal.target.lufs)<=.5&&proposal.after.truePeakDb<=proposal.target.truePeak?' ✓ conforme':' · écart restant, ajuste le mix'}</p>`:''}`:`<p>Analyse d'un extrait du mix existant, avec ses traitements actuels. Sans cible, aucun objectif LUFS n'est appliqué.</p>`}
       <p>${safe(proposal.explanation)}</p>
       ${proposal.warnings.map(w=>`<p class="chayah-ai-warning">⚠ ${safe(w)}</p>`).join('')}
       <button type="button" class="content-add" data-chayah-master-apply>Appliquer la proposition</button>
@@ -116,9 +129,11 @@ export function createDivinityUI({getProject,getTrack,engine,checkpoint,changed,
     const panel=document.createElement('section');panel.className='chayah-ai-panel';
     panel.innerHTML=`<h3>CHAYAH AI MASTER</h3><p>Assistant d'analyse DSP locale : recommandations de mastering, écoute A/B via le bypass du Master et validation manuelle.</p>
     <div class="chayah-ai-controls"><label for="chayah-ai-style">Style musical</label><select id="chayah-ai-style">${Object.entries(AI_MASTER_STYLES).map(([id,s])=>`<option value="${id}" ${id===chosenStyle?'selected':''}>${safe(s.label)}</option>`).join('')}</select>
+    <label for="chayah-ai-target">Niveau de diffusion</label><select id="chayah-ai-target">${Object.entries(LOUDNESS_TARGETS).map(([id,t])=>`<option value="${id}" ${id===chosenTarget?'selected':''}>${safe(t.label)}</option>`).join('')}</select>
     <button type="button" class="content-add" data-chayah-master-analyze ${busy?'disabled':''}>${busy?'Analyse en cours…':'Analyser le mix'}</button></div>
-    <div id="chayah-ai-result" aria-live="polite"></div><small>Analyse des 8 premières mesures au maximum ; aucun audio envoyé au serveur. Pour comparer à l'oreille, utilise le bypass A/B Master présent au-dessus.</small>`;
+    <div id="chayah-ai-result" aria-live="polite"></div><small>Analyse jusqu'à 32 mesures, mesure LUFS intégrée (EBU R128) et true peak, vérifiée sur un rendu réel du master ; aucun audio envoyé au serveur. Pour comparer à l'oreille, utilise le bypass A/B Master présent au-dessus.</small>`;
     root.querySelector('.mastering-tools')?.after(panel);
+    panel.querySelector('#chayah-ai-target')?.addEventListener('change',event=>{chosenTarget=event.target.value;proposal=null;activeProject=null;analysisError=null;drawProposal();});
     panel.querySelector('#chayah-ai-style')?.addEventListener('change',event=>{chosenStyle=event.target.value;proposal=null;activeProject=null;analysisError=null;drawProposal();});
     drawProposal();
   }

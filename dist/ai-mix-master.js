@@ -51,7 +51,27 @@ export function analyzeAudioBuffer(buffer,{maxSeconds=45}={}){
   const correlation=channels===2&&lSq*rSq>0?clamp(cross/Math.sqrt(lSq*rSq),-1,1):null;
   return Object.freeze({sampleRate:buffer.sampleRate,channels,analyzedSeconds:round(frames/buffer.sampleRate),samplePeakDbfs:round(db(peak)),rmsDbfs:round(db(rms)),crestDb:round(db(peak)-db(rms)),dcOffset:round(sum/count,5),clippedFraction:round(clipped/count,5),stereoCorrelation:correlation===null?null:round(correlation,3),measurement:'sample-peak/RMS; not integrated LUFS or true-peak'});
 }
-export function recommendMastering(metrics,{style='transparent'}={}){
+// Delivery loudness targets (integrated LUFS, true-peak limit in dBTP).
+export const LOUDNESS_TARGETS=Object.freeze({
+  streaming:{label:'Streaming · Spotify / YouTube · −14 LUFS',lufs:-14,truePeak:-1},
+  apple:{label:'Apple Music · −16 LUFS',lufs:-16,truePeak:-1},
+  loud:{label:'Rap / Club fort · −9 LUFS',lufs:-9,truePeak:-1},
+  cd:{label:'CD / master fort · −10 LUFS',lufs:-10,truePeak:-.3},
+  none:{label:'Sans cible de niveau (prudent)',lufs:null,truePeak:null}
+});
+// One correction step: move the limiter input gain by the measured loudness error and
+// lower the sample ceiling when the measured true peak exceeds the target.
+export function refineMasteringForTarget(proposal,measured){
+  const target=proposal?.target;
+  if(!target||!Number.isFinite(target.lufs)||!Number.isFinite(measured?.integrated))return proposal;
+  const m=masteringSettings(proposal.mastering),peak={...m.peak},press={...m.press};
+  // Limiter input first (0..24 dB), then PRESS make-up (0..9 dB) for very quiet mixes.
+  const total=clamp(peak.drive+(press.makeup||0)+(target.lufs-measured.integrated),0,33);
+  peak.drive=round(Math.min(24,total),2);press.makeup=round(clamp(total-24,0,9),2);
+  if(Number.isFinite(measured.truePeakDb)&&measured.truePeakDb>target.truePeak)peak.ceiling=round(clamp(peak.ceiling-(measured.truePeakDb-target.truePeak)-.1,-6,-.1),2);
+  return {...proposal,mastering:masteringSettings({...m,peak,press}),after:{integrated:round(measured.integrated,1),truePeakDb:round(measured.truePeakDb,2)}};
+}
+export function recommendMastering(metrics,{style='transparent',target=null}={}){
   const p=AI_MASTER_STYLES[style];
   if(!p)throw new Error('Style de mastering inconnu.');
   if(!metrics||![metrics.samplePeakDbfs,metrics.rmsDbfs,metrics.crestDb].every(Number.isFinite))throw new Error('Analyse audio invalide.');
@@ -64,15 +84,21 @@ export function recommendMastering(metrics,{style='transparent'}={}){
   if(metrics.rmsDbfs>-10)warnings.push('Niveau RMS élevé : préserver la dynamique et éviter une nouvelle forte limitation.');
   const alreadyDense=metrics.crestDb<7||metrics.rmsDbfs>-10;
   const threshold=clamp(metrics.rmsDbfs+5,-28,-10);
-  const drive=alreadyDense?0:clamp(p.drive+Math.max(0,-metrics.samplePeakDbfs-5)*.12,0,3);
+  const goal=target&&Number.isFinite(target.lufs)&&Number.isFinite(metrics.integratedLufs)?target:null;
+  // With a delivery target the limiter input gain closes the measured loudness gap
+  // (refined afterwards on a real render); without one the historical cautious gain applies.
+  const drive=goal?clamp(goal.lufs-metrics.integratedLufs,0,24):alreadyDense?0:clamp(p.drive+Math.max(0,-metrics.samplePeakDbfs-5)*.12,0,3);
+  const ceiling=goal?Math.min(p.ceiling,goal.truePeak-.5):p.ceiling;
   // Uses existing Studio native modules. No claims of LUFS, true peak or mastering compliance.
   const inserts=['balance','press','peak',...Array(9).fill(null)];
   const mastering=masteringSettings({inserts,bypass:false,
     balance:{enabled:true,cut:p.cut,low:p.low,mid:p.mid,high:p.high},
-    press:{enabled:true,threshold:round(threshold,.0),ratio:alreadyDense?1.2:p.ratio,attack:alreadyDense?40:30,release:style==='rnb'||style==='cinematic'?350:200,makeup:0},
-    peak:{enabled:true,drive:round(drive),ceiling:p.ceiling,release:160}
+    press:{enabled:true,threshold:round(threshold,.0),ratio:alreadyDense?1.2:p.ratio,attack:alreadyDense?40:30,release:style==='rnb'||style==='cinematic'?350:200,makeup:goal?round(clamp(goal.lufs-metrics.integratedLufs-24,0,9)):0},
+    peak:{enabled:true,drive:round(drive),ceiling:round(ceiling),release:160}
   });
-  return {style,label:p.label,metrics:{...metrics},mastering,warnings,explanation:'Proposition calculée localement selon RMS, crête échantillon, facteur de crête et profil musical. Écouter et comparer à niveau égal avant validation.',requiresApproval:true};
+  if(goal&&goal.lufs-metrics.integratedLufs>33)warnings.push('Mix très faible : même +33 dB de gain ne suffiront pas à atteindre la cible. Monte d’abord les pistes.');
+  else if(goal&&goal.lufs-metrics.integratedLufs>18)warnings.push('Mix enregistré bas : le mastering ajoute beaucoup de gain. Pour un meilleur son, monte d’abord les pistes (crêtes du mix vers −6 dBFS).');
+  return {style,label:p.label,metrics:{...metrics},mastering,warnings,target:goal,explanation:goal?'Gain de limiteur calculé pour atteindre la cible LUFS, puis vérifié par un rendu réel du master.':'Proposition calculée localement selon RMS, crête échantillon, facteur de crête et profil musical. Écouter et comparer à niveau égal avant validation.',requiresApproval:true};
 }
 export function applyAIMasterRecommendation(project,recommendation,{confirm=false}={}){
   if(!confirm)throw new Error('Application non confirmée.');
