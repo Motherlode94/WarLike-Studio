@@ -60,7 +60,7 @@ import {routeVocalFX} from './demo-vocal-fx.js';
 import {routeVocalSubgroups} from './demo-vocal-buses.js';
 import {routePublicDemoGroups} from './demo-group-buses.js';
 import {mixPublicDemoInstruments} from './demo-instrument-mix.js';
-import {balancePublicDemo} from './demo-gain-staging.js';
+import {balancePublicDemo,stagePublicDemoMix} from './demo-gain-staging.js';
 import {createRecordedVocalDemoMedia} from './recorded-vocal-audio.js';
 import {beginStudioPairing,completeStudioPairing,createStudioSync} from './studio-cloud-workflow.js';
 import {readLocalProject,writeLocalProject} from './local-project-store.js';
@@ -241,6 +241,7 @@ export async function launchPublicDemo(kind){
    routeVocalFX(demo);
    masterPublicDemo(demo,kind);
    setDemoPlaybackLevel(demo,kind,'public');
+   stagePublicDemoMix(demo,kind);
    if(db){
      await createProjectLocal(demo.name,demo,demoMedia);
      engine.masterVolume=Number.isFinite(demo.masterVolume)?demo.masterVolume:0;
