@@ -1,13 +1,8 @@
 // VECTOR COMP front panel. All knobs are the existing host controls.
 // The curve depicts the static compressor law, before makeup and parallel mix.
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
-export function compressorCurve(input,threshold,ratio,knee){
- const slope=1/Math.max(1,ratio)-1,delta=input-threshold,k=Math.max(0,knee);
- if(k===0)return input+(delta>0?slope*delta:0);
- if(delta<=-k/2)return input;
- if(delta>=k/2)return input+slope*delta;
- return input+slope*(delta+k/2)**2/(2*k);
-}
+import {compressorCurve} from './compressor-dsp.js';
+export {compressorCurve};
 export function reductionAngle(db){return -55+110*clamp(-(Number.isFinite(db)?db:0)/24,0,1);}
 const groups=[['DETECTOR',['threshold','ratio','knee']],['ENVELOPE',['attack','release']],['OUTPUT',['mix','output']]];
 const live=new WeakMap(),ns='http://www.w3.org/2000/svg';
@@ -25,7 +20,7 @@ export function mountVectorComp(root,{state,getReduction,master=false}){
  face.innerHTML='<header class="vector-comp-brand"><span>WARLIKE / VECTOR SERIES</span><strong>COMP<span> 01</span></strong><small>PARALLEL DYNAMICS · STEREO</small></header><div class="vector-comp-displays"><div class="vector-display"><span>REDUCTION · dB</span>'+meterSVG()+'<output data-vector-gr>0.0 dB</output><small>Réduction du compresseur · avant mix</small></div><div class="vector-display"><span>TRANSFER · STATIC</span>'+graphSVG()+'<small>Avant gain de sortie et mix parallèle</small></div></div>';
  params.before(face);face.append(params);params.classList.add('vector-comp-controls');
  for(const [name,keys] of groups){const section=document.createElement('section');section.className='vector-comp-bank';const title=document.createElement('h4');title.textContent=name;section.append(title,...keys.map(key=>byKey.get(key)));params.append(section);}
- face.insertAdjacentHTML('beforeend','<footer class="vector-comp-footer"><span>VCA-INSPIRED FRONT PANEL</span><span>WEB AUDIO / NATIVE DSP</span></footer>');
+ face.insertAdjacentHTML('beforeend','<footer class="vector-comp-footer"><span>VCA-INSPIRED FRONT PANEL</span><span>FEEDFORWARD DSP / STEREO LINK</span></footer>');
  live.set(face,{state,getReduction,last:''});updateVectorFace(face);
 }
 function updateVectorFace(face){

@@ -5,9 +5,10 @@ const browser=await chromium.launch({headless:true,...(process.env.STUDIO_TEST_C
 try{
  const page=await browser.newPage();await page.goto('http://127.0.0.1:'+server.address().port+'/mastering.js');
  const results=await page.evaluate(async()=>{
+  const {prepareStudioContext}=await import('/studio-pack-audio.js');
   const {AudioEngine,emptyProject}=await import('/audio.js'),{masteringSettings,exportMasterRack,importMasterRack,MASTER_MODULES}=await import('/mastering.js'),{insertRackSplit,placeRackModule}=await import('/master-rack-model.js');
   const results=[],sr=48000,length=12000,makeTone=ctx=>{const b=ctx.createBuffer(2,length,sr);for(let i=0;i<length;i++){b.getChannelData(0)[i]=.1*Math.sin(i*2*Math.PI*113/sr);b.getChannelData(1)[i]=.08*Math.sin(i*2*Math.PI*821/sr);}return b;};
-  async function render(settings){const ctx=new OfflineAudioContext(2,length,sr),p=emptyProject();p.mastering=settings;p.masterVolume=0;const engine=new AudioEngine(()=>p,()=>new Map()),graph=engine.buildGraph(ctx),source=ctx.createBufferSource();source.buffer=makeTone(ctx);source.connect(graph.master);source.start();const b=await ctx.startRendering();let invalid=0;for(const c of [0,1])for(const x of b.getChannelData(c))if(!Number.isFinite(x))invalid++;if(invalid)throw Error('Invalid PCM');return {b,input:source.buffer,graph};}
+  async function render(settings){const ctx=new OfflineAudioContext(2,length,sr),p=emptyProject();p.mastering=settings;p.masterVolume=0;await prepareStudioContext(ctx);const engine=new AudioEngine(()=>p,()=>new Map()),graph=engine.buildGraph(ctx),source=ctx.createBufferSource();source.buffer=makeTone(ctx);source.connect(graph.master);source.start();const b=await ctx.startRendering();let invalid=0;for(const c of [0,1])for(const x of b.getChannelData(c))if(!Number.isFinite(x))invalid++;if(invalid)throw Error('Invalid PCM');return {b,input:source.buffer,graph};}
   const difference=(a,b)=>Math.max(...[0,1].map(c=>{let max=0;for(let i=0;i<length;i++)max=Math.max(max,Math.abs(a.getChannelData(c)[i]-b.getChannelData(c)[i]));return max;}));
   function check(name,ok,details={}){if(!ok)throw Error(name+' '+JSON.stringify(details));results.push({name,...details});}
   let s=masteringSettings(),split=insertRackSplit(s,0);let r=await render(s),delta=difference(r.b,r.input);check('parallel unity reconstruction',delta<1e-6,{delta});

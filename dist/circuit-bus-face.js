@@ -1,4 +1,4 @@
-// CIRCUIT BUS uses the native compressor instance, not an estimated loudness meter.
+// CIRCUIT BUS uses the stereo-linked compressor instance, not an estimated loudness meter.
 export const CIRCUIT_BUS_BANKS=Object.freeze([['DETECTOR',['threshold','ratio','knee']],['TIME CONSTANT',['attack','release']],['PARALLEL / OUTPUT',['mix','output']]]);
 export const busReduction=db=>Math.max(0,Math.min(24,-(Number.isFinite(db)?db:0)));
 const entries=new WeakMap();
@@ -12,7 +12,7 @@ export function mountCircuitBus(root,{state,getReduction,master=false}){
  const nodes=[...params.querySelectorAll('.param')],byKey=new Map(nodes.map(n=>{const i=n.querySelector('input');return [(i?.dataset.param||i?.dataset.masterParam||'').split('.').at(-1),n];}));
  if(nodes.length!==7||CIRCUIT_BUS_BANKS.flatMap(([,keys])=>keys).some(k=>!byKey.has(k)))return;
  const face=document.createElement('section');face.className='circuit-bus-hardware';face.setAttribute('aria-label','CIRCUIT BUS Analog Console Hardware');
- face.innerHTML='<header class="circuit-bus-brand"><small>WARLIKE / CIRCUIT CONSOLE</small><strong>BUS <span>02</span></strong><small>STEREO PARALLEL BUS COMPRESSOR</small></header><section class="circuit-bus-meter">'+meterMarkup()+'<div><strong data-bus-status>ACTIVE</strong><output data-bus-gr>0.0 dB</output></div><small>Réduction du compresseur interne, avant mix parallèle et gain de sortie.</small></section><section class="circuit-bus-blend"><div><span>DRY</span><span>WET</span></div><div class="circuit-bus-blend-track"><i data-bus-wet></i></div><output data-bus-mix></output></section><footer>BUS DYNAMICS · ALIGNED PARALLEL PATH · NATIVE DSP</footer>';
+ face.innerHTML='<header class="circuit-bus-brand"><small>WARLIKE / CIRCUIT CONSOLE</small><strong>BUS <span>02</span></strong><small>STEREO PARALLEL BUS COMPRESSOR</small></header><section class="circuit-bus-meter">'+meterMarkup()+'<div><strong data-bus-status>ACTIVE</strong><output data-bus-gr>0.0 dB</output></div><small>Réduction du compresseur interne, avant mix parallèle et gain de sortie.</small></section><section class="circuit-bus-blend"><div><span>DRY</span><span>WET</span></div><div class="circuit-bus-blend-track"><i data-bus-wet></i></div><output data-bus-mix></output></section><footer>BUS DYNAMICS · ALIGNED PARALLEL PATH · FEEDFORWARD DSP</footer>';
  params.before(face);face.querySelector('footer').before(params);params.classList.add('circuit-bus-controls');
  const banks=CIRCUIT_BUS_BANKS.map(([label,keys],i)=>{const bank=document.createElement('section');bank.className='circuit-bus-bank';bank.style.setProperty('--bus-bank',['#cc755f','#d9ab5d','#72b6ad'][i]);const title=document.createElement('h4');title.textContent=label;bank.append(title,...keys.map(k=>byKey.get(k)));return bank;});params.replaceChildren(...banks);
  entries.set(face,{state,getReduction});paint(face);

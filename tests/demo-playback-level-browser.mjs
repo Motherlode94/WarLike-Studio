@@ -16,7 +16,19 @@ const engine=new AudioEngine(()=>p,()=>assets),buffer=await engine.renderRange({
 for(let c=0;c<2;c++)if(buffer.getChannelData(c).some(x=>!Number.isFinite(x)))throw Error('Invalid PCM '+id);
 const metrics=measureLoudness([buffer.getChannelData(0),buffer.getChannelData(1)]);
 if(metrics.integrated< -20||metrics.integrated> -12||metrics.samplePeak> -1.499)throw Error('Demo level outside the listening range '+id+' '+JSON.stringify(metrics));
-rows.push({family,id,masterVolume:p.masterVolume,drive:p.mastering.peak.drive,start,...metrics});console.log(JSON.stringify(rows.at(-1)));}return rows;
+const vocalBalance={};
+if(family==='public'&&p.vocalDemo){
+ const rms=buffer=>{let sum=0;for(let c=0;c<buffer.numberOfChannels;c++)for(const x of buffer.getChannelData(c))sum+=x*x;return Math.sqrt(sum/(buffer.length*buffer.numberOfChannels));};
+ const lead=p.tracks.find(t=>t.type==='audio'&&/^LEAD\b/i.test(t.name));if(!lead)throw Error('Missing lead '+id);
+ const leadProject=structuredClone(p);for(const t of leadProject.tracks)if(t.type!=='bus'&&t.id!==lead.id)t.mute=true;
+ const backingProject=structuredClone(p);for(const t of backingProject.tracks)if(t.type==='audio')t.mute=true;
+ const options={sampleRate:48000,startBar:start,endBar:start+4,tail:false};
+ vocalBalance.leadRms=rms(await new AudioEngine(()=>leadProject,()=>assets).renderRange(options));
+ vocalBalance.backingRms=rms(await new AudioEngine(()=>backingProject,()=>assets).renderRange(options));
+ vocalBalance.leadToBacking=vocalBalance.leadRms/vocalBalance.backingRms;
+ if(vocalBalance.leadToBacking<.35||vocalBalance.leadRms<.01)throw Error('Lead buried in full public mix '+id+' '+JSON.stringify(vocalBalance));
+}
+rows.push({family,id,masterVolume:p.masterVolume,drive:p.mastering.peak.drive,start,...metrics,...vocalBalance});console.log(JSON.stringify(rows.at(-1)));}return rows;
 },(process.env.STUDIO_DEMO_LEVEL_IDS||'').split(',').filter(Boolean));
 await writeFile(folder+'/rendered-levels.json',JSON.stringify(result,null,2));console.log('PASS: measured playback levels and finite, bounded stereo output for '+result.length+' factory/public demos');
 }finally{await browser.close();await new Promise(r=>server.close(r));}

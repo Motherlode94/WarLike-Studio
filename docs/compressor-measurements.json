@@ -1,0 +1,1661 @@
+{
+  "baseCommit": "1175b5e968846bbe00ec59c66dba35d91b84f36a",
+  "scope": [
+    "vectorcomp",
+    "circuitbus",
+    "glue",
+    "press",
+    "voxlevel"
+  ],
+  "method": "Chromium Web Audio at 44.1/48/96 kHz. Four-bar production demo choruses at 48 kHz; K-weighted loudness estimates, not whole-song or normative certification. RMS voice/instrumental stems retain public group/FX routing.",
+  "previousDemoMeasurements": [
+    {
+      "family": "factory",
+      "id": "nocturne",
+      "masterVolume": 0,
+      "drive": 2.5,
+      "start": 28,
+      "integrated": -15.909095068100424,
+      "shortMax": -15.506420206305624,
+      "samplePeak": -2.804404500207962,
+      "estimatedPeak": -2.7732461363950627,
+      "duration": 6.966541666666667,
+      "windows": 66
+    },
+    {
+      "family": "factory",
+      "id": "soleil",
+      "masterVolume": 0,
+      "drive": 7.5,
+      "start": 28,
+      "integrated": -15.949409494739113,
+      "shortMax": -15.555414816068902,
+      "samplePeak": -2.058048804186029,
+      "estimatedPeak": -2.058048804186029,
+      "duration": 8.898895833333333,
+      "windows": 85
+    },
+    {
+      "family": "factory",
+      "id": "brume",
+      "masterVolume": 0,
+      "drive": 9.75,
+      "start": 28,
+      "integrated": -16.049336318087796,
+      "shortMax": -15.592411442033288,
+      "samplePeak": -4.119660823758141,
+      "estimatedPeak": -4.118633219603987,
+      "duration": 11.438583333333334,
+      "windows": 111
+    },
+    {
+      "family": "factory",
+      "id": "trap-abyss",
+      "masterVolume": 0,
+      "drive": 6.5,
+      "start": 32,
+      "integrated": -15.9312707269649,
+      "shortMax": -15.492448161408237,
+      "samplePeak": -2.065797998624605,
+      "estimatedPeak": -2.065797998624605,
+      "duration": 6.770583333333334,
+      "windows": 64
+    },
+    {
+      "family": "factory",
+      "id": "trap-enigma",
+      "masterVolume": 0,
+      "drive": 9.25,
+      "start": 32,
+      "integrated": -15.902929906030112,
+      "shortMax": -14.728730748554296,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4999777199660749,
+      "duration": 7.6290625,
+      "windows": 73
+    },
+    {
+      "family": "factory",
+      "id": "rnb-2005",
+      "masterVolume": 0,
+      "drive": 10,
+      "start": 32,
+      "integrated": -16.051999999799843,
+      "shortMax": -15.24589067372251,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4176147689338796,
+      "duration": 10.222770833333334,
+      "windows": 99
+    },
+    {
+      "family": "factory",
+      "id": "popstar-2008",
+      "masterVolume": 0,
+      "drive": 9.75,
+      "start": 32,
+      "integrated": -16.81821342500971,
+      "shortMax": -16.08634214778955,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2726905206169343,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "factory",
+      "id": "etoiles-interdites",
+      "masterVolume": 0,
+      "drive": 12.25,
+      "start": 32,
+      "integrated": -17.705324780107688,
+      "shortMax": -17.131035560046026,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2450249722096451,
+      "duration": 10.01,
+      "windows": 97
+    },
+    {
+      "family": "factory",
+      "id": "derriere-les-murs",
+      "masterVolume": 0,
+      "drive": 15.5,
+      "start": 32,
+      "integrated": -16.134617091745923,
+      "shortMax": -15.674979120390125,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4909576241872422,
+      "duration": 9.421770833333333,
+      "windows": 91
+    },
+    {
+      "family": "factory",
+      "id": "un-dernier-soleil",
+      "masterVolume": 0,
+      "drive": 10,
+      "start": 32,
+      "integrated": -17.14689249132037,
+      "shortMax": -16.707061912982248,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3371259156381226,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "factory",
+      "id": "au-bord-du-ciel",
+      "masterVolume": 0,
+      "drive": 7,
+      "start": 28,
+      "integrated": -16.150300347944587,
+      "shortMax": -15.627300472305773,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.491606543471395,
+      "duration": 11.438583333333334,
+      "windows": 111
+    },
+    {
+      "family": "factory",
+      "id": "promesses-de-pluie",
+      "masterVolume": 0,
+      "drive": 11,
+      "start": 32,
+      "integrated": -16.109120221793273,
+      "shortMax": -15.251066854758044,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3024401535652672,
+      "duration": 10.676666666666666,
+      "windows": 103
+    },
+    {
+      "family": "factory",
+      "id": "rives",
+      "masterVolume": 0,
+      "drive": 2.75,
+      "start": 32,
+      "integrated": -16.97116973840982,
+      "shortMax": -16.49103396534483,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4193884604266072,
+      "duration": 9.066604166666666,
+      "windows": 87
+    },
+    {
+      "family": "factory",
+      "id": "pluie",
+      "masterVolume": 0,
+      "drive": 4.75,
+      "start": 24,
+      "integrated": -16.107804555660508,
+      "shortMax": -15.530804648144537,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4752321186179282,
+      "duration": 12.317708333333334,
+      "windows": 120
+    },
+    {
+      "family": "factory",
+      "id": "horizon",
+      "masterVolume": 0,
+      "drive": 5,
+      "start": 32,
+      "integrated": -16.947793099380544,
+      "shortMax": -15.984180914628785,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2377364963582866,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "factory",
+      "id": "eclats",
+      "masterVolume": 0,
+      "drive": 1.75,
+      "start": 32,
+      "integrated": -16.52351231973376,
+      "shortMax": -16.06361503491238,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.282954076973644,
+      "duration": 7.7519375,
+      "windows": 74
+    },
+    {
+      "family": "factory",
+      "id": "kin",
+      "masterVolume": 0,
+      "drive": 8.75,
+      "start": 32,
+      "integrated": -17.416192426341862,
+      "shortMax": -16.897550178582005,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4479826719378512,
+      "duration": 8.898895833333333,
+      "windows": 85
+    },
+    {
+      "family": "factory",
+      "id": "lumiere",
+      "masterVolume": 0,
+      "drive": 3,
+      "start": 32,
+      "integrated": -16.342549520706484,
+      "shortMax": -15.89224451423476,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3405117385001162,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "public",
+      "id": "drill",
+      "masterVolume": 0,
+      "drive": 0.75,
+      "start": 12,
+      "integrated": -16.00243738147562,
+      "shortMax": -15.691847207427676,
+      "samplePeak": -5.377047140621906,
+      "estimatedPeak": -5.372601817353894,
+      "duration": 6.770583333333334,
+      "windows": 64
+    },
+    {
+      "family": "public",
+      "id": "trap808",
+      "masterVolume": 0,
+      "drive": 0,
+      "start": 32,
+      "integrated": -15.9214794834026,
+      "shortMax": -14.950609158579208,
+      "samplePeak": -4.759633057712549,
+      "estimatedPeak": -4.759633057712549,
+      "duration": 6.867145833333334,
+      "windows": 65
+    },
+    {
+      "family": "public",
+      "id": "trap-air",
+      "masterVolume": 0,
+      "drive": 0,
+      "start": 12,
+      "integrated": -14.773142687548512,
+      "shortMax": -14.476628979900156,
+      "samplePeak": -2.4629569263749866,
+      "estimatedPeak": -2.4170128979415715,
+      "duration": 6.585354166666667,
+      "windows": 62
+    },
+    {
+      "family": "public",
+      "id": "funk",
+      "masterVolume": 0,
+      "drive": 4.5,
+      "start": 12,
+      "integrated": -16.06991606977519,
+      "shortMax": -15.901580691759298,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.498642938407141,
+      "duration": 7.394625,
+      "windows": 70
+    },
+    {
+      "family": "public",
+      "id": "rock",
+      "masterVolume": 0,
+      "drive": 7.25,
+      "start": 12,
+      "integrated": -16.297866020015334,
+      "shortMax": -15.920346028969387,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.383659384797717,
+      "duration": 7.6290625,
+      "windows": 73
+    },
+    {
+      "family": "public",
+      "id": "pop",
+      "masterVolume": 0,
+      "drive": 15.5,
+      "start": 12,
+      "integrated": -16.09321634753705,
+      "shortMax": -15.636999308878872,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3759851716234828,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "public",
+      "id": "rumba",
+      "masterVolume": 0,
+      "drive": 22.25,
+      "start": 12,
+      "integrated": -16.16641440040152,
+      "shortMax": -15.740036024229825,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4859735925283246,
+      "duration": 9.421770833333333,
+      "windows": 91
+    },
+    {
+      "family": "public",
+      "id": "trap",
+      "masterVolume": 0,
+      "drive": 4.75,
+      "start": 24,
+      "integrated": -16.099266616813154,
+      "shortMax": -15.785229493629922,
+      "samplePeak": -3.0555116576438754,
+      "estimatedPeak": -3.052116254283562,
+      "duration": 6.966541666666667,
+      "windows": 66
+    },
+    {
+      "family": "public",
+      "id": "afro",
+      "masterVolume": 0,
+      "drive": 1.75,
+      "start": 12,
+      "integrated": -16.114130885490724,
+      "shortMax": -15.292866782581413,
+      "samplePeak": -3.65378454479388,
+      "estimatedPeak": -3.65378454479388,
+      "duration": 8.898895833333333,
+      "windows": 85
+    },
+    {
+      "family": "public",
+      "id": "rnb",
+      "masterVolume": 0,
+      "drive": 2.75,
+      "start": 12,
+      "integrated": -16.052626056680012,
+      "shortMax": -15.493433552937619,
+      "samplePeak": -5.420700814001905,
+      "estimatedPeak": -5.407039046350773,
+      "duration": 11.438583333333334,
+      "windows": 111
+    },
+    {
+      "family": "public",
+      "id": "vox-trap",
+      "masterVolume": 0,
+      "drive": 0.5,
+      "start": 12,
+      "integrated": -15.952538006623184,
+      "shortMax": -15.798061736849816,
+      "samplePeak": -3.881675773177111,
+      "estimatedPeak": -3.875824808670625,
+      "duration": 6.966541666666667,
+      "windows": 66
+    },
+    {
+      "family": "public",
+      "id": "vox-afro",
+      "masterVolume": 0,
+      "drive": 1.75,
+      "start": 12,
+      "integrated": -16.113180715392545,
+      "shortMax": -15.2896042054139,
+      "samplePeak": -3.6566613495367593,
+      "estimatedPeak": -3.6566613495367593,
+      "duration": 8.898895833333333,
+      "windows": 85
+    },
+    {
+      "family": "public",
+      "id": "vox-rnb",
+      "masterVolume": 0,
+      "drive": 2.75,
+      "start": 12,
+      "integrated": -16.053635103191755,
+      "shortMax": -15.494990131438891,
+      "samplePeak": -5.420519144193053,
+      "estimatedPeak": -5.406857345482178,
+      "duration": 11.438583333333334,
+      "windows": 111
+    }
+  ],
+  "currentDemoMeasurements": [
+    {
+      "family": "factory",
+      "id": "nocturne",
+      "masterVolume": 0,
+      "drive": 10,
+      "start": 28,
+      "integrated": -16.043596835500534,
+      "shortMax": -15.6654568045692,
+      "samplePeak": -2.3225116397882277,
+      "estimatedPeak": -2.3225116397882277,
+      "duration": 6.966541666666667,
+      "windows": 66
+    },
+    {
+      "family": "factory",
+      "id": "soleil",
+      "masterVolume": 0,
+      "drive": 12.25,
+      "start": 28,
+      "integrated": -15.993090455845804,
+      "shortMax": -15.650474026146682,
+      "samplePeak": -2.894418397735663,
+      "estimatedPeak": -2.894418397735663,
+      "duration": 8.898895833333333,
+      "windows": 85
+    },
+    {
+      "family": "factory",
+      "id": "brume",
+      "masterVolume": 0,
+      "drive": 13.75,
+      "start": 28,
+      "integrated": -16.034003552499907,
+      "shortMax": -15.54768099354114,
+      "samplePeak": -3.7429678350958273,
+      "estimatedPeak": -3.7429678350958273,
+      "duration": 11.438583333333334,
+      "windows": 111
+    },
+    {
+      "family": "factory",
+      "id": "trap-abyss",
+      "masterVolume": 0,
+      "drive": 12.5,
+      "start": 32,
+      "integrated": -15.97288910990945,
+      "shortMax": -15.407624113705307,
+      "samplePeak": -2.1411343724731866,
+      "estimatedPeak": -2.140785844368946,
+      "duration": 6.770583333333334,
+      "windows": 64
+    },
+    {
+      "family": "factory",
+      "id": "trap-enigma",
+      "masterVolume": 0,
+      "drive": 14.75,
+      "start": 32,
+      "integrated": -16.074459068069523,
+      "shortMax": -14.933786098521132,
+      "samplePeak": -1.9129572574864318,
+      "estimatedPeak": -1.9129572574864318,
+      "duration": 7.6290625,
+      "windows": 73
+    },
+    {
+      "family": "factory",
+      "id": "rnb-2005",
+      "masterVolume": 0,
+      "drive": 14.5,
+      "start": 32,
+      "integrated": -16.065964347540824,
+      "shortMax": -15.321226859984828,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4462504553671556,
+      "duration": 10.222770833333334,
+      "windows": 99
+    },
+    {
+      "family": "factory",
+      "id": "popstar-2008",
+      "masterVolume": 0,
+      "drive": 16.75,
+      "start": 32,
+      "integrated": -16.616416929916,
+      "shortMax": -15.997431270223782,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3523118966814107,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "factory",
+      "id": "etoiles-interdites",
+      "masterVolume": 0,
+      "drive": 20.5,
+      "start": 32,
+      "integrated": -17.302075676879543,
+      "shortMax": -16.6609802834366,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2308395965784296,
+      "duration": 10.01,
+      "windows": 97
+    },
+    {
+      "family": "factory",
+      "id": "derriere-les-murs",
+      "masterVolume": 0,
+      "drive": 21,
+      "start": 32,
+      "integrated": -16.13959217803138,
+      "shortMax": -15.608717315273092,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4904267188639935,
+      "duration": 9.421770833333333,
+      "windows": 91
+    },
+    {
+      "family": "factory",
+      "id": "un-dernier-soleil",
+      "masterVolume": 0,
+      "drive": 17.5,
+      "start": 32,
+      "integrated": -16.905034598029093,
+      "shortMax": -16.530141358335293,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.345746504121363,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "factory",
+      "id": "au-bord-du-ciel",
+      "masterVolume": 0,
+      "drive": 11.75,
+      "start": 28,
+      "integrated": -16.097192907202476,
+      "shortMax": -15.553182288087473,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.159459379813314,
+      "duration": 11.438583333333334,
+      "windows": 111
+    },
+    {
+      "family": "factory",
+      "id": "promesses-de-pluie",
+      "masterVolume": 0,
+      "drive": 15.5,
+      "start": 32,
+      "integrated": -16.140837503090175,
+      "shortMax": -15.510877988213037,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3830319543221539,
+      "duration": 10.676666666666666,
+      "windows": 103
+    },
+    {
+      "family": "factory",
+      "id": "rives",
+      "masterVolume": 0,
+      "drive": 9,
+      "start": 32,
+      "integrated": -17.32143063651446,
+      "shortMax": -16.807079538642096,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4452099966819585,
+      "duration": 9.066604166666666,
+      "windows": 87
+    },
+    {
+      "family": "factory",
+      "id": "pluie",
+      "masterVolume": 0,
+      "drive": 9.75,
+      "start": 24,
+      "integrated": -15.987962593542628,
+      "shortMax": -15.4210492725119,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4999580493274163,
+      "duration": 12.317708333333334,
+      "windows": 120
+    },
+    {
+      "family": "factory",
+      "id": "horizon",
+      "masterVolume": 0,
+      "drive": 10.75,
+      "start": 32,
+      "integrated": -16.845299998192008,
+      "shortMax": -15.962379975954802,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.317048129239578,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "factory",
+      "id": "eclats",
+      "masterVolume": 0,
+      "drive": 8.75,
+      "start": 32,
+      "integrated": -17.061761984471634,
+      "shortMax": -16.532285891394668,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2659073218098496,
+      "duration": 7.7519375,
+      "windows": 74
+    },
+    {
+      "family": "factory",
+      "id": "kin",
+      "masterVolume": 0,
+      "drive": 15.25,
+      "start": 32,
+      "integrated": -17.071368869749556,
+      "shortMax": -16.57893917379811,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4303851435390327,
+      "duration": 8.898895833333333,
+      "windows": 85
+    },
+    {
+      "family": "factory",
+      "id": "lumiere",
+      "masterVolume": 0,
+      "drive": 10,
+      "start": 32,
+      "integrated": -16.21621551135994,
+      "shortMax": -15.69573812431799,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3272686773001348,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "public",
+      "id": "drill",
+      "masterVolume": 0,
+      "drive": 9,
+      "start": 12,
+      "integrated": -15.964011068681884,
+      "shortMax": -15.662279121376889,
+      "samplePeak": -3.858253397541425,
+      "estimatedPeak": -3.8527599380851396,
+      "duration": 6.770583333333334,
+      "windows": 64
+    },
+    {
+      "family": "public",
+      "id": "trap808",
+      "masterVolume": 0,
+      "drive": 7.5,
+      "start": 32,
+      "integrated": -16.133079945674492,
+      "shortMax": -15.20889656629832,
+      "samplePeak": -3.962740712164228,
+      "estimatedPeak": -3.962740712164228,
+      "duration": 6.867145833333334,
+      "windows": 65
+    },
+    {
+      "family": "public",
+      "id": "trap-air",
+      "masterVolume": 0,
+      "drive": 6.25,
+      "start": 12,
+      "integrated": -15.963293581560828,
+      "shortMax": -15.634226423083918,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4949017693519577,
+      "duration": 6.585354166666667,
+      "windows": 62
+    },
+    {
+      "family": "public",
+      "id": "funk",
+      "masterVolume": 0,
+      "drive": 12.25,
+      "start": 12,
+      "integrated": -16.03522108395312,
+      "shortMax": -15.787981786772217,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4883843804737906,
+      "duration": 7.394625,
+      "windows": 70
+    },
+    {
+      "family": "public",
+      "id": "rock",
+      "masterVolume": 0,
+      "drive": 17.25,
+      "start": 12,
+      "integrated": -16.55235362313291,
+      "shortMax": -16.064200531513258,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2014213194124843,
+      "duration": 7.6290625,
+      "windows": 73
+    },
+    {
+      "family": "public",
+      "id": "pop",
+      "masterVolume": 0,
+      "drive": 24,
+      "start": 12,
+      "integrated": -15.946654084660162,
+      "shortMax": -15.41960381416496,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3757772661440806,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "public",
+      "id": "rumba",
+      "masterVolume": 0,
+      "drive": 24,
+      "start": 12,
+      "integrated": -16.667266197892246,
+      "shortMax": -16.06094576048896,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.488273696470965,
+      "duration": 9.421770833333333,
+      "windows": 91
+    },
+    {
+      "family": "public",
+      "id": "trap",
+      "masterVolume": 0,
+      "drive": 11,
+      "start": 24,
+      "integrated": -15.96168529174612,
+      "shortMax": -15.698856878653341,
+      "samplePeak": -2.7129235360183035,
+      "estimatedPeak": -2.7129235360183035,
+      "duration": 6.966541666666667,
+      "windows": 66,
+      "leadRms": 0.05841530241424165,
+      "backingRms": 0.1356969559144969,
+      "leadToBacking": 0.4304835139489004
+    },
+    {
+      "family": "public",
+      "id": "afro",
+      "masterVolume": 0,
+      "drive": 9.75,
+      "start": 12,
+      "integrated": -15.87640246293808,
+      "shortMax": -15.29191265141998,
+      "samplePeak": -2.8227683020218626,
+      "estimatedPeak": -2.8227683020218626,
+      "duration": 8.898895833333333,
+      "windows": 85,
+      "leadRms": 0.060786608272609954,
+      "backingRms": 0.1229080366886954,
+      "leadToBacking": 0.4945698418938366
+    },
+    {
+      "family": "public",
+      "id": "rnb",
+      "masterVolume": 0,
+      "drive": 10.75,
+      "start": 12,
+      "integrated": -16.062171068420046,
+      "shortMax": -15.783811386965082,
+      "samplePeak": -4.383545866791759,
+      "estimatedPeak": -4.382593703435351,
+      "duration": 11.438583333333334,
+      "windows": 111,
+      "leadRms": 0.06340759461206444,
+      "backingRms": 0.13304959156782903,
+      "leadToBacking": 0.4765711331006911
+    },
+    {
+      "family": "public",
+      "id": "vox-trap",
+      "masterVolume": 0,
+      "drive": 8.25,
+      "start": 12,
+      "integrated": -15.912345043514135,
+      "shortMax": -15.708389600113465,
+      "samplePeak": -3.309289108484083,
+      "estimatedPeak": -3.3055859424372147,
+      "duration": 6.966541666666667,
+      "windows": 66,
+      "leadRms": 0.07748612693209553,
+      "backingRms": 0.13470227059331336,
+      "leadToBacking": 0.5752399465190748
+    },
+    {
+      "family": "public",
+      "id": "vox-afro",
+      "masterVolume": 0,
+      "drive": 9.75,
+      "start": 12,
+      "integrated": -15.87424761836977,
+      "shortMax": -15.286625480974699,
+      "samplePeak": -2.8083172237664247,
+      "estimatedPeak": -2.8083172237664247,
+      "duration": 8.898895833333333,
+      "windows": 85,
+      "leadRms": 0.060786608272609954,
+      "backingRms": 0.12286213744482348,
+      "leadToBacking": 0.49475460493196116
+    },
+    {
+      "family": "public",
+      "id": "vox-rnb",
+      "masterVolume": 0,
+      "drive": 10.75,
+      "start": 12,
+      "integrated": -16.066789752457105,
+      "shortMax": -15.787335772696848,
+      "samplePeak": -4.383924922856955,
+      "estimatedPeak": -4.382980134139699,
+      "duration": 11.438583333333334,
+      "windows": 111,
+      "leadRms": 0.06340759461206444,
+      "backingRms": 0.13305348055280472,
+      "leadToBacking": 0.4765572035291476
+    }
+  ],
+  "actualDSPChecks": [
+    {
+      "name": "vectorcomp unity and latency 44100",
+      "dc": 0.0010000000474974513,
+      "first": 265,
+      "delay": 265
+    },
+    {
+      "name": "vectorcomp actual PCM matches transfer 44100",
+      "outputDb": -19.499999900344083,
+      "expected": -19.500000122668947
+    },
+    {
+      "name": "vectorcomp stereo linking 44100",
+      "error": 0
+    },
+    {
+      "name": "vectorcomp explicit output gain 44100",
+      "gainDb": 5.999999989761179
+    },
+    {
+      "name": "circuitbus unity and latency 44100",
+      "dc": 0.0010000000474974513,
+      "first": 265,
+      "delay": 265
+    },
+    {
+      "name": "circuitbus actual PCM matches transfer 44100",
+      "outputDb": -19.499999900344083,
+      "expected": -19.500000122668947
+    },
+    {
+      "name": "circuitbus stereo linking 44100",
+      "error": 0
+    },
+    {
+      "name": "circuitbus explicit output gain 44100",
+      "gainDb": 5.999999989761179
+    },
+    {
+      "name": "glue unity and latency 44100",
+      "dc": 0.0010000000474974513,
+      "first": 265,
+      "delay": 265
+    },
+    {
+      "name": "glue actual PCM matches transfer 44100",
+      "outputDb": -19.499999900344083,
+      "expected": -19.500000122668947
+    },
+    {
+      "name": "glue stereo linking 44100",
+      "error": 0
+    },
+    {
+      "name": "glue explicit output gain 44100",
+      "gainDb": 5.999999989761179
+    },
+    {
+      "name": "press unity and latency 44100",
+      "dc": 0.0010000000474974513,
+      "first": 265,
+      "delay": 265
+    },
+    {
+      "name": "press actual PCM matches transfer 44100",
+      "outputDb": -19.499999900344083,
+      "expected": -19.500000122668947
+    },
+    {
+      "name": "press stereo linking 44100",
+      "error": 0
+    },
+    {
+      "name": "press explicit output gain 44100",
+      "gainDb": 5.999999989761179
+    },
+    {
+      "name": "voxlevel unity and latency 44100",
+      "dc": 0.0010000000474974513,
+      "first": 530,
+      "delay": 530
+    },
+    {
+      "name": "voxlevel actual PCM matches transfer 44100",
+      "outputDb": -20.750020672281757,
+      "expected": -20.750000020444823
+    },
+    {
+      "name": "voxlevel stereo linking 44100",
+      "error": 0
+    },
+    {
+      "name": "voxlevel explicit output gain 44100",
+      "gainDb": 5.999999902591561
+    },
+    {
+      "name": "vectorcomp unity and latency 48000",
+      "dc": 0.0010000000474974513,
+      "first": 288,
+      "delay": 288
+    },
+    {
+      "name": "vectorcomp actual PCM matches transfer 48000",
+      "outputDb": -19.499999900344083,
+      "expected": -19.500000122668947
+    },
+    {
+      "name": "vectorcomp stereo linking 48000",
+      "error": 0
+    },
+    {
+      "name": "vectorcomp explicit output gain 48000",
+      "gainDb": 5.999999989761179
+    },
+    {
+      "name": "circuitbus unity and latency 48000",
+      "dc": 0.0010000000474974513,
+      "first": 288,
+      "delay": 288
+    },
+    {
+      "name": "circuitbus actual PCM matches transfer 48000",
+      "outputDb": -19.499999900344083,
+      "expected": -19.500000122668947
+    },
+    {
+      "name": "circuitbus stereo linking 48000",
+      "error": 0
+    },
+    {
+      "name": "circuitbus explicit output gain 48000",
+      "gainDb": 5.999999989761179
+    },
+    {
+      "name": "glue unity and latency 48000",
+      "dc": 0.0010000000474974513,
+      "first": 288,
+      "delay": 288
+    },
+    {
+      "name": "glue actual PCM matches transfer 48000",
+      "outputDb": -19.499999900344083,
+      "expected": -19.500000122668947
+    },
+    {
+      "name": "glue stereo linking 48000",
+      "error": 0
+    },
+    {
+      "name": "glue explicit output gain 48000",
+      "gainDb": 5.999999989761179
+    },
+    {
+      "name": "press unity and latency 48000",
+      "dc": 0.0010000000474974513,
+      "first": 288,
+      "delay": 288
+    },
+    {
+      "name": "press actual PCM matches transfer 48000",
+      "outputDb": -19.499999900344083,
+      "expected": -19.500000122668947
+    },
+    {
+      "name": "press stereo linking 48000",
+      "error": 0
+    },
+    {
+      "name": "press explicit output gain 48000",
+      "gainDb": 5.999999989761179
+    },
+    {
+      "name": "voxlevel unity and latency 48000",
+      "dc": 0.0010000000474974513,
+      "first": 576,
+      "delay": 576
+    },
+    {
+      "name": "voxlevel actual PCM matches transfer 48000",
+      "outputDb": -20.750020782293298,
+      "expected": -20.750000020444823
+    },
+    {
+      "name": "voxlevel stereo linking 48000",
+      "error": 0
+    },
+    {
+      "name": "voxlevel explicit output gain 48000",
+      "gainDb": 5.999999902330337
+    },
+    {
+      "name": "vectorcomp unity and latency 96000",
+      "dc": 0.0010000000474974513,
+      "first": 576,
+      "delay": 576
+    },
+    {
+      "name": "vectorcomp actual PCM matches transfer 96000",
+      "outputDb": -19.499999900344083,
+      "expected": -19.500000122668947
+    },
+    {
+      "name": "vectorcomp stereo linking 96000",
+      "error": 0
+    },
+    {
+      "name": "vectorcomp explicit output gain 96000",
+      "gainDb": 5.999999989761179
+    },
+    {
+      "name": "circuitbus unity and latency 96000",
+      "dc": 0.0010000000474974513,
+      "first": 576,
+      "delay": 576
+    },
+    {
+      "name": "circuitbus actual PCM matches transfer 96000",
+      "outputDb": -19.499999900344083,
+      "expected": -19.500000122668947
+    },
+    {
+      "name": "circuitbus stereo linking 96000",
+      "error": 0
+    },
+    {
+      "name": "circuitbus explicit output gain 96000",
+      "gainDb": 5.999999989761179
+    },
+    {
+      "name": "glue unity and latency 96000",
+      "dc": 0.0010000000474974513,
+      "first": 576,
+      "delay": 576
+    },
+    {
+      "name": "glue actual PCM matches transfer 96000",
+      "outputDb": -19.499999900344083,
+      "expected": -19.500000122668947
+    },
+    {
+      "name": "glue stereo linking 96000",
+      "error": 0
+    },
+    {
+      "name": "glue explicit output gain 96000",
+      "gainDb": 5.999999989761179
+    },
+    {
+      "name": "press unity and latency 96000",
+      "dc": 0.0010000000474974513,
+      "first": 576,
+      "delay": 576
+    },
+    {
+      "name": "press actual PCM matches transfer 96000",
+      "outputDb": -19.499999900344083,
+      "expected": -19.500000122668947
+    },
+    {
+      "name": "press stereo linking 96000",
+      "error": 0
+    },
+    {
+      "name": "press explicit output gain 96000",
+      "gainDb": 5.999999989761179
+    },
+    {
+      "name": "voxlevel unity and latency 96000",
+      "dc": 0.0010000000474974513,
+      "first": 1152,
+      "delay": 1152
+    },
+    {
+      "name": "voxlevel actual PCM matches transfer 96000",
+      "outputDb": -20.750020892529815,
+      "expected": -20.750000020444823
+    },
+    {
+      "name": "voxlevel stereo linking 96000",
+      "error": 0
+    },
+    {
+      "name": "voxlevel explicit output gain 96000",
+      "gainDb": 5.999999902068581
+    },
+    {
+      "name": "vectorcomp ratio/knee/mix 4/12/1",
+      "outputDb": -25.124999878478143,
+      "expected": -25.12500007955581
+    },
+    {
+      "name": "vectorcomp ratio/knee/mix 4/24/0.5",
+      "outputDb": -25.052347332521727,
+      "expected": -25.052347666022637
+    },
+    {
+      "name": "vectorcomp ratio/knee/mix 1/12/0.37",
+      "outputDb": -6.0000004906757844,
+      "expected": -6.0000004906757844
+    },
+    {
+      "name": "vectorcomp ratio/knee/mix 8/0/0.25",
+      "outputDb": -8.038894387251647,
+      "expected": -8.038894371063321
+    },
+    {
+      "name": "circuitbus ratio/knee/mix 4/12/1",
+      "outputDb": -25.124999878478143,
+      "expected": -25.12500007955581
+    },
+    {
+      "name": "circuitbus ratio/knee/mix 4/24/0.5",
+      "outputDb": -25.052347332521727,
+      "expected": -25.052347666022637
+    },
+    {
+      "name": "circuitbus ratio/knee/mix 1/12/0.37",
+      "outputDb": -6.0000004906757844,
+      "expected": -6.0000004906757844
+    },
+    {
+      "name": "circuitbus ratio/knee/mix 8/0/0.25",
+      "outputDb": -8.038894387251647,
+      "expected": -8.038894371063321
+    },
+    {
+      "name": "glue ratio/knee/mix 4/12/1",
+      "outputDb": -25.124999878478143,
+      "expected": -25.12500007955581
+    },
+    {
+      "name": "glue ratio/knee/mix 4/24/0.5",
+      "outputDb": -25.052347332521727,
+      "expected": -25.052347666022637
+    },
+    {
+      "name": "glue ratio/knee/mix 1/12/0.37",
+      "outputDb": -6.0000004906757844,
+      "expected": -6.0000004906757844
+    },
+    {
+      "name": "glue ratio/knee/mix 8/0/0.25",
+      "outputDb": -8.038894387251647,
+      "expected": -8.038894371063321
+    },
+    {
+      "name": "VOX LEVEL independent thresholds 0/-24",
+      "outputDb": -19.499999900344083,
+      "expected": -19.500000122668947
+    },
+    {
+      "name": "VOX LEVEL independent thresholds -12/0",
+      "outputDb": -10.999999854613165,
+      "expected": -11.000000081779298
+    },
+    {
+      "name": "20 ms attack constant in real AudioWorklet",
+      "sample": 0.2698307931423187,
+      "expectedGain": 0.2698307851398041
+    },
+    {
+      "name": "release trajectory in real AudioWorklet",
+      "actualRelease": 2.563445935422772,
+      "expectedRelease": 2.563446450510625
+    },
+    {
+      "name": "steady 1 kHz compression residual below -60 dB",
+      "residualDb": -108.0309389423785
+    },
+    {
+      "name": "threshold automation changes the processed samples",
+      "before": 0.5011872053146362,
+      "after": 0.037583738565444946
+    },
+    {
+      "name": "vectorcomp dry-wet alignment at 44.1 kHz",
+      "dryError": 0,
+      "mixError": 5.820766091346741e-11
+    },
+    {
+      "name": "circuitbus dry-wet alignment at 44.1 kHz",
+      "dryError": 0,
+      "mixError": 5.820766091346741e-11
+    },
+    {
+      "name": "voxlevel dry-wet alignment at 44.1 kHz",
+      "dryError": 0,
+      "mixError": 5.820766091346741e-11
+    },
+    {
+      "name": "glue dry-wet alignment at 44.1 kHz",
+      "dryError": 0,
+      "mixError": 5.820766091346741e-11
+    },
+    {
+      "name": "glue host bypass remains direct",
+      "first": 0,
+      "dc": 0.5011872053146362
+    },
+    {
+      "name": "press host bypass remains direct",
+      "first": 0,
+      "dc": 0.5011872053146362
+    },
+    {
+      "name": "vectorcomp master uses identical DSP",
+      "difference": 0
+    },
+    {
+      "name": "circuitbus master uses identical DSP",
+      "difference": 0
+    },
+    {
+      "name": "voxlevel master uses identical DSP",
+      "difference": 0
+    },
+    {
+      "name": "rack preserves independent instance parameters"
+    },
+    {
+      "name": "independent AudioWorklet instances"
+    },
+    {
+      "name": "repeated parallel processors retain alignment",
+      "alignment": 5.820766091346741e-11
+    },
+    {
+      "name": "actual gain reduction reaches the UI meter",
+      "reduction": -17.9891781004717
+    },
+    {
+      "name": "GLUE and PRESS load AudioWorklet processors"
+    },
+    {
+      "name": "removing GLUE and PRESS releases their processors"
+    },
+    {
+      "name": "GLUE automation uses the host export bindings",
+      "before": 0.536192774772644,
+      "after": 0.060858435928821564
+    },
+    {
+      "name": "mono GLUE preserves the host pan law without a 3 dB boost",
+      "monoError": 0
+    },
+    {
+      "name": "float WAV preserves compressor PCM",
+      "error": 0
+    }
+  ],
+  "recordedVocalMeasurements": [
+    {
+      "kind": "vox-trap",
+      "assets": 3,
+      "input": [
+        {
+          "peak": 0.78106689453125,
+          "rms": 0.10544776598007315,
+          "seconds": 6.956530612244898
+        },
+        {
+          "peak": 0.7767333984375,
+          "rms": 0.09031964820613156,
+          "seconds": 6.956530612244898
+        },
+        {
+          "peak": 0.7786187529563904,
+          "rms": 0.08700679924305738,
+          "seconds": 6.956530612244898
+        }
+      ],
+      "verse": {
+        "peak": 0.21007545292377472,
+        "rms": 0.053617441985691544,
+        "seconds": 1.7491383219954648
+      },
+      "chorus": {
+        "peak": 0.19681768119335175,
+        "rms": 0.04135204012718577,
+        "seconds": 1.7491383219954648
+      },
+      "mix": {
+        "peak": 0.13321955502033234,
+        "rms": 0.027136349414045986,
+        "seconds": 1.7491383219954648
+      },
+      "backing": {
+        "peak": 0.31695541739463806,
+        "rms": 0.05471855856390399,
+        "seconds": 1.7491383219954648
+      },
+      "vocalToBacking": 0.979876725427142
+    },
+    {
+      "kind": "vox-afro",
+      "assets": 3,
+      "input": [
+        {
+          "peak": 0.7828369140625,
+          "rms": 0.11007147459014655,
+          "seconds": 8.88888888888889
+        },
+        {
+          "peak": 0.78125,
+          "rms": 0.09561366299785316,
+          "seconds": 8.88888888888889
+        },
+        {
+          "peak": 0.777587890625,
+          "rms": 0.0985027157697358,
+          "seconds": 8.88888888888889
+        }
+      ],
+      "verse": {
+        "peak": 0.1575024276971817,
+        "rms": 0.030218890077040362,
+        "seconds": 2.232222222222222
+      },
+      "chorus": {
+        "peak": 0.14641152322292328,
+        "rms": 0.024761849808237275,
+        "seconds": 2.232222222222222
+      },
+      "mix": {
+        "peak": 0.07315659523010254,
+        "rms": 0.015880499011816072,
+        "seconds": 2.232222222222222
+      },
+      "backing": {
+        "peak": 0.20159585773944855,
+        "rms": 0.03253559151402016,
+        "seconds": 2.232222222222222
+      },
+      "vocalToBacking": 0.9287948572878568
+    },
+    {
+      "kind": "vox-rnb",
+      "assets": 3,
+      "input": [
+        {
+          "peak": 0.6445204019546509,
+          "rms": 0.13295353008375752,
+          "seconds": 11.428571428571429
+        },
+        {
+          "peak": 0.5926999449729919,
+          "rms": 0.13296260874846336,
+          "seconds": 11.428571428571429
+        },
+        {
+          "peak": 0.57818603515625,
+          "rms": 0.13299203882683308,
+          "seconds": 11.428571428571429
+        }
+      ],
+      "verse": {
+        "peak": 0.10239266604185104,
+        "rms": 0.032878982116691956,
+        "seconds": 2.867142857142857
+      },
+      "chorus": {
+        "peak": 0.11115416139364243,
+        "rms": 0.027949025223674727,
+        "seconds": 2.867142857142857
+      },
+      "mix": {
+        "peak": 0.0583798922598362,
+        "rms": 0.01522828242333127,
+        "seconds": 2.867142857142857
+      },
+      "backing": {
+        "peak": 0.11949845403432846,
+        "rms": 0.02753049501451444,
+        "seconds": 2.867142857142857
+      },
+      "vocalToBacking": 1.1942750066556276
+    }
+  ],
+  "completeSongExport": [
+    {
+      "kind": "nocturne",
+      "seconds": 208.69565217391303,
+      "renderMs": 70660.19999999925,
+      "encodeMs": 1475.2000000011176,
+      "sampleRate": 44100,
+      "channels": 2,
+      "frames": 9203920,
+      "bits": 24,
+      "peak": 0.8413951396942139,
+      "rms": 0.1415651634896093,
+      "sections": [
+        {
+          "name": "INTRO",
+          "rms": 0.07645391734423083
+        },
+        {
+          "name": "COUPLET A",
+          "rms": 0.1508185479673445
+        },
+        {
+          "name": "PR\u00c9-REFRAIN",
+          "rms": 0.16065518233438467
+        },
+        {
+          "name": "REFRAIN A",
+          "rms": 0.1657758769342806
+        },
+        {
+          "name": "BREAK",
+          "rms": 0.021218041648423943
+        },
+        {
+          "name": "COUPLET B",
+          "rms": 0.15162656167757996
+        },
+        {
+          "name": "REFRAIN B",
+          "rms": 0.17388664098153225
+        },
+        {
+          "name": "OUTRO",
+          "rms": 0.039885632753834874
+        }
+      ],
+      "musicality": {
+        "sections": [
+          {
+            "name": "INTRO",
+            "bars": 8,
+            "peak": 0.7355,
+            "rms": 0.076454,
+            "crestDb": 19.66,
+            "rmsDb": -22.33,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "COUPLET A",
+            "bars": 16,
+            "peak": 0.81172,
+            "rms": 0.150819,
+            "crestDb": 14.62,
+            "rmsDb": -16.43,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "PR\u00c9-REFRAIN",
+            "bars": 4,
+            "peak": 0.80052,
+            "rms": 0.160655,
+            "crestDb": 13.95,
+            "rmsDb": -15.88,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "REFRAIN A",
+            "bars": 8,
+            "peak": 0.8414,
+            "rms": 0.165776,
+            "crestDb": 14.11,
+            "rmsDb": -15.61,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "BREAK",
+            "bars": 4,
+            "peak": 0.1262,
+            "rms": 0.021218,
+            "crestDb": 15.49,
+            "rmsDb": -33.47,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "COUPLET B",
+            "bars": 56,
+            "peak": 0.8414,
+            "rms": 0.151627,
+            "crestDb": 14.88,
+            "rmsDb": -16.38,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "REFRAIN B",
+            "bars": 12,
+            "peak": 0.8414,
+            "rms": 0.173887,
+            "crestDb": 13.69,
+            "rmsDb": -15.19,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "OUTRO",
+            "bars": 12,
+            "peak": 0.61034,
+            "rms": 0.039886,
+            "crestDb": 23.7,
+            "rmsDb": -27.98,
+            "invalid": 0,
+            "clipped": 0
+          }
+        ],
+        "problems": [],
+        "passed": true
+      },
+      "pcmDiagnostics": {
+        "sampleRate": 44100,
+        "frames": 9203920,
+        "channels": [
+          {
+            "channel": 1,
+            "peak": 0.8413950204849243,
+            "invalid": 0,
+            "overRange": 0,
+            "maxJump": 0.5640609264373779,
+            "candidateCount": 59,
+            "candidates": [
+              {
+                "frame": 653252,
+                "seconds": 14.812970521541951,
+                "jump": 0.3782907724380493
+              },
+              {
+                "frame": 883339,
+                "seconds": 20.030362811791385,
+                "jump": 0.4261455535888672
+              },
+              {
+                "frame": 883366,
+                "seconds": 20.030975056689343,
+                "jump": 0.361003041267395
+              },
+              {
+                "frame": 1113426,
+                "seconds": 25.247755102040816,
+                "jump": 0.39333975315093994
+              },
+              {
+                "frame": 1266866,
+                "seconds": 28.727120181405894,
+                "jump": 0.3785759210586548
+              },
+              {
+                "frame": 1343513,
+                "seconds": 30.46514739229025,
+                "jump": 0.48229944705963135
+              },
+              {
+                "frame": 1343540,
+                "seconds": 30.46575963718821,
+                "jump": 0.4103349447250366
+              },
+              {
+                "frame": 1343567,
+                "seconds": 30.466371882086168,
+                "jump": 0.3579556941986084
+              }
+            ]
+          },
+          {
+            "channel": 2,
+            "peak": 0.8413951396942139,
+            "invalid": 0,
+            "overRange": 0,
+            "maxJump": 0.5637412071228027,
+            "candidateCount": 59,
+            "candidates": [
+              {
+                "frame": 653252,
+                "seconds": 14.812970521541951,
+                "jump": 0.3792104721069336
+              },
+              {
+                "frame": 883339,
+                "seconds": 20.030362811791385,
+                "jump": 0.42504775524139404
+              },
+              {
+                "frame": 883366,
+                "seconds": 20.030975056689343,
+                "jump": 0.36179423332214355
+              },
+              {
+                "frame": 1113426,
+                "seconds": 25.247755102040816,
+                "jump": 0.3910452127456665
+              },
+              {
+                "frame": 1266866,
+                "seconds": 28.727120181405894,
+                "jump": 0.3788266181945801
+              },
+              {
+                "frame": 1343513,
+                "seconds": 30.46514739229025,
+                "jump": 0.4807088375091553
+              },
+              {
+                "frame": 1343540,
+                "seconds": 30.46575963718821,
+                "jump": 0.41219615936279297
+              },
+              {
+                "frame": 1343567,
+                "seconds": 30.466371882086168,
+                "jump": 0.35888803005218506
+              }
+            ]
+          }
+        ],
+        "invalid": 0,
+        "overRange": 0,
+        "candidateCount": 118
+      }
+    }
+  ]
+}
