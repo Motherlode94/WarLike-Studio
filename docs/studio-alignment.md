@@ -53,6 +53,16 @@ sa loi de niveau mono lorsque son mix est automatisé. Un module sans liaison
 ne tombe plus dans une fausse branche RELAY qui pouvait interrompre une
 simple automation de volume.
 
+## Sauvegarde avant rechargement
+
+Le parcours de réouverture a révélé une course entre le téléchargement portable
+et la sauvegarde locale différée. Le téléchargement déclenche une écriture
+explicite, après les écritures locales en cours, et attend sa fin. Un nouvel
+essai relance cette écriture même après un échec précédent. Si le stockage échoue, le fichier portable du
+snapshot demandé reste téléchargeable et le message distingue cette sauvegarde
+de la copie locale non confirmée. Le nom et le contenu sont capturés avant
+l’attente afin de conserver le bon projet.
+
 ## Vérification
 
 - 722 tests Node, check et build.
@@ -61,7 +71,8 @@ simple automation de volume.
   série, le mélange parallèle du rack, le retour à zéro après transposition et
   une impulsion en toute fin de WAV sans queue d’effet.
 - Le parcours UI ouvre HARDI BUS, sélectionne Threshold dans l’éditeur, crée un
-  point, exporte le projet puis vérifie la valeur après réouverture à froid.
+  point, exporte le projet puis vérifie la valeur après réouverture à froid. Une écriture locale retardée
+  est imposée ; une panne de stockage vérifie que le téléchargement reste possible.
 - Les 171 contrôles des nouveaux compresseurs de pack et les 96 contrôles du
   noyau principal restent requis ; les 31 démos et l’export complet sont
   recontrôlés après le changement de durée de rendu.
