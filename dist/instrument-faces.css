@@ -1,6 +1,6 @@
 /* Native instrument panels. Every rule is scoped away from inserts and chrome. */
 html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-face]{--instrument-bg:#1c2228;--instrument-raised:#272e35;--instrument-ink:#edf3f4;--instrument-muted:#b8c2c8;--instrument-line:#53616c;--face-accent:var(--instrument-accent);--wl-text:var(--instrument-ink);--wl-text-muted:var(--instrument-muted);--wl-border:var(--instrument-line);--wl-surface:var(--instrument-raised);--wl-bg:var(--instrument-bg);min-width:0;background:var(--instrument-bg)!important;color:var(--instrument-ink);border-radius:6px}
-html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-material=ivory]{--instrument-bg:#e5dece;--instrument-raised:#f3edde;--instrument-ink:#2f302a;--instrument-muted:#56594c;--instrument-line:#999582;--instrument-accent:#75613c}
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-material=ivory]{--instrument-bg:#2d2a23;--instrument-raised:#3c3830;--instrument-ink:#f6f0e1;--instrument-muted:#d2c8b0;--instrument-line:#8b846e;--instrument-accent:#d9c38c}
 html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-material=walnut]{--instrument-bg:#30251e;--instrument-raised:#41342a;--instrument-ink:#f7eddb;--instrument-muted:#d3bea3;--instrument-line:#80684e}
 html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-material=brass]{--instrument-bg:#302e22;--instrument-raised:#403e2d;--instrument-ink:#f6efce;--instrument-muted:#cec49e;--instrument-line:#827b52}
 html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-material=mint]{--instrument-bg:#19312e;--instrument-raised:#25423c;--instrument-ink:#e3f5e8;--instrument-muted:#b1d0c0;--instrument-line:#5c8a78}
@@ -182,4 +182,11 @@ html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-i
   padding:8px 6px;min-width:0
  }
  .floating-plugin .instrument-performance-controls .knob{max-width:65px;max-height:65px}
+}
+/* Harmonisation : un troisième banc de réglages (souvent « Niveau ») ne reste
+   plus seul sur une ligne à moitié vide. Pour les dispositions sans placement
+   dédié, les trois bancs partagent une rangée. Présentation uniquement. */
+@media (min-width:701px){
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-layout=mallet] .instrument-control-banks:has(>.instrument-control-bank:nth-child(3):last-child),html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-layout=brass] .instrument-control-banks:has(>.instrument-control-bank:nth-child(3):last-child),html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-layout=organ] .instrument-control-banks:has(>.instrument-control-bank:nth-child(3):last-child),html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-layout=keys] .instrument-control-banks:has(>.instrument-control-bank:nth-child(3):last-child){grid-template-columns:repeat(3,minmax(0,1fr))}
+html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-layout=keys] .instrument-control-banks:has(>.instrument-control-bank:nth-child(2):last-child)>.instrument-control-bank:last-child,html[data-warlike-app="warlike-studio"] .floating-plugin .suite-processor[data-instrument-layout=keys] .instrument-control-banks:has(>.instrument-control-bank:nth-child(3):last-child)>.instrument-control-bank:last-child{grid-column:auto}
 }
