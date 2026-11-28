@@ -1,6 +1,7 @@
 <!doctype html><meta charset="utf-8"><title>WarLike · Demo audio QA</title>
 <style>body{background:#20251f;color:#e1dccb;font:15px monospace;padding:28px}button{padding:12px}pre{white-space:pre-wrap}</style>
 <h1>WarLike Studio · Démos et stabilité audio</h1><button id="run">Vérifier les trois démos</button><pre id="results">Prêt.</pre><script type="module">
+import {prepareStudioContext} from '../dist/studio-pack-audio.js';
 import {AudioEngine,emptyProject} from '../dist/audio.js';
 import {createFactorySession,SESSION_TEMPLATES} from '../dist/content.js';
 import {placeInsert,copyInsert} from '../dist/plugins.js';
@@ -15,7 +16,7 @@ document.querySelector('#run').onclick=async()=>{document.querySelector('#run').
   output.textContent+='PASS '+p.name+' : 16 mesures, quatre sections audibles, stéréo finie · crête '+(20*Math.log10(peak)).toFixed(1)+' dBFS\n';
  }
  let p=emptyProject();const ctx=new OfflineAudioContext(2,44100,44100),e=new AudioEngine(()=>p,()=>new Map());
- let graph=e.buildGraph(ctx);assert(Object.keys(graph.channels.values().next().value.pack.modules).length===0,'processeurs sur insert vide');
+ await prepareStudioContext(ctx);let graph=e.buildGraph(ctx);assert(Object.keys(graph.channels.values().next().value.pack.modules).length===0,'processeurs sur insert vide');
  e.ctx=ctx;e.graph=graph;e.master=graph.master;e.channels=graph.channels;
  for(let i=0;i<12;i++){e.resetSession();p=createFactorySession(SESSION_TEMPLATES[i%3].id);e.sync();assert(e.channels.size===9,'anciens canaux conservés');for(const ch of e.channels.values())assert(Object.keys(ch.pack.modules).length===0,'packs inutilisés créés');}
  output.textContent+='PASS 12 changements de démo : neuf canaux, aucun pack FX inutilisé\n';

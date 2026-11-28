@@ -47,6 +47,11 @@ Les noms et plages des contrôles restent compatibles avec les projets et racks.
 Le rendu utilise le nouveau moteur : une identité sonore avec l'ancien algorithme
 n'est pas revendiquée. AudioWorklet et un contexte sécurisé sont requis.
 
+Les clients qui construisent directement un graphe de test doivent d’abord
+attendre `prepareStudioContext(ctx)`. `AudioEngine.init()` et `renderRange()`
+assurent déjà ce chargement pour les parcours de production. Les anciennes pages
+QA ont été adaptées à ce contrat.
+
 Un compresseur conserve des transitoires et n'est pas un plafond de sécurité.
 PEAK/VECTOR LIMIT restent les limiteurs de crêtes d'échantillons ; ce changement
 ne constitue pas une certification True Peak.
