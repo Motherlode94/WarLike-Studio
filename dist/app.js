@@ -1222,7 +1222,9 @@ function frame(now){workflow.updateFrame();piano?.updateFrame();if(engine.sessio
   const position=engine.getPosition(),bar=Math.floor(position/16)+1,beat=Math.floor(position%16/4)+1,sixteenth=Math.floor(position%4)+1;
   $('positionDisplay').innerHTML=`${String(bar).padStart(3,'0')}<span>.</span>${beat}<span>.</span>${sixteenth}`;
   const sec=position*engine.stepDuration;$('secondsDisplay').textContent=`${String(Math.floor(sec/60)).padStart(2,'0')}:${(sec%60).toFixed(2).padStart(5,'0')}`;
-  const lane=$('ruler');if(lane){const offset=lane.offsetLeft+position/(project.bars*16)*lane.clientWidth;$('playhead').style.left=offset+'px';}
+  const lane=$('ruler');if(lane){const offset=lane.offsetLeft+position/(project.bars*16)*lane.clientWidth,ph=$('playhead');ph.style.left=offset+'px';
+    // Like Pro Tools: the playhead disappears behind the fixed track column instead of crossing the headers when the timeline is scrolled.
+    ph.style.visibility=offset<($('timelineScroll')?.scrollLeft||0)+lane.offsetLeft?'hidden':'';}
   const step=Math.floor(position);if(step!==lastStep){lastStep=step;if(detail==='editor'){
     const clip=currentClip(),rel=clip?step-clip.start*16:-1,inside=clip&&rel>=0&&rel<clip.length*16;
     document.querySelectorAll('.step.current,.note-cell.current').forEach(el=>el.classList.remove('current'));

@@ -508,3 +508,10 @@ html[data-warlike-app="warlike-studio"] #trackRows .track-lane > .clip :is(.clip
 .reference-studio .fl-mixer-strips .channel-routing select[data-route-output]{grid-column:1 / -1;width:100%;height:20px;min-width:0;font-size:9px}
 .reference-studio .fl-mixer-strips .channel-routing .channel-auto{grid-row:2;width:auto}
 .reference-studio .fl-mixer-strips .track-instrument-slot button+button{flex:0 0 24px;min-width:24px}
+/* Track header inserts (2026-11-28): the two slots were squeezed into a fixed 60px column (plugin name 4px wide,
+   slot B options under the level meter). Controls keep their natural width, inserts take the rest of the row. */
+.reference-studio:not([data-layout-profile=fl]) .track-head{grid-template-columns:14px max-content minmax(0,1fr) 0}
+.reference-studio:not([data-layout-profile=fl]) .track-controls{grid-column:2}
+.reference-studio:not([data-layout-profile=fl]) .track-head-inserts{grid-column:3 / 5;width:auto;min-width:0;margin-right:6px}
+.reference-studio:not([data-layout-profile=fl]) .track-head-inserts .insert-slots{display:flex;gap:3px;width:100%;min-width:0}
+.reference-studio:not([data-layout-profile=fl]) .track-head-inserts .insert-slot{flex:1 1 0;min-width:0}
