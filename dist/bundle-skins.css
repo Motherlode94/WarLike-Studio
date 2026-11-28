@@ -1,0 +1,152 @@
+/* Bundle skins — every CHAYAH bundle gets its own hardware identity, like the
+   VECTOR, CIRCUIT, EXO, VOX and ALTER series already have.
+   Presentation only: no parameter, preset, routing or audio behaviour changes.
+   Knob geometry is fixed (62px) so the pointer pivots exactly on the cap. */
+
+/* ---------- shared knob geometry for skinned bundles ---------- */
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx],[data-pack=hardi-instruments],[data-pack=wlguitars]) :is(.plugin-window-params,.instrument-performance-controls) .knob{
+ width:62px!important;height:62px!important;max-width:62px!important;max-height:62px!important;border-radius:50%;position:relative;display:grid;place-items:center;
+ background:conic-gradient(from 220deg,var(--skin-arc) var(--angle,0deg),var(--skin-arc-off) 0 280deg,transparent 280deg)!important;
+ box-shadow:none!important;filter:none!important
+}
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx],[data-pack=hardi-instruments],[data-pack=wlguitars]) :is(.plugin-window-params,.instrument-performance-controls) .knob:before{
+ content:'';width:48px!important;height:48px!important;border-radius:50%;position:absolute;left:7px;top:7px;transform:none!important;
+ background:var(--skin-cap)!important;border:var(--skin-cap-border)!important;box-shadow:var(--skin-cap-shadow,0 4px 8px #000a)!important
+}
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx],[data-pack=hardi-instruments],[data-pack=wlguitars]) :is(.plugin-window-params,.instrument-performance-controls) .knob:after{
+ content:'';position:absolute!important;left:29.5px!important;top:10px!important;width:3px!important;height:16px!important;border-radius:2px;
+ background:var(--skin-pointer)!important;box-shadow:var(--skin-pointer-glow,none);
+ transform-origin:1.5px 21px!important;transform:rotate(var(--rotation,-140deg))!important
+}
+
+/* ---------- shared surfaces (effects) ---------- */
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx]) .suite-processor[data-effect-face]{
+ background:var(--skin-panel)!important;color:var(--skin-text);
+ --fx-text:var(--skin-text);--fx-muted:var(--skin-muted);--fx-line:var(--skin-line);--fx-accent:var(--skin-arc)
+}
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx]) .suite-processor[data-effect-face] :is(.plugin-window-params,.effect-control-group){
+ background:var(--skin-well)!important;border-color:var(--skin-line)!important
+}
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx]) .effect-face-macro{
+ background:var(--skin-display)!important;border:1px solid var(--skin-line)!important;box-shadow:inset 0 2px 8px #0009
+}
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx]) .effect-face-macro output{color:var(--skin-display-text)!important;text-shadow:var(--skin-display-glow,none)}
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx]) .effect-macro-fill{background:var(--skin-arc)!important;box-shadow:var(--skin-pointer-glow,none)}
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx]) .effect-control-group h3{color:var(--skin-legend)!important;letter-spacing:.14em}
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx]) .effect-face-heading>svg{stroke:var(--skin-arc)!important}
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx]) .effect-hardware-plate{background:var(--skin-plate)!important;border-color:var(--skin-plate-line,var(--skin-line))!important;color:var(--skin-plate-text,var(--skin-text))!important}
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx]) .param :is(label,.param-value){color:var(--skin-legend)!important}
+
+/* ---------- HARDI · MIX & MASTER — black anodised rack, gold, amber LCD ---------- */
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-mix-master]{
+ --skin-panel:linear-gradient(90deg,#0b0b0c 0 16px,#2a2b2e 16px 17px,transparent 17px calc(100% - 17px),#2a2b2e calc(100% - 17px) calc(100% - 16px),#0b0b0c calc(100% - 16px)),repeating-linear-gradient(90deg,#17181a 0 2px,#1b1c1e 2px 4px);
+ --skin-well:linear-gradient(#141516,#101112);--skin-line:#5e5132;--skin-text:#f2ead6;--skin-muted:#b8a77c;--skin-legend:#d9b866;
+ --skin-display:#140d03;--skin-display-text:#ffb547;--skin-display-glow:0 0 8px #ff9d1a99;
+ --skin-plate:linear-gradient(#2b2416,#1a150c);--skin-plate-line:#b8954a;--skin-plate-text:#f3d892;
+ --skin-arc:#e2b85a;--skin-arc-off:#2a2416;--skin-pointer:#f6d27a;
+ --skin-cap:repeating-conic-gradient(#1c1c1e 0 6deg,#2b2b2e 6deg 12deg);--skin-cap-border:2px solid #4a4a4e;--skin-cap-shadow:0 5px 10px #000,inset 0 0 0 6px #111
+}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-mix-master] .effect-face-identity h2{font-family:'Arial Narrow',Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#f3d892!important}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-mix-master] .suite-processor[data-effect-face]{padding-inline:30px!important}
+
+/* ---------- HARDI · VOCAL — oxblood console, cream skirts, red pointers ---------- */
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-vocal]{
+ --skin-panel:radial-gradient(120% 80% at 50% 0,#4a1a1f,#2a0d11 70%);
+ --skin-well:linear-gradient(#2f1014,#240b0f);--skin-line:#7a3a3f;--skin-text:#f6eadb;--skin-muted:#d7b8a6;--skin-legend:#efdcc2;
+ --skin-display:#120708;--skin-display-text:#ff6a5c;--skin-display-glow:0 0 7px #ff3b2f88;
+ --skin-plate:linear-gradient(#efe4cf,#d9cbb0);--skin-plate-line:#f6ecd9;--skin-plate-text:#3a1418;
+ --skin-arc:#ff5a4a;--skin-arc-off:#3d1418;--skin-pointer:#c2281d;
+ --skin-cap:radial-gradient(circle at 38% 30%,#fffaf0,#e7dcc6 45%,#b9ab90 100%);--skin-cap-border:1px solid #fff4df;--skin-cap-shadow:0 6px 10px #0009,0 0 0 4px #1a0608
+}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-vocal] .effect-face-identity h2{font-family:Georgia,'Times New Roman',serif;font-style:italic;color:#fff1de!important}
+
+/* ---------- ELIANA — dusk velvet, rose-gold, serif ---------- */
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=eliana]{
+ --skin-panel:radial-gradient(90% 70% at 20% 0,#3d2a45,#1f1726 72%);
+ --skin-well:linear-gradient(#2a1f33,#221a29);--skin-line:#8d6a72;--skin-text:#fbeee8;--skin-muted:#dcbfba;--skin-legend:#efc9b7;
+ --skin-display:linear-gradient(#1a1220,#140e19);--skin-display-text:#f7cdb8;--skin-display-glow:0 0 10px #f2b39a55;
+ --skin-plate:linear-gradient(90deg,#b98572,#f1cdb9 45%,#b98572);--skin-plate-line:#f6d9c9;--skin-plate-text:#3a2228;
+ --skin-arc:#f0b8a0;--skin-arc-off:#3a2b40;--skin-pointer:#5a2f33;
+ --skin-cap:radial-gradient(circle at 35% 28%,#fff0e6,#e8b9a2 40%,#a8705d 100%);--skin-cap-border:1px solid #ffe1d2;--skin-cap-shadow:0 6px 14px #0009
+}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=eliana] .suite-processor[data-effect-face]{border-radius:18px}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=eliana] .effect-control-group{border-radius:14px!important}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=eliana] .effect-face-identity h2{font-family:Georgia,'Times New Roman',serif;font-weight:400;letter-spacing:.08em;color:#ffe2d4!important}
+
+/* ---------- MOTION — synthwave grid, neon cyan/magenta ---------- */
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=motion]{
+ --skin-panel:linear-gradient(#0c0d22,#120f2c),repeating-linear-gradient(0deg,#ff4fd80d 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,#3ef2ff0d 0 1px,transparent 1px 22px);
+ --skin-well:#0e0f26e6;--skin-line:#4a3f8f;--skin-text:#e9f6ff;--skin-muted:#a9b3e6;--skin-legend:#7ff6ff;
+ --skin-display:#05061a;--skin-display-text:#5ff7ff;--skin-display-glow:0 0 9px #3ef2ffaa;
+ --skin-plate:linear-gradient(90deg,#2a0f3d,#14123a);--skin-plate-line:#ff4fd8;--skin-plate-text:#ffd2f6;
+ --skin-arc:#ff4fd8;--skin-arc-off:#231d4d;--skin-pointer:#5ff7ff;--skin-pointer-glow:0 0 6px #3ef2ff;
+ --skin-cap:radial-gradient(circle at 40% 30%,#2b2e55,#101230 75%);--skin-cap-border:1px solid #5b55b8;--skin-cap-shadow:0 0 12px #ff4fd844,0 4px 10px #000
+}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=motion] .suite-processor[data-effect-face]{background-blend-mode:normal!important}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=motion] .effect-face-identity h2{letter-spacing:.18em;text-transform:uppercase;color:#fff!important;text-shadow:0 0 10px #ff4fd8aa}
+
+/* ---------- CHAYAH CORE (studio) — brushed aluminium faceplate, keeps colour per effect type ---------- */
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=studio]{
+ --skin-panel:linear-gradient(#ffffff08,#0000 30%),var(--fx-bg);
+ --skin-well:color-mix(in srgb,var(--fx-surface) 70%,#000);--skin-line:color-mix(in srgb,var(--fx-line) 80%,#fff);--skin-text:#f2f6f7;--skin-muted:#c4d0d4;--skin-legend:#dfe7ea;
+ --skin-display:#0a0f12;--skin-display-text:#9ff0d0;--skin-display-glow:0 0 6px #6fe0b566;
+ --skin-plate:linear-gradient(#d9dde0,#a9b0b5);--skin-plate-line:#eef2f4;--skin-plate-text:#1c2226;
+ --skin-arc:#9ff0d0;--skin-arc-off:#0000004d;--skin-pointer:#11171a;
+ --skin-cap:radial-gradient(circle at 50% 50%,#0000 58%,#0003 60%),repeating-radial-gradient(circle at 50% 50%,#e9edef 0 1px,#c9d0d4 1px 2px);--skin-cap-border:1px solid #f6f8f9;--skin-cap-shadow:0 5px 10px #0009
+}
+
+/* ---------- VOCAL ESSENTIALS — steel blue channel strip ---------- */
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=vocal]{
+ --skin-panel:linear-gradient(#2b3a47,#1d2731);
+ --skin-well:#17202a;--skin-line:#5a7489;--skin-text:#eef6fb;--skin-muted:#b6c9d6;--skin-legend:#d6e6f1;
+ --skin-display:#081016;--skin-display-text:#7fd3ff;--skin-display-glow:0 0 7px #3fb7ff77;
+ --skin-plate:linear-gradient(#3e5466,#2a3a48);--skin-plate-line:#87a7bf;--skin-plate-text:#eaf5fd;
+ --skin-arc:#7fd3ff;--skin-arc-off:#0d161e;--skin-pointer:#ffffff;
+ --skin-cap:radial-gradient(circle at 38% 30%,#5c6f80,#26323d 80%);--skin-cap-border:1px solid #8aa6bb;--skin-cap-shadow:0 5px 9px #000a
+}
+
+/* ---------- VOICE FX — black glass, green digital LCD ---------- */
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=voicefx]{
+ --skin-panel:linear-gradient(160deg,#121614,#070908 70%);
+ --skin-well:#0b0e0d;--skin-line:#2f4a3d;--skin-text:#e8fff2;--skin-muted:#9fc4b0;--skin-legend:#7dffb3;
+ --skin-display:#031008;--skin-display-text:#62ff9e;--skin-display-glow:0 0 8px #2bff7a99;
+ --skin-plate:#0b1a12;--skin-plate-line:#2bff7a;--skin-plate-text:#9dffc3;
+ --skin-arc:#3dff8a;--skin-arc-off:#13261c;--skin-pointer:#62ff9e;--skin-pointer-glow:0 0 6px #2bff7a;
+ --skin-cap:radial-gradient(circle at 40% 30%,#26302b,#0c100e 80%);--skin-cap-border:1px solid #2f4a3d;--skin-cap-shadow:0 4px 10px #000
+}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=voicefx] .effect-face-macro output{font-family:ui-monospace,'Courier New',monospace!important;letter-spacing:.08em}
+
+/* ---------- HARDI INSTRUMENTS — synth with walnut cheeks, keeps each instrument's colour ---------- */
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments]{
+ --skin-arc:var(--instrument-accent,#d9b866);--skin-arc-off:#0006;--skin-pointer:#fff3d6;
+ --skin-cap:radial-gradient(circle at 38% 30%,#3a3a3d,#121214 80%);--skin-cap-border:1px solid #6b6b70;--skin-cap-shadow:0 5px 10px #000b,inset 0 0 0 5px #0a0a0b
+}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .suite-processor[data-instrument-face]{
+ border-inline:18px solid transparent!important;
+ border-image:linear-gradient(90deg,#3b2212,#6e4122 30%,#8a5530 50%,#5c3519 75%,#2e1a0d) 1!important;
+ box-shadow:inset 0 0 0 1px #0008
+}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .instrument-control-bank{box-shadow:inset 0 1px 0 #ffffff14,inset 0 -2px 6px #0006}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .instrument-config-readout>*{background:#0b0c0d!important;box-shadow:inset 0 2px 8px #000}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .instrument-config-readout :is(output,strong,b){color:var(--instrument-accent,#ffd27a)!important;text-shadow:0 0 7px color-mix(in srgb,var(--instrument-accent,#ffd27a) 60%,transparent)}
+
+/* ---------- WL GUITARS — amp: black tolex, cream piping, chrome knobs ---------- */
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=wlguitars]{
+ --skin-arc:#f2e2b8;--skin-arc-off:#0007;--skin-pointer:#161616;
+ --skin-cap:radial-gradient(circle at 50% 50%,#0000 56%,#0004 60%),conic-gradient(from 20deg,#f4f6f7,#9aa1a6,#eef1f2,#7d858b,#f4f6f7,#a7aeb3,#f4f6f7);--skin-cap-border:1px solid #fff;--skin-cap-shadow:0 6px 12px #000c
+}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=wlguitars] .suite-processor[data-instrument-face]{
+ background:repeating-linear-gradient(45deg,#ffffff06 0 2px,transparent 2px 4px),repeating-linear-gradient(-45deg,#00000040 0 2px,transparent 2px 4px),var(--instrument-bg)!important;
+ outline:3px solid #e9dcb8;outline-offset:-9px;border-radius:12px
+}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=wlguitars] .instrument-control-bank{background:linear-gradient(#1c1c1c,#0f0f0f)!important;border:1px solid #e9dcb855!important}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=wlguitars] .instrument-control-bank :is(h4,label,.param-value){color:#f2e2b8!important}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=wlguitars] .instrument-face-title :is(h2,h3,strong){font-family:'Brush Script MT','Segoe Script',cursive;font-style:italic;letter-spacing:.02em}
+
+/* knob cells: drop the legacy coloured tile behind each knob, use the skin well */
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx]) .effect-control-group .param{
+ background:transparent!important;border:0!important;box-shadow:none!important
+}
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx]) .effect-control-group{border-top-width:1px!important}
+/* engraved plates: text always contrasts with the plate */
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal],[data-pack=eliana],[data-pack=motion],[data-pack=studio],[data-pack=vocal],[data-pack=voicefx]) .effect-hardware-plate :is(strong,small,span){color:var(--skin-plate-text,var(--skin-text))!important;opacity:1!important}
