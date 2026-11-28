@@ -46,19 +46,22 @@ html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-mix-maste
  --skin-arc:#e2b85a;--skin-arc-off:#2a2416;--skin-pointer:#f6d27a;
  --skin-cap:repeating-conic-gradient(#1c1c1e 0 6deg,#2b2b2e 6deg 12deg);--skin-cap-border:2px solid #4a4a4e;--skin-cap-shadow:0 5px 10px #000,inset 0 0 0 6px #111
 }
-html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-mix-master] .effect-face-identity h2{font-family:'Arial Narrow',Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#f3d892!important}
 html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-mix-master] .suite-processor[data-effect-face]{padding-inline:30px!important}
 
-/* ---------- HARDI · VOCAL — oxblood console, cream skirts, red pointers ---------- */
+/* ---------- HARDI family: one brand look (Mix & Master, Vocal, Instruments) ----------
+   Same black anodised chassis, knurled knobs, gold legends and engraved gold plate.
+   Only the display colour tells the lines apart: amber (Mix & Master), red (Vocal),
+   the instrument's own colour (Instruments). */
 html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-vocal]{
- --skin-panel:radial-gradient(120% 80% at 50% 0,#4a1a1f,#2a0d11 70%);
- --skin-well:linear-gradient(#2f1014,#240b0f);--skin-line:#7a3a3f;--skin-text:#f6eadb;--skin-muted:#d7b8a6;--skin-legend:#efdcc2;
- --skin-display:#120708;--skin-display-text:#ff6a5c;--skin-display-glow:0 0 7px #ff3b2f88;
- --skin-plate:linear-gradient(#efe4cf,#d9cbb0);--skin-plate-line:#f6ecd9;--skin-plate-text:#3a1418;
- --skin-arc:#ff5a4a;--skin-arc-off:#3d1418;--skin-pointer:#c2281d;
- --skin-cap:radial-gradient(circle at 38% 30%,#fffaf0,#e7dcc6 45%,#b9ab90 100%);--skin-cap-border:1px solid #fff4df;--skin-cap-shadow:0 6px 10px #0009,0 0 0 4px #1a0608
+ --skin-panel:linear-gradient(90deg,#0b0b0c 0 16px,#2a2b2e 16px 17px,transparent 17px calc(100% - 17px),#2a2b2e calc(100% - 17px) calc(100% - 16px),#0b0b0c calc(100% - 16px)),repeating-linear-gradient(90deg,#17181a 0 2px,#1b1c1e 2px 4px);
+ --skin-well:linear-gradient(#141516,#101112);--skin-line:#5e5132;--skin-text:#f2ead6;--skin-muted:#b8a77c;--skin-legend:#d9b866;
+ --skin-display:#140506;--skin-display-text:#ff5a4c;--skin-display-glow:0 0 8px #ff2a1a99;
+ --skin-plate:linear-gradient(#2b2416,#1a150c);--skin-plate-line:#b8954a;--skin-plate-text:#f3d892;
+ --skin-arc:#e2b85a;--skin-arc-off:#2a2416;--skin-pointer:#f6d27a;
+ --skin-cap:repeating-conic-gradient(#1c1c1e 0 6deg,#2b2b2e 6deg 12deg);--skin-cap-border:2px solid #4a4a4e;--skin-cap-shadow:0 5px 10px #000,inset 0 0 0 6px #111
 }
-html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-vocal] .effect-face-identity h2{font-family:Georgia,'Times New Roman',serif;font-style:italic;color:#fff1de!important}
+html[data-warlike-app=warlike-studio] .floating-plugin:is([data-pack=hardi-mix-master],[data-pack=hardi-vocal]) .effect-face-identity h2{font-family:'Arial Narrow',Arial,sans-serif!important;font-style:normal!important;letter-spacing:.12em;text-transform:uppercase;color:#f3d892!important}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-vocal] .suite-processor[data-effect-face]{padding-inline:30px!important}
 
 /* ---------- ELIANA — dusk velvet, rose-gold, serif ---------- */
 html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=eliana]{
@@ -116,19 +119,24 @@ html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=voicefx]{
 }
 html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=voicefx] .effect-face-macro output{font-family:ui-monospace,'Courier New',monospace!important;letter-spacing:.08em}
 
-/* ---------- HARDI INSTRUMENTS — synth with walnut cheeks, keeps each instrument's colour ---------- */
+/* ---------- HARDI INSTRUMENTS — same HARDI chassis; displays take the instrument colour ---------- */
 html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments]{
- --skin-arc:var(--instrument-accent,#d9b866);--skin-arc-off:#0006;--skin-pointer:#fff3d6;
- --skin-cap:radial-gradient(circle at 38% 30%,#3a3a3d,#121214 80%);--skin-cap-border:1px solid #6b6b70;--skin-cap-shadow:0 5px 10px #000b,inset 0 0 0 5px #0a0a0b
+ --skin-arc:#e2b85a;--skin-arc-off:#2a2416;--skin-pointer:#f6d27a;
+ --skin-cap:repeating-conic-gradient(#1c1c1e 0 6deg,#2b2b2e 6deg 12deg);--skin-cap-border:2px solid #4a4a4e;--skin-cap-shadow:0 5px 10px #000,inset 0 0 0 6px #111
 }
 html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .suite-processor[data-instrument-face]{
- border-inline:18px solid transparent!important;
- border-image:linear-gradient(90deg,#3b2212,#6e4122 30%,#8a5530 50%,#5c3519 75%,#2e1a0d) 1!important;
- box-shadow:inset 0 0 0 1px #0008
+ --instrument-ink:#f2ead6;--instrument-muted:#b8a77c;--instrument-line:#5e5132;
+ background:linear-gradient(90deg,#0b0b0c 0 16px,#2a2b2e 16px 17px,transparent 17px calc(100% - 17px),#2a2b2e calc(100% - 17px) calc(100% - 16px),#0b0b0c calc(100% - 16px)),repeating-linear-gradient(90deg,#17181a 0 2px,#1b1c1e 2px 4px)!important;
+ padding-inline:30px!important;color:#f2ead6
 }
-html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .instrument-control-bank{box-shadow:inset 0 1px 0 #ffffff14,inset 0 -2px 6px #0006}
-html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .instrument-config-readout>*{background:#0b0c0d!important;box-shadow:inset 0 2px 8px #000}
-html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .instrument-config-readout :is(output,strong,b){color:var(--instrument-accent,#ffd27a)!important;text-shadow:0 0 7px color-mix(in srgb,var(--instrument-accent,#ffd27a) 60%,transparent)}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .instrument-control-bank{background:linear-gradient(#141516,#101112)!important;border:1px solid #5e5132!important;box-shadow:none}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .instrument-control-bank :is(h4,label,.param-value){color:#d9b866!important;letter-spacing:.1em}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .instrument-face-heading :is(h2,h3){font-family:'Arial Narrow',Arial,sans-serif!important;letter-spacing:.12em;text-transform:uppercase;color:#f3d892!important}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .instrument-hardware-plate{background:linear-gradient(#2b2416,#1a150c)!important;border-color:#b8954a!important}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .instrument-hardware-plate *{color:#f3d892!important}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .instrument-config-readout>*{background:#0b0c0d!important;border-color:#5e5132!important;box-shadow:inset 0 2px 8px #000}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .instrument-config-readout *{color:color-mix(in srgb,var(--instrument-accent,#ffb547) 55%,#fff)!important;text-shadow:0 0 7px color-mix(in srgb,var(--instrument-accent,#ffb547) 60%,transparent)}
+html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=hardi-instruments] .instrument-face-heading>svg{stroke:#d9b866!important;color:#d9b866!important}
 
 /* ---------- WL GUITARS — amp: black tolex, cream piping, chrome knobs ---------- */
 html[data-warlike-app=warlike-studio] .floating-plugin[data-pack=wlguitars]{

@@ -121,8 +121,11 @@ export class AudioEngine {
     reverb.buffer=this.impulse(ctx);
     filter.type='lowpass'; filter.frequency.value=tr.tone??18000; filter.Q.value=.5;
     const compInput=ctx.createGain(),echoInput=ctx.createGain(),echoOutput=ctx.createGain(),auraInput=ctx.createGain(),auraOutput=ctx.createGain();
+    // Added controls (neutral defaults keep older projects identical): COLOR tone, ECHO tone, AURA pre-delay/tone.
+    const colorTone=ctx.createBiquadFilter(),echoTone=ctx.createBiquadFilter(),auraPreDelay=ctx.createDelay(.25),auraTone=ctx.createBiquadFilter();
+    for(const f of [colorTone,echoTone,auraTone]){f.type='lowpass';f.frequency.value=ctx.sampleRate/2;f.Q.value=Math.SQRT1_2;}
     const pack=createPackProcessors(ctx,input,makeup,{detached:true,types:packTypes(tr)});
-    const colorInput=ctx.createGain();colorInput.connect(drive);drive.connect(colorWet);colorWet.connect(colorOut);colorInput.connect(colorDry);colorDry.connect(colorOut);
+    const colorInput=ctx.createGain();colorInput.connect(drive);drive.connect(colorTone);colorTone.connect(colorWet);colorWet.connect(colorOut);colorInput.connect(colorDry);colorDry.connect(colorOut);
     highpass.connect(filter);eqLow.connect(eqMid);eqMid.connect(eqHigh);
     compressWet.connect(makeup);compInput.connect(compressDelay);compressDelay.delayTime.value=dynamicsLatency(ctx.sampleRate);compressDelay.connect(compressDry);compressDry.connect(makeup);
     pan.connect(gain);gain.connect(analyser);
@@ -130,15 +133,18 @@ export class AudioEngine {
     const meterLeft=meterSplitter?ctx.createAnalyser():null,meterRight=meterSplitter?ctx.createAnalyser():null;
     if(meterSplitter){gain.connect(meterSplitter);meterLeft.fftSize=meterRight.fftSize=256;meterSplitter.connect(meterLeft,0);meterSplitter.connect(meterRight,1);}
     gain.gain.value=this.audible(tr)?dbGain(tr.volume):0; pan.pan.value=tr.pan;
-    echoInput.connect(echoOutput);echoInput.connect(send);send.connect(delay);delay.connect(feedback);feedback.connect(delay);delay.connect(echoOutput);
-    auraInput.connect(auraOutput);auraInput.connect(space);space.connect(reverb);reverb.connect(auraOutput);
-    delay.delayTime.value=60/this.getProject().bpm*.75; send.gain.value=tr.delay||0; feedback.gain.value=.3; analyser.fftSize=128;
-    const ch={input,filter,pan,gain,analyser,meterSplitter,meterLeft,meterRight,send,delay,feedback,drive,highpass,space,eqLow,eqMid,eqHigh,compressor,makeup,colorDry,colorWet,colorOut,compressDry,compressWet,compressDelay,pack,packSignature:packTypes(tr).join(','),instanceChannels:new Map(),sendNodes:new Map(),routeDelay:ctx.createDelay(1),stages:{...pack.modules,color:{input:colorInput,output:colorOut},sculpt:{input:highpass,output:filter},prism:{input:eqLow,output:eqHigh},glue:{input:compInput,output:makeup},echo:{input:echoInput,output:echoOutput},aura:{input:auraInput,output:auraOutput}}};this.syncEffects(ch,tr,ctx.currentTime,true);return ch;
+    echoInput.connect(echoOutput);echoInput.connect(send);send.connect(delay);delay.connect(echoTone);echoTone.connect(feedback);feedback.connect(delay);echoTone.connect(echoOutput);
+    auraInput.connect(auraOutput);auraInput.connect(space);space.connect(auraPreDelay);auraPreDelay.connect(reverb);reverb.connect(auraTone);auraTone.connect(auraOutput);
+    delay.delayTime.value=60/this.getProject().bpm*(tr.effects?.echo?.division??.75); send.gain.value=tr.delay||0; feedback.gain.value=.3; analyser.fftSize=128;
+    const ch={auraDecay:1.8,colorTone,echoTone,auraPreDelay,auraTone,reverb,input,filter,pan,gain,analyser,meterSplitter,meterLeft,meterRight,send,delay,feedback,drive,highpass,space,eqLow,eqMid,eqHigh,compressor,makeup,colorDry,colorWet,colorOut,compressDry,compressWet,compressDelay,pack,packSignature:packTypes(tr).join(','),instanceChannels:new Map(),sendNodes:new Map(),routeDelay:ctx.createDelay(1),stages:{...pack.modules,color:{input:colorInput,output:colorOut},sculpt:{input:highpass,output:filter},prism:{input:eqLow,output:eqHigh},glue:{input:compInput,output:makeup},echo:{input:echoInput,output:echoOutput},aura:{input:auraInput,output:auraOutput}}};this.syncEffects(ch,tr,ctx.currentTime,true);return ch;
   }
-  impulse(ctx) {
+  impulse(ctx,decay=1.8) {
+    // One cached impulse per context and decay (0.1 s steps). 1.8 s is the historical AURA tail.
     if(!this.impulses)this.impulses=new WeakMap();
-    if(!this.impulses.has(ctx)){const size=Math.floor(ctx.sampleRate*1.8),b=ctx.createBuffer(2,size,ctx.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<size;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/size,3);}this.impulses.set(ctx,b);}
-    return this.impulses.get(ctx);
+    if(!this.impulses.has(ctx))this.impulses.set(ctx,new Map());
+    const cache=this.impulses.get(ctx),key=Math.round(decay*10)/10;
+    if(!cache.has(key)){const size=Math.floor(ctx.sampleRate*key),b=ctx.createBuffer(2,size,ctx.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<size;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/size,3);}cache.set(key,b);}
+    return cache.get(key);
   }
   syncEffects(ch,tr,now,initial=false) {
     ensurePlugins(tr);const e=tr.effects,set=(param,value)=>initial?param.setValueAtTime(value,now):param.setTargetAtTime(value,now,.02);
@@ -147,6 +153,16 @@ export class AudioEngine {
     set(ch.send.gain,e.echo.enabled?e.echo.mix:0);
     set(ch.feedback.gain,e.echo.feedback);
     set(ch.space.gain,e.aura.enabled?e.aura.mix:0);
+    if(ch.colorTone){
+     // A lowpass at Nyquist is an exact unity filter: the default (20 kHz) is a true bypass.
+     const toneHz=v=>v>=19950?ch.input.context.sampleRate/2:v;
+     set(ch.colorTone.frequency,toneHz(e.color.enabled?e.color.tone:20000));
+     set(ch.filter.Q,e.sculpt.enabled?e.sculpt.resonance:.5);set(ch.highpass.Q,e.sculpt.enabled?Math.min(e.sculpt.resonance,8):.5);
+     set(ch.echoTone.frequency,toneHz(e.echo.tone));
+     set(ch.auraPreDelay.delayTime,(e.aura.preDelay||0)/1000);set(ch.auraTone.frequency,toneHz(e.aura.tone));
+     const decay=Math.round(Math.min(6,Math.max(.4,e.aura.decay??1.8))*10)/10;
+     if(ch.auraDecay!==decay){ch.auraDecay=decay;ch.reverb.buffer=this.impulse(ch.input.context,decay);}
+    }
     for(const [node,key] of [[ch.eqLow,'low'],[ch.eqMid,'mid'],[ch.eqHigh,'high']])set(node.gain,e.prism.enabled?e.prism[key]:0);
     set(ch.eqLow.frequency,e.prism.lowFreq);set(ch.eqMid.frequency,e.prism.midFreq);set(ch.eqHigh.frequency,e.prism.highFreq);set(ch.eqMid.Q,e.prism.q);
     set(ch.colorWet.gain,e.color.enabled?e.color.mix:1);set(ch.colorDry.gain,e.color.enabled?1-e.color.mix:0);set(ch.colorOut.gain,dbGain(e.color.enabled?e.color.output:0));
@@ -199,7 +215,7 @@ export class AudioEngine {
       if(!this.channels.has(tr.id))this.channels.set(tr.id,this.makeChannel(this.ctx,tr,this.master));
       const ch=this.channels.get(tr.id);
       ch.gain.gain.setTargetAtTime(this.audible(tr)?dbGain(tr.volume):0,now,.015);
-      ch.pan.pan.setTargetAtTime(tr.pan,now,.015);this.syncEffects(ch,tr,now);ch.delay.delayTime.setTargetAtTime(60/this.getProject().bpm*.75,now,.02);
+      ch.pan.pan.setTargetAtTime(tr.pan,now,.015);this.syncEffects(ch,tr,now);ch.delay.delayTime.setTargetAtTime(Math.min(2,60/this.getProject().bpm*(tr.effects?.echo?.division??.75)),now,.02);
     }
     this.routeGraph(this.ctx,this.graph);
     if(this.playing)this.scheduleAutomation(this.ctx,this.graph,this.getPosition()/16,this.getProject().bars,Math.max(now,this.playStartAt||now));

@@ -57,7 +57,8 @@ test('every groove has eight valid rows and produces independent editable clips'
 test('old sessions retain their mix and acquire neutral new processors',()=>{
   const old={type:'bass',instrument:{body:.4,harmonics:0,release:.1},effects:{color:{enabled:false,drive:0},echo:{enabled:false,mix:0,feedback:.2}}};
   const original=structuredClone(old);ensurePlugins(old);
-  assert.deepEqual(old.instrument,original.instrument);assert.deepEqual(old.effects.color,{...original.effects.color,mix:1,output:0});assert.deepEqual(old.effects.echo,original.effects.echo);
+  assert.deepEqual(old.instrument,original.instrument);assert.deepEqual(old.effects.color,{...original.effects.color,mix:1,output:0,tone:20000});assert.deepEqual(old.effects.echo,{...original.effects.echo,division:.75,tone:20000});
+  assert.deepEqual(old.effects.aura,{enabled:false,mix:0,preDelay:0,decay:1.8,tone:20000});assert.equal(old.effects.sculpt.resonance,.5);
   assert.deepEqual(old.effects.prism,{enabled:false,low:0,mid:0,high:0,lowFreq:120,midFreq:1500,highFreq:8000,q:.8});assert.equal(old.effects.glue.enabled,false);
 });
 
