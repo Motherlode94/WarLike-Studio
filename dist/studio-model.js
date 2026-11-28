@@ -1,4 +1,4 @@
-import {dynamicsLatency} from './dynamics-timing.js';
+import {effectLatency} from './dynamics-timing.js';
 import {fadeShape} from './clip-tools.js?v=0.14.0';
 // Session, routing and audio playlists. Musical note creation is intentionally unchanged.
 export const MAX_BARS=2048;
@@ -22,7 +22,7 @@ export function audibleIds(tracks){
 }
 export function trackLatency(track,rate=48000){return (track.inserts||[]).reduce((sum,id)=>{
  if(!id||!track.effects?.[id]?.enabled)return sum;
- const type=id.split('__')[0];return sum+(['glue','circuitbus','vectorcomp','vectorlimit'].includes(type)?dynamicsLatency(rate):type==='voxlevel'?dynamicsLatency(rate,2):type==='exostrip'?.006:type==='voxtune'?.04:0);
+ return sum+effectLatency(id,rate);
 },0);}
 export function compensationDelays(tracks,rate=48000){
   const incoming=id=>tracks.filter(t=>edges(t).includes(id)),memo=new Map();

@@ -1,0 +1,1348 @@
+{
+  "dspChecks": [
+    {
+      "name": "exostrip sample-rounded dry latency 44100",
+      "first": 365,
+      "expected": 365
+    },
+    {
+      "name": "exostrip quiet unity without implicit makeup 44100",
+      "quietDb": 0.0020876255584689257
+    },
+    {
+      "name": "exostrip stereo linkage 44100",
+      "ratioError": 0
+    },
+    {
+      "name": "exostrip parallel sum alignment 44100",
+      "error": 9.895302372636694e-11
+    },
+    {
+      "name": "hardibus sample-rounded dry latency 44100",
+      "first": 365,
+      "expected": 365
+    },
+    {
+      "name": "hardibus quiet unity without implicit makeup 44100",
+      "quietDb": 0
+    },
+    {
+      "name": "hardibus stereo linkage 44100",
+      "ratioError": 0
+    },
+    {
+      "name": "hardibus parallel sum alignment 44100",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "hardivocalcomp sample-rounded dry latency 44100",
+      "first": 365,
+      "expected": 365
+    },
+    {
+      "name": "hardivocalcomp quiet unity without implicit makeup 44100",
+      "quietDb": 0
+    },
+    {
+      "name": "hardivocalcomp stereo linkage 44100",
+      "ratioError": 0
+    },
+    {
+      "name": "hardivocalcomp parallel sum alignment 44100",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "hardideess sample-rounded dry latency 44100",
+      "first": 365,
+      "expected": 365
+    },
+    {
+      "name": "hardideess quiet unity without implicit makeup 44100",
+      "quietDb": -2.5572421492811122e-09
+    },
+    {
+      "name": "hardideess stereo linkage 44100",
+      "ratioError": 0
+    },
+    {
+      "name": "hardideess parallel sum alignment 44100",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "elianaembrace sample-rounded dry latency 44100",
+      "first": 365,
+      "expected": 365
+    },
+    {
+      "name": "elianaembrace quiet unity without implicit makeup 44100",
+      "quietDb": 0
+    },
+    {
+      "name": "elianaembrace stereo linkage 44100",
+      "ratioError": 0
+    },
+    {
+      "name": "elianaembrace parallel sum alignment 44100",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "elianaguard sample-rounded dry latency 44100",
+      "first": 630,
+      "expected": 630
+    },
+    {
+      "name": "elianaguard quiet unity without implicit makeup 44100",
+      "quietDb": 0
+    },
+    {
+      "name": "elianaguard stereo linkage 44100",
+      "ratioError": 0
+    },
+    {
+      "name": "elianaguard parallel sum alignment 44100",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "exostrip sample-rounded dry latency 48000",
+      "first": 388,
+      "expected": 388
+    },
+    {
+      "name": "exostrip quiet unity without implicit makeup 48000",
+      "quietDb": 0.0020884512186148713
+    },
+    {
+      "name": "exostrip stereo linkage 48000",
+      "ratioError": 0
+    },
+    {
+      "name": "exostrip parallel sum alignment 48000",
+      "error": 8.032657221671013e-11
+    },
+    {
+      "name": "hardibus sample-rounded dry latency 48000",
+      "first": 388,
+      "expected": 388
+    },
+    {
+      "name": "hardibus quiet unity without implicit makeup 48000",
+      "quietDb": 0
+    },
+    {
+      "name": "hardibus stereo linkage 48000",
+      "ratioError": 0
+    },
+    {
+      "name": "hardibus parallel sum alignment 48000",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "hardivocalcomp sample-rounded dry latency 48000",
+      "first": 388,
+      "expected": 388
+    },
+    {
+      "name": "hardivocalcomp quiet unity without implicit makeup 48000",
+      "quietDb": 0
+    },
+    {
+      "name": "hardivocalcomp stereo linkage 48000",
+      "ratioError": 0
+    },
+    {
+      "name": "hardivocalcomp parallel sum alignment 48000",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "hardideess sample-rounded dry latency 48000",
+      "first": 388,
+      "expected": 388
+    },
+    {
+      "name": "hardideess quiet unity without implicit makeup 48000",
+      "quietDb": -2.6293251488454383e-08
+    },
+    {
+      "name": "hardideess stereo linkage 48000",
+      "ratioError": 0
+    },
+    {
+      "name": "hardideess parallel sum alignment 48000",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "elianaembrace sample-rounded dry latency 48000",
+      "first": 388,
+      "expected": 388
+    },
+    {
+      "name": "elianaembrace quiet unity without implicit makeup 48000",
+      "quietDb": 0
+    },
+    {
+      "name": "elianaembrace stereo linkage 48000",
+      "ratioError": 0
+    },
+    {
+      "name": "elianaembrace parallel sum alignment 48000",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "elianaguard sample-rounded dry latency 48000",
+      "first": 676,
+      "expected": 676
+    },
+    {
+      "name": "elianaguard quiet unity without implicit makeup 48000",
+      "quietDb": 0
+    },
+    {
+      "name": "elianaguard stereo linkage 48000",
+      "ratioError": 0
+    },
+    {
+      "name": "elianaguard parallel sum alignment 48000",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "exostrip sample-rounded dry latency 96000",
+      "first": 676,
+      "expected": 676
+    },
+    {
+      "name": "exostrip quiet unity without implicit makeup 96000",
+      "quietDb": 0.0020837873422996462
+    },
+    {
+      "name": "exostrip stereo linkage 96000",
+      "ratioError": 0
+    },
+    {
+      "name": "exostrip parallel sum alignment 96000",
+      "error": 8.032657221671013e-11
+    },
+    {
+      "name": "hardibus sample-rounded dry latency 96000",
+      "first": 676,
+      "expected": 676
+    },
+    {
+      "name": "hardibus quiet unity without implicit makeup 96000",
+      "quietDb": 0
+    },
+    {
+      "name": "hardibus stereo linkage 96000",
+      "ratioError": 0
+    },
+    {
+      "name": "hardibus parallel sum alignment 96000",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "hardivocalcomp sample-rounded dry latency 96000",
+      "first": 676,
+      "expected": 676
+    },
+    {
+      "name": "hardivocalcomp quiet unity without implicit makeup 96000",
+      "quietDb": 0
+    },
+    {
+      "name": "hardivocalcomp stereo linkage 96000",
+      "ratioError": 0
+    },
+    {
+      "name": "hardivocalcomp parallel sum alignment 96000",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "hardideess sample-rounded dry latency 96000",
+      "first": 676,
+      "expected": 676
+    },
+    {
+      "name": "hardideess quiet unity without implicit makeup 96000",
+      "quietDb": -9.10076235983958e-09
+    },
+    {
+      "name": "hardideess stereo linkage 96000",
+      "ratioError": 0
+    },
+    {
+      "name": "hardideess parallel sum alignment 96000",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "elianaembrace sample-rounded dry latency 96000",
+      "first": 676,
+      "expected": 676
+    },
+    {
+      "name": "elianaembrace quiet unity without implicit makeup 96000",
+      "quietDb": 0
+    },
+    {
+      "name": "elianaembrace stereo linkage 96000",
+      "ratioError": 0
+    },
+    {
+      "name": "elianaembrace parallel sum alignment 96000",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "elianaguard sample-rounded dry latency 96000",
+      "first": 1252,
+      "expected": 1252
+    },
+    {
+      "name": "elianaguard quiet unity without implicit makeup 96000",
+      "quietDb": 0
+    },
+    {
+      "name": "elianaguard stereo linkage 96000",
+      "ratioError": 0
+    },
+    {
+      "name": "elianaguard parallel sum alignment 96000",
+      "error": 5.820766091346741e-11
+    },
+    {
+      "name": "hardibus measured transfer",
+      "db": -19.50514988762315,
+      "expected": -19.505149978319906
+    },
+    {
+      "name": "hardibus explicit six dB gain"
+    },
+    {
+      "name": "hardivocalcomp measured transfer",
+      "db": -19.50514988762315,
+      "expected": -19.505149978319906
+    },
+    {
+      "name": "hardivocalcomp explicit six dB gain"
+    },
+    {
+      "name": "elianaembrace measured transfer",
+      "db": -19.50514988762315,
+      "expected": -19.505149978319906
+    },
+    {
+      "name": "elianaembrace explicit six dB gain"
+    },
+    {
+      "name": "EXO STRIP compression reduces actual PCM",
+      "wet": 0.07495936659370436,
+      "dry": 0.35363841812175106
+    },
+    {
+      "name": "EXO STRIP explicit output gain"
+    },
+    {
+      "name": "DEESS complementary reconstruction 200 Hz / 44100",
+      "error": 2.9802322387695312e-08
+    },
+    {
+      "name": "DEESS complementary reconstruction 3500 Hz / 44100",
+      "error": 2.9802322387695312e-08
+    },
+    {
+      "name": "DEESS complementary reconstruction 6500 Hz / 44100",
+      "error": 2.9802322387695312e-08
+    },
+    {
+      "name": "DEESS complementary reconstruction 12000 Hz / 44100",
+      "error": 2.9802322387695312e-08
+    },
+    {
+      "name": "DEESS preserves lows and attenuates sibilance 44100",
+      "bassDb": 1.1928557174129284e-08,
+      "highDb": -7.328160238102824
+    },
+    {
+      "name": "GUARD ceiling -0.1 mix 0 / 44100",
+      "peak": 0.9885531067848206,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -1 mix 0 / 44100",
+      "peak": 0.8912509083747864,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -6 mix 0 / 44100",
+      "peak": 0.5011872053146362,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -0.1 mix 0.5 / 44100",
+      "peak": 0.9885531067848206,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -1 mix 0.5 / 44100",
+      "peak": 0.8912509083747864,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -6 mix 0.5 / 44100",
+      "peak": 0.5011872053146362,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -0.1 mix 1 / 44100",
+      "peak": 0.9885531067848206,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -1 mix 1 / 44100",
+      "peak": 0.8912509083747864,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -6 mix 1 / 44100",
+      "peak": 0.5011872053146362,
+      "ratioError": 0
+    },
+    {
+      "name": "DEESS complementary reconstruction 200 Hz / 48000",
+      "error": 1.4901161193847656e-08
+    },
+    {
+      "name": "DEESS complementary reconstruction 3500 Hz / 48000",
+      "error": 2.9802322387695312e-08
+    },
+    {
+      "name": "DEESS complementary reconstruction 6500 Hz / 48000",
+      "error": 2.9802322387695312e-08
+    },
+    {
+      "name": "DEESS complementary reconstruction 12000 Hz / 48000",
+      "error": 8.072241659828894e-12
+    },
+    {
+      "name": "DEESS preserves lows and attenuates sibilance 48000",
+      "bassDb": -1.6310641534888883e-08,
+      "highDb": -6.966589837642387
+    },
+    {
+      "name": "GUARD ceiling -0.1 mix 0 / 48000",
+      "peak": 0.9885531067848206,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -1 mix 0 / 48000",
+      "peak": 0.8912509083747864,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -6 mix 0 / 48000",
+      "peak": 0.5011872053146362,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -0.1 mix 0.5 / 48000",
+      "peak": 0.9885531067848206,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -1 mix 0.5 / 48000",
+      "peak": 0.8912509083747864,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -6 mix 0.5 / 48000",
+      "peak": 0.5011872053146362,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -0.1 mix 1 / 48000",
+      "peak": 0.9885531067848206,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -1 mix 1 / 48000",
+      "peak": 0.8912509083747864,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -6 mix 1 / 48000",
+      "peak": 0.5011872053146362,
+      "ratioError": 0
+    },
+    {
+      "name": "DEESS complementary reconstruction 200 Hz / 96000",
+      "error": 2.9802322387695312e-08
+    },
+    {
+      "name": "DEESS complementary reconstruction 3500 Hz / 96000",
+      "error": 2.9802322387695312e-08
+    },
+    {
+      "name": "DEESS complementary reconstruction 6500 Hz / 96000",
+      "error": 2.9802322387695312e-08
+    },
+    {
+      "name": "DEESS complementary reconstruction 12000 Hz / 96000",
+      "error": 2.9802322387695312e-08
+    },
+    {
+      "name": "DEESS preserves lows and attenuates sibilance 96000",
+      "bassDb": -2.08620897505059e-08,
+      "highDb": -6.1631894740765745
+    },
+    {
+      "name": "GUARD ceiling -0.1 mix 0 / 96000",
+      "peak": 0.9885531067848206,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -1 mix 0 / 96000",
+      "peak": 0.8912509083747864,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -6 mix 0 / 96000",
+      "peak": 0.5011872053146362,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -0.1 mix 0.5 / 96000",
+      "peak": 0.9885531067848206,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -1 mix 0.5 / 96000",
+      "peak": 0.8912509083747864,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -6 mix 0.5 / 96000",
+      "peak": 0.5011872053146362,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -0.1 mix 1 / 96000",
+      "peak": 0.9885531067848206,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -1 mix 1 / 96000",
+      "peak": 0.8912509083747864,
+      "ratioError": 0
+    },
+    {
+      "name": "GUARD ceiling -6 mix 1 / 96000",
+      "peak": 0.5011872053146362,
+      "ratioError": 0
+    },
+    {
+      "name": "DEESS retains simultaneous bass while sibilance is compressed",
+      "simultaneousBassDb": -0.0034725942346524714,
+      "simultaneousHighDb": -6.978526791695625
+    },
+    {
+      "name": "DEESS threshold changes high-band reduction",
+      "open": 0.3535533905932738,
+      "closed": 0.14723823577551803
+    },
+    {
+      "name": "DEESS frequency moves the processed band",
+      "low": 0.1679003096411358,
+      "high": 0.3096320157359439
+    },
+    {
+      "name": "DEESS cutoff automation retains complementary unity",
+      "movingError": 2.9802322387695312e-08
+    },
+    {
+      "name": "GUARD automated ceiling bounds delayed samples immediately",
+      "latePeak": 0.5011872053146362
+    },
+    {
+      "name": "exostrip identical track/master processing",
+      "same": 0
+    },
+    {
+      "name": "exostrip host bypass removes processing delay"
+    },
+    {
+      "name": "exostrip mono path avoids hidden pan-law boost",
+      "monoError": 0,
+      "monoGainDb": 0.00208776911763423
+    },
+    {
+      "name": "exostrip uses custom worklet"
+    },
+    {
+      "name": "hardibus identical track/master processing",
+      "same": 0
+    },
+    {
+      "name": "hardibus host bypass removes processing delay"
+    },
+    {
+      "name": "hardibus mono path avoids hidden pan-law boost",
+      "monoError": 0,
+      "monoGainDb": 0
+    },
+    {
+      "name": "hardibus uses custom worklet"
+    },
+    {
+      "name": "hardibus host automation target exists"
+    },
+    {
+      "name": "hardibus host automation changes PCM",
+      "ratio": 0.022363198505101364
+    },
+    {
+      "name": "hardivocalcomp identical track/master processing",
+      "same": 0
+    },
+    {
+      "name": "hardivocalcomp host bypass removes processing delay"
+    },
+    {
+      "name": "hardivocalcomp mono path avoids hidden pan-law boost",
+      "monoError": 0,
+      "monoGainDb": 0
+    },
+    {
+      "name": "hardivocalcomp uses custom worklet"
+    },
+    {
+      "name": "hardivocalcomp host automation target exists"
+    },
+    {
+      "name": "hardivocalcomp host automation changes PCM",
+      "ratio": 0.022363198505101364
+    },
+    {
+      "name": "hardideess identical track/master processing",
+      "same": 0
+    },
+    {
+      "name": "hardideess host bypass removes processing delay"
+    },
+    {
+      "name": "hardideess mono path avoids hidden pan-law boost",
+      "monoError": 1.1641532182693481e-10,
+      "monoGainDb": 0
+    },
+    {
+      "name": "hardideess uses custom worklet"
+    },
+    {
+      "name": "elianaembrace identical track/master processing",
+      "same": 0
+    },
+    {
+      "name": "elianaembrace host bypass removes processing delay"
+    },
+    {
+      "name": "elianaembrace mono path avoids hidden pan-law boost",
+      "monoError": 0,
+      "monoGainDb": 0
+    },
+    {
+      "name": "elianaembrace uses custom worklet"
+    },
+    {
+      "name": "elianaembrace host automation target exists"
+    },
+    {
+      "name": "elianaembrace host automation changes PCM",
+      "ratio": 0.022363198505101364
+    },
+    {
+      "name": "elianaguard identical track/master processing",
+      "same": 0
+    },
+    {
+      "name": "elianaguard host bypass removes processing delay"
+    },
+    {
+      "name": "elianaguard mono path avoids hidden pan-law boost",
+      "monoError": 0,
+      "monoGainDb": 0
+    },
+    {
+      "name": "elianaguard uses custom worklet"
+    },
+    {
+      "name": "new dynamics preserve rack state"
+    },
+    {
+      "name": "mixed single/double-delay parallel rack aligns global dry path",
+      "rackError": 5.820766091346741e-11
+    },
+    {
+      "name": "exostrip measured gain reduction telemetry",
+      "reduction": -29.982397503166304
+    },
+    {
+      "name": "exostrip removal closes worklet telemetry ports"
+    },
+    {
+      "name": "hardibus measured gain reduction telemetry",
+      "reduction": -29.982374736388223
+    },
+    {
+      "name": "hardibus removal closes worklet telemetry ports"
+    },
+    {
+      "name": "hardivocalcomp measured gain reduction telemetry",
+      "reduction": -29.982374736388223
+    },
+    {
+      "name": "hardivocalcomp removal closes worklet telemetry ports"
+    },
+    {
+      "name": "hardideess measured gain reduction telemetry",
+      "reduction": -29.040328740739138
+    },
+    {
+      "name": "hardideess removal closes worklet telemetry ports"
+    },
+    {
+      "name": "elianaembrace measured gain reduction telemetry",
+      "reduction": -29.982376515379322
+    },
+    {
+      "name": "elianaembrace removal closes worklet telemetry ports"
+    },
+    {
+      "name": "elianaguard measured gain reduction telemetry",
+      "reduction": -29.98237693111927
+    },
+    {
+      "name": "elianaguard removal closes worklet telemetry ports"
+    }
+  ],
+  "demoChoruses": [
+    {
+      "family": "factory",
+      "id": "nocturne",
+      "masterVolume": 0,
+      "drive": 10,
+      "start": 28,
+      "integrated": -16.038638790484004,
+      "shortMax": -15.662817352370846,
+      "samplePeak": -2.3724316188439007,
+      "estimatedPeak": -2.36640769839977,
+      "duration": 6.966541666666667,
+      "windows": 66
+    },
+    {
+      "family": "factory",
+      "id": "soleil",
+      "masterVolume": 0,
+      "drive": 12.25,
+      "start": 28,
+      "integrated": -15.993569949820438,
+      "shortMax": -15.65356226858036,
+      "samplePeak": -2.8959761666425923,
+      "estimatedPeak": -2.8959761666425923,
+      "duration": 8.898895833333333,
+      "windows": 85
+    },
+    {
+      "family": "factory",
+      "id": "brume",
+      "masterVolume": 0,
+      "drive": 13.75,
+      "start": 28,
+      "integrated": -16.03654140521076,
+      "shortMax": -15.549451049556186,
+      "samplePeak": -3.743206819759599,
+      "estimatedPeak": -3.743206819759599,
+      "duration": 11.438583333333334,
+      "windows": 111
+    },
+    {
+      "family": "factory",
+      "id": "trap-abyss",
+      "masterVolume": 0,
+      "drive": 12.5,
+      "start": 32,
+      "integrated": -15.982549450137093,
+      "shortMax": -15.418028459682551,
+      "samplePeak": -2.1403884891914697,
+      "estimatedPeak": -2.1400408189689415,
+      "duration": 6.770583333333334,
+      "windows": 64
+    },
+    {
+      "family": "factory",
+      "id": "trap-enigma",
+      "masterVolume": 0,
+      "drive": 14.75,
+      "start": 32,
+      "integrated": -16.06999931795492,
+      "shortMax": -14.932018986886165,
+      "samplePeak": -1.922273515131352,
+      "estimatedPeak": -1.922273515131352,
+      "duration": 7.6290625,
+      "windows": 73
+    },
+    {
+      "family": "factory",
+      "id": "rnb-2005",
+      "masterVolume": 0,
+      "drive": 14.5,
+      "start": 32,
+      "integrated": -16.284463597392918,
+      "shortMax": -15.729312070875967,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3472485772008498,
+      "duration": 10.222770833333334,
+      "windows": 99
+    },
+    {
+      "family": "factory",
+      "id": "popstar-2008",
+      "masterVolume": 0,
+      "drive": 16.75,
+      "start": 32,
+      "integrated": -16.952921160111778,
+      "shortMax": -16.439401007357024,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2875045837667618,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "factory",
+      "id": "etoiles-interdites",
+      "masterVolume": 0,
+      "drive": 20.5,
+      "start": 32,
+      "integrated": -17.284931925147067,
+      "shortMax": -16.604997792033018,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2227232722053223,
+      "duration": 10.01,
+      "windows": 97
+    },
+    {
+      "family": "factory",
+      "id": "derriere-les-murs",
+      "masterVolume": 0,
+      "drive": 21,
+      "start": 32,
+      "integrated": -16.400611475031514,
+      "shortMax": -15.537157490690394,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4875277011903731,
+      "duration": 9.421770833333333,
+      "windows": 91
+    },
+    {
+      "family": "factory",
+      "id": "un-dernier-soleil",
+      "masterVolume": 0,
+      "drive": 17.5,
+      "start": 32,
+      "integrated": -17.152539227053627,
+      "shortMax": -16.73305070780414,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3168748339289171,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "factory",
+      "id": "au-bord-du-ciel",
+      "masterVolume": 0,
+      "drive": 11.75,
+      "start": 28,
+      "integrated": -16.076251892448447,
+      "shortMax": -15.59032690895968,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4727501926848354,
+      "duration": 11.438583333333334,
+      "windows": 111
+    },
+    {
+      "family": "factory",
+      "id": "promesses-de-pluie",
+      "masterVolume": 0,
+      "drive": 15.5,
+      "start": 32,
+      "integrated": -16.571965472042123,
+      "shortMax": -16.229858503865806,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3195062731561706,
+      "duration": 10.676666666666666,
+      "windows": 103
+    },
+    {
+      "family": "factory",
+      "id": "rives",
+      "masterVolume": 0,
+      "drive": 9,
+      "start": 32,
+      "integrated": -17.09236294211973,
+      "shortMax": -16.55239122822746,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3751903457666623,
+      "duration": 9.066604166666666,
+      "windows": 87
+    },
+    {
+      "family": "factory",
+      "id": "pluie",
+      "masterVolume": 0,
+      "drive": 9.75,
+      "start": 24,
+      "integrated": -16.009680568638267,
+      "shortMax": -15.443224062418441,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.5000000201403676,
+      "duration": 12.317708333333334,
+      "windows": 120
+    },
+    {
+      "family": "factory",
+      "id": "horizon",
+      "masterVolume": 0,
+      "drive": 10.75,
+      "start": 32,
+      "integrated": -16.83818915395926,
+      "shortMax": -16.006288946808887,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4297072029153144,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "factory",
+      "id": "eclats",
+      "masterVolume": 0,
+      "drive": 8.75,
+      "start": 32,
+      "integrated": -17.06178269590973,
+      "shortMax": -16.532285377995564,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2659095304342272,
+      "duration": 7.7519375,
+      "windows": 74
+    },
+    {
+      "family": "factory",
+      "id": "kin",
+      "masterVolume": 0,
+      "drive": 15.25,
+      "start": 32,
+      "integrated": -17.071427604126068,
+      "shortMax": -16.578989658722886,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4303849909393351,
+      "duration": 8.898895833333333,
+      "windows": 85
+    },
+    {
+      "family": "factory",
+      "id": "lumiere",
+      "masterVolume": 0,
+      "drive": 10,
+      "start": 32,
+      "integrated": -16.537544284646472,
+      "shortMax": -15.871995563380587,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3424517323320495,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "public",
+      "id": "drill",
+      "masterVolume": 0,
+      "drive": 9,
+      "start": 12,
+      "integrated": -15.97280205894136,
+      "shortMax": -15.680435895860986,
+      "samplePeak": -3.828659295227186,
+      "estimatedPeak": -3.8256414897266127,
+      "duration": 6.770583333333334,
+      "windows": 64
+    },
+    {
+      "family": "public",
+      "id": "trap808",
+      "masterVolume": 0,
+      "drive": 7.5,
+      "start": 32,
+      "integrated": -16.12684277550039,
+      "shortMax": -15.200029322675924,
+      "samplePeak": -3.9553718883914786,
+      "estimatedPeak": -3.9553718883914786,
+      "duration": 6.867145833333334,
+      "windows": 65
+    },
+    {
+      "family": "public",
+      "id": "trap-air",
+      "masterVolume": 0,
+      "drive": 6.25,
+      "start": 12,
+      "integrated": -15.969175270516065,
+      "shortMax": -15.625467964020402,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.497411971824261,
+      "duration": 6.585354166666667,
+      "windows": 62
+    },
+    {
+      "family": "public",
+      "id": "funk",
+      "masterVolume": 0,
+      "drive": 12.25,
+      "start": 12,
+      "integrated": -16.08122904241064,
+      "shortMax": -15.800343739326582,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4768024335980334,
+      "duration": 7.394625,
+      "windows": 70
+    },
+    {
+      "family": "public",
+      "id": "rock",
+      "masterVolume": 0,
+      "drive": 17.25,
+      "start": 12,
+      "integrated": -16.552350642222567,
+      "shortMax": -16.064177451096448,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2014181052966713,
+      "duration": 7.6290625,
+      "windows": 73
+    },
+    {
+      "family": "public",
+      "id": "pop",
+      "masterVolume": 0,
+      "drive": 24,
+      "start": 12,
+      "integrated": -15.946673227131583,
+      "shortMax": -15.419594696159177,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3757787446665728,
+      "duration": 8.5814375,
+      "windows": 82
+    },
+    {
+      "family": "public",
+      "id": "rumba",
+      "masterVolume": 0,
+      "drive": 24,
+      "start": 12,
+      "integrated": -16.667269073585672,
+      "shortMax": -16.060953470331278,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.487857434321103,
+      "duration": 9.421770833333333,
+      "windows": 91
+    },
+    {
+      "family": "public",
+      "id": "trap",
+      "masterVolume": 0,
+      "drive": 11,
+      "start": 24,
+      "integrated": -15.959992643890729,
+      "shortMax": -15.685547358274244,
+      "samplePeak": -2.792018565199129,
+      "estimatedPeak": -2.792018565199129,
+      "duration": 6.966541666666667,
+      "windows": 66,
+      "leadRms": 0.05841530241424165,
+      "backingRms": 0.13566001242257142,
+      "leadToBacking": 0.4306007449880078
+    },
+    {
+      "family": "public",
+      "id": "afro",
+      "masterVolume": 0,
+      "drive": 9.75,
+      "start": 12,
+      "integrated": -15.8740479979083,
+      "shortMax": -15.28613159827349,
+      "samplePeak": -2.8431135457926797,
+      "estimatedPeak": -2.8431135457926797,
+      "duration": 8.898895833333333,
+      "windows": 85,
+      "leadRms": 0.060786608272609954,
+      "backingRms": 0.12288945455431739,
+      "leadToBacking": 0.49464462587993785
+    },
+    {
+      "family": "public",
+      "id": "rnb",
+      "masterVolume": 0,
+      "drive": 10.75,
+      "start": 12,
+      "integrated": -16.064013086485296,
+      "shortMax": -15.78375729000228,
+      "samplePeak": -4.383389789690539,
+      "estimatedPeak": -4.38241961660389,
+      "duration": 11.438583333333334,
+      "windows": 111,
+      "leadRms": 0.06340759461206444,
+      "backingRms": 0.1330620041429622,
+      "leadToBacking": 0.4765266765705643
+    },
+    {
+      "family": "public",
+      "id": "vox-trap",
+      "masterVolume": 0,
+      "drive": 8.25,
+      "start": 12,
+      "integrated": -15.916925468275954,
+      "shortMax": -15.708151618072032,
+      "samplePeak": -3.3011873796771356,
+      "estimatedPeak": -3.2967713981542763,
+      "duration": 6.966541666666667,
+      "windows": 66,
+      "leadRms": 0.07748612693209553,
+      "backingRms": 0.13465146944818143,
+      "leadToBacking": 0.5754569723571779
+    },
+    {
+      "family": "public",
+      "id": "vox-afro",
+      "masterVolume": 0,
+      "drive": 9.75,
+      "start": 12,
+      "integrated": -15.878324154685517,
+      "shortMax": -15.290717231970376,
+      "samplePeak": -2.821704323943547,
+      "estimatedPeak": -2.821704323943547,
+      "duration": 8.898895833333333,
+      "windows": 85,
+      "leadRms": 0.060786608272609954,
+      "backingRms": 0.12288995757729497,
+      "leadToBacking": 0.49464260116109626
+    },
+    {
+      "family": "public",
+      "id": "vox-rnb",
+      "masterVolume": 0,
+      "drive": 10.75,
+      "start": 12,
+      "integrated": -16.064353000786024,
+      "shortMax": -15.780491947544068,
+      "samplePeak": -4.384455800673424,
+      "estimatedPeak": -4.383495330359451,
+      "duration": 11.438583333333334,
+      "windows": 111,
+      "leadRms": 0.06340759461206444,
+      "backingRms": 0.13303231671667623,
+      "leadToBacking": 0.4766330180290395
+    }
+  ],
+  "fullArrangement": [
+    {
+      "kind": "rnb-2005",
+      "seconds": 224.68085106382978,
+      "renderMs": 72440.5,
+      "encodeMs": 1663.6000000014901,
+      "sampleRate": 44100,
+      "channels": 2,
+      "frames": 9908867,
+      "bits": 24,
+      "peak": 0.8413951396942139,
+      "rms": 0.11494171131528327,
+      "sections": [
+        {
+          "name": "INTRO",
+          "rms": 0.06922103152888329
+        },
+        {
+          "name": "COUPLET A",
+          "rms": 0.11673244528740144
+        },
+        {
+          "name": "PRÉ-REFRAIN",
+          "rms": 0.11606935135097061
+        },
+        {
+          "name": "REFRAIN A",
+          "rms": 0.13518531375870793
+        },
+        {
+          "name": "PONT",
+          "rms": 0.06924426317281561
+        },
+        {
+          "name": "COUPLET B",
+          "rms": 0.1184017772180816
+        },
+        {
+          "name": "REFRAIN B",
+          "rms": 0.13315553864113808
+        },
+        {
+          "name": "OUTRO",
+          "rms": 0.08762417320894195
+        }
+      ],
+      "musicality": {
+        "sections": [
+          {
+            "name": "INTRO",
+            "bars": 8,
+            "peak": 0.8414,
+            "rms": 0.069221,
+            "crestDb": 21.7,
+            "rmsDb": -23.2,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "COUPLET A",
+            "bars": 16,
+            "peak": 0.8414,
+            "rms": 0.116732,
+            "crestDb": 17.16,
+            "rmsDb": -18.66,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "PRÉ-REFRAIN",
+            "bars": 8,
+            "peak": 0.8414,
+            "rms": 0.116069,
+            "crestDb": 17.21,
+            "rmsDb": -18.71,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "REFRAIN A",
+            "bars": 16,
+            "peak": 0.8414,
+            "rms": 0.135185,
+            "crestDb": 15.88,
+            "rmsDb": -17.38,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "PONT",
+            "bars": 8,
+            "peak": 0.8414,
+            "rms": 0.069244,
+            "crestDb": 21.69,
+            "rmsDb": -23.19,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "COUPLET B",
+            "bars": 16,
+            "peak": 0.8414,
+            "rms": 0.118402,
+            "crestDb": 17.03,
+            "rmsDb": -18.53,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "REFRAIN B",
+            "bars": 12,
+            "peak": 0.8414,
+            "rms": 0.133156,
+            "crestDb": 16.01,
+            "rmsDb": -17.51,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "OUTRO",
+            "bars": 4,
+            "peak": 0.8414,
+            "rms": 0.087624,
+            "crestDb": 19.65,
+            "rmsDb": -21.15,
+            "invalid": 0,
+            "clipped": 0
+          }
+        ],
+        "problems": [],
+        "passed": true
+      },
+      "pcmDiagnostics": {
+        "sampleRate": 44100,
+        "frames": 9908867,
+        "channels": [
+          {
+            "channel": 1,
+            "peak": 0.8413951396942139,
+            "invalid": 0,
+            "overRange": 0,
+            "maxJump": 0.41883957386016846,
+            "candidateCount": 0,
+            "candidates": []
+          },
+          {
+            "channel": 2,
+            "peak": 0.8413951396942139,
+            "invalid": 0,
+            "overRange": 0,
+            "maxJump": 0.45357370376586914,
+            "candidateCount": 22,
+            "candidates": [
+              {
+                "frame": 1072521,
+                "seconds": 24.320204081632653,
+                "jump": 0.36989927291870117
+              },
+              {
+                "frame": 2311073,
+                "seconds": 52.40528344671202,
+                "jump": 0.3572343587875366
+              },
+              {
+                "frame": 2423654,
+                "seconds": 54.95814058956916,
+                "jump": 0.36770057678222656
+              },
+              {
+                "frame": 5520037,
+                "seconds": 125.17090702947846,
+                "jump": 0.45357370376586914
+              },
+              {
+                "frame": 5520041,
+                "seconds": 125.1709977324263,
+                "jump": 0.37156522274017334
+              },
+              {
+                "frame": 5520043,
+                "seconds": 125.17104308390023,
+                "jump": 0.3779655694961548
+              },
+              {
+                "frame": 5801565,
+                "seconds": 131.5547619047619,
+                "jump": 0.40313827991485596
+              },
+              {
+                "frame": 5801567,
+                "seconds": 131.55480725623582,
+                "jump": 0.39673566818237305
+              }
+            ]
+          }
+        ],
+        "invalid": 0,
+        "overRange": 0,
+        "candidateCount": 22
+      }
+    }
+  ]
+}

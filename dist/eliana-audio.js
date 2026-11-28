@@ -1,3 +1,6 @@
+import {createCompressor} from './compressor-audio.js';
+import {createVectorLimiter,syncVectorLimiter} from './vector-limit-audio.js';
+import {dynamicsLatency} from './dynamics-timing.js';
 import {ELIANA_EFFECTS} from './eliana-pack.js';
 const db=x=>10**(x/20);
 export function createElianaEffects(ctx,scope,types=null){
@@ -6,7 +9,9 @@ export function createElianaEffects(ctx,scope,types=null){
   if(types&&!types.includes(id))continue;
   const m=modules[id]={input:node('createGain'),output:node('createGain')};
   m.dry=node('createGain');m.wet=node('createGain');
-  m.input.connect(m.dry);m.dry.connect(m.output);m.wet.connect(m.output);
+  const dynamics=id==='elianaembrace'||id==='elianaguard',sum=id==='elianaguard'?node('createGain'):m.output;
+  if(dynamics){m.dryDelay=node('createDelay',.1);m.dryDelay.delayTime.value=dynamicsLatency(ctx.sampleRate);m.input.connect(m.dryDelay);m.dryDelay.connect(m.dry);}else m.input.connect(m.dry);m.dry.connect(sum);m.wet.connect(sum);
+  if(id==='elianaguard'){m.limiter=createVectorLimiter(ctx,scope,{preserveChannels:true});sum.connect(m.limiter.input);m.limiter.output.connect(m.output);}
   if(id==='elianaveil'){
    m.hp=node('createBiquadFilter');m.hp.type='highpass';
    m.low=node('createBiquadFilter');m.low.type='lowshelf';m.low.frequency.value=310;
@@ -14,7 +19,9 @@ export function createElianaEffects(ctx,scope,types=null){
    m.input.connect(m.hp);m.hp.connect(m.low);m.low.connect(m.high);m.high.connect(m.wet);
   }
   if(id==='elianaembrace'||id==='elianaguard'){
-   m.comp=node('createDynamicsCompressor');m.trim=node('createGain');
+   m.comp=createCompressor(ctx,scope);m.trim=node('createGain');
+   m.bindings={threshold:[m.comp.threshold],ratio:[m.comp.ratio],attack:[[m.comp.attack,x=>x/1000]],release:[[m.comp.release,x=>x/1000]],mix:[[m.dry.gain,x=>1-x],m.wet.gain],...(m.limiter?{ceiling:[m.limiter.processor.parameters.get('ceiling')]}:{output:[[m.trim.gain,db,true]]})};
+   if(m.limiter)m.bindings.release.push([m.limiter.processor.parameters.get('release'),x=>x]);
    m.input.connect(m.comp);m.comp.connect(m.trim);m.trim.connect(m.wet);
   }
   if(id==='eliananest'){
@@ -35,7 +42,8 @@ export function syncElianaEffect(id,m,s,now=0,initial=false){
  if(id==='elianaembrace'||id==='elianaguard'){
   set(m.comp.threshold,s.threshold);set(m.comp.ratio,s.ratio);
   set(m.comp.attack,s.attack/1000);set(m.comp.release,s.release/1000);set(m.comp.knee,8);
-  set(m.trim.gain,db(id==='elianaguard'?s.ceiling:s.output));
+  set(m.trim.gain,db(id==='elianaguard'?0:s.output));
+  if(m.limiter)syncVectorLimiter(m.limiter,{drive:0,ceiling:s.ceiling,release:s.release},now,initial);
  }
  if(id==='eliananest'){
   set(m.delay.delayTime,s.size/1000);set(m.feedback.gain,s.enabled===false?0:s.feedback);

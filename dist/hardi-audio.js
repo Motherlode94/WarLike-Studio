@@ -1,3 +1,5 @@
+import {dynamicsLatency} from './dynamics-timing.js';
+import {createCompressor} from './compressor-audio.js';
 import {HARDI_INSTRUMENTS,HARDI_EFFECTS} from './hardi-suite.js';
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const db=x=>10**(x/20);
@@ -56,12 +58,13 @@ export function createHardiEffects(ctx,scope,types=null){
   if(types&&!types.includes(id))continue;
   const m=modules[id]={input:node('createGain'),output:node('createGain')};
   m.dry=node('createGain');m.wet=node('createGain');m.level=node('createGain');
-  m.input.connect(m.dry);m.dry.connect(m.level);m.wet.connect(m.level);m.level.connect(m.output);
+  if(id==='hardibus'){m.dryDelay=node('createDelay',.1);m.dryDelay.delayTime.value=dynamicsLatency(ctx.sampleRate);m.input.connect(m.dryDelay);m.dryDelay.connect(m.dry);}else m.input.connect(m.dry);m.dry.connect(m.level);m.wet.connect(m.level);m.level.connect(m.output);
   if(id==='harditilt'){
    m.low=node('createBiquadFilter');m.high=node('createBiquadFilter');
    m.low.type='lowshelf';m.high.type='highshelf';m.input.connect(m.low);m.low.connect(m.high);m.high.connect(m.wet);
   }else if(id==='hardibus'){
-   m.comp=node('createDynamicsCompressor');m.input.connect(m.comp);m.comp.connect(m.wet);
+   m.comp=createCompressor(ctx,scope);m.input.connect(m.comp);m.comp.connect(m.wet);
+   m.bindings={threshold:[m.comp.threshold],ratio:[m.comp.ratio],attack:[[m.comp.attack,x=>x/1000]],release:[[m.comp.release,x=>x/1000]],mix:[[m.dry.gain,x=>1-x],m.wet.gain],output:[[m.level.gain,db,true]]};
   }else if(id==='hardistage'){
    m.split=node('createChannelSplitter',2);m.merge=node('createChannelMerger',2);
    m.ll=node('createGain');m.lr=node('createGain');m.rl=node('createGain');m.rr=node('createGain');

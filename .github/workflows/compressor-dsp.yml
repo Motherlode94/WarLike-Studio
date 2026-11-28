@@ -22,10 +22,14 @@ jobs:
       - run: npx playwright install chromium
       - name: Transfer, time constants, channel layout, automation and actual WAV
         run: node tests/compressor-dsp-browser.mjs
+      - name: EXO, HARDI and ELIANA — complementary de-essing and final ceiling
+        run: node tests/pack-dynamics-browser.mjs
       - name: Measured compressor evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: studio-compressor-dsp
-          path: artifacts/compressor-dsp/
+          path: |
+            artifacts/compressor-dsp/
+            artifacts/pack-dynamics/
           if-no-files-found: warn

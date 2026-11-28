@@ -6,7 +6,7 @@ export const HARDI_VOCAL_EFFECTS={
   control('highpass','Low cut',40,350,5,85,'Hz'),control('body','Body',-9,9,.5,0,'dB'),control('presence','Presence',-9,9,.5,1.5,'dB'),control('air','Air',-9,9,.5,1,'dB'),control('mix','Mix',0,1,.01,1,'%')]),
  hardivocalcomp:effect('HARDI VOCALCOMP','VOCAL LEVELER','Compression transparente pour couplets et refrains, attaque et release réglables.',[
   control('threshold','Threshold',-50,0,.5,-22,'dB'),control('ratio','Ratio',1,10,.1,3,':1'),control('attack','Attack',1,80,1,12,'ms'),control('release','Release',30,600,10,130,'ms'),control('mix','Parallel',0,1,.01,.75,'%'),control('output','Make-up',-12,9,.5,0,'dB')]),
- hardideess:effect('HARDI DEESS','DYNAMIC SIBILANCE','Réduction dynamique des sifflantes par compresseur de bande parallèle, sans coupe-aigu permanent.',[
+ hardideess:effect('HARDI DEESS','DYNAMIC SIBILANCE','Compression de la bande aiguë sur une séparation complémentaire. La bande grave reste alignée ; sous le seuil, les bandes reconstruisent le signal sans coloration.',[
   control('frequency','Sibilance',3500,10500,100,6500,'Hz'),control('threshold','Threshold',-50,-6,.5,-24,'dB'),control('ratio','Reduction',1,12,.5,5,':1'),control('mix','Mix',0,1,.01,.7,'%')]),
  hardidoubler:effect('HARDI DOUBLER','VOCAL MICRO DELAYS','Deux doublures légèrement décalées et panoramisées, compatibles avec une voix lead centrale.',[
   control('delay','Delay',12,55,1,28,'ms'),control('width','Width',0,1,.01,.7,'%'),control('mix','Mix',0,1,.01,.18,'%'),control('tone','Tone',1400,12000,100,7000,'Hz')])

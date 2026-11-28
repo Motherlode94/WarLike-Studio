@@ -1,9 +1,9 @@
 import {limiterLatency} from './vector-limit-dsp.js';
 
-export function createVectorLimiter(ctx, scope = null) {
+export function createVectorLimiter(ctx, scope = null, {preserveChannels=false}={}) {
  if (!ctx.audioWorklet || typeof AudioWorkletNode === 'undefined') throw Error('Le limiteur demande AudioWorklet et une connexion HTTPS.');
  const drive = ctx.createGain(), output = ctx.createGain();
- const processor = new AudioWorkletNode(ctx, 'warlike-vector-limit', {numberOfInputs:1, numberOfOutputs:1, outputChannelCount:[2], channelCount:2, channelCountMode:'explicit', processorOptions:{reportMeter:!(typeof OfflineAudioContext!=='undefined'&&ctx instanceof OfflineAudioContext)}});
+ const processor = new AudioWorkletNode(ctx, 'warlike-vector-limit', {numberOfInputs:1, numberOfOutputs:1, channelCount:2, ...(preserveChannels?{channelCountMode:'clamped-max'}:{outputChannelCount:[2],channelCountMode:'explicit'}), processorOptions:{reportMeter:!(typeof OfflineAudioContext!=='undefined'&&ctx instanceof OfflineAudioContext)}});
  drive.connect(processor); processor.connect(output);
  let disposed=false;
  const stage = {input:drive, output, drive, processor, reduction:0, latency:limiterLatency(ctx.sampleRate), bindings:{drive:[[drive.gain, x => 10 ** (x / 20), true]], ceiling:[processor.parameters.get('ceiling')], release:[processor.parameters.get('release')]}, dispose() {
