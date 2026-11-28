@@ -3,7 +3,12 @@
 // https://oramics.github.io/sampled/DRUMS/pearl-master-studio/
 // The audio files are fetched, decoded, and actually played using AudioBufferSourceNode.
 // No fake claim that PULSE's original synthesized drums are acoustic recordings.
+// The nine files used by Studio are bundled in samples/drums/pearl-master-studio/
+// so demos play offline and do not depend on a third-party host. The original
+// site stays as a fallback for an older deployment without the bundled files.
+const LOCAL_BASE=new URL('./samples/drums/pearl-master-studio/',import.meta.url).href;
 const BASE='https://oramics.github.io/sampled/DRUMS/pearl-master-studio/samples/';
+export const DRUM_SAMPLE_SOURCES=Object.freeze([LOCAL_BASE,BASE]);
 export const ACOUSTIC_DRUM_LICENSE=Object.freeze({
  artist:'enoe',title:'Pearl Master Studio Pack 1',license:'CC BY 3.0',
  url:'https://oramics.github.io/sampled/DRUMS/pearl-master-studio/',
@@ -32,9 +37,15 @@ export async function loadRecordedDrumKit(ctx,{fetcher=fetch,onProgress=()=>{}}=
    let promise=buffers.get(file);
    if(!promise){
     promise=(async()=>{
-     const response=await fetcher(BASE+file);
-     if(!response?.ok)throw Error('HTTP '+(response?.status??'inconnu')+' : '+file);
-     return response.arrayBuffer();
+     let lastError=null;
+     for(const base of DRUM_SAMPLE_SOURCES){
+      try{
+       const response=await fetcher(base+file);
+       if(response?.ok)return response.arrayBuffer();
+       lastError=Error('HTTP '+(response?.status??'inconnu')+' : '+file);
+      }catch(error){lastError=error;}
+     }
+     throw lastError||Error('Fichier introuvable : '+file);
     })();
     buffers.set(file,promise);
    }

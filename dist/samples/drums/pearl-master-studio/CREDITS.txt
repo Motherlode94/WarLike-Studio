@@ -1,0 +1,4 @@
+Pearl Master Studio Pack 1 by enoe
+License: Creative Commons Attribution 3.0 (https://creativecommons.org/licenses/by/3.0/)
+Source: https://oramics.github.io/sampled/DRUMS/pearl-master-studio/
+Files copied unmodified: kick-01, snare-01, snare-02, snare-03, hihat-closed, hihat-open, tom-01, tom-02, tom-03 (.wav)
