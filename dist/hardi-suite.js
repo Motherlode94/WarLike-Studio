@@ -18,10 +18,10 @@ export const HARDI_INSTRUMENTS={
 };
 const fx=(name,subtitle,description,controls)=>({name,subtitle,description,controls,color:'#adbbc2',pack:'hardi-mix-master',defaultEnabled:false});
 export const HARDI_EFFECTS={
- harditilt:fx('HARDI TILT','MIX / MASTER EQ','Tilt spectral doux pour ouvrir ou réchauffer un bus.',[c('tilt','Tilt',-6,6,.25,0,'dB'),c('pivot','Pivot',350,4000,50,1200,'Hz'),c('mix','Mix',0,1,.01,1,'%'),c('output','Trim',-12,6,.25,0,'dB')]),
+ harditilt:fx('HARDI TILT','MIX / MASTER EQ','Tilt spectral doux pour ouvrir ou réchauffer un bus.',[c('tilt','Tilt',-6,6,.25,0,'dB'),c('pivot','Pivot',350,4000,50,1200,'Hz'),c('mix','Mix',0,1,.01,1,'%'),c('output','Trim',-12,6,.25,0,'dB'),{key:'lowcut',name:'Low cut',min:20,max:300,step:5,default:20,unit:'Hz'},{key:'highcut',name:'High cut',min:4000,max:20000,step:100,default:20000,unit:'Hz'}]),
  hardibus:fx('HARDI BUS','PARALLEL BUS COMP','Compression parallèle de bus, drums ou master.',[c('threshold','Threshold',-40,0,.5,-18,'dB'),c('ratio','Ratio',1,8,.1,2,':1'),c('attack','Attack',1,100,1,30,'ms'),c('release','Release',30,900,10,180,'ms'),c('mix','Parallel',0,1,.01,.5,'%'),c('output','Makeup',-12,12,.25,0,'dB')]),
- hardistage:fx('HARDI STAGE','STEREO MATRIX','Contrôle du centre et de la largeur mid/side avec repli mono.',[c('width','Width',0,1.5,.01,1,'%'),c('mix','Mix',0,1,.01,1,'%'),c('output','Trim',-12,6,.25,0,'dB')]),
- harditape:fx('HARDI TAPE','TAPE SATURATION','Saturation douce oversamplée et filtre tonal compensé.',[c('drive','Drive',0,18,.25,3,'dB'),c('tone','Tone',1200,18000,100,10000,'Hz'),c('mix','Mix',0,1,.01,.3,'%'),c('output','Trim',-12,6,.25,-1,'dB')])
+ hardistage:fx('HARDI STAGE','STEREO MATRIX','Contrôle du centre et de la largeur mid/side avec repli mono.',[c('width','Width',0,1.5,.01,1,'%'),c('mix','Mix',0,1,.01,1,'%'),c('output','Trim',-12,6,.25,0,'dB'),{key:'balance',name:'Balance',min:-1,max:1,step:0.01,default:0,unit:'bal'}]),
+ harditape:fx('HARDI TAPE','TAPE SATURATION','Saturation douce oversamplée et filtre tonal compensé.',[c('drive','Drive',0,18,.25,3,'dB'),c('tone','Tone',1200,18000,100,10000,'Hz'),c('mix','Mix',0,1,.01,.3,'%'),c('output','Trim',-12,6,.25,-1,'dB'),{key:'bump',name:'Head bump',min:0,max:4,step:0.1,default:0,unit:'dB'}])
 };
 const bank=(rows)=>Object.fromEntries(Object.entries(rows).map(([id,arr])=>[id,arr.map(([name,values])=>({name,values}))]));
 export const HARDI_INSTRUMENT_PRESETS=bank({

@@ -9,7 +9,7 @@ export const HARDI_VOCAL_EFFECTS={
  hardideess:effect('HARDI DEESS','DYNAMIC SIBILANCE','Compression de la bande aiguë sur une séparation complémentaire. La bande grave reste alignée ; sous le seuil, les bandes reconstruisent le signal sans coloration.',[
   control('frequency','Sibilance',3500,10500,100,6500,'Hz'),control('threshold','Threshold',-50,-6,.5,-24,'dB'),control('ratio','Reduction',1,12,.5,5,':1'),control('mix','Mix',0,1,.01,.7,'%')]),
  hardidoubler:effect('HARDI DOUBLER','VOCAL MICRO DELAYS','Deux doublures légèrement décalées et panoramisées, compatibles avec une voix lead centrale.',[
-  control('delay','Delay',12,55,1,28,'ms'),control('width','Width',0,1,.01,.7,'%'),control('mix','Mix',0,1,.01,.18,'%'),control('tone','Tone',1400,12000,100,7000,'Hz')])
+  control('delay','Delay',12,55,1,28,'ms'),control('width','Width',0,1,.01,.7,'%'),control('mix','Mix',0,1,.01,.18,'%'),control('tone','Tone',1400,12000,100,7000,'Hz'),{key:'detune',name:'Detune',min:0,max:1,step:0.01,default:0,unit:'%'}])
 };
 export const HARDI_VOCAL_PRESETS={
  hardivoice:[['Clarté R&B',{highpass:90,body:.5,presence:1.5,air:2,mix:.85}],['Chant intime',{highpass:70,body:1.5,presence:0,air:.5,mix:.7}],['Pop scintillante',{highpass:110,body:-1,presence:2,air:3,mix:.75}]],

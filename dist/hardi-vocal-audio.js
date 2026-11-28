@@ -28,7 +28,9 @@ export function createHardiVocalEffects(ctx,scope,types=null){
    for(const sign of [-1,1]){
     const delay=node('createDelay',.12),tone=node('createBiquadFilter'),pan=node('createStereoPanner');
     tone.type='lowpass';m.input.connect(delay);delay.connect(tone);tone.connect(pan);pan.connect(wetSum);
-    m.voices.push({delay,tone,pan,sign});
+    // Detune: a slow LFO moves each delay in opposite directions (0 = static, original sound).
+    const lfo=node('createOscillator'),depth=node('createGain');lfo.frequency.value=sign>0?.43:.37;depth.gain.value=0;lfo.connect(depth);depth.connect(delay.delayTime);lfo.start(0);scope.oscillators?.push(lfo);
+    m.voices.push({delay,tone,pan,sign,lfo,depth});
    }
   }
   if(id==='hardivoice')m.bindings={highpass:[m.hp.frequency],body:[m.body.gain],presence:[m.presence.gain],air:[m.air.gain],mix:[[m.dry.gain,x=>1-x],m.wet.gain]};
@@ -60,5 +62,6 @@ export function syncHardiVocalEffect(id,m,s,now=0,initial=false){
   set(v.delay.delayTime,(s.delay+v.sign*2)/1000);
   set(v.tone.frequency,Math.min(s.tone,m.input.context.sampleRate*.45));
   set(v.pan.pan,v.sign*s.width);
+  set(v.depth.gain,s.enabled===false?0:(s.detune??0)*.0025*v.sign);
  }
 }

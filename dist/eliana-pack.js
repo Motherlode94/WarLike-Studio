@@ -7,7 +7,7 @@ export const ELIANA_EFFECTS={
  elianaembrace:fx('ELIANA EMBRACE','GENTLE LEVELING','Compression musicale discrète à attaque souple, pour garder la respiration des voix.',[
  c('threshold','Threshold',-36,-4,.5,-19,'dB'),c('ratio','Ratio',1,4,.1,1.7,':1'),c('attack','Attack',5,80,1,32,'ms'),c('release','Release',80,650,10,240,'ms'),c('mix','Parallel',0,1,.01,.45,'%'),c('output','Trim',-6,6,.25,0,'dB')]),
  eliananest:fx('ELIANA NEST','TENDER ROOM','Petite chambre feutrée à échos courts et filtrés, pour envelopper sans noyer.',[
- c('size','Room size',25,125,1,70,'ms'),c('feedback','Decay',0,.48,.01,.2,'%'),c('tone','Tone',700,10000,100,3800,'Hz'),c('mix','Mix',0,.5,.01,.13,'%')]),
+ c('size','Room size',25,125,1,70,'ms'),c('feedback','Decay',0,.48,.01,.2,'%'),c('tone','Tone',700,10000,100,3800,'Hz'),c('mix','Mix',0,.5,.01,.13,'%'),{key:'lowcut',name:'Low cut',min:20,max:600,step:5,default:20,unit:'Hz'}]),
  elianaguard:fx('ELIANA GUARD','LINKED PEAK GUARD','Compression parallèle suivie d’un limiteur stéréo à anticipation. Ceiling fixe le plafond des échantillons, y compris à Mix zéro ; bypass désactive toute la protection. Mesure true-peak non revendiquée.',[
  c('threshold','Threshold',-18,-1,.25,-6,'dB'),c('ratio','Ratio',2,15,.5,8,':1'),c('attack','Attack',1,15,1,3,'ms'),c('release','Release',40,350,10,130,'ms'),c('mix','Comp mix',0,1,.01,1,'%'),c('ceiling','Ceiling',-6,-.1,.25,-1,'dB')])
 };

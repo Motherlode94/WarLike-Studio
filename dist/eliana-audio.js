@@ -28,7 +28,7 @@ export function createElianaEffects(ctx,scope,types=null){
    // Stable filtered delay feedback with decay strictly below unity.
    m.delay=node('createDelay',.4);m.feedback=node('createGain');m.tone=node('createBiquadFilter');
    m.tone.type='lowpass';m.delay.connect(m.tone);m.tone.connect(m.feedback);
-   m.feedback.connect(m.delay);m.input.connect(m.delay);m.tone.connect(m.wet);
+   m.feedback.connect(m.delay);m.input.connect(m.delay);m.lowcut=node('createBiquadFilter');m.lowcut.type='highpass';m.lowcut.frequency.value=0;m.lowcut.Q.value=Math.SQRT1_2;m.tone.connect(m.lowcut);m.lowcut.connect(m.wet);
   }
   if(id==='elianaveil')m.bindings={lowcut:[m.hp.frequency],warmth:[m.low.gain],air:[m.high.gain],mix:[[m.dry.gain,x=>1-x],m.wet.gain]};
   if(id==='eliananest')m.bindings={size:[[m.delay.delayTime,x=>x/1000]],feedback:[m.feedback.gain],tone:[m.tone.frequency],mix:[[m.dry.gain,x=>1-x],m.wet.gain]};
@@ -51,5 +51,6 @@ export function syncElianaEffect(id,m,s,now=0,initial=false){
  if(id==='eliananest'){
   set(m.delay.delayTime,s.size/1000);set(m.feedback.gain,s.enabled===false?0:s.feedback);
   set(m.tone.frequency,Math.min(s.tone,m.input.context.sampleRate*.45));
+  set(m.lowcut.frequency,(s.lowcut??20)<=20?0:s.lowcut);
  }
 }

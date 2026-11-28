@@ -61,7 +61,7 @@ export function createHardiEffects(ctx,scope,types=null){
   if(id==='hardibus'){m.dryDelay=node('createDelay',.1);m.dryDelay.delayTime.value=dynamicsLatency(ctx.sampleRate);m.input.connect(m.dryDelay);m.dryDelay.connect(m.dry);}else m.input.connect(m.dry);m.dry.connect(m.level);m.wet.connect(m.level);m.level.connect(m.output);
   if(id==='harditilt'){
    m.low=node('createBiquadFilter');m.high=node('createBiquadFilter');
-   m.low.type='lowshelf';m.high.type='highshelf';m.input.connect(m.low);m.low.connect(m.high);m.high.connect(m.wet);
+   m.low.type='lowshelf';m.high.type='highshelf';m.lowcut=node('createBiquadFilter');m.lowcut.type='highpass';m.lowcut.frequency.value=0;m.lowcut.Q.value=Math.SQRT1_2;m.highcut=node('createBiquadFilter');m.highcut.type='lowpass';m.highcut.frequency.value=ctx.sampleRate/2;m.highcut.Q.value=Math.SQRT1_2;m.input.connect(m.lowcut);m.lowcut.connect(m.low);m.low.connect(m.high);m.high.connect(m.highcut);m.highcut.connect(m.wet);
   }else if(id==='hardibus'){
    m.comp=createCompressor(ctx,scope);m.input.connect(m.comp);m.comp.connect(m.wet);
    m.bindings={threshold:[m.comp.threshold],ratio:[m.comp.ratio],attack:[[m.comp.attack,x=>x/1000]],release:[[m.comp.release,x=>x/1000]],mix:[[m.dry.gain,x=>1-x],m.wet.gain],output:[[m.level.gain,db,true]]};
@@ -72,7 +72,7 @@ export function createHardiEffects(ctx,scope,types=null){
    m.ll.connect(m.merge,0,0);m.rl.connect(m.merge,0,0);m.lr.connect(m.merge,0,1);m.rr.connect(m.merge,0,1);m.merge.connect(m.wet);
   }else if(id==='harditape'){
    m.drive=node('createGain');m.shape=node('createWaveShaper');m.shape.oversample='2x';m.tone=node('createBiquadFilter');
-   m.tone.type='lowpass';m.input.connect(m.drive);m.drive.connect(m.shape);m.shape.connect(m.tone);m.tone.connect(m.wet);
+   m.tone.type='lowpass';m.bump=node('createBiquadFilter');m.bump.type='lowshelf';m.bump.frequency.value=90;m.bump.gain.value=0;m.input.connect(m.drive);m.drive.connect(m.shape);m.shape.connect(m.tone);m.tone.connect(m.bump);m.bump.connect(m.wet);
   }
   if(id==='harditilt')m.bindings={pivot:[m.low.frequency,m.high.frequency],tilt:[[m.low.gain,x=>-x],m.high.gain]};
   if(id==='hardistage')m.bindings={width:[[m.ll.gain,x=>(1+x)/2],[m.rr.gain,x=>(1+x)/2],[m.lr.gain,x=>(1-x)/2],[m.rl.gain,x=>(1-x)/2]]};
@@ -86,11 +86,12 @@ export function syncHardiEffect(id,m,s,now=0,initial=false){
  const set=(n,v)=>initial?n.setValueAtTime(v,now):n.setTargetAtTime(v,now,.02);
  const mix=s.enabled===false?0:s.mix;
  set(m.dry.gain,1-mix);set(m.wet.gain,mix);set(m.level.gain,db(s.output));
- if(id==='harditilt'){set(m.low.frequency,s.pivot);set(m.high.frequency,s.pivot);set(m.low.gain,-s.tilt);set(m.high.gain,s.tilt);}
+ if(id==='harditilt'){set(m.low.frequency,s.pivot);set(m.high.frequency,s.pivot);set(m.low.gain,-s.tilt);set(m.high.gain,s.tilt);set(m.lowcut.frequency,(s.lowcut??20)<=20?0:s.lowcut);set(m.highcut.frequency,(s.highcut??20000)>=19950?m.input.context.sampleRate/2:s.highcut);}
  if(id==='hardibus'){set(m.comp.threshold,s.threshold);set(m.comp.ratio,s.ratio);set(m.comp.attack,s.attack/1000);set(m.comp.release,s.release/1000);set(m.comp.knee,6);}
  if(id==='hardistage'){
   // L=(1+w)/2*L+(1-w)/2*R, R=(1-w)/2*L+(1+w)/2*R
-  const a=(1+s.width)/2,b=(1-s.width)/2;set(m.ll.gain,a);set(m.rr.gain,a);set(m.lr.gain,b);set(m.rl.gain,b);
+  // Balance attenuates the opposite side only (0 = centre, exact identity).
+  const a=(1+s.width)/2,b=(1-s.width)/2,bal=s.balance??0,gl=bal>0?1-bal:1,gr=bal<0?1+bal:1;set(m.ll.gain,a*gl);set(m.rl.gain,b*gl);set(m.rr.gain,a*gr);set(m.lr.gain,b*gr);
  }
- if(id==='harditape'){set(m.drive.gain,db(s.drive));m.shape.curve=shaper(s.drive/18);set(m.tone.frequency,Math.min(m.input.context.sampleRate*.45,s.tone));}
+ if(id==='harditape'){set(m.drive.gain,db(s.drive));m.shape.curve=shaper(s.drive/18);set(m.tone.frequency,Math.min(m.input.context.sampleRate*.45,s.tone));set(m.bump.gain,s.bump??0);}
 }

@@ -22,13 +22,13 @@ export const EFFECT_PACKS={
   motion:{name:'Motion & Color',label:'CREATIVE / EFFECTS',color:'#cd9a7d',description:'Du grain, de la largeur et du mouvement pour les voix, instruments et batteries.',modules:['ember','orbit','sway','relay','tilteq','notch','slap','phase','ring']}
 };
 export const PACK_EFFECTS={
-  phase:{name:'PHASE',subtitle:'FOUR STAGE PHASER',pack:'motion',color:'#b7a6df',defaultEnabled:false,description:'Quatre filtres all-pass balayés par un LFO créent des creux mobiles au mélange avec le signal sec. Vitesse libre en Hz, sans synchronisation au transport.',controls:[{key:'rate',name:'Rate',min:.05,max:5,step:.05,default:.3,unit:'Hz'},{key:'frequency',name:'Center',min:100,max:2000,step:10,default:600,unit:'Hz'},{key:'depth',name:'Depth',min:0,max:1,step:.01,default:.6,unit:'%'},{key:'mix',name:'Mix',min:0,max:1,step:.01,default:.5,unit:'%'}]},
-  ring:{name:'RING',subtitle:'RING MODULATOR',pack:'motion',color:'#dfb278',defaultEnabled:false,description:'Multiplie le signal par une sinusoïde pour des timbres métalliques et des bandes latérales. Carrier règle la fréquence porteuse ; Mix conserve le son original.',controls:[{key:'frequency',name:'Carrier',min:20,max:1200,step:1,default:80,unit:'Hz'},{key:'mix',name:'Mix',min:0,max:1,step:.01,default:.25,unit:'%'},{key:'output',name:'FX Output',min:-18,max:6,step:.5,default:0,unit:'dB'}]},
+  phase:{name:'PHASE',subtitle:'FOUR STAGE PHASER',pack:'motion',color:'#b7a6df',defaultEnabled:false,description:'Quatre filtres all-pass balayés par un LFO créent des creux mobiles au mélange avec le signal sec. Vitesse libre en Hz, sans synchronisation au transport.',controls:[{key:'rate',name:'Rate',min:.05,max:5,step:.05,default:.3,unit:'Hz'},{key:'frequency',name:'Center',min:100,max:2000,step:10,default:600,unit:'Hz'},{key:'depth',name:'Depth',min:0,max:1,step:.01,default:.6,unit:'%'},{key:'mix',name:'Mix',min:0,max:1,step:.01,default:.5,unit:'%'},{key:'resonance',name:'Resonance',min:0.2,max:4,step:0.05,default:0.7,unit:'Q'},{key:'output',name:'Output',min:-12,max:6,step:0.25,default:0,unit:'dB'}]},
+  ring:{name:'RING',subtitle:'RING MODULATOR',pack:'motion',color:'#dfb278',defaultEnabled:false,description:'Multiplie le signal par une sinusoïde pour des timbres métalliques et des bandes latérales. Carrier règle la fréquence porteuse ; Mix conserve le son original.',controls:[{key:'frequency',name:'Carrier',min:20,max:1200,step:1,default:80,unit:'Hz'},{key:'mix',name:'Mix',min:0,max:1,step:.01,default:.25,unit:'%'},{key:'output',name:'FX Output',min:-18,max:6,step:.5,default:0,unit:'dB'},{key:'tone',name:'Tone',min:1000,max:20000,step:50,default:20000,unit:'Hz'},{key:'shape',name:'Shape',min:0,max:2,step:1,default:0,unit:'shape'}]},
 
   hush:{name:'HUSH',subtitle:'SOFT GATE',pack:'vocal',color:'#88b8bf',defaultEnabled:false,description:'Atténue les passages sous le seuil avec une transition douce. Response règle la vitesse de l’enveloppe ; Range fixe l’atténuation maximale.',controls:[
     {key:'threshold',name:'Threshold',min:-70,max:-15,step:1,default:-45,unit:'dB'},
     {key:'range',name:'Range',min:0,max:60,step:1,default:30,unit:'dB'},
-    {key:'response',name:'Response',min:5,max:100,step:1,default:18,unit:'ms'}]},
+    {key:'response',name:'Response',min:5,max:100,step:1,default:18,unit:'ms'},{key:'keyFilter',name:'Key filter',min:20,max:2000,step:5,default:20,unit:'Hz'}]},
   sibil:{name:'SIBIL',subtitle:'DYNAMIC DE-ESSER',pack:'vocal',color:'#88b8bf',defaultEnabled:false,description:'Atténuation dynamique d’une bande aiguë : Frequency cible les sifflantes, Threshold déclenche le traitement, Range limite la réduction.',controls:[
     {key:'frequency',name:'Frequency',min:3000,max:10000,step:100,default:6500,unit:'Hz'},
     {key:'threshold',name:'Threshold',min:-48,max:-6,step:1,default:-24,unit:'dB'},
@@ -44,12 +44,12 @@ export const PACK_EFFECTS={
     {key:'rate',name:'Rate',min:.05,max:4,step:.05,default:.35,unit:'Hz'},
     {key:'depth',name:'Depth',min:0,max:1,step:.01,default:.35,unit:'%'},
     {key:'width',name:'Width',min:0,max:1,step:.01,default:1,unit:'%'},
-    {key:'mix',name:'Mix',min:0,max:1,step:.01,default:.3,unit:'%'}]},
+    {key:'mix',name:'Mix',min:0,max:1,step:.01,default:.3,unit:'%'},{key:'feedback',name:'Feedback',min:0,max:0.6,step:0.01,default:0,unit:'%'},{key:'delay',name:'Delay',min:5,max:30,step:0.5,default:16,unit:'ms'}]},
   sway:{name:'SWAY',subtitle:'TREMOLO / AUTOPAN',pack:'motion',color:'#a3b98c',defaultEnabled:false,description:'Mouvement de volume et de panoramique commandé par un LFO. Depth règle le tremolo et Pan depth son déplacement stéréo.',controls:[
     {key:'rate',name:'Rate',min:.1,max:12,step:.1,default:2,unit:'Hz'},
     {key:'depth',name:'Depth',min:0,max:1,step:.01,default:.5,unit:'%'},
     {key:'pan',name:'Pan depth',min:0,max:1,step:.01,default:.6,unit:'%'},
-    {key:'mix',name:'Mix',min:0,max:1,step:.01,default:1,unit:'%'}]},
+    {key:'mix',name:'Mix',min:0,max:1,step:.01,default:1,unit:'%'},{key:'shape',name:'Shape',min:0,max:2,step:1,default:0,unit:'shape'},{key:'output',name:'Output',min:-12,max:6,step:0.25,default:0,unit:'dB'}]},
   tilteq:{name:'TILT EQ',subtitle:'SPECTRAL BALANCE',pack:'motion',color:'#c6bc9a',defaultEnabled:false,description:'Balance les graves et aigus en sens opposés autour d’une fréquence pivot. Le gain global reste contrôlable.',controls:[
     {key:'tilt',name:'Tilt',min:-12,max:12,step:.5,default:0,unit:'dB'},
     {key:'pivot',name:'Pivot',min:250,max:3000,step:25,default:1000,unit:'Hz'},
@@ -57,12 +57,12 @@ export const PACK_EFFECTS={
   notch:{name:'NOTCH',subtitle:'RESONANCE REMOVER',pack:'motion',color:'#99b0c5',defaultEnabled:false,description:'Coupe une résonance précise avec un filtre notch à fréquence et largeur réglables.',controls:[
     {key:'frequency',name:'Frequency',min:40,max:12000,step:10,default:1200,unit:'Hz'},
     {key:'q',name:'Width (Q)',min:.25,max:24,step:.25,default:6,unit:'Q'},
-    {key:'mix',name:'Mix',min:0,max:1,step:.01,default:1,unit:'%'}]},
+    {key:'mix',name:'Mix',min:0,max:1,step:.01,default:1,unit:'%'},{key:'sweep',name:'Sweep rate',min:0.05,max:8,step:0.05,default:1,unit:'Hz'},{key:'sweepDepth',name:'Sweep depth',min:0,max:1,step:0.01,default:0,unit:'%'}]},
   slap:{name:'SLAP',subtitle:'SHORT DELAY',pack:'motion',color:'#a7c8b4',defaultEnabled:false,description:'Écho court pour doubler les voix, guitares et percussions sans samples externes.',controls:[
     {key:'time',name:'Time',min:30,max:240,step:1,default:95,unit:'ms'},
     {key:'feedback',name:'Feedback',min:0,max:.6,step:.01,default:.12,unit:'%'},
     {key:'tone',name:'Tone',min:800,max:14000,step:100,default:6500,unit:'Hz'},
-    {key:'mix',name:'Mix',min:0,max:.65,step:.01,default:.18,unit:'%'}]},
+    {key:'mix',name:'Mix',min:0,max:.65,step:.01,default:.18,unit:'%'},{key:'lowcut',name:'Low cut',min:20,max:1000,step:5,default:20,unit:'Hz'}]},
   relay:{name:'RELAY',subtitle:'DUAL TEMPO ECHO',pack:'motion',color:'#d2b47f',defaultEnabled:false,description:'Deux retards croisés gauche/droite, avec répétitions filtrées. Time est un multiple de la noire ; le côté droit dure 1,5 fois le gauche.',controls:[
     {key:'beats',name:'Time',min:.125,max:2,step:.125,default:.5,unit:'beat'},
     {key:'feedback',name:'Feedback',min:0,max:.7,step:.01,default:.35,unit:'%'},

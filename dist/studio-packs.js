@@ -12,9 +12,9 @@ export const STUDIO_PACKS={
 const def=(name,subtitle,pack,description,controls)=>({name,subtitle,pack,color:STUDIO_PACKS[pack].color,defaultEnabled:false,description,controls});
 export const STUDIO_EFFECTS={
  voxshift:def('VOX SHIFT','GRANULAR PITCH SHIFTER','voicefx','Transposition monophonique stéréo à grains croisés. Conserve la durée ; les formants ne sont pas garantis. Pour effets rap aigus/graves et doublages.',[
-  c('semitones','Transposition',-12,12,.5,4,'st'),c('mix','Mix',0,1,.01,1,'%')]),
+  c('semitones','Transposition',-12,12,.5,4,'st'),c('mix','Mix',0,1,.01,1,'%'),{key:'tone',name:'Tone',min:1500,max:20000,step:50,default:20000,unit:'Hz'},{key:'output',name:'Output',min:-12,max:6,step:0.25,default:0,unit:'dB'}]),
  voxformant:def('VOX FORMANT COLOR','VOCAL RESONANCE COLOR','voicefx','Coloration de la résonance vocale par filtre de présence et deux résonateurs ajustables. Ne prétend pas isoler ni décaler les vrais formants du locuteur.',[
-  c('shift','Couleur formant',-6,6,.5,3,'st'),c('brightness','Clarté',-9,9,.5,2),c('mix','Mix',0,1,.01,.75,'%')]),
+  c('shift','Couleur formant',-6,6,.5,3,'st'),c('brightness','Clarté',-9,9,.5,2),c('mix','Mix',0,1,.01,.75,'%'),{key:'output',name:'Output',min:-12,max:6,step:0.25,default:0,unit:'dB'}]),
  voxaireq:def('VOX AIR EQ','AIR / PRESENCE EQ','voxpro','Coupe-bas, présence paramétrique et shelf air. Traitement minimum-phase Web Audio avec bypass lissé.',[
   c('highpass','Coupe-bas',30,350,5,80,'Hz'),c('presenceFreq','Fréq présence',1000,8000,100,3500,'Hz'),c('presence','Présence',-9,9,.5,1.5),
   c('airFreq','Fréq air',6000,18000,100,12000,'Hz'),c('air','Air',-9,9,.5,2),c('mix','Mix',0,1,.01,1,'%'),c('output','Sortie',-12,12,.5,0)]),
