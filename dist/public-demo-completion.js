@@ -6,9 +6,9 @@ import {applyNativeChain} from './native-vocal-chains.js';
 const uid=()=>globalThis.crypto?.randomUUID?.().replaceAll('-','')||Math.random().toString(36).slice(2,12);
 const roles=[
  {role:'lead',name:'DEMO LEAD · VOIX SYNTHÉTIQUE',volume:-18,pan:0,vowel:1,
-  chain:[{id:'voxclean',params:{highpass:90,range:4}},{id:'voxlevel',params:{ratio:2.4,levelThreshold:-24,mix:.8}},{id:'sibil',params:{threshold:-24}}]},
+  chain:[{id:'voxclean',params:{highpass:90,range:4}},{id:'voxlevel',params:{ratio:2.4,levelThreshold:-24,mix:.8,output:6}},{id:'sibil',params:{threshold:-24}}]},
  {role:'backs',name:'DEMO HARMONIES · VOIX SYNTHÉTIQUE',volume:-25,pan:-.22,vowel:2,
-  chain:[{id:'voxclean',params:{highpass:120,range:3}},{id:'voxlevel',params:{ratio:2,levelThreshold:-23,mix:.7}},{id:'voxdoubler',params:{mix:.17}}]},
+  chain:[{id:'voxclean',params:{highpass:120,range:3}},{id:'voxlevel',params:{ratio:2,levelThreshold:-23,mix:.7,output:3}},{id:'voxdoubler',params:{mix:.17}}]},
  {role:'adlibs',name:'DEMO RÉPONSES · VOIX SYNTHÉTIQUE',volume:-27,pan:.24,vowel:3,
   chain:[{id:'voxclean',params:{highpass:145,range:3}},{id:'alterecho',params:{mix:.18,feedback:.22}}]}
 ];

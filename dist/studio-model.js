@@ -1,4 +1,4 @@
-import {limiterLatency} from './vector-limit-dsp.js';
+import {dynamicsLatency} from './dynamics-timing.js';
 import {fadeShape} from './clip-tools.js?v=0.14.0';
 // Session, routing and audio playlists. Musical note creation is intentionally unchanged.
 export const MAX_BARS=2048;
@@ -20,7 +20,10 @@ export function audibleIds(tracks){
   const solos=tracks.filter(t=>t.solo);if(!solos.length)return new Set(tracks.map(t=>t.id));
   const set=new Set();for(const t of tracks)if(solos.some(s=>reaches(tracks,s.id,t.id)||reaches(tracks,t.id,s.id)))set.add(t.id);return set;
 }
-export function trackLatency(track,rate=48000){return (track.inserts||[]).reduce((sum,id)=>sum+(id&&track.effects?.[id]?.enabled&&(id.split('__')[0]==='vectorlimit'?limiterLatency(rate):['glue','exostrip','circuitbus','vectorcomp'].includes(id.split('__')[0])?.006:id.split('__')[0]==='voxlevel'?.012:id.split('__')[0]==='voxtune'?.04:0)),0);}
+export function trackLatency(track,rate=48000){return (track.inserts||[]).reduce((sum,id)=>{
+ if(!id||!track.effects?.[id]?.enabled)return sum;
+ const type=id.split('__')[0];return sum+(['glue','circuitbus','vectorcomp','vectorlimit'].includes(type)?dynamicsLatency(rate):type==='voxlevel'?dynamicsLatency(rate,2):type==='exostrip'?.006:type==='voxtune'?.04:0);
+},0);}
 export function compensationDelays(tracks,rate=48000){
   const incoming=id=>tracks.filter(t=>edges(t).includes(id)),memo=new Map();
   const arrival=(t,seen=new Set())=>{if(memo.has(t.id))return memo.get(t.id);if(seen.has(t.id))return 0;const next=new Set([...seen,t.id]);const value=(t.type==='bus'?Math.max(0,...incoming(t.id).map(s=>arrival(s,next))):0)+trackLatency(t,rate);memo.set(t.id,value);return value;};

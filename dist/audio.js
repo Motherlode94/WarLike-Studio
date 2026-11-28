@@ -1,3 +1,5 @@
+import {createCompressor} from './compressor-audio.js';
+import {dynamicsLatency} from './dynamics-timing.js';
 import {SessionPreview} from './session-preview.js';
 import {expansionVoice} from './wl-expansion-voices.js';
 import {originsVoice} from './origins.js';
@@ -91,12 +93,12 @@ export class AudioEngine {
     this.sync(); return this.ctx;
   }
   disposeChannel(ch){
-    ch.pack?.dispose();for(const child of ch.instanceChannels?.values()||[])this.disposeChannel(child);
+    ch.compressor?.dispose();ch.pack?.dispose();for(const child of ch.instanceChannels?.values()||[])this.disposeChannel(child);
     for(const stage of Object.values(ch.stages||{}))for(const node of [stage.input,stage.output])try{node.disconnect();}catch{}
     for(const send of ch.sendNodes?.values()||[])for(const node of [send.gain,send.delay])try{node.disconnect();}catch{}
     for(const node of Object.values(ch))if(node&&typeof node.disconnect==='function')try{node.disconnect();}catch{}
   }
-  resetSession(){this.stop();this.stopPreview();this.patternMode=null;this.clipPreview=null;this.takePreview=null;this.exoPatternCache?.clear();if(this.graph){for(const ch of this.channels.values())this.disposeChannel(ch);this.channels.clear();const master=this.graph.mastering;if(master?.peakProcessor){master.drive.disconnect(master.peakProcessor.input);master.peakProcessor.dispose();master.peakProcessor=null;}this.graph.routeSignature=null;}}
+  resetSession(){this.stop();this.stopPreview();this.patternMode=null;this.clipPreview=null;this.takePreview=null;this.exoPatternCache?.clear();if(this.graph){for(const ch of this.channels.values())this.disposeChannel(ch);this.channels.clear();const master=this.graph.mastering;if(master?.press){master.pressInput.disconnect(master.press);master.press.dispose();master.press=null;}if(master?.peakProcessor){master.drive.disconnect(master.peakProcessor.input);master.peakProcessor.dispose();master.peakProcessor=null;}this.graph.routeSignature=null;}}
   voiceScope(ctx){const nodes=[],sources=[];let remaining=0;return {node(kind){const node=ctx[kind]();nodes.push(node);return node;},watch(source){if(sources.includes(source))return;sources.push(source);remaining++;source.addEventListener('ended',()=>{if(--remaining===0)for(const node of nodes)try{node.disconnect();}catch{}});}};}
   buildGraph(ctx,{captureId=null,preFader=false}={}) {
     normaliseRouting(this.getProject());
@@ -112,8 +114,8 @@ export class AudioEngine {
     const input=ctx.createGain(),filter=ctx.createBiquadFilter(),pan=ctx.createStereoPanner(),gain=ctx.createGain(),analyser=ctx.createAnalyser();
     const delay=ctx.createDelay(2),send=ctx.createGain(),feedback=ctx.createGain();
     const colorDry=ctx.createGain(),colorWet=ctx.createGain(),colorOut=ctx.createGain(),drive=ctx.createWaveShaper(),highpass=ctx.createBiquadFilter(),reverb=ctx.createConvolver(),space=ctx.createGain();
-    const eqLow=ctx.createBiquadFilter(),eqMid=ctx.createBiquadFilter(),eqHigh=ctx.createBiquadFilter(),compressor=ctx.createDynamicsCompressor(),compressDry=ctx.createGain(),compressWet=ctx.createGain(),compressDelay=ctx.createDelay(.1),makeup=ctx.createGain();
-    eqLow.type='lowshelf';eqLow.frequency.value=120;eqMid.type='peaking';eqMid.frequency.value=1500;eqMid.Q.value=.8;eqHigh.type='highshelf';eqHigh.frequency.value=8000;compressor.knee.value=6;
+    const eqLow=ctx.createBiquadFilter(),eqMid=ctx.createBiquadFilter(),eqHigh=ctx.createBiquadFilter(),compressor=null,compressDry=ctx.createGain(),compressWet=ctx.createGain(),compressDelay=ctx.createDelay(.1),makeup=ctx.createGain();
+    eqLow.type='lowshelf';eqLow.frequency.value=120;eqMid.type='peaking';eqMid.frequency.value=1500;eqMid.Q.value=.8;eqHigh.type='highshelf';eqHigh.frequency.value=8000;
     drive.oversample='2x';highpass.type='highpass';highpass.Q.value=.5;
     reverb.buffer=this.impulse(ctx);
     filter.type='lowpass'; filter.frequency.value=tr.tone??18000; filter.Q.value=.5;
@@ -121,7 +123,7 @@ export class AudioEngine {
     const pack=createPackProcessors(ctx,input,makeup,{detached:true,types:packTypes(tr)});
     const colorInput=ctx.createGain();colorInput.connect(drive);drive.connect(colorWet);colorWet.connect(colorOut);colorInput.connect(colorDry);colorDry.connect(colorOut);
     highpass.connect(filter);eqLow.connect(eqMid);eqMid.connect(eqHigh);
-    compInput.connect(compressor);compressor.connect(compressWet);compressWet.connect(makeup);compInput.connect(compressDelay);compressDelay.delayTime.value=.006;compressDelay.connect(compressDry);compressDry.connect(makeup);
+    compressWet.connect(makeup);compInput.connect(compressDelay);compressDelay.delayTime.value=dynamicsLatency(ctx.sampleRate);compressDelay.connect(compressDry);compressDry.connect(makeup);
     pan.connect(gain);gain.connect(analyser);
     const meterSplitter=master&&!(ctx instanceof OfflineAudioContext)?ctx.createChannelSplitter(2):null;
     const meterLeft=meterSplitter?ctx.createAnalyser():null,meterRight=meterSplitter?ctx.createAnalyser():null;
@@ -147,8 +149,13 @@ export class AudioEngine {
     for(const [node,key] of [[ch.eqLow,'low'],[ch.eqMid,'mid'],[ch.eqHigh,'high']])set(node.gain,e.prism.enabled?e.prism[key]:0);
     set(ch.eqLow.frequency,e.prism.lowFreq);set(ch.eqMid.frequency,e.prism.midFreq);set(ch.eqHigh.frequency,e.prism.highFreq);set(ch.eqMid.Q,e.prism.q);
     set(ch.colorWet.gain,e.color.enabled?e.color.mix:1);set(ch.colorDry.gain,e.color.enabled?1-e.color.mix:0);set(ch.colorOut.gain,dbGain(e.color.enabled?e.color.output:0));
-    set(ch.compressWet.gain,e.glue.enabled?e.glue.mix:1);set(ch.compressDry.gain,e.glue.enabled?1-e.glue.mix:0);set(ch.compressor.knee,e.glue.knee);
-    set(ch.compressor.threshold,e.glue.enabled?e.glue.threshold:0);set(ch.compressor.ratio,e.glue.enabled?e.glue.ratio:1);set(ch.compressor.attack,e.glue.attack/1000);set(ch.compressor.release,e.glue.release/1000);set(ch.makeup.gain,dbGain(e.glue.enabled?e.glue.makeup:0));
+    const needsCompressor=tr.inserts.includes('glue'),newCompressor=needsCompressor&&!ch.compressor;
+    if(newCompressor){ch.compressor=createCompressor(ch.input.context);ch.stages.glue.input.connect(ch.compressor);ch.compressor.connect(ch.compressWet);}
+    if(!needsCompressor&&ch.compressor){ch.stages.glue.input.disconnect(ch.compressor);ch.compressor.dispose();ch.compressor=null;}
+    set(ch.compressWet.gain,e.glue.enabled?e.glue.mix:1);set(ch.compressDry.gain,e.glue.enabled?1-e.glue.mix:0);
+    if(ch.compressor){const setComp=(param,value)=>initial||newCompressor?param.setValueAtTime(value,now):param.setTargetAtTime(value,now,.02);
+      setComp(ch.compressor.knee,e.glue.knee);setComp(ch.compressor.threshold,e.glue.threshold);setComp(ch.compressor.ratio,e.glue.ratio);setComp(ch.compressor.attack,e.glue.attack/1000);setComp(ch.compressor.release,e.glue.release/1000);}
+    set(ch.makeup.gain,dbGain(e.glue.enabled?e.glue.makeup:0));
     const types=packTypes(tr),packSignature=types.join(',');
     if(ch.packSignature!==packSignature){for(const id of Object.keys(ch.pack.modules))delete ch.stages[id];ch.pack.dispose();ch.pack=createPackProcessors(ch.input.context,ch.input,ch.makeup,{detached:true,types});Object.assign(ch.stages,ch.pack.modules);ch.packSignature=packSignature;ch.routeSignature=null;}
     for(const [id,child] of ch.instanceChannels)if(!tr.inserts.includes(id)){this.disposeChannel(child);ch.instanceChannels.delete(id);delete ch.stages[id];ch.routeSignature=null;}
@@ -279,7 +286,7 @@ export class AudioEngine {
     const p=this.getPlaybackProject(),sd=60/p.bpm/4;
     for(const tr of p.tracks)for(const originalClip of tr.clips) {
       const clip=resolvePatternClip(p,tr,originalClip);
-      if(clip.muted||tr.id===this.recordingTrackId)continue;
+      if((!live&&tr.mute)||clip.muted||tr.id===this.recordingTrackId)continue;
       const rel=step-clip.start*16;
       const input=channels.get(tr.id)?.input;if(!input)continue;
       if(clip.audioId){
@@ -371,7 +378,7 @@ export class AudioEngine {
     const ctx=new OfflineAudioContext(2,Math.ceil(duration*sampleRate),sampleRate);await renderer.prepareInstruments(ctx,p);await prepareStudioContext(ctx);const graph=renderer.buildGraph(ctx,{captureId,preFader});
     for(const tr of p.tracks)for(const clip of tr.clips)if(clip.audioId&&!clip.muted&&clip.start*16<start&&(clip.start+clip.length)*16>start){const a=getAssets().get(clip.audioId);if(a)renderer.audioVoice(ctx,graph.channels.get(tr.id).input,a.buffer,.01,(clip.sourceOffset||0)+(start-clip.start*16)*sd,Math.min((clip.start+clip.length)*16-start,end-start)*sd,false,clip.gainDb,clip.id,{...clip,total:clip.length*16*sd,elapsed:(start-clip.start*16)*sd});}
     renderer.scheduleAutomation(ctx,graph,startBar,endBar,.01);
-    try{const buffer=await renderScheduled(ctx,{start,end,stepSeconds:sd,signal,schedule:i=>renderer.scheduleStep(ctx,graph.channels,i,.01+(i-start)*sd,false,.01)});signal?.throwIfAborted();return buffer;}finally{for(const ch of graph.channels.values())renderer.disposeChannel(ch);for(const split of graph.mastering.splitNodes.values())split.dispose();for(const stage of graph.mastering.effects.values())stage.dispose();graph.mastering.peakProcessor?.dispose();}
+    try{const buffer=await renderScheduled(ctx,{start,end,stepSeconds:sd,signal,schedule:i=>renderer.scheduleStep(ctx,graph.channels,i,.01+(i-start)*sd,false,.01)});signal?.throwIfAborted();return buffer;}finally{for(const ch of graph.channels.values())renderer.disposeChannel(ch);for(const split of graph.mastering.splitNodes.values())split.dispose();for(const stage of graph.mastering.effects.values())stage.dispose();graph.mastering.peakProcessor?.dispose();graph.mastering.press?.dispose();}
   }
   async exportWav(options={}){
     const buffer=await this.renderRange(options);

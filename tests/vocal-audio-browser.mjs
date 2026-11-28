@@ -30,7 +30,7 @@ try{
   assert.equal(r.assets,3);assert.ok(r.input.every(s=>s.rms>.02&&s.peak<.95),r.kind+' silent/clipped recording');
   assert.ok(r.verse.rms>.006&&r.chorus.rms>.006,r.kind+' inaudible verse/chorus through WarLike FX');
   assert.ok(r.mix.peak<1&&r.mix.rms>.006,r.kind+' clipped/silent full mix');
-  assert.ok(r.vocalToBacking>.15,r.kind+' lead buried below instruments: '+r.vocalToBacking);
+  assert.ok(r.vocalToBacking>.35,r.kind+' lead buried below instruments: '+r.vocalToBacking);
  }
  await writeFile(output+'/audio-measurements.json',JSON.stringify({details},null,2));
  // Exercise the real public buttons (including the ordinary non-VOX demos),

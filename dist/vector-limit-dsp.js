@@ -1,6 +1,7 @@
 // Adapted from Signalsmith Basics / Geraint Luff (MIT).
 // See licenses/signalsmith-limiter.txt. One stereo-linked, sample-peak engine.
-export const limiterLatency = rate => Math.ceil(rate * .006) / rate;
+import {dynamicsFrames,dynamicsLatency} from './dynamics-timing.js';
+export const limiterLatency = dynamicsLatency;
 
 class BoxAverage {
  constructor(length) { this.values = new Float64Array(length).fill(1); this.index = 0; this.oldSum = length; this.newSum = 0; }
@@ -15,7 +16,7 @@ class BoxAverage {
 
 export class VectorLimiter {
  constructor(rate) {
-  this.rate = rate; this.delayFrames = Math.ceil(rate * .006);
+  this.rate = rate; this.delayFrames = dynamicsFrames(rate);
   const split = Math.round(this.delayFrames * .5822419);
   this.first = new BoxAverage(split + 1); this.second = new BoxAverage(this.delayFrames - split + 1);
   this.window = this.delayFrames + Math.ceil(rate * .003) + 1;

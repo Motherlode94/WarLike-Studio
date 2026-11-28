@@ -15,7 +15,7 @@ export function routeVocalFX(p){
  const defs=[
  ['verb','VOX REVERB',{id:'exospace',params:{decay:profile.decay,predelay:20,mix:1}}],
  ['delay','VOX DELAY',{id:'alterecho',params:{beats:profile.beats,feedback:profile.feedback,mix:1}}],
- ['parallel','VOX PARALLEL COMP',{id:'vectorcomp',params:{threshold:-28,ratio:8,attack:8,release:120,mix:1}}]
+ ['parallel','VOX PARALLEL COMP',{id:'vectorcomp',params:{threshold:-28,ratio:8,attack:8,release:120,mix:1,output:12}}]
  ];
  for(const [role,name,fx] of defs){
   let id='demofx'+role;for(let n=2;ids.has(id);n++)id='demofx'+role+n;ids.add(id);

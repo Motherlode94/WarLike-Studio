@@ -1,0 +1,31 @@
+name: Studio compressor DSP
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run build
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install chromium
+      - name: Transfer, time constants, channel layout, automation and actual WAV
+        run: node tests/compressor-dsp-browser.mjs
+      - name: Measured compressor evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: studio-compressor-dsp
+          path: artifacts/compressor-dsp/
+          if-no-files-found: warn

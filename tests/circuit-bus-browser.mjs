@@ -14,9 +14,9 @@ try{
  const master=page.locator('#masteringView .circuit-bus-hardware');await master.waitFor();assert.equal(await master.locator('[data-master-param]').count(),7);
  await page.screenshot({path:'artifacts/circuit-bus/master.png'});
  const measured=await page.evaluate(async()=>{
-  const {createStudioEffects}=await import('/studio-pack-audio.js');const {mountCircuitBus,updateCircuitBusFaces}=await import('/circuit-bus-face.js');
+  const {prepareStudioContext,createStudioEffects}=await import('/studio-pack-audio.js');const {mountCircuitBus,updateCircuitBusFaces}=await import('/circuit-bus-face.js');
   const ctx=new AudioContext();await ctx.resume();const scope={nodes:[],oscillators:[],node(kind,...args){const n=ctx[kind](...args);this.nodes.push(n);return n;}};
-  const stage=createStudioEffects(ctx,scope,['circuitbus']).circuitbus;stage.comp.threshold.value=-30;stage.comp.ratio.value=8;stage.comp.attack.value=.001;stage.comp.release.value=.1;stage.wet.gain.value=1;stage.dry.gain.value=0;
+  await prepareStudioContext(ctx);const stage=createStudioEffects(ctx,scope,['circuitbus']).circuitbus;stage.comp.threshold.value=-30;stage.comp.ratio.value=8;stage.comp.attack.value=.001;stage.comp.release.value=.1;stage.wet.gain.value=1;stage.dry.gain.value=0;
   const tone=ctx.createOscillator(),mute=ctx.createGain();mute.gain.value=0;tone.connect(stage.input);stage.output.connect(mute);mute.connect(ctx.destination);
   const root=document.createElement('div');root.innerHTML='<div class="plugin-window-params">'+['threshold','ratio','knee','attack','release','mix','output'].map(k=>'<div class="param"><input data-param="circuitbus.'+k+'"></div>').join('')+'</div>';document.body.append(root);
   const state={enabled:true,mix:.35};mountCircuitBus(root,{state:()=>state,getReduction:()=>stage.comp.reduction});tone.start();await new Promise(r=>setTimeout(r,350));updateCircuitBusFaces(root);

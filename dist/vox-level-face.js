@@ -1,4 +1,4 @@
-// Two separate readings from the native serial compressor stages.
+// Two separate readings from the independent serial compressor stages.
 export const VOX_LEVEL_BANKS=Object.freeze([['01 · PEAK CONTROL',['peakThreshold']],['02 · PHRASE LEVEL',['levelThreshold','ratio','release']],['PARALLEL / OUTPUT',['mix','output']]]);
 export const voxReduction=db=>Math.max(0,Math.min(24,-(Number.isFinite(db)?db:0)));
 const entries=new WeakMap();

@@ -13,9 +13,9 @@ try{
  await page.locator('#mixerView .mixer-master .insert-slot.empty [data-insert-slot]').first().click();await page.locator('#pluginSearch').fill('VOX LEVEL');await page.locator('[data-picker-load="voxlevel"]').click();await page.locator('#modal').waitFor({state:'hidden'});
  const master=page.locator('#masteringView .vox-level-hardware');await master.waitFor();assert.equal(await master.locator('[data-master-param]').count(),6);
  const metrics=await page.evaluate(async()=>{
-  const {createStudioEffects}=await import('/studio-pack-audio.js');const {mountVoxLevel,updateVoxLevelFaces}=await import('/vox-level-face.js');
+  const {prepareStudioContext,createStudioEffects}=await import('/studio-pack-audio.js');const {mountVoxLevel,updateVoxLevelFaces}=await import('/vox-level-face.js');
   const ctx=new AudioContext();await ctx.resume();const scope={nodes:[],oscillators:[],node(kind,...args){const n=ctx[kind](...args);this.nodes.push(n);return n;}};
-  const stage=createStudioEffects(ctx,scope,['voxlevel']).voxlevel;
+  await prepareStudioContext(ctx);const stage=createStudioEffects(ctx,scope,['voxlevel']).voxlevel;
   stage.comp.threshold.value=-12;stage.comp.ratio.value=6;stage.comp.attack.value=.002;stage.comp.release.value=.08;stage.comp.knee.value=3;
   stage.second.threshold.value=-35;stage.second.ratio.value=4;stage.second.attack.value=.025;stage.second.release.value=.24;stage.second.knee.value=12;
   stage.wet.gain.value=1;stage.dry.gain.value=0;
