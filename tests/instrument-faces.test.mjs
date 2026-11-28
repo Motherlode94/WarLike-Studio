@@ -4,14 +4,14 @@ import {INSTRUMENTS,formatParam} from '../dist/plugins.js';
 import {INSTRUMENT_FACES,instrumentFace,planInstrumentBanks,instrumentReadout,instrumentHardwareIdentity,instrumentPerformanceDeck} from '../dist/instrument-face-model.js';
 import {expansionBanks} from '../dist/expansion-hardware-model.js';
 
-test('individual presentation covers all 42 instruments and exactly their 314 original parameters',()=>{
+test('individual presentation covers all 42 instruments and exactly their parameters (incl. Analog/Humanize)',()=>{
  assert.deepEqual(Object.keys(INSTRUMENT_FACES).sort(),Object.keys(INSTRUMENTS).sort());let count=0;
  for(const [id,def]of Object.entries(INSTRUMENTS)){
   const face=instrumentFace(id),keys=def.controls.map(c=>c.key),groups=face.banks.length?face.banks.map(b=>b.keys):expansionBanks(id).map(b=>b[1]);
   assert.ok(face.family&&face.material&&face.layout&&face.motif,id);assert.deepEqual(groups.flat().sort(),keys.slice().sort(),id);
   assert.equal(new Set(groups.flat()).size,keys.length,id+' duplicate controls');assert.equal(face.focus.length,2);assert.ok(face.focus.every(k=>keys.includes(k)),id+' invalid readout');count+=keys.length;
  }
- assert.equal(count,386);assert.ok(new Set(Object.values(INSTRUMENT_FACES).map(f=>f.layout)).size>=14);
+ assert.equal(count,392);assert.ok(new Set(Object.values(INSTRUMENT_FACES).map(f=>f.layout)).size>=14);
  assert.notEqual(instrumentFace('harp').layout,instrumentFace('flute').layout);
  assert.notDeepEqual(instrumentFace('wlsteel'),instrumentFace('wlcrunch'));
 });

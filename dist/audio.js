@@ -23,6 +23,7 @@ import {normaliseRouting,audibleIds,compensationDelays,routingLatency,fadeValue}
 import {bindings,automateParam} from './automation.js?v=0.14.0';
 import {READS_CURVES,holdKey} from './automation-modes.js';
 import {reaches} from './studio-model.js';
+import {noteVariance,hitVariance} from './humanize.js';
 import {encodeWav} from './wav.js?v=0.14.0';
 import {encodeWavBlob,writeWav} from './wav-export.js';
 import {createPackProcessors,syncPackProcessors} from './pack-audio.js?v=0.14.0';
@@ -340,12 +341,12 @@ export class AudioEngine {
       const phase=clip.patternOffset||0,period=clip.patternSteps||(tr.type==='drums'?16:32);
       if(tr.type==='drums'){
         const relative=rel+phase,event=Math.ceil(relative-1e-8),local=event-phase,eventTime=time+(event-relative)*sd;if(local<0||local>=clip.length*16||event>=relative+1-1e-8||eventTime<minimumTime-1e-8)continue;
-        const swing=event%2?p.swing/100*sd*.6:0;for(const [voice,pattern] of Object.entries(clip.pattern||{})){const velocity=pattern[((event%period)+period)%period];if(velocity)this.drum(ctx,input,voice,eventTime+swing,live,tr.instrument,velocity);}
+        const swing=event%2?p.swing/100*sd*.6:0;for(const [voice,pattern] of Object.entries(clip.pattern||{})){const velocity=pattern[((event%period)+period)%period];if(velocity)this.drum(ctx,input,voice,eventTime+swing,live,tr.instrument,velocity,{seed:tr.id,position:clip.start*16+local});}
       }else{
         let notes=clip.notes||[];if(tr.type==='exo'&&tr.instrument.arpMode){this.exoPatternCache??=new Map();const key=tr.id+':'+clip.id,signature=JSON.stringify([notes,period,tr.instrument.arpMode,tr.instrument.arpRate,tr.instrument.arpOctaves,tr.instrument.arpGate]);let cache=this.exoPatternCache.get(key);if(cache?.signature!==signature){cache={signature,notes:exoArpeggiate(notes,period,tr.instrument)};if(this.exoPatternCache.size>512)this.exoPatternCache.clear();this.exoPatternCache.set(key,cache);}notes=cache.notes;}
         for(const n of notes){if(n.muted||n.velocity===0)continue;const cycle=Math.ceil((rel+phase-n.step-1e-8)/period),local=n.step+cycle*period-phase,absolute=clip.start*16+local,eventTime=time+(absolute-step)*sd;
           if(local<0||local>=clip.length*16||absolute<step-1e-8||absolute>=step+1-1e-8||eventTime<minimumTime-1e-8)continue;
-          const swing=Math.floor(n.step)%2?p.swing/100*sd*.6:0;this.synth(ctx,input,tr.type,n.midi,eventTime+swing,Math.min(n.len,clip.length*16-local)*sd,live,tr.instrument,n.velocity??1,tr.sampler,n);
+          const swing=Math.floor(n.step)%2?p.swing/100*sd*.6:0;this.synth(ctx,input,tr.type,n.midi,eventTime+swing,Math.min(n.len,clip.length*16-local)*sd,live,tr.instrument,n.velocity??1,tr.sampler,n,{seed:tr.id,position:absolute});
         }
       }
     }
@@ -355,31 +356,36 @@ export class AudioEngine {
     if(!this.noiseCache.has(ctx)){const b=ctx.createBuffer(1,ctx.sampleRate,ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;this.noiseCache.set(ctx,b);}
     return this.noiseCache.get(ctx);
   }
-  drum(ctx,out,voice,t,live=false,params={},velocity=1) {
+  drum(ctx,out,voice,t,live=false,params={},velocity=1,at=null) {
     const scope=this.voiceScope(ctx),node=scope.node;
+    // PULSE synth kit: per-hit variance (level, pitch, decay), never cyclic. Recorded kits keep their own.
+    const hv=at&&!isRecordedDrumKit(params.kit||0)&&params.kit!==4?hitVariance(params.humanize??0,at.seed,voice,at.position):{gain:1,pitch:1,decay:1};
+    velocity*=hv.gain;
     if(params.kit===4)return playBaileDrum(ctx,out,voice,t,params,velocity,scope,()=>this.noise(ctx),live?o=>this.remember(o):null);
     if(isRecordedDrumKit(params.kit||0)){
       if(!this.recordedDrums)throw Error('Le kit de batterie acoustique n’est pas chargé. Relance la lecture ou vérifie le réseau.');
       playRecordedDrum(ctx,out,voice,Math.max(t,ctx.currentTime),params,velocity,this.recordedDrums,scope,live?src=>this.remember(src):null);
       return;
     }
-    if(velocity!==1){const level=node('createGain');level.gain.value=Math.max(0,Math.min(1,velocity));level.connect(out);out=level;}
+    if(velocity!==1){const level=node('createGain');level.gain.value=Math.max(0,Math.min(1.25,velocity));level.connect(out);out=level;}
     t=Math.max(t,ctx.currentTime);
-    const g=node('createGain');g.connect(out);
+    const g=node('createGain');g.connect(out);const P=hv.pitch,D=hv.decay;
     if(voice==='kick') {
-      const o=node('createOscillator');o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(43,t+.13);
-      const decay=params.decay??.38;g.gain.setValueAtTime(params.punch??.85,t);g.gain.exponentialRampToValueAtTime(.001,t+decay);o.connect(g);o.start(t);o.stop(t+decay+.02);scope.watch(o);if(live)this.remember(o);
+      const o=node('createOscillator');o.frequency.setValueAtTime(150*P,t);o.frequency.exponentialRampToValueAtTime(43*P,t+.13);
+      const decay=(params.decay??.38)*D;g.gain.setValueAtTime(params.punch??.85,t);g.gain.exponentialRampToValueAtTime(.001,t+decay);o.connect(g);o.start(t);o.stop(t+decay+.02);scope.watch(o);if(live)this.remember(o);
     } else if(voice==='tom'||voice==='rim'){
-      const o=node('createOscillator');o.type=voice==='rim'?'triangle':'sine';o.frequency.setValueAtTime(voice==='rim'?610:155,t);o.frequency.exponentialRampToValueAtTime(voice==='rim'?450:67,t+.07);g.gain.setValueAtTime(voice==='rim'?.2:.4,t);g.gain.exponentialRampToValueAtTime(.001,t+(voice==='rim'?.055:.3));o.connect(g);o.start(t);o.stop(t+.33);scope.watch(o);if(live)this.remember(o);
+      const o=node('createOscillator');o.type=voice==='rim'?'triangle':'sine';o.frequency.setValueAtTime((voice==='rim'?610:155)*P,t);o.frequency.exponentialRampToValueAtTime((voice==='rim'?450:67)*P,t+.07);g.gain.setValueAtTime(voice==='rim'?.2:.4,t);g.gain.exponentialRampToValueAtTime(.001,t+(voice==='rim'?.055:.3));o.connect(g);o.start(t);o.stop(t+.33);scope.watch(o);if(live)this.remember(o);
     } else {
-      const src=node('createBufferSource'),f=node('createBiquadFilter');src.buffer=this.noise(ctx);f.type=voice==='perc'?'bandpass':'highpass';f.frequency.value=voice==='clap'?1400:voice==='perc'?950:voice==='shaker'?4200:7500;f.Q.value=voice==='perc'?3:.7;src.connect(f);f.connect(g);
-      const duration=voice==='clap'?.19:voice==='open'?.3:voice==='shaker'?.1:voice==='perc'?.14:.055;
+      const src=node('createBufferSource'),f=node('createBiquadFilter');src.buffer=this.noise(ctx);f.type=voice==='perc'?'bandpass':'highpass';f.frequency.value=(voice==='clap'?1400:voice==='perc'?950:voice==='shaker'?4200:7500)*P;f.Q.value=voice==='perc'?3:.7;src.connect(f);f.connect(g);
+      const duration=(voice==='clap'?.19:voice==='open'?.3:voice==='shaker'?.1:voice==='perc'?.14:.055)*D;
       g.gain.setValueAtTime((voice==='clap'?.36:voice==='open'?.18:voice==='shaker'?.13:voice==='perc'?.3:.17)*(voice==='clap'?1:(params.hat??.75)/.75),t);g.gain.exponentialRampToValueAtTime(.001,t+duration);
       src.start(t);src.stop(t+duration+.01);scope.watch(src);if(live)this.remember(src);
       if(voice==='clap'){const o=node('createOscillator'),og=node('createGain');o.type='triangle';o.frequency.value=185;og.gain.setValueAtTime(.18,t);og.gain.exponentialRampToValueAtTime(.001,t+.1);o.connect(og);og.connect(out);o.start(t);o.stop(t+.11);scope.watch(o);if(live)this.remember(o);}
     }
   }
-  synth(ctx,out,type,midi,t,duration,live=false,params={},velocity=1,sampler=null,note={}) {
+  synth(ctx,out,type,midi,t,duration,live=false,params={},velocity=1,sampler=null,note={},at=null) {
+    // Base synths: ES2-style "Analog" per-note variance of pitch and level.
+    if(at&&['bass','keys','lead','pad','pluck'].includes(type)&&params.analog>0){const nv=noteVariance(params.analog,at.seed,at.position);midi+=nv.cents/100;velocity*=nv.gain;}
     if(type==='instrument')return;
     if(type==='sampler')return samplerVoice(ctx,out,this.getAssets().get(sampler?.assetId)?.buffer,midi,t,duration,sampler||{},params,velocity,live?o=>this.remember(o):null);
     if(ACOUSTIC_INSTRUMENTS[type]){if(velocity<=0)return;return acousticVoice(ctx,out,type,midi,t,duration,params,velocity,this.instrumentBanks?.get(type),live?o=>this.remember(o):null);}

@@ -23,27 +23,27 @@ export const INSTRUMENTS = {
     {key:'punch',name:'Punch',min:.2,max:1,step:.01,default:.85,unit:'%'},
     {key:'decay',name:'Decay',min:.1,max:.8,step:.01,default:.38,unit:'s'},
     {key:'hat',name:'Hi-hats',min:.1,max:1,step:.01,default:.75,unit:'%'},
-    {key:'kit',name:'Drum Kit (0 Synth / 1 Rock / 2 Pop / 3 Rumba / 4 Baile)',min:0,max:4,step:1,default:0,unit:'kit'}]},
+    {key:'kit',name:'Drum Kit (0 Synth / 1 Rock / 2 Pop / 3 Rumba / 4 Baile)',min:0,max:4,step:1,default:0,unit:'kit'},{key:'humanize',name:'Humanize',min:0,max:1,step:.01,default:0,unit:'%'}]},
   bass:{name:'MONO',subtitle:'808 SYNTHESIZER',color:'#b3acdf',description:'Sub oscillateur, attaque descendante et harmoniques réglables.',controls:[
     {key:'body',name:'Body',min:.1,max:1,step:.01,default:.6,unit:'%'},
     {key:'harmonics',name:'Harmonics',min:0,max:.5,step:.01,default:.08,unit:'%'},
-    {key:'release',name:'Release',min:.03,max:1,step:.01,default:.16,unit:'s'}]},
+    {key:'release',name:'Release',min:.03,max:1,step:.01,default:.16,unit:'s'},{key:'analog',name:'Analog',min:0,max:1,step:.01,default:0,unit:'%'}]},
   keys:{name:'VELVET',subtitle:'FM TINE KEYS',color:'#94b7aa',description:'Piano électrique FM : tines métalliques, attaque sensible à la vélocité et corps sinusoïdal.',controls:[
     {key:'attack',name:'Attack',min:.005,max:.6,step:.001,default:.018,unit:'s'},
     {key:'release',name:'Release',min:.05,max:2,step:.01,default:.5,unit:'s'},
-    {key:'detune',name:'Detune',min:0,max:25,step:.1,default:5,unit:'ct'}]},
+    {key:'detune',name:'Detune',min:0,max:25,step:.1,default:5,unit:'ct'},{key:'analog',name:'Analog',min:0,max:1,step:.01,default:0,unit:'%'}]},
   lead:{name:'NOVA',subtitle:'DUAL OSC LEAD',color:'#d0bd7d',description:'Dents de scie et impulsion désaccordées, filtre résonant et attaque de brillance.',controls:[
     {key:'cutoff',name:'Cutoff',min:200,max:12000,step:10,default:3200,unit:'Hz'},
     {key:'detune',name:'Detune',min:0,max:35,step:.1,default:8,unit:'ct'},
-    {key:'release',name:'Release',min:.04,max:1.2,step:.01,default:.18,unit:'s'}]},
+    {key:'release',name:'Release',min:.04,max:1.2,step:.01,default:.18,unit:'s'},{key:'analog',name:'Analog',min:0,max:1,step:.01,default:0,unit:'%'}]},
   pad:{name:'HALO',subtitle:'ATMOSPHERIC PAD',color:'#91afcb',description:'Ensemble stéréo à trois voix, filtre animé lentement et attaque progressive.',controls:[
     {key:'attack',name:'Attack',min:.05,max:2,step:.01,default:.45,unit:'s'},
     {key:'release',name:'Release',min:.2,max:4,step:.01,default:1.6,unit:'s'},
-    {key:'width',name:'Detune',min:0,max:35,step:.1,default:12,unit:'ct'}]},
+    {key:'width',name:'Detune',min:0,max:35,step:.1,default:12,unit:'ct'},{key:'analog',name:'Analog',min:0,max:1,step:.01,default:0,unit:'%'}]},
   pluck:{name:'STRING',subtitle:'PHYSICAL STRING',color:'#c194b3',description:'Corde pincée à retard fractionnaire : excitation bruitée, amortissement et résonance physique.',controls:[
     {key:'decay',name:'Decay',min:.04,max:1.5,step:.01,default:.3,unit:'s'},
     {key:'brightness',name:'Brightness',min:500,max:12000,step:10,default:5000,unit:'Hz'},
-    {key:'body',name:'Body',min:.05,max:.6,step:.01,default:.18,unit:'%'}]}
+    {key:'body',name:'Body',min:.05,max:.6,step:.01,default:.18,unit:'%'},{key:'analog',name:'Analog',min:0,max:1,step:.01,default:0,unit:'%'}]}
 };
 export const EFFECTS = {
   color:{name:'COLOR',subtitle:'SATURATION',controls:[{key:'drive',name:'Drive',min:0,max:1,step:.01,default:.12,unit:'%'},{key:'mix',name:'Mix',min:0,max:1,step:.01,default:1,unit:'%'},{key:'output',name:'Output',min:-18,max:6,step:.25,default:0,unit:'dB'},{key:'tone',name:'Tone',min:1500,max:20000,step:50,default:20000,unit:'Hz'}]},
@@ -146,3 +146,5 @@ export function nextPresetIndex(current,direction,count) {
   if(!Number.isInteger(current)||current<0||current>=count)return direction<0?count-1:0;
   return (current+(direction<0?-1:1)+count)%count;
 }
+// New tracks start with a human feel; saved projects keep their exact sound (default 0).
+export const NEW_TRACK_FEEL=Object.freeze({drums:{humanize:.35},bass:{analog:.3},keys:{analog:.3},lead:{analog:.3},pad:{analog:.3},pluck:{analog:.3}});

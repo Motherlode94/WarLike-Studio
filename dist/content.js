@@ -4,7 +4,7 @@ import {EXPANSION_INSTRUMENTS} from './wl-expansion.js';
 import {expandFactorySong} from './full-song.js';
 import {finishFactorySong,articulateLegacyFactorySong} from './factory-song-finish.js';
 import {createFactoryArrangement,FACTORY_STYLES as LEGACY_FACTORY_STYLES} from './factory-arrangements.js?v=0.14.0';
-import {INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins} from './plugins.js?v=0.14.0';
+import {INSTRUMENTS,EFFECTS,DRUM_VOICES,ensurePlugins,NEW_TRACK_FEEL} from './plugins.js?v=0.14.0';
 import {FACTORY_PRESETS,applyFactoryPreset} from './bundle.js?v=0.14.0';
 const id=()=>Math.random().toString(36).slice(2,11),copy=value=>JSON.parse(JSON.stringify(value));
 const pattern=hits=>Object.fromEntries(Object.keys(DRUM_VOICES).map(voice=>[voice,Array.from({length:16},(_,s)=>(hits[voice]||[]).includes(s)?1:0)]));
@@ -48,7 +48,7 @@ export const SESSION_TEMPLATES=[
 export function createContentTrack(type,presetIndex=0){
   const def=INSTRUMENTS[type];if(!def)throw new Error('Instrument inconnu.');
   const track={id:id(),name:def.name+(type==='bass'?' · 808':''),type,color:def.color,volume:({exo:-8,drums:-8,bass:-12,keys:-17,pad:-22,lead:-20,pluck:-18})[type]??-8,pan:0,mute:false,solo:false,clips:[]};
-  ensurePlugins(track);applyFactoryPreset(track,'instrument',presetIndex);return track;
+  ensurePlugins(track);applyFactoryPreset(track,'instrument',presetIndex);Object.assign(track.instrument,NEW_TRACK_FEEL[type]||{});return track;
 }
 export function createContentClip(type,name,start=0,length=2,grooveId='trap-night'){
   const clip={id:id(),name,start,length};

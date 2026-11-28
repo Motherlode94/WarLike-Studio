@@ -82,7 +82,7 @@ test('relative 808 slides survive normalization, transposition and scheduler han
  assert.equal(moved.midi,34);assert.equal(moved.slide,12);
  const p=createBeatDemoSession('drill'),t=p.tracks[1],events=[];
  p.tracks=[t];t.clips=[{start:0,length:4,patternSteps:64,notes:[moved]}];
- const e=new AudioEngine(()=>p,()=>new Map());e.synth=(...args)=>events.push(args.at(-1));
+ const e=new AudioEngine(()=>p,()=>new Map());e.synth=(...args)=>events.push(args[10]);
  e.scheduleStep({},new Map([[t.id,{input:{}}]]),2,0);
  assert.equal(events[0].slide,12);assert.equal(events[0].midi,34);
 });
