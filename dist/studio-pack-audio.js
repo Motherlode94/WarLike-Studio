@@ -1,3 +1,4 @@
+import {createVectorLimiter,syncVectorLimiter} from './vector-limit-audio.js';
 import {alterFilterRate} from './alter-filter-model.js';
 import {alterEchoSeconds,alterEchoCurve} from './alter-echo-model.js';
 import {alterDoubleVoice} from './alter-double-model.js';
@@ -11,7 +12,8 @@ import {createVoxBC,syncVoxBC} from './vox-bc-audio.js?v=0.14.0';
 const db=x=>10**(x/20),curve=fn=>Float32Array.from({length:4097},(_,i)=>fn(i/2048-1)),prepared=new WeakMap();
 export async function prepareStudioContext(ctx){if(!ctx.audioWorklet)return;if(!prepared.has(ctx)){const task=Promise.all([
  ctx.audioWorklet.addModule(new URL('./vocal-worklet.js?v=0.14.0',import.meta.url)),
- ctx.audioWorklet.addModule(new URL('./voice-shift-worklet.js',import.meta.url))
+ ctx.audioWorklet.addModule(new URL('./voice-shift-worklet.js',import.meta.url)),
+ ctx.audioWorklet.addModule(new URL('./vector-limit-worklet.js',import.meta.url))
  ]).catch(error=>{prepared.delete(ctx);throw error;});prepared.set(ctx,task);}await prepared.get(ctx);}
 export function createStudioEffects(ctx,scope,types=null){const modules={},node=(kind,...args)=>scope.node(kind,...args),join=(a,b)=>a.connect(b);
  for(const id of Object.keys(STUDIO_EFFECTS)){if(types&&!types.includes(id))continue;if(id==='voxaireq'||id==='voxambience'){modules[id]=createVoxBC(ctx,scope,id);continue;}const m=modules[id]={input:node('createGain'),output:node('createGain'),bindings:{}};
@@ -21,7 +23,7 @@ export function createStudioEffects(ctx,scope,types=null){const modules={},node=
   if(id==='alterdouble'){m.hp=node('createBiquadFilter');m.hp.type='highpass';m.hp.Q.value=.5;join(m.input,m.hp);m.dry=node('createGain');m.wet=node('createGain');join(m.input,m.dry);join(m.dry,m.output);join(m.wet,m.output);m.voices=[];for(const sign of [-1,1]){const delay=node('createDelay',.1),lfo=node('createOscillator'),depth=node('createGain'),pan=node('createStereoPanner');join(m.hp,delay);join(delay,pan);join(pan,m.wet);join(lfo,depth);depth.connect(delay.delayTime);lfo.start(0);scope.oscillators.push(lfo);m.voices.push({delay,lfo,depth,pan,sign});}m.bindings.focus=[m.hp.frequency];m.bindings.mix=[[m.dry.gain,x=>1-x], [m.wet.gain,x=>x*.5]];}
   if(id==='alterecho'){m.delay=node('createDelay',6);m.feedback=node('createGain');m.tone=node('createBiquadFilter');m.tone.type='lowpass';m.duck=node('createGain');m.duck.gain.value=0;m.wet=node('createGain');m.rect=node('createWaveShaper');m.rect.curve=curve(Math.abs);m.smooth=node('createBiquadFilter');m.smooth.type='lowpass';m.smooth.frequency.value=12;m.control=node('createWaveShaper');join(m.input,m.output);join(m.input,m.delay);join(m.delay,m.feedback);join(m.feedback,m.tone);join(m.tone,m.delay);join(m.delay,m.duck);join(m.duck,m.wet);join(m.wet,m.output);join(m.input,m.rect);join(m.rect,m.smooth);join(m.smooth,m.control);m.control.connect(m.duck.gain);m.monitor=node('createAnalyser');m.monitor.fftSize=256;m.control.connect(m.monitor);m.bindings={feedback:[m.feedback.gain],tone:[m.tone.frequency],mix:[m.wet.gain]};}
   if(id==='alterfilter'){m.filter=node('createBiquadFilter');m.filter.type='lowpass';m.lfo=node('createOscillator');m.depth=node('createGain');m.dry=node('createGain');m.wet=node('createGain');join(m.input,m.filter);join(m.filter,m.wet);join(m.input,m.dry);join(m.wet,m.output);join(m.dry,m.output);join(m.lfo,m.depth);m.depth.connect(m.filter.detune);m.lfo.start(0);scope.oscillators.push(m.lfo);m.bindings={cutoff:[m.filter.frequency],q:[m.filter.Q],depth:[m.depth.gain],mix:[[m.dry.gain,x=>1-x],m.wet.gain]};}
-  if(id==='vectorlimit'){m.drive=node('createGain');m.comp=node('createDynamicsCompressor');m.comp.knee.value=0;m.comp.ratio.value=20;m.comp.attack.value=0;m.scaleIn=node('createGain');m.guard=node('createWaveShaper');m.guard.curve=new Float32Array([-1,0,1]);m.scaleOut=node('createGain');join(m.input,m.drive);join(m.drive,m.comp);join(m.comp,m.scaleIn);join(m.scaleIn,m.guard);join(m.guard,m.scaleOut);join(m.scaleOut,m.output);m.bindings={drive:[[m.drive.gain,db,true]],release:[[m.comp.release,x=>x/1000]],ceiling:[m.comp.threshold,[m.scaleIn.gain,x=>1/db(x),true],[m.scaleOut.gain,db,true]]};}
+  if(id==='vectorlimit'){const limiter=createVectorLimiter(ctx,scope);join(m.input,limiter.input);join(limiter.output,m.output);Object.assign(m,{drive:limiter.drive,scaleOut:limiter.output,limiter,bindings:limiter.bindings});Object.defineProperty(m,'reduction',{get:()=>limiter.reduction});}
   if(id==='voxtune'){if(!ctx.audioWorklet||typeof AudioWorkletNode==='undefined')throw Error('VOX TUNE demande AudioWorklet et une connexion HTTPS.');m.pitch=new AudioWorkletNode(ctx,'warlike-vocal-pitch',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2],channelCount:2,channelCountMode:'explicit'});scope.nodes.push(m.pitch);join(m.input,m.pitch);join(m.pitch,m.output);m.bindings=Object.fromEntries([...m.pitch.parameters].map(([key,value])=>[key,[value]]));}
   if(id==='voxshift'){
    if(!ctx.audioWorklet||typeof AudioWorkletNode==='undefined')throw Error('VOX SHIFT demande AudioWorklet et une connexion HTTPS.');
@@ -73,7 +75,7 @@ export function syncStudioEffect(ctx,id,m,s,bpm,now,initial,inputChannels=1){con
  if(id==='alterdouble'){set(m.hp.frequency,s.focus);set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix*.5);for(const v of m.voices){const p=alterDoubleVoice(s,v.sign);set(v.delay.delayTime,p.delay);set(v.lfo.frequency,p.rate);set(v.depth.gain,p.depth);set(v.pan.pan,p.pan);}}
  if(id==='alterecho'){set(m.delay.delayTime,alterEchoSeconds(s.beats,bpm));set(m.feedback.gain,s.feedback);set(m.tone.frequency,s.tone);set(m.wet.gain,s.mix);m.control.curve=alterEchoCurve(s.duck);}
  if(id==='alterfilter'){set(m.filter.frequency,s.cutoff);set(m.filter.Q,s.q);set(m.lfo.frequency,alterFilterRate(bpm,s.beats));set(m.depth.gain,s.depth);set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);}
- if(id==='vectorlimit'){set(m.drive.gain,db(s.drive));set(m.comp.threshold,s.ceiling);set(m.comp.release,s.release/1000);set(m.scaleIn.gain,1/db(s.ceiling));set(m.scaleOut.gain,db(s.ceiling));}
+ if(id==='vectorlimit')syncVectorLimiter(m.limiter,s,now,initial);
  if(id==='voxtune')for(const key of ['key','scale','speed','amount','mix'])set(m.pitch.parameters.get(key),s[key]);
  if(id==='voxshift')for(const key of ['semitones','mix'])set(m.pitch.parameters.get(key),s[key]);
  if(id==='voxformant'){

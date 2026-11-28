@@ -1,3 +1,4 @@
+import {prepareStudioContext} from './studio-pack-audio.js?v=0.14.0';
 import {createPackProcessors,syncPackProcessors} from './pack-audio.js?v=0.14.0';
 import {pluginDefaults} from './plugins.js?v=0.14.0';
 
@@ -13,6 +14,7 @@ function row(name,ok,detail){
 function rms(data,start=0){let sum=0,n=0;for(let i=Math.floor(start*sampleRate);i<data.length;i++){sum+=data[i]**2;n++;}return Math.sqrt(sum/Math.max(1,n));}
 async function render({id,frequency=1000,amplitude=.1,values={},enabled=true}){
  const ctx=new OfflineAudioContext(1,Math.round(seconds*sampleRate),sampleRate);
+ await prepareStudioContext(ctx);
  const source=ctx.createBufferSource(),buffer=ctx.createBuffer(1,ctx.length,sampleRate),data=buffer.getChannelData(0);
  for(let i=0;i<data.length;i++)data[i]=amplitude*Math.sin(2*Math.PI*frequency*i/sampleRate);
  source.buffer=buffer;

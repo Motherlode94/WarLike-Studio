@@ -25,7 +25,7 @@ export function createRackSplit(ctx,split,state,stages){
   return {id:branch.id,delay,level,pan,meter,mode};
  });
  const set=(p,v,now,initial)=>initial?p.setValueAtTime(v,now):p.setTargetAtTime(v,now,.02);
- return {input,output,lanes,update(next,value,now,initial){const solo=next.branches.some(b=>b.solo),latencies=next.branches.map(b=>b.inserts.reduce((n,id)=>n+(id&&value[id].enabled?moduleLatency(id):0),0)),max=Math.max(...latencies);filters.forEach((f,i)=>set(f.frequency,next.frequencies[i],now,initial));lanes.forEach((lane,i)=>{const b=next.branches[i];set(lane.level.gain,b.mute||solo&&!b.solo?0:gain(b.gainDb),now,initial);set(lane.pan.pan,b.pan,now,initial);set(lane.delay.delayTime,max-latencies[i],now,initial);});},dispose(){for(const lane of lanes)lane.mode.dispose();for(const n of owned)try{n.disconnect();}catch{}}};
+ return {input,output,lanes,update(next,value,now,initial){const solo=next.branches.some(b=>b.solo),latencies=next.branches.map(b=>b.inserts.reduce((n,id)=>n+(id&&value[id].enabled?moduleLatency(id,ctx.sampleRate):0),0)),max=Math.max(...latencies);filters.forEach((f,i)=>set(f.frequency,next.frequencies[i],now,initial));lanes.forEach((lane,i)=>{const b=next.branches[i];set(lane.level.gain,b.mute||solo&&!b.solo?0:gain(b.gainDb),now,initial);set(lane.pan.pan,b.pan,now,initial);set(lane.delay.delayTime,max-latencies[i],now,initial);});},dispose(){for(const lane of lanes)lane.mode.dispose();for(const n of owned)try{n.disconnect();}catch{}}};
 }
 export function routeMasterRack(nodes,state,now,initial){
  const order=state.bypass?[]:state.inserts.filter(id=>id&&(rackIsSplit(id)?state.splits[id].enabled:state[id].enabled));
@@ -42,6 +42,6 @@ export function routeMasterRack(nodes,state,now,initial){
   (state.bypass||!state.rackVersion&&!order.length?nodes.input:nodes.rackInput).connect(nodes.inputSplitter);nodes.routeSignature=signature;
  }
  const set=(p,v)=>initial?p.setValueAtTime(v,now):p.setTargetAtTime(v,now,.02);
- set(nodes.rackInput.gain,gain(state.inputDb||0)*(state.polarity?-1:1));set(nodes.rackOutput.gain,state.outputDb<=-60?0:gain(state.outputDb||0));set(nodes.wet.gain,state.mix??1);set(nodes.dry.gain,1-(state.mix??1));set(nodes.dryDelay.delayTime,masterRackLatency(state));
+ set(nodes.rackInput.gain,gain(state.inputDb||0)*(state.polarity?-1:1));set(nodes.rackOutput.gain,state.outputDb<=-60?0:gain(state.outputDb||0));set(nodes.wet.gain,state.mix??1);set(nodes.dry.gain,1-(state.mix??1));set(nodes.dryDelay.delayTime,masterRackLatency(state,nodes.input.context.sampleRate));
  for(const [id,split] of nodes.splitNodes)split.update(state.splits[id],state,now,initial);
 }

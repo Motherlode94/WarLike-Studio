@@ -23,7 +23,7 @@ export function mountVectorLimit(root,{state,getStage,master=false}){
  const controls=[...params.querySelectorAll('.param')],keys=controls.map(n=>(n.querySelector('input')?.dataset.param||n.querySelector('input')?.dataset.masterParam||'').split('.').at(-1));
  if(keys.length!==3||!['drive','ceiling','release'].every(k=>keys.includes(k)))return;
  const face=document.createElement('section');face.className='vector-limit-hardware';face.setAttribute('aria-label','VECTOR LIMIT Analog Hardware');
- face.innerHTML='<header class="vector-limit-brand"><small>WARLIKE / VECTOR SERIES</small><strong>LIMIT <span>03</span></strong><span>STEREO SAMPLE PEAK LIMITER</span></header><div class="vector-limit-display"><div class="vector-limit-meters">'+meterSvg('in','INPUT + DRIVE',levelTicks)+meterSvg('gr','COMP GR',grTicks)+meterSvg('out','OUTPUT',levelTicks)+'</div><div class="vector-limit-status"><strong data-limit-status>HORS SIGNAL</strong><span>CEILING <output data-limit-ceiling>−1 dBFS</output></span><button type="button" class="outline-btn" data-limit-reset>Reset peak</button><span>OUTPUT HOLD <output data-limit-hold>−∞ dBFS</output></span></div></div><footer class="vector-limit-footer">Crêtes d’échantillons observées par fenêtres · GR du compresseur avant garde de crête · pas de mesure True Peak.</footer>';
+ face.innerHTML='<header class="vector-limit-brand"><small>WARLIKE / VECTOR SERIES</small><strong>LIMIT <span>03</span></strong><span>STEREO SAMPLE PEAK LIMITER</span></header><div class="vector-limit-display"><div class="vector-limit-meters">'+meterSvg('in','INPUT + DRIVE',levelTicks)+meterSvg('gr','GAIN REDUCTION',grTicks)+meterSvg('out','OUTPUT',levelTicks)+'</div><div class="vector-limit-status"><strong data-limit-status>HORS SIGNAL</strong><span>CEILING <output data-limit-ceiling>−1 dBFS</output></span><button type="button" class="outline-btn" data-limit-reset>Reset peak</button><span>OUTPUT HOLD <output data-limit-hold>−∞ dBFS</output></span></div></div><footer class="vector-limit-footer">Anticipation 6 ms · gain stéréo lié · réduction mesurée · crêtes échantillons, sans certification True Peak.</footer>';
  params.before(face);face.querySelector('footer').before(params);params.classList.add('vector-limit-controls');
  const entry={state,getStage,stage:null,input:null,output:null,hold:-Infinity};active.set(face,entry);
  face.querySelector('[data-limit-reset]').onclick=()=>{entry.hold=-Infinity;};
@@ -38,7 +38,7 @@ function updateFace(face,entry){
  const s=entry.state();if(!s)return;
  const enabled=s.enabled!==false,visible=face.getClientRects().length>0,stage=enabled&&visible?entry.getStage():null;
  if(stage!==entry.stage){detach(entry);entry.hold=-Infinity;if(stage?.drive&&stage?.scaleOut){entry.stage=stage;entry.input=tap(stage.drive);entry.output=tap(stage.scaleOut);}}
- const input=entry.input?.read()??-Infinity,output=entry.output?.read()??-Infinity,gr=entry.stage?Math.min(0,entry.stage.comp.reduction||0):0;
+ const input=entry.input?.read()??-Infinity,output=entry.output?.read()??-Infinity,gr=entry.stage?Math.min(0,entry.stage.reduction||0):0;
  entry.hold=Math.max(entry.hold,output);
  paintMeter(face,'in',input);paintMeter(face,'gr',gr);paintMeter(face,'out',output);
  face.querySelector('[data-limit-ceiling]').textContent=fmt(s.ceiling)+'FS';

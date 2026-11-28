@@ -16,11 +16,11 @@ try{
  await page.screenshot({path:'artifacts/vector-limit/master.png'});
  // Actual stereo Web Audio signal through the native limiter; no emulated meter values.
  const metrics=await page.evaluate(async()=>{
-  const {createStudioEffects}=await import('/studio-pack-audio.js');
+  const {prepareStudioContext,createStudioEffects,syncStudioEffect}=await import('/studio-pack-audio.js');
   const {mountVectorLimit,updateVectorLimitFaces}=await import('/vector-limit-face.js');
   const ctx=new AudioContext();await ctx.resume();const scope={nodes:[],oscillators:[],node(kind,...args){const n=ctx[kind](...args);this.nodes.push(n);return n;}};
-  const stage=createStudioEffects(ctx,scope,['vectorlimit']).vectorlimit;
-  const g=10**(-6/20);stage.comp.threshold.value=-6;stage.scaleIn.gain.value=1/g;stage.scaleOut.gain.value=g;
+  await prepareStudioContext(ctx);const stage=createStudioEffects(ctx,scope,['vectorlimit']).vectorlimit;
+  syncStudioEffect(ctx,'vectorlimit',stage,{drive:0,ceiling:-6,release:100},120,ctx.currentTime,true,2);
   const tone=ctx.createOscillator(),gain=ctx.createGain(),mute=ctx.createGain();gain.gain.value=.95;mute.gain.value=0;tone.connect(gain);gain.connect(stage.input);stage.output.connect(mute);mute.connect(ctx.destination);
   const root=document.createElement('div');root.innerHTML='<div class="plugin-window-params">'+['drive','ceiling','release'].map(k=>'<div class="param"><input data-param="vectorlimit.'+k+'"></div>').join('')+'</div>';document.body.append(root);
   const state={enabled:true,ceiling:-6};mountVectorLimit(root,{state:()=>state,getStage:()=>stage});tone.start();

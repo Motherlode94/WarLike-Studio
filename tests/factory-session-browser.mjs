@@ -33,7 +33,7 @@ const score=p=>({name:p.name,bpm:p.bpm,bars:p.bars,sections:p.sections,fullSong:
  notes:c.notes?.map(n=>[n.id,n.step,n.midi,n.len,n.velocity,!!n.muted]),
  pattern:c.pattern?Object.fromEntries(Object.entries(c.pattern).filter(([,row])=>row.some(Boolean))):undefined}))}))});
 for(const [kind,name] of selected){
- const newComposition=COMPOSITION_TEMPLATES.some(t=>t.id===kind),expectedMaster=newComposition&&!['kin','lumiere'].includes(kind)?-1:-9;
+ const newComposition=COMPOSITION_TEMPLATES.some(t=>t.id===kind),expectedMaster=0;
  stage(kind,'Launching isolated Chromium');
  const browser=await chromium.launch({headless:true});
  try{
