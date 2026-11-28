@@ -5,6 +5,10 @@ désormais le même noyau de compression WarLike. Le `DynamicsCompressorNode`
 a été supprimé de ces cinq traitements. Aucun sélecteur Classic, aucun ancien
 moteur en parallèle et aucun repli vers l'ancien traitement.
 
+L’extension [EXO, HARDI et ELIANA](pack-dynamics-dsp.md) remplace également
+les six derniers traitements de cette famille. Il ne reste aucun appel à
+`createDynamicsCompressor` dans le code de production.
+
 ## Référence et choix
 
 Le traitement est une implémentation originale des équations de compression
@@ -69,7 +73,7 @@ ne demandent plus de voix à une banque volontairement non chargée.
 Les profils du catalogue sont recalculés sur quatre mesures de refrain. Ils
 s'appliquent aux nouvelles copies et préécoutes, jamais automatiquement aux
 projets déjà sauvegardés. Les gains et le DSP sont communs à Play et au WAV.
-Les 31 refrains recontrôlés se situent entre −17,32 et −15,87 LUFS, avec des
+Lors de la première étape (#300), les 31 refrains recontrôlés se situaient entre −17,32 et −15,87 LUFS, avec des
 crêtes d'échantillons au plus à −1,5 dBFS. La voix principale des six démos
 enregistrées est aussi mesurée avec le routage public complet (bus et FX) ;
 le rapport RMS voix/instrumental doit dépasser 0,35. Ces critères de préparation
@@ -94,4 +98,4 @@ les tests de façades et les gestes réels de souris. Les mesures détaillées s
 `docs/compressor-measurements.json`. Le rendu complet de Nocturne (208,7 s,
 WAV stéréo 24 bits à 44,1 kHz) a également été contrôlé.
 
-Les compresseurs des autres familles n'ont pas été modifiés par cette étape.
+Les mesures de l’extension sont dans `docs/pack-dynamics-measurements.json`.

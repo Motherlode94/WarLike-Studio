@@ -1,7 +1,7 @@
 import {dynamicsLatency} from './dynamics-timing.js';
-export function createCompressor(ctx,scope=null){
+function createDynamicsProcessor(ctx,scope,name){
  if(!ctx.audioWorklet||typeof AudioWorkletNode==='undefined')throw Error('Le compresseur demande AudioWorklet et une connexion HTTPS.');
- const node=new AudioWorkletNode(ctx,'warlike-compressor',{numberOfInputs:1,numberOfOutputs:1,channelCount:2,channelCountMode:'clamped-max',processorOptions:{reportMeter:!(typeof OfflineAudioContext!=='undefined'&&ctx instanceof OfflineAudioContext)}});
+ const node=new AudioWorkletNode(ctx,name,{numberOfInputs:1,numberOfOutputs:1,channelCount:2,channelCountMode:'clamped-max',processorOptions:{reportMeter:!(typeof OfflineAudioContext!=='undefined'&&ctx instanceof OfflineAudioContext)}});
  for(const [key,param] of node.parameters)Object.defineProperty(node,key,{value:param});
  let reduction=0,disposed=false;
  Object.defineProperty(node,'reduction',{get:()=>reduction});
@@ -11,3 +11,6 @@ export function createCompressor(ctx,scope=null){
  scope?.nodes?.push(node);scope?.cleanups?.push(node.dispose);
  return node;
 }
+
+export const createCompressor=(ctx,scope=null)=>createDynamicsProcessor(ctx,scope,'warlike-compressor');
+export const createDeesser=(ctx,scope=null)=>createDynamicsProcessor(ctx,scope,'warlike-deesser');

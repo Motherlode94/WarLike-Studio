@@ -1,4 +1,4 @@
-import {dynamicsLatency} from './dynamics-timing.js';
+import {effectLatency} from './dynamics-timing.js';
 // A rack is an ordered serial graph; a split occupies one serial slot and sums
 // independent processing lanes back into that slot. No feedback or nested split.
 export const RACK_LIMITS=Object.freeze({slots:12,branches:8,modules:64,macros:8,targets:8});
@@ -40,6 +40,6 @@ export function insertRackSplit(state,index,kind='parallel'){modern(state);if(!N
 export function moveRackItem(state,from,to,{duplicate=false}={}){const a=rackLocation(state,from),b=rackLocation(state,to),id=a.list[a.index];if(!id||a.list===b.list&&a.index===b.index)return;if((rackIsSplit(id)&&to.splitId)||(rackIsSplit(b.list[b.index])&&from.splitId))throw Error('Une division reste dans la chaîne principale.');
  if(duplicate){if(rackIsSplit(id))throw Error('Duplique les modules des voies séparément.');if(b.list[b.index])throw Error('La destination de la copie doit être vide.');modern(state);const next=rackType(id)+'__'+uid();state[next]=copy(state[id]);b.list[b.index]=next;}else [a.list[a.index],b.list[b.index]]=[b.list[b.index],id];}
 export function setRackMacro(state,index,value){const m=state.macros?.[index];if(!m)throw Error('Macro introuvable.');m.value=clamp(value,0,1);for(const t of m.targets)state[t.moduleId][t.key]=t.min+m.value*(t.max-t.min);}
-export const moduleLatency=(id,rate=48000)=>['peak','vectorlimit','press','glue','circuitbus','vectorcomp'].includes(rackType(id))?dynamicsLatency(rate):rackType(id)==='voxlevel'?dynamicsLatency(rate,2):rackType(id)==='exostrip'?.006:rackType(id)==='voxtune'?.04:0;
+export const moduleLatency=effectLatency;
 export function rackItemLatency(state,id,rate=48000){if(rackIsSplit(id)){const s=state.splits[id];return !s.enabled?0:Math.max(...s.branches.map(b=>b.inserts.reduce((n,id)=>n+(id&&state[id]?.enabled?moduleLatency(id,rate):0),0)));}return state[id]?.enabled?moduleLatency(id,rate):0;}
 export const masterRackLatency=(state,rate=48000)=>state.bypass?0:state.inserts.reduce((n,id)=>n+(id?rackItemLatency(state,id,rate):0),0);

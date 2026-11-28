@@ -24,6 +24,7 @@ try{
  const before=await save(),undoBefore=await page.locator('#undo').isEnabled(),cursorBefore=await page.locator('#positionDisplay').textContent();
  // Observe the actual production renderer and buffer sources, while retaining its DSP.
  await page.evaluate(async()=>{
+  const {routingLatency}=await import('/studio-model.js'),{masterRackLatency}=await import('/master-rack-model.js'),{masteringSettings}=await import('/mastering.js');
   const {AudioEngine}=await import('/audio.js?v=0.15.12'),render=AudioEngine.prototype.renderRange,start=AudioBufferSourceNode.prototype.start;
   window.sessionPreviewQA={metrics:[],attempts:0,completed:0,sources:[],hold:false,fail:false};
   AudioEngine.prototype.renderRange=async function(options){
@@ -33,7 +34,7 @@ try{
     if(q.fail)throw Error('Source QA indisponible');
     const b=await render.call(this,options);let peak=0,energy=0;
     for(let ch=0;ch<b.numberOfChannels;ch++)for(const x of b.getChannelData(ch)){if(!Number.isFinite(x))throw Error('Invalid preview PCM');peak=Math.max(peak,Math.abs(x));energy+=x*x;}
-    q.metrics.push({name:options.project.name,startBar:options.startBar,endBar:options.endBar,seconds:b.duration,rate:b.sampleRate,channels:b.numberOfChannels,peak,rms:Math.sqrt(energy/(b.length*b.numberOfChannels))});return b;
+    q.metrics.push({name:options.project.name,startBar:options.startBar,endBar:options.endBar,seconds:b.duration,processingLatency:routingLatency(options.project.tracks,b.sampleRate)+masterRackLatency(masteringSettings(options.project.mastering),b.sampleRate),rate:b.sampleRate,channels:b.numberOfChannels,peak,rms:Math.sqrt(energy/(b.length*b.numberOfChannels))});return b;
    }finally{q.completed++;}
   };
   AudioBufferSourceNode.prototype.start=function(...args){
@@ -63,7 +64,7 @@ try{
  const metrics=await page.evaluate(()=>window.sessionPreviewQA.metrics);assert.equal(metrics.length,SESSION_TEMPLATES.length);
  for(const [i,m] of metrics.entries()){
   assert.equal(m.name,SESSION_TEMPLATES[i].name);assert.equal(m.endBar-m.startBar,4);assert.equal(m.channels,2);assert.equal(m.rate,44100);
-  assert.ok(Math.abs(m.seconds-4*240/SESSION_TEMPLATES[i].bpm)<.02);assert.ok(m.peak>.02&&m.peak<.999);assert.ok(m.rms>.002);
+  assert.ok(Math.abs(m.seconds-(4*240/SESSION_TEMPLATES[i].bpm+.01+m.processingLatency))<2/m.rate);assert.ok(m.peak>.02&&m.peak<.999);assert.ok(m.rms>.002);
  }
  // The last two auditions remain in the small PCM cache.
  current='cache and replacement';await button('kin').click();await playing('Kin après minuit');await stop();assert.equal(await page.evaluate(()=>window.sessionPreviewQA.metrics.length),SESSION_TEMPLATES.length);

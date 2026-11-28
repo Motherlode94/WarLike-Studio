@@ -8,8 +8,8 @@ export const ELIANA_EFFECTS={
  c('threshold','Threshold',-36,-4,.5,-19,'dB'),c('ratio','Ratio',1,4,.1,1.7,':1'),c('attack','Attack',5,80,1,32,'ms'),c('release','Release',80,650,10,240,'ms'),c('mix','Parallel',0,1,.01,.45,'%'),c('output','Trim',-6,6,.25,0,'dB')]),
  eliananest:fx('ELIANA NEST','TENDER ROOM','Petite chambre feutrée à échos courts et filtrés, pour envelopper sans noyer.',[
  c('size','Room size',25,125,1,70,'ms'),c('feedback','Decay',0,.48,.01,.2,'%'),c('tone','Tone',700,10000,100,3800,'Hz'),c('mix','Mix',0,.5,.01,.13,'%')]),
- elianaguard:fx('ELIANA GUARD','SOFT PEAK PROTECTION','Protection des crêtes par une compression rapide, sans prétention de limiteur true-peak.',[
- c('threshold','Threshold',-18,-1,.25,-6,'dB'),c('ratio','Ratio',2,15,.5,8,':1'),c('attack','Attack',1,15,1,3,'ms'),c('release','Release',40,350,10,130,'ms'),c('mix','Mix',0,1,.01,1,'%'),c('ceiling','Output trim',-6,0,.25,-1,'dB')])
+ elianaguard:fx('ELIANA GUARD','LINKED PEAK GUARD','Compression parallèle suivie d’un limiteur stéréo à anticipation. Ceiling fixe le plafond des échantillons, y compris à Mix zéro ; bypass désactive toute la protection. Mesure true-peak non revendiquée.',[
+ c('threshold','Threshold',-18,-1,.25,-6,'dB'),c('ratio','Ratio',2,15,.5,8,':1'),c('attack','Attack',1,15,1,3,'ms'),c('release','Release',40,350,10,130,'ms'),c('mix','Comp mix',0,1,.01,1,'%'),c('ceiling','Ceiling',-6,-.1,.25,-1,'dB')])
 };
 export const ELIANA_PRESETS={
  elianaveil:[['Berceuse',{lowcut:65,warmth:1.5,air:-1,mix:.7}],['Voix de velours',{lowcut:80,warmth:2,air:-.25,mix:.55}],['Piano tendre',{lowcut:45,warmth:.5,air:-1.5,mix:.5}]],

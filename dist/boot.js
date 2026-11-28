@@ -6,4 +6,4 @@ function showStartupError(){
 window.addEventListener('error',showStartupError);
 window.addEventListener('unhandledrejection',showStartupError);
 document.getElementById('retryStudio')?.addEventListener('click',()=>location.reload());
-try{await import('./app.js?v=0.15.15-compressor.1');}catch{showStartupError();}
+try{await import('./app.js?v=0.15.16-pack-dynamics.2');}catch{showStartupError();}

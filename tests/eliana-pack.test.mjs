@@ -29,13 +29,13 @@ function mock(){
  const sources=[];const param=()=>({value:0,setValueAtTime(v){this.value=v;},setTargetAtTime(v){this.value=v;}});
  const ctx={sampleRate:44100};
  const node=kind=>{const n={context:ctx,kind,gain:param(),frequency:param(),Q:param(),threshold:param(),ratio:param(),attack:param(),release:param(),knee:param(),delayTime:param(),connect(){},disconnect(){}};sources.push(n);return n;};
- for(const key of ['createGain','createBiquadFilter','createDynamicsCompressor','createDelay'])ctx[key]=()=>node(key);
+ for(const key of ['createGain','createBiquadFilter','createDelay'])ctx[key]=()=>node(key);
  return {ctx,scope:{node:(kind,...args)=>ctx[kind](...args)},sources};
 }
-test('ELIANA builds and synchronizes real native audio graphs; bypass is dry only',()=>{
- const {ctx,scope}=mock(),modules=createElianaEffects(ctx,scope);
- assert.deepEqual(Object.keys(modules),ids);
- for(const id of ids){
+test('ELIANA native EQ and room graphs synchronize mix and stop disabled feedback',()=>{
+ const {ctx,scope}=mock(),modules=createElianaEffects(ctx,scope,['elianaveil','eliananest']);
+ assert.deepEqual(Object.keys(modules),['elianaveil','eliananest']);
+ for(const id of Object.keys(modules)){
   const t={type:'audio',clips:[]};ensurePlugins(t);
   Object.assign(t.effects[id],ELIANA_PRESETS[id][0][1],{enabled:true});
   assert.doesNotThrow(()=>syncElianaEffect(id,modules[id],t.effects[id],0,true));

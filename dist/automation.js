@@ -17,8 +17,48 @@ export function bindings(ch,track,definitions){
     prism:{low:[n.eqLow.gain],mid:[n.eqMid.gain],high:[n.eqHigh.gain],lowFreq:[n.eqLow.frequency],midFreq:[n.eqMid.frequency],highFreq:[n.eqHigh.frequency],q:[n.eqMid.Q]},
     glue:{threshold:[n.compressor?.threshold],ratio:[n.compressor?.ratio],attack:[[n.compressor?.attack,x=>x/1000]],release:[[n.compressor?.release,x=>x/1000]],knee:[n.compressor?.knee],makeup:[[n.makeup.gain,db,true]],mix:[[n.compressWet.gain,x=>x],[n.compressDry.gain,x=>1-x]]},
     echo:{mix:[n.send.gain],feedback:[n.feedback.gain]},aura:{mix:[n.space.gain]},
-    ...(m?{[type]:m.bindings?m.bindings:type.startsWith('exo')?exoBindings(type,m,e):type==='hush'?{threshold:[[m.envelope.scale.gain,x=>.5/db(x),true]]}:type==='sibil'?{frequency:[m.band.frequency],threshold:[[m.envelope.scale.gain,x=>1/32/db(x),true]]}:type==='ember'?{tone:[m.tone.frequency],output:[[m.blend.wet.gain,x=>e.mix*db(x),true]],mix:[[m.blend.dry.gain,x=>1-x],[m.blend.wet.gain,x=>x*db(e.output)]]}:type==='orbit'?{rate:[m.lfo.frequency],depth:[[m.depthL.gain,x=>x*.007],[m.depthR.gain,x=>-x*.007]],width:[[m.panL.pan,x=>-x],m.panR.pan],mix:[[m.blend.dry.gain,x=>1-x],m.blend.wet.gain]}:type==='sway'?{rate:[m.lfo.frequency],depth:[[m.amp.gain,x=>1-x/2],[m.depth.gain,x=>x/2]],pan:[m.panDepth.gain],mix:[[m.blend.dry.gain,x=>1-x],m.blend.wet.gain]}:{feedback:[m.feedbackL.gain,m.feedbackR.gain],tone:[m.toneL.frequency,m.toneR.frequency],mix:[[m.blend.dry.gain,x=>1-x],m.blend.wet.gain]}}:{} )
+    ...(m?{[type]:m.bindings?m.bindings:type.startsWith('exo')?exoBindings(type,m,e):type==='hush'?{threshold:[[m.envelope.scale.gain,x=>.5/db(x),true]]}:type==='sibil'?{frequency:[m.band.frequency],threshold:[[m.envelope.scale.gain,x=>1/32/db(x),true]]}:type==='ember'?{tone:[m.tone.frequency],output:[[m.blend.wet.gain,x=>e.mix*db(x),true]],mix:[[m.blend.dry.gain,x=>1-x],[m.blend.wet.gain,x=>x*db(e.output)]]}:type==='orbit'?{rate:[m.lfo.frequency],depth:[[m.depthL.gain,x=>x*.007],[m.depthR.gain,x=>-x*.007]],width:[[m.panL.pan,x=>-x],m.panR.pan],mix:[[m.blend.dry.gain,x=>1-x],m.blend.wet.gain]}:type==='sway'?{rate:[m.lfo.frequency],depth:[[m.amp.gain,x=>1-x/2],[m.depth.gain,x=>x/2]],pan:[m.panDepth.gain],mix:[[m.blend.dry.gain,x=>1-x],m.blend.wet.gain]}:type==='relay'?{feedback:[m.feedbackL.gain,m.feedbackR.gain],tone:[m.toneL.frequency,m.toneR.frequency],mix:[[m.blend.dry.gain,x=>1-x],m.blend.wet.gain]}:{}}:{} )
   }[type]||{};
-    for(const [key,t] of Object.entries(targets)){const c=definitions[type]?.controls?.find(c=>c.key===key);if(c)add(id+':'+key,definitions[type].name+' · '+c.name,c.min,c.max,e[key],t);}
+    for(const [key,t] of Object.entries(targets)){const c=definitions[type]?.controls?.find(c=>c.key===key);if(c&&isAutomatableControl(type,key))add(id+':'+key,definitions[type].name+' · '+c.name,c.min,c.max,e[key],t);}
   }return map;
 }
+
+const AUTOMATION_CONTROLS={color:['mix','output'],sculpt:['cutoff','highpass'],prism:['low','mid','high','lowFreq','midFreq','highFreq','q'],glue:['threshold','ratio','attack','release','makeup','knee','mix'],echo:['mix','feedback'],aura:['mix'],hush:['threshold'],sibil:['threshold','frequency'],ember:['mix','tone','output'],orbit:['rate','depth','width','mix'],sway:['rate','depth','pan','mix'],relay:['feedback','tone','mix']};
+Object.assign(AUTOMATION_CONTROLS,{
+ voxshift:'semitones mix'.split(' '),
+ voxformant:'shift brightness mix'.split(' '),
+ voxaireq:'highpass presenceFreq presence airFreq air mix output'.split(' '),
+ voxambience:'slap feedback tone slapLevel room mix'.split(' '),
+ voxmicmodel:'proximity presence air mix'.split(' '),
+ voxwarm:'tone mix output'.split(' '),
+ voxdoubler:'voices width mix'.split(' '),
+ circuiteq:'lowFreq low bodyFreq body presenceFreq presence airFreq air output'.split(' '),
+ circuitbus:'threshold ratio attack release knee mix output'.split(' '),
+ circuitcolor:'tone mix output'.split(' '),
+ alterdouble:'rate focus width mix'.split(' '),
+ alterecho:'feedback tone mix'.split(' '),
+ alterfilter:'cutoff q depth mix'.split(' '),
+ vectoreq:'f0 g0 q0 f1 g1 q1 f2 g2 q2 f3 g3 q3 f4 g4 q4 f5 g5 q5 output'.split(' '),
+ vectorcomp:'threshold ratio attack release knee mix output'.split(' '),
+ vectorlimit:'drive ceiling release'.split(' '),
+ voxtune:'key scale speed amount mix'.split(' '),
+ voxlevel:'peakThreshold levelThreshold ratio release mix output'.split(' '),
+ voxclean:'highpass frequency threshold air output'.split(' '),
+ exostrip:'highpass body presence air threshold ratio attack release mix output'.split(' '),
+ exofocus:'frequency q threshold output'.split(' '),
+ exoair:'frequency mix output'.split(' '),
+ exospace:'predelay damping mix output'.split(' '),
+ hardibus:'threshold ratio attack release mix output'.split(' '),
+ hardivocalcomp:'threshold ratio attack release mix output'.split(' '),
+ hardideess:'frequency threshold ratio mix'.split(' '),
+ elianaembrace:'threshold ratio attack release mix output'.split(' '),
+ elianaguard:'threshold ratio attack release mix ceiling'.split(' '),
+ harditilt:'tilt pivot mix output'.split(' '),
+ hardistage:'width mix output'.split(' '),
+ harditape:'tone mix output'.split(' '),
+ hardivoice:'highpass body presence air mix'.split(' '),
+ hardidoubler:'delay width tone mix'.split(' '),
+ elianaveil:'lowcut warmth air mix'.split(' '),
+ eliananest:'size feedback tone mix'.split(' ')
+});
+export const isAutomatableControl=(type,key)=>!!AUTOMATION_CONTROLS[type]?.includes(key);

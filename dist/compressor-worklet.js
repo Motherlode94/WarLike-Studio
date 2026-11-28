@@ -1,3 +1,4 @@
+import {StereoDeesser} from './deesser-dsp.js';
 import {StereoCompressor} from './compressor-dsp.js';
 class CompressorProcessor extends AudioWorkletProcessor {
  static get parameterDescriptors(){return [
@@ -15,9 +16,9 @@ class CompressorProcessor extends AudioWorkletProcessor {
  process(inputs,outputs,parameters){
   if(!this.alive)return false;
   const input=inputs[0],output=outputs[0],left=input[0],right=input[1]||left,c=this.compressor;
-  const t=parameters.threshold,r=parameters.ratio,k=parameters.knee,a=parameters.attack,s=parameters.release;
+  const t=parameters.threshold,r=parameters.ratio,k=parameters.knee,a=parameters.attack,s=parameters.release,f=parameters.frequency;
   for(let i=0;i<output[0].length;i++){
-   c.process(left?.[i]||0,right?.[i]||0,t.length===1?t[0]:t[i],r.length===1?r[0]:r[i],k.length===1?k[0]:k[i],a.length===1?a[0]:a[i],s.length===1?s[0]:s[i]);
+   c.process(left?.[i]||0,right?.[i]||0,t.length===1?t[0]:t[i],r.length===1?r[0]:r[i],k.length===1?k[0]:k[i],a.length===1?a[0]:a[i],s.length===1?s[0]:s[i],f?(f.length===1?f[0]:f[i]):6500);
    output[0][i]=c.left;if(output[1])output[1][i]=c.right;
    this.minimum=Math.min(this.minimum,c.reduction);
   }
@@ -27,3 +28,9 @@ class CompressorProcessor extends AudioWorkletProcessor {
  }
 }
 registerProcessor('warlike-compressor',CompressorProcessor);
+
+class DeesserProcessor extends CompressorProcessor {
+ static get parameterDescriptors(){return [...super.parameterDescriptors,{name:'frequency',defaultValue:6500,minValue:20,maxValue:20000,automationRate:'a-rate'}];}
+ constructor(options){super(options);this.compressor=new StereoDeesser(sampleRate);}
+}
+registerProcessor('warlike-deesser',DeesserProcessor);

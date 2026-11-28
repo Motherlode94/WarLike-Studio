@@ -1,3 +1,4 @@
+import {createVoiceShift} from './voice-shift-audio.js';
 import {createCompressor} from './compressor-audio.js';
 import {createVectorLimiter,syncVectorLimiter} from './vector-limit-audio.js';
 import {alterFilterRate} from './alter-filter-model.js';
@@ -28,9 +29,7 @@ export function createStudioEffects(ctx,scope,types=null){const modules={},node=
   if(id==='vectorlimit'){const limiter=createVectorLimiter(ctx,scope);join(m.input,limiter.input);join(limiter.output,m.output);Object.assign(m,{drive:limiter.drive,scaleOut:limiter.output,limiter,bindings:limiter.bindings});Object.defineProperty(m,'reduction',{get:()=>limiter.reduction});}
   if(id==='voxtune'){if(!ctx.audioWorklet||typeof AudioWorkletNode==='undefined')throw Error('VOX TUNE demande AudioWorklet et une connexion HTTPS.');m.pitch=new AudioWorkletNode(ctx,'warlike-vocal-pitch',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2],channelCount:2,channelCountMode:'explicit'});scope.nodes.push(m.pitch);join(m.input,m.pitch);join(m.pitch,m.output);m.bindings=Object.fromEntries([...m.pitch.parameters].map(([key,value])=>[key,[value]]));}
   if(id==='voxshift'){
-   if(!ctx.audioWorklet||typeof AudioWorkletNode==='undefined')throw Error('VOX SHIFT demande AudioWorklet et une connexion HTTPS.');
-   m.pitch=new AudioWorkletNode(ctx,'warlike-voice-shift',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[2],channelCount:2,channelCountMode:'explicit'});
-   scope.nodes.push(m.pitch);join(m.input,m.pitch);join(m.pitch,m.output);
+   m.pitch=createVoiceShift(ctx,scope);join(m.input,m.pitch);join(m.pitch,m.output);
    m.bindings=Object.fromEntries([...m.pitch.parameters].map(([key,value])=>[key,[value]]));
   }
   if(id==='voxformant'){
@@ -66,6 +65,13 @@ export function createStudioEffects(ctx,scope,types=null){const modules={},node=
     }
   }
   if(id==='voxclean'){m.hp=node('createBiquadFilter');m.hp.type='highpass';m.hp.Q.value=.5;m.band=node('createBiquadFilter');m.band.type='bandpass';m.band.Q.value=.8;m.rect=node('createWaveShaper');m.rect.curve=curve(Math.abs);m.smooth=node('createBiquadFilter');m.smooth.type='lowpass';m.smooth.frequency.value=30;m.scale=node('createGain');m.control=node('createWaveShaper');m.correction=node('createGain');m.correction.gain.value=0;m.air=node('createBiquadFilter');m.air.type='highshelf';m.air.frequency.value=10000;m.level=node('createGain');join(m.input,m.hp);join(m.hp,m.band);join(m.hp,m.air);join(m.band,m.correction);join(m.correction,m.air);join(m.band,m.rect);join(m.rect,m.smooth);join(m.smooth,m.scale);join(m.scale,m.control);m.control.connect(m.correction.gain);join(m.air,m.level);join(m.level,m.output);m.bindings={highpass:[m.hp.frequency],frequency:[m.band.frequency],air:[m.air.gain],threshold:[[m.scale.gain,x=>1/32/db(x),true]],output:[[m.level.gain,db,true]]};}
+  if(id==='voxformant')m.bindings={shift:[[m.low.frequency,x=>Math.min(ctx.sampleRate*.42,550*2**(x/12)),true],[m.mid.frequency,x=>Math.min(ctx.sampleRate*.42,1550*2**(x/12)),true],[m.high.frequency,x=>Math.min(ctx.sampleRate*.42,4200*2**(x/12)),true],[m.low.gain,x=>x*.75],[m.mid.gain,x=>x*1.15]],brightness:[m.high.gain],mix:[[m.dry.gain,x=>1-x],m.wet.gain]};
+  if(id==='voxmicmodel')m.bindings={proximity:[[m.low.gain,x=>x+(m.profileOffset?.[0]||0)]],presence:[[m.presence.gain,x=>x+(m.profileOffset?.[1]||0)]],air:[[m.air.gain,x=>x+(m.profileOffset?.[2]||0)]],mix:[[m.dry.gain,x=>1-x],m.wet.gain]};
+  if(id==='voxwarm')m.bindings={tone:[m.tone.frequency],mix:[[m.dry.gain,x=>1-x],m.wet.gain],output:[[m.level.gain,db,true]]};
+  if(id==='voxdoubler')m.bindings={voices:m.voices.map(v=>[v.level.gain,x=>Math.min(1,x/2)/2]),width:m.voices.map(v=>[v.pan.pan,x=>x*v.sign]),mix:[[m.dry.gain,x=>1-x],m.wet.gain]};
+  if(id==='alterdouble'){m.bindings.rate=m.voices.map(v=>[v.lfo.frequency,x=>x*(v.sign>0?1.17:1)]);m.bindings.width=m.voices.map(v=>[v.pan.pan,x=>x*v.sign]);}
+  if(id==='voxlevel'){delete m.bindings.threshold;m.bindings.peakThreshold=[m.comp.threshold];m.bindings.levelThreshold=[m.second.threshold];}
+
  }
  return modules;
 }
@@ -88,7 +94,7 @@ export function syncStudioEffect(ctx,id,m,s,bpm,now,initial,inputChannels=1){con
    set(m.dry.gain,1-s.mix);set(m.wet.gain,s.mix);
  }
  if(id==='voxmicmodel'){
-   const [low,presence,air]=micColorGains(s);
+   const [low,presence,air]=micColorGains(s);m.profileOffset=[low-s.proximity,presence-s.presence,air-s.air];
    set(m.low.frequency,Math.min(180,ctx.sampleRate*.45));set(m.presence.frequency,Math.min(3200,ctx.sampleRate*.45));set(m.air.frequency,Math.min(9500,ctx.sampleRate*.45));
    set(m.low.gain,low);set(m.presence.gain,presence);set(m.air.gain,air);
    set(m.dry.gain,s.enabled===false?1:1-s.mix);set(m.wet.gain,s.enabled===false?0:s.mix);

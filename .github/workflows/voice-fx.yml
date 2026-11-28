@@ -32,3 +32,12 @@ jobs:
           done
           curl -fsS http://127.0.0.1:8765/ -o /dev/null
           node tests/voice-fx-browser.mjs
+      - name: Sample-accurate routing and actual automation UI
+        run: node tests/studio-alignment-browser.mjs
+      - name: Alignment and automation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: studio-alignment
+          path: artifacts/studio-alignment/
+          if-no-files-found: warn

@@ -39,6 +39,7 @@ export function createVoxBC(ctx,scope,id){
   m.convolver.buffer=impulse;
   m.roomGain=node('createGain');input.connect(m.convolver);m.convolver.connect(m.roomGain);m.roomGain.connect(wet);
  }
+ m.bindings=id==='voxaireq'?{highpass:[m.highpass.frequency],presenceFreq:[m.presence.frequency],presence:[m.presence.gain],airFreq:[m.air.frequency],air:[m.air.gain],output:[[m.outputGain.gain,db,true]],mix:[[dry.gain,x=>1-x],wet.gain]}:{slap:[[m.delay.delayTime,x=>x/1000]],feedback:[m.feedback.gain],tone:[m.lowpass.frequency],slapLevel:[m.slapGain.gain],room:[m.roomGain.gain],mix:[wet.gain]};
  return m;
 }
 export function syncVoxBC(ctx,id,m,s,now,initial){

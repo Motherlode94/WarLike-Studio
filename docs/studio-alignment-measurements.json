@@ -1,0 +1,1414 @@
+{
+  "checks": [
+    {
+      "name": "VOX SHIFT matches declared delay 44100/1",
+      "delta": 0,
+      "first": 5063,
+      "latencyMs": 112.53968253968253
+    },
+    {
+      "name": "VOX SHIFT matches declared delay 44100/2",
+      "delta": 0,
+      "first": 5063,
+      "latencyMs": 112.53968253968253
+    },
+    {
+      "name": "VOX SHIFT stereo ratio 44100",
+      "ratioError": 0
+    },
+    {
+      "name": "VOX SHIFT matches declared delay 48000/1",
+      "delta": 0,
+      "first": 5500,
+      "latencyMs": 112.5
+    },
+    {
+      "name": "VOX SHIFT matches declared delay 48000/2",
+      "delta": 0,
+      "first": 5500,
+      "latencyMs": 112.5
+    },
+    {
+      "name": "VOX SHIFT stereo ratio 48000",
+      "ratioError": 0
+    },
+    {
+      "name": "VOX SHIFT matches declared delay 96000/1",
+      "delta": 0,
+      "first": 10900,
+      "latencyMs": 112.5
+    },
+    {
+      "name": "VOX SHIFT matches declared delay 96000/2",
+      "delta": 0,
+      "first": 10900,
+      "latencyMs": 112.5
+    },
+    {
+      "name": "VOX SHIFT stereo ratio 96000",
+      "ratioError": 0
+    },
+    {
+      "name": "parallel rack and global dry align 44100",
+      "delta": 0
+    },
+    {
+      "name": "parallel rack and global dry align 48000",
+      "delta": 0
+    },
+    {
+      "name": "parallel rack and global dry align 96000",
+      "delta": 0
+    },
+    {
+      "name": "12 serial instances and dry track align beyond one second 44100",
+      "centroidError": 0.001953125,
+      "delta": 0.0009765625,
+      "maxDelay": 1.3514761924743652
+    },
+    {
+      "name": "12 serial instances and dry track align beyond one second 48000",
+      "centroidError": 0,
+      "delta": 0,
+      "maxDelay": 1.3509999513626099
+    },
+    {
+      "name": "12 serial instances and dry track align beyond one second 96000",
+      "centroidError": 0,
+      "delta": 0,
+      "maxDelay": 1.3509999513626099
+    },
+    {
+      "name": "returning to zero semitones is neutral after prior phase motion 44100",
+      "delta": 0
+    },
+    {
+      "name": "returning to zero semitones is neutral after prior phase motion 48000",
+      "delta": 0
+    },
+    {
+      "name": "returning to zero semitones is neutral after prior phase motion 96000",
+      "delta": 0
+    },
+    {
+      "name": "color:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "color:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "sculpt:highpass offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "sculpt:cutoff offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "echo:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "echo:feedback offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "aura:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "prism:low offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "prism:mid offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "prism:high offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "prism:lowFreq offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "prism:midFreq offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "prism:highFreq offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "prism:q offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "glue:threshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "glue:ratio offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "glue:attack offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "glue:release offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "glue:makeup offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "glue:knee offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "glue:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hush:threshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "sibil:frequency offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "sibil:threshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "ember:tone offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "ember:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "ember:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "orbit:rate offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "orbit:depth offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "orbit:width offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "orbit:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "sway:rate offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "sway:depth offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "sway:pan offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "sway:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "relay:feedback offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "relay:tone offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "relay:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exostrip:highpass offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exostrip:body offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exostrip:presence offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exostrip:air offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exostrip:threshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exostrip:ratio offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exostrip:attack offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exostrip:release offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exostrip:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exostrip:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exofocus:frequency offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exofocus:q offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exofocus:threshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exofocus:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exoair:frequency offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exoair:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exoair:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exospace:predelay offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exospace:damping offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exospace:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "exospace:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxshift:semitones offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxshift:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxformant:shift offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxformant:brightness offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxformant:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxaireq:highpass offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxaireq:presenceFreq offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxaireq:presence offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxaireq:airFreq offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxaireq:air offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxaireq:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxaireq:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxambience:slap offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxambience:feedback offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxambience:tone offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxambience:slapLevel offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxambience:room offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxambience:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxmicmodel:proximity offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxmicmodel:presence offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxmicmodel:air offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxmicmodel:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxwarm:tone offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxwarm:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxwarm:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxdoubler:voices offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxdoubler:width offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxdoubler:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuiteq:lowFreq offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuiteq:low offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuiteq:bodyFreq offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuiteq:body offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuiteq:presenceFreq offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuiteq:presence offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuiteq:airFreq offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuiteq:air offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuiteq:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuitbus:threshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuitbus:ratio offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuitbus:attack offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuitbus:release offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuitbus:knee offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuitbus:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuitbus:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuitcolor:tone offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuitcolor:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "circuitcolor:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "alterdouble:rate offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "alterdouble:focus offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "alterdouble:width offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "alterdouble:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "alterecho:feedback offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "alterecho:tone offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "alterecho:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "alterfilter:cutoff offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "alterfilter:q offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "alterfilter:depth offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "alterfilter:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:f0 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:g0 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:q0 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:f1 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:g1 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:q1 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:f2 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:g2 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:q2 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:f3 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:g3 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:q3 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:f4 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:g4 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:q4 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:f5 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:g5 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:q5 offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectoreq:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectorcomp:threshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectorcomp:ratio offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectorcomp:attack offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectorcomp:release offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectorcomp:knee offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectorcomp:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectorcomp:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectorlimit:drive offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectorlimit:ceiling offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "vectorlimit:release offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxtune:key offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxtune:scale offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxtune:speed offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxtune:amount offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxtune:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxlevel:peakThreshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxlevel:levelThreshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxlevel:ratio offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxlevel:release offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxlevel:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxlevel:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxclean:highpass offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxclean:frequency offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxclean:threshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxclean:air offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "voxclean:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "harditilt:tilt offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "harditilt:pivot offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "harditilt:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "harditilt:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardibus:threshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardibus:ratio offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardibus:attack offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardibus:release offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardibus:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardibus:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardistage:width offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardistage:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardistage:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "harditape:tone offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "harditape:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "harditape:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardivoice:highpass offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardivoice:body offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardivoice:presence offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardivoice:air offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardivoice:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardivocalcomp:threshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardivocalcomp:ratio offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardivocalcomp:attack offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardivocalcomp:release offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardivocalcomp:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardivocalcomp:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardideess:frequency offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardideess:threshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardideess:ratio offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardideess:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardidoubler:delay offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardidoubler:width offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardidoubler:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "hardidoubler:tone offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaveil:lowcut offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaveil:warmth offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaveil:air offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaveil:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaembrace:threshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaembrace:ratio offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaembrace:attack offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaembrace:release offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaembrace:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaembrace:output offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "eliananest:size offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "eliananest:feedback offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "eliananest:tone offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "eliananest:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaguard:threshold offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaguard:ratio offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaguard:attack offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaguard:release offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaguard:mix offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "elianaguard:ceiling offered by UI has live AudioParam targets"
+    },
+    {
+      "name": "all offered controls schedule through the real host"
+    },
+    {
+      "name": "hardibus control available to draw"
+    },
+    {
+      "name": "hardibus UI target drives exported PCM",
+      "ratio": 0.15848930976649214
+    },
+    {
+      "name": "hardivocalcomp control available to draw"
+    },
+    {
+      "name": "hardivocalcomp UI target drives exported PCM",
+      "ratio": 0.15848930976649214
+    },
+    {
+      "name": "hardideess control available to draw"
+    },
+    {
+      "name": "elianaembrace control available to draw"
+    },
+    {
+      "name": "elianaembrace UI target drives exported PCM",
+      "ratio": 0.15848930976649214
+    },
+    {
+      "name": "elianaguard control available to draw"
+    },
+    {
+      "name": "exostrip control available to draw"
+    },
+    {
+      "name": "last source sample survives tail-disabled WAV track",
+      "peak": 0.1767766922712326,
+      "frames": 53880
+    },
+    {
+      "name": "last source sample survives tail-disabled WAV master",
+      "peak": 0.1767766922712326,
+      "frames": 53880
+    }
+  ],
+  "demoChoruses": [
+    {
+      "family": "factory",
+      "id": "nocturne",
+      "masterVolume": 0,
+      "drive": 10,
+      "start": 28,
+      "integrated": -16.0404564390125,
+      "shortMax": -15.665323732327336,
+      "samplePeak": -2.3437794471976887,
+      "estimatedPeak": -2.3265046941563257,
+      "duration": 6.984541666666667,
+      "windows": 66
+    },
+    {
+      "family": "factory",
+      "id": "soleil",
+      "masterVolume": 0,
+      "drive": 12.25,
+      "start": 28,
+      "integrated": -16.003096791365692,
+      "shortMax": -15.653089488720141,
+      "samplePeak": -2.910722330216702,
+      "estimatedPeak": -2.910722330216702,
+      "duration": 8.916895833333333,
+      "windows": 86
+    },
+    {
+      "family": "factory",
+      "id": "brume",
+      "masterVolume": 0,
+      "drive": 13.75,
+      "start": 28,
+      "integrated": -16.033627559649176,
+      "shortMax": -15.546869369968318,
+      "samplePeak": -3.744875115865567,
+      "estimatedPeak": -3.744875115865567,
+      "duration": 11.456583333333333,
+      "windows": 111
+    },
+    {
+      "family": "factory",
+      "id": "trap-abyss",
+      "masterVolume": 0,
+      "drive": 12.5,
+      "start": 32,
+      "integrated": -15.978481136932897,
+      "shortMax": -15.412363195431812,
+      "samplePeak": -2.1409084809877257,
+      "estimatedPeak": -2.1405591028931745,
+      "duration": 6.788583333333333,
+      "windows": 64
+    },
+    {
+      "family": "factory",
+      "id": "trap-enigma",
+      "masterVolume": 0,
+      "drive": 14.75,
+      "start": 32,
+      "integrated": -16.06911859724767,
+      "shortMax": -14.931062418672143,
+      "samplePeak": -1.9107203903310492,
+      "estimatedPeak": -1.9070559840427297,
+      "duration": 7.6470625,
+      "windows": 73
+    },
+    {
+      "family": "factory",
+      "id": "rnb-2005",
+      "masterVolume": 0,
+      "drive": 14.5,
+      "start": 32,
+      "integrated": -16.301492304425572,
+      "shortMax": -15.748337756257397,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.319522092899318,
+      "duration": 10.246770833333333,
+      "windows": 99
+    },
+    {
+      "family": "factory",
+      "id": "popstar-2008",
+      "masterVolume": 0,
+      "drive": 16.75,
+      "start": 32,
+      "integrated": -16.94166170920444,
+      "shortMax": -16.43421653286677,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2875878952208963,
+      "duration": 8.6054375,
+      "windows": 83
+    },
+    {
+      "family": "factory",
+      "id": "etoiles-interdites",
+      "masterVolume": 0,
+      "drive": 20.5,
+      "start": 32,
+      "integrated": -17.280952143616023,
+      "shortMax": -16.60922991662095,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2230100543320952,
+      "duration": 10.034020833333333,
+      "windows": 97
+    },
+    {
+      "family": "factory",
+      "id": "derriere-les-murs",
+      "masterVolume": 0,
+      "drive": 21,
+      "start": 32,
+      "integrated": -16.39432360820608,
+      "shortMax": -15.549574595714093,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4949605020383958,
+      "duration": 9.445770833333333,
+      "windows": 91
+    },
+    {
+      "family": "factory",
+      "id": "un-dernier-soleil",
+      "masterVolume": 0,
+      "drive": 17.5,
+      "start": 32,
+      "integrated": -17.114520256628882,
+      "shortMax": -16.68201930961444,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3119505173892914,
+      "duration": 8.6054375,
+      "windows": 83
+    },
+    {
+      "family": "factory",
+      "id": "au-bord-du-ciel",
+      "masterVolume": 0,
+      "drive": 11.75,
+      "start": 28,
+      "integrated": -16.112918288499912,
+      "shortMax": -15.628186165532552,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4013458383614603,
+      "duration": 11.462583333333333,
+      "windows": 111
+    },
+    {
+      "family": "factory",
+      "id": "promesses-de-pluie",
+      "masterVolume": 0,
+      "drive": 15.5,
+      "start": 32,
+      "integrated": -16.602233030322953,
+      "shortMax": -16.246744006928747,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3198185300814371,
+      "duration": 10.700666666666667,
+      "windows": 104
+    },
+    {
+      "family": "factory",
+      "id": "rives",
+      "masterVolume": 0,
+      "drive": 9,
+      "start": 32,
+      "integrated": -17.187134261549005,
+      "shortMax": -16.74978868291827,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3805370379110924,
+      "duration": 9.084604166666667,
+      "windows": 87
+    },
+    {
+      "family": "factory",
+      "id": "pluie",
+      "masterVolume": 0,
+      "drive": 9.75,
+      "start": 24,
+      "integrated": -15.979936351145271,
+      "shortMax": -15.41933575333469,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.5000000201403676,
+      "duration": 12.335708333333333,
+      "windows": 120
+    },
+    {
+      "family": "factory",
+      "id": "horizon",
+      "masterVolume": 0,
+      "drive": 10.75,
+      "start": 32,
+      "integrated": -16.756159850008757,
+      "shortMax": -15.839169831253477,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3303905469934352,
+      "duration": 8.5994375,
+      "windows": 82
+    },
+    {
+      "family": "factory",
+      "id": "eclats",
+      "masterVolume": 0,
+      "drive": 8.75,
+      "start": 32,
+      "integrated": -17.06175868195844,
+      "shortMax": -16.532234934081497,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.2659069100324856,
+      "duration": 7.7699375,
+      "windows": 74
+    },
+    {
+      "family": "factory",
+      "id": "kin",
+      "masterVolume": 0,
+      "drive": 15.25,
+      "start": 32,
+      "integrated": -17.046413398006276,
+      "shortMax": -16.578927814983093,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.43038483833964,
+      "duration": 8.916895833333333,
+      "windows": 86
+    },
+    {
+      "family": "factory",
+      "id": "lumiere",
+      "masterVolume": 0,
+      "drive": 10,
+      "start": 32,
+      "integrated": -16.538426219623307,
+      "shortMax": -15.872012558137875,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.3424550557102761,
+      "duration": 8.6054375,
+      "windows": 83
+    },
+    {
+      "family": "public",
+      "id": "drill",
+      "masterVolume": 0,
+      "drive": 9,
+      "start": 12,
+      "integrated": -15.955468128080463,
+      "shortMax": -15.658143824850487,
+      "samplePeak": -3.8708418639462794,
+      "estimatedPeak": -3.8708418639462794,
+      "duration": 6.800583333333333,
+      "windows": 65
+    },
+    {
+      "family": "public",
+      "id": "trap808",
+      "masterVolume": 0,
+      "drive": 7.5,
+      "start": 32,
+      "integrated": -16.12592203073393,
+      "shortMax": -15.195187847938575,
+      "samplePeak": -3.9914876097389804,
+      "estimatedPeak": -3.9881878333992105,
+      "duration": 6.897145833333333,
+      "windows": 65
+    },
+    {
+      "family": "public",
+      "id": "trap-air",
+      "masterVolume": 0,
+      "drive": 6.25,
+      "start": 12,
+      "integrated": -15.978736855836594,
+      "shortMax": -15.649355462206461,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4802503630664479,
+      "duration": 6.615354166666667,
+      "windows": 63
+    },
+    {
+      "family": "public",
+      "id": "funk",
+      "masterVolume": 0,
+      "drive": 12.25,
+      "start": 12,
+      "integrated": -16.022672445016696,
+      "shortMax": -15.825335533140644,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4652486647785028,
+      "duration": 7.424625,
+      "windows": 71
+    },
+    {
+      "family": "public",
+      "id": "rock",
+      "masterVolume": 0,
+      "drive": 17.25,
+      "start": 12,
+      "integrated": -16.5523473892302,
+      "shortMax": -16.0641503628406,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.201426800132943,
+      "duration": 7.6590625,
+      "windows": 73
+    },
+    {
+      "family": "public",
+      "id": "pop",
+      "masterVolume": 0,
+      "drive": 24,
+      "start": 12,
+      "integrated": -15.922966983894304,
+      "shortMax": -15.419542531475038,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.375785985639336,
+      "duration": 8.6114375,
+      "windows": 83
+    },
+    {
+      "family": "public",
+      "id": "rumba",
+      "masterVolume": 0,
+      "drive": 24,
+      "start": 12,
+      "integrated": -16.667285120407815,
+      "shortMax": -16.06098211473968,
+      "samplePeak": -1.5000000201403676,
+      "estimatedPeak": -1.4883672900342955,
+      "duration": 9.451770833333333,
+      "windows": 91
+    },
+    {
+      "family": "public",
+      "id": "trap",
+      "masterVolume": 0,
+      "drive": 11,
+      "start": 24,
+      "integrated": -15.948091753026684,
+      "shortMax": -15.703861820917142,
+      "samplePeak": -2.656612167030295,
+      "estimatedPeak": -2.656612167030295,
+      "duration": 7.0365416666666665,
+      "windows": 67,
+      "leadRms": 0.05825040717745969,
+      "backingRms": 0.13517119562622357,
+      "leadToBacking": 0.4309380183225882
+    },
+    {
+      "family": "public",
+      "id": "afro",
+      "masterVolume": 0,
+      "drive": 9.75,
+      "start": 12,
+      "integrated": -15.872548479772984,
+      "shortMax": -15.283020253738355,
+      "samplePeak": -2.831452655380557,
+      "estimatedPeak": -2.831452655380557,
+      "duration": 8.934895833333334,
+      "windows": 86,
+      "leadRms": 0.060685928674658704,
+      "backingRms": 0.12262885583552155,
+      "leadToBacking": 0.49487478506734944
+    },
+    {
+      "family": "public",
+      "id": "rnb",
+      "masterVolume": 0,
+      "drive": 10.75,
+      "start": 12,
+      "integrated": -16.058171676868675,
+      "shortMax": -15.78208431125284,
+      "samplePeak": -4.383893191284946,
+      "estimatedPeak": -4.382963814509101,
+      "duration": 11.468583333333333,
+      "windows": 111,
+      "leadRms": 0.06340573580364738,
+      "backingRms": 0.13287961168092605,
+      "leadToBacking": 0.477166775260443
+    },
+    {
+      "family": "public",
+      "id": "vox-trap",
+      "masterVolume": 0,
+      "drive": 8.25,
+      "start": 12,
+      "integrated": -15.903516140190883,
+      "shortMax": -15.720486498617303,
+      "samplePeak": -3.2975328652949125,
+      "estimatedPeak": -3.295946167495325,
+      "duration": 7.0365416666666665,
+      "windows": 67,
+      "leadRms": 0.07754266099461332,
+      "backingRms": 0.13402206504435127,
+      "leadToBacking": 0.5785813027799005
+    },
+    {
+      "family": "public",
+      "id": "vox-afro",
+      "masterVolume": 0,
+      "drive": 9.75,
+      "start": 12,
+      "integrated": -15.873941900147276,
+      "shortMax": -15.281900365800542,
+      "samplePeak": -2.8091377532732236,
+      "estimatedPeak": -2.8091377532732236,
+      "duration": 8.934895833333334,
+      "windows": 86,
+      "leadRms": 0.060685928674658704,
+      "backingRms": 0.12261717211913938,
+      "leadToBacking": 0.4949219397727915
+    },
+    {
+      "family": "public",
+      "id": "vox-rnb",
+      "masterVolume": 0,
+      "drive": 10.75,
+      "start": 12,
+      "integrated": -16.060475162892857,
+      "shortMax": -15.779747844872409,
+      "samplePeak": -4.383163397121602,
+      "estimatedPeak": -4.382200885904425,
+      "duration": 11.468583333333333,
+      "windows": 111,
+      "leadRms": 0.06340573580364738,
+      "backingRms": 0.13283138923398125,
+      "leadToBacking": 0.4773400035134675
+    }
+  ],
+  "fullArrangement": [
+    {
+      "kind": "rnb-2005",
+      "seconds": 224.68085106382978,
+      "processingLatency": 0.024036281179138322,
+      "renderMs": 68967.09999999776,
+      "encodeMs": 1628.4000000022352,
+      "sampleRate": 44100,
+      "channels": 2,
+      "frames": 9909927,
+      "bits": 24,
+      "peak": 0.8413951396942139,
+      "rms": 0.11484309550521726,
+      "sections": [
+        {
+          "name": "INTRO",
+          "rms": 0.0691397054350063
+        },
+        {
+          "name": "COUPLET A",
+          "rms": 0.11668575016269728
+        },
+        {
+          "name": "PRÉ-REFRAIN",
+          "rms": 0.11590831479931805
+        },
+        {
+          "name": "REFRAIN A",
+          "rms": 0.1350543393614883
+        },
+        {
+          "name": "PONT",
+          "rms": 0.06910321155741983
+        },
+        {
+          "name": "COUPLET B",
+          "rms": 0.11831952178979566
+        },
+        {
+          "name": "REFRAIN B",
+          "rms": 0.13308089509777457
+        },
+        {
+          "name": "OUTRO",
+          "rms": 0.0875751809715249
+        }
+      ],
+      "musicality": {
+        "sections": [
+          {
+            "name": "INTRO",
+            "bars": 8,
+            "peak": 0.8414,
+            "rms": 0.06914,
+            "crestDb": 21.71,
+            "rmsDb": -23.21,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "COUPLET A",
+            "bars": 16,
+            "peak": 0.8414,
+            "rms": 0.116686,
+            "crestDb": 17.16,
+            "rmsDb": -18.66,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "PRÉ-REFRAIN",
+            "bars": 8,
+            "peak": 0.8414,
+            "rms": 0.115908,
+            "crestDb": 17.22,
+            "rmsDb": -18.72,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "REFRAIN A",
+            "bars": 16,
+            "peak": 0.8414,
+            "rms": 0.135054,
+            "crestDb": 15.89,
+            "rmsDb": -17.39,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "PONT",
+            "bars": 8,
+            "peak": 0.8414,
+            "rms": 0.069103,
+            "crestDb": 21.71,
+            "rmsDb": -23.21,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "COUPLET B",
+            "bars": 16,
+            "peak": 0.8414,
+            "rms": 0.11832,
+            "crestDb": 17.04,
+            "rmsDb": -18.54,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "REFRAIN B",
+            "bars": 12,
+            "peak": 0.8414,
+            "rms": 0.133081,
+            "crestDb": 16.02,
+            "rmsDb": -17.52,
+            "invalid": 0,
+            "clipped": 0
+          },
+          {
+            "name": "OUTRO",
+            "bars": 4,
+            "peak": 0.8414,
+            "rms": 0.087575,
+            "crestDb": 19.65,
+            "rmsDb": -21.15,
+            "invalid": 0,
+            "clipped": 0
+          }
+        ],
+        "problems": [],
+        "passed": true
+      },
+      "pcmDiagnostics": {
+        "sampleRate": 44100,
+        "frames": 9909927,
+        "channels": [
+          {
+            "channel": 1,
+            "peak": 0.8413951396942139,
+            "invalid": 0,
+            "overRange": 0,
+            "maxJump": 0.41845619678497314,
+            "candidateCount": 0,
+            "candidates": []
+          },
+          {
+            "channel": 2,
+            "peak": 0.8413951396942139,
+            "invalid": 0,
+            "overRange": 0,
+            "maxJump": 0.45334815979003906,
+            "candidateCount": 23,
+            "candidates": [
+              {
+                "frame": 1072521,
+                "seconds": 24.320204081632653,
+                "jump": 0.36966776847839355
+              },
+              {
+                "frame": 2311073,
+                "seconds": 52.40528344671202,
+                "jump": 0.3581346273422241
+              },
+              {
+                "frame": 2423654,
+                "seconds": 54.95814058956916,
+                "jump": 0.3675583600997925
+              },
+              {
+                "frame": 5520037,
+                "seconds": 125.17090702947846,
+                "jump": 0.45334815979003906
+              },
+              {
+                "frame": 5520041,
+                "seconds": 125.1709977324263,
+                "jump": 0.3713904619216919
+              },
+              {
+                "frame": 5520043,
+                "seconds": 125.17104308390023,
+                "jump": 0.378037691116333
+              },
+              {
+                "frame": 5801565,
+                "seconds": 131.5547619047619,
+                "jump": 0.4030402898788452
+              },
+              {
+                "frame": 5801567,
+                "seconds": 131.55480725623582,
+                "jump": 0.39622771739959717
+              }
+            ]
+          }
+        ],
+        "invalid": 0,
+        "overRange": 0,
+        "candidateCount": 23
+      }
+    }
+  ]
+}
